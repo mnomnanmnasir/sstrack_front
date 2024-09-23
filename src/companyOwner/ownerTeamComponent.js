@@ -250,7 +250,7 @@ function OwnerTeamComponent(props) {
             userIds: [...new Set([...users.filter(user => user.isAssign).map(user => user._id), userID])]
           }, { headers })
           if (response.status) {
-            // const assignedUsersCount = users.filter(user => user.isAssign).length;
+            const assignedUsersCount = users.filter(user => user.isAssign).length;
             enqueueSnackbar(`Settings saved. Total assigned users: ${assignedUsersCount}`, {
               variant: "success",
               anchorOrigin: {
