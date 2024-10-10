@@ -251,7 +251,7 @@ function OwnerTeamComponent(props) {
           }, { headers })
           if (response.status) {
             const assignedUsersCount = users.filter(user => user.isAssign).length;
-            enqueueSnackbar(`Settings saved. Total assigned users: ${assignedUsersCount}`, {
+            enqueueSnackbar(`Settings saved`, {
               variant: "success",
               anchorOrigin: {
                 vertical: "top",

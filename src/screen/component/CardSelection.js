@@ -3,7 +3,7 @@ import React from "react";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 
-const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete }) => {
+const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete ,onSetDefaultCard}) => {
 
     const handleSetDefaultCard = async (cards) => {
         const token = localStorage.getItem('token');
@@ -27,7 +27,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete }) => {
                         horizontal: "right"
                     }
                 })
-
+                onSetDefaultCard(cards);
                 onActionComplete();
             } else {
                 console.error('Failed to set default card:', response.data.error);
@@ -84,72 +84,82 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete }) => {
     };
 
     return (
-     
+
         <>
             <SnackbarProvider />
             <div className="container">
-                <h3 className="text-center">Select a Card</h3>
+                {/* <h3 className="text-center">Select a Card</h3> */}
                 <div className="row">
-                {cards.map((card) => (
+
+
+                    {cards.map((card, index) => (
                         <div
                             key={card._id}
                             // className={`col-md-6 col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
                             // className={`col-md-${cards.length === 1 ? 12 : 4} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
-                            className={`col-md-${cards.length === 1 ? 12 : (cards.length === 2 ? 6 : 4)} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
+                            className={`col-md-${cards.length === 1 ? 4 : (cards.length === 2 ? 4 : 4)} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
+                        // className={`col-md-${cards.length === 1 ? 12 : (index % 2 === 0 ? 6 : 6)} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
+                        // className={`col-md-${cards.length === 1 ? 12 : (cards.length === 2 ? 6 : 4)} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
+                        // style={{ flexBasis: 'auto' }}
                         >
-                            <div className="d-flex justify-content-center">
-                                <div className="card-wrapper">
-                                    <input
+                            {/* <div className="d-flex justify-content-center"> */}
+                            <div className="card align-item-center justify-content-center p-2">
+                                <input
                                         id={card._id}
                                         type="radio"
                                         name="selectedCard"
                                         value={card._id}
                                         checked={selectedCard === card._id}
                                         onChange={() => onSelect(card)}
-                                        className="form-check-input"
+                                        className="form-check-input align-items-center mt-3"
                                     />
-                                    <label htmlFor={card._id} className="w-100">
-                                        <div className="card h-100 gap-2 w-100">
-                                            <div className="card-body gap-2 col-md-12 col-sm-12 col-lg-12" style={{ minHeight: '164px' }}> {/* Add this style */}
-                                                <div className="d-flex align-items-center mb-2 gap-2">
-                                                    <span className="mr-2">{card.cardType}
-                                                    </span>
-                                                    **** {card.cardNumber}
-                                                    <img
-                                                        src={getCardIcon(card.cardType)}
-                                                        alt={card.cardType} style={{ maxWidth: '8%' }}
-                                                        className="img-fluid"
-                                                    />
-                                                </div>
-                                                <div className="gap-2">
-                                                    <span className="font-weight-bold">{card.cardHolder}</span>
-                                                    <br />
-                                                    <span style={{ color: 'grey', fontSize: '15px', marginLeft: '1%' }}>Expires on {card.expMonth}/{card.expYear}</span>
-                                                    <br />
-                                                    <span className="text-warning">⚠️ Unverified</span>
-                                                </div>
-                                                {selectedCard === card._id && (
-                                                    <div className="d-flex justify-content-end gap-1"> {/* Add this class */}
-                                                        <button
-                                                            className="btn btn-primary btn-sm mr-2"
-                                                            onClick={() => handleSetDefaultCard(card)}
-                                                        >
-                                                            Default
-                                                        </button>
-                                                        <button
-                                                            className="btn btn-danger btn-sm"
-                                                            onClick={() => handleDeleteCard(card)}
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
+                                <label htmlFor={card._id} className="w-100 align-items-center justify-content-center">
 
-                                    </label>
-                                </div>
-                            </div>
+                                    {/* <div className="card h-100 gap-2 w-100"> */}
+                                        <div className="card-body gap-2 align-items-center" style={{ minHeight: '164px' }}> {/* Add this style */}
+                                         
+                                            <div className="d-flex align-items-center mb-2 gap-2">
+                                                <span className="mr-2">{card.cardType}
+                                                </span>
+                                                **** {card.cardNumber}
+                                                <img
+                                                    src={getCardIcon(card.cardType)}
+                                                    alt={card.cardType} style={{ maxWidth: '8%' }}
+                                                    className="img-fluid"
+                                                />
+                                            </div>
+                                            <div className="gap-2">
+                                                <span className="font-weight-bold">{card.cardHolder}</span>
+                                                <br />
+                                                <span style={{ color: 'grey', fontSize: '15px', marginLeft: '1%' }}>Expires on {card.expMonth}/{card.expYear}</span>
+                                                <br />
+                                                <span className="text-warning">⚠️ Unverified</span>
+                                            </div>
+                                            {selectedCard === card._id && (
+                                                <div className="d-flex justify-content-end gap-1"> {/* Add this class */}
+                                                    <button
+                                                        className="btn btn-primary btn-sm mr-2"
+                                                        onClick={() => handleSetDefaultCard(card)}
+                                                        disabled={cards.length === 1} // Add this prop
+                                                    >
+                                                        Default
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() => handleDeleteCard(card)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    {/* </div> */}
+
+                                </label>
+                  
+
+                            {/* </div> */}
+                        </div>
                         </div>
                     ))}
                 </div>

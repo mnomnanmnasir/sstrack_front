@@ -21,6 +21,7 @@ function Screenshot() {
     const ids = useSelector((state) => state.adminSlice.ids)
     const employees = useSelector((state) => state.adminSlice.employess)
 
+    debugger
     const handleApplySettings = async (employee, type, setting) => {
         const settings = {
             ...employee.effectiveSettings,
@@ -49,6 +50,8 @@ function Screenshot() {
                     userId: employee._id,
                     effectiveSettings: type === "setting1" ? settings : type === "setting2" ? settings2 : settings3
                 }, { headers })
+            console.log('Response owner', res);
+
             if (res.status === 200) {
                 enqueueSnackbar("Employee settings updated", {
                     variant: "success",
@@ -58,9 +61,27 @@ function Screenshot() {
                     }
                 })
             }
-            console.log(res);
+            else {
+                if (res.status === 403) {
+                    alert("Access denied. Please check your permissions.")
+                } else if (res.data.success === false) {
+                    alert(res.data.message)
+                }
+            }
+            // console.log('Employee setting ka message', response?.data?.message);
         } catch (error) {
-            console.log(error);
+            if (error.response && error.response.data) {
+                if (error.response.status === 403 && error.response.data.success === false) {
+                    // alert(error.response.data.message)
+                    enqueueSnackbar(error.response.data.message, {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
+                }
+            }
         }
     }
 
@@ -176,7 +197,18 @@ function Screenshot() {
             }
             console.log(res);
         } catch (error) {
-            console.log(error);
+            if (error.response && error.response.data) {
+                if (error.response.status === 404 && error.response.data.success === false) {
+                    // alert(error.response.data.message)
+                    enqueueSnackbar(error.response.data.message, {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
+                }
+            }
         }
     }
 
@@ -187,7 +219,7 @@ function Screenshot() {
         setNumber(matches?.length > 0 && parseInt(matches[0]))
     }, [employees])
 
-    
+
     async function getData() {
         try {
             const response = await fetch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`, { headers })
@@ -201,16 +233,27 @@ function Screenshot() {
             // })
         }
         catch (error) {
-            console.log(error);
+            if (error.response && error.response.data) {
+                if (error.response.status === 404 && error.response.data.success === false) {
+                    // alert(error.response.data.message)
+                    enqueueSnackbar(error.response.data.message, {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
+                }
+            }
         }
     }
 
     useEffect(() => {
         getData()
     }, [])
-    
-    console.log("screenshot employess =====>", employees);
 
+    console.log("screenshot employess =====>", employees);
+    debugger
     return (
         <div>
             <SnackbarProvider />
@@ -264,9 +307,30 @@ function Screenshot() {
                                         }
                                     })
                                 }
+                                else {
+                                    enqueueSnackbar(res.data.message, {
+                                        variant: "error",
+                                        anchorOrigin: {
+                                            vertical: "top",
+                                            horizontal: "right"
+                                        }
+                                    })
+                                }
                                 console.log(res);
                             } catch (error) {
-                                console.log(error);
+                                if (error.response && error.response.data) {
+                                    if (error.response.status === 404 && error.response.data.success === false) {
+                                        // alert(error.response.data.message)
+                                        console.log('setting response screenshots', error.response.data.message)
+                                        enqueueSnackbar(error.response.data.message, {
+                                            variant: "error",
+                                            anchorOrigin: {
+                                                vertical: "top",
+                                                horizontal: "right"
+                                            }
+                                        })
+                                    }
+                                }
                             }
                         }}>
                         <option value={3}>3</option>
@@ -305,15 +369,15 @@ function Screenshot() {
                                         }
                                     }), { headers })
                                 if (res.status === 200) {
-                                    enqueueSnackbar("Employee settings updated", {
-                                        variant: "success",
+                                    enqueueSnackbar('Employee settings updated', {
+                                        variant: "error",
                                         anchorOrigin: {
                                             vertical: "top",
                                             horizontal: "right"
                                         }
                                     })
                                 }
-                                console.log(res);
+                                console.log('Reponse agyaa', res);
                             } catch (error) {
                                 console.log(error);
                             }

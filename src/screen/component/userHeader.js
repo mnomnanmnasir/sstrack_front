@@ -322,6 +322,7 @@ import logo from '../../images/ss-track-logo.svg';
 import dashboard from "../../images/dashboard.webp";
 import account from "../../images/myaccount.webp";
 import logout from "../../images/logout.webp";
+import { Navbar, Container, Row, Col } from 'react-bootstrap';
 import { useLocation, useNavigate } from "react-router-dom";
 import UserDashboardSection from "../../screen/component/userDashboardsection";
 import { useDispatch } from "react-redux";
@@ -333,6 +334,7 @@ import { enqueueSnackbar } from "notistack";
 // import { useLocation, useNavigate } from "react-router-dom";
 import circle from "../../images/circle.webp"
 import Header from './header'
+import HeaderOption from './HeaderOption'
 
 function UserHeader() {
 
@@ -356,7 +358,7 @@ function UserHeader() {
     //     localStorage.setItem('items', JSON.stringify({ ...items, userType: newRole }));
     //     items.userType = newRole;
     // };
-    
+
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -463,7 +465,7 @@ function UserHeader() {
 
 
 
-   
+
 
     // function logOut() {
     //     localStorage.removeItem("items");
@@ -524,88 +526,106 @@ function UserHeader() {
 
 
     return (
-        <div className="cursor-pointer">
-            {/* <Header /> */}
-            {user?.userType === "user" ? (
-                <>
-                    <nav className="navbar navbar-expand-lg navbar-dark" style={{
-                        backgroundColor: "#0d3756",
-                        padding: "20px 30px",
-                        borderTopLeftRadius: "10px",
-                        borderTopRightRadius: "10px",
-                        margin: "30px 30px 0 30px",
-                    }}>
-                        <div className="container-fluid" style={{ position: "relative" }}>
-                            <div>
-                                <img onClick={() => navigate('/')} className="logo" src={logo} />
-                                {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                            <span className="navbar-toggler-icon"></span>
-                        </button> */}
-                            </div>
-                            <div ref={logoutDivRef}>
-                                <div className="d-flex amButton" role="search">
-                                    <p>{user?.name.charAt(0).toUpperCase() + user?.name.slice(1)} ({userType})</p>
-                                    <button onClick={() => setShowContent(!showContent)} className="userName">
-                                        {capitalizedWord + wordsAfterSpace}
-                                    </button>
-                                    {/* <button onClick={() => updateData()} className="userName">
-                                {capitalizedWord}
-                            </button> */}
-                                </div>
-                                {showContent && <div className="logoutDiv">
-                                    <div onClick={takeToDashboard}>
-                                        <div>
-                                            <img src={dashboard} />
-                                        </div>
-                                        <p>Dashboard</p>
-                                    </div>
-                                    <div onClick={takeToAdmin}>
-                                        <div>
-                                            <img src={account} />
-                                        </div>
-                                        <p>My Account</p>
-                                    </div>
-                                    {user?.userType === "user" ? null : (
-                                        <div onClick={takeToSettings}>
-                                            <div>
-                                                <img src={account} />
-                                            </div>
-                                            <p>Settings</p>
-                                        </div>
-                                    )}
-                                    <div onClick={logOut}>
-                                        <div>
-                                            <img src={logout} />
-                                        </div>
-                                        <p>Logout</p>
-                                    </div>
-                                </div>}
-                            </div>
-                        </div>
-                    </nav>
-                    <UserDashboardSection />
-                </>
-
-            ) : (
-                <section>
+        <>
+            <div className="cursor-pointer">
+                {/* <Header /> */}
+                {user?.userType === "user" ? (
                     <>
+                        <HeaderOption />
                         <nav className="navbar navbar-expand-lg navbar-dark" style={{
+                            // backgroundColor: "#0d3756",
+                            // padding: "10px 15px",
+                            // // borderTopLeftRadius: "10px",
+                            // // borderTopRightRadius: "10px",
+                            // margin: "0px 30px 0 30px",
                             backgroundColor: "#0d3756",
-                            padding: "20px 30px",
-                            borderTopLeftRadius: "10px",
-                            borderTopRightRadius: "10px",
-                            margin: "30px 30px 0 30px",
+                            padding: "10px 15px",
+                            // borderTopLeftRadius: "10px",
+                            // borderTopRightRadius: "10px",
+                            margin: "0px 30px 0 30px",
+                            marginTop: '-15px'
                         }}>
                             <div className="container-fluid" style={{ position: "relative" }}>
                                 <div>
-                                    <img onClick={() => navigate('/')} className="logo" src={logo} />
+                                    <img onClick={() => navigate('/')} className="logo1" src={logo} />
+                                    {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <span className="navbar-toggler-icon"></span>
+                        </button> */}
+                                </div>
+                                <div ref={logoutDivRef}>
+                                    <div className="d-flex amButton" role="search">
+                                        {/* <h1>
+                                        Hello
+                                    </h1> */}
+                                        {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
+                                        <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p> */}
+                                        <p>{user?.name.charAt(0).toUpperCase() + user?.name.slice(1)} ({userType})</p>
+                                        <button onClick={() => setShowContent(!showContent)} className="userName">
+                                            {capitalizedWord + wordsAfterSpace}
+                                        </button>
+                                        {/* <button onClick={() => updateData()} className="userName">
+                                {capitalizedWord}
+                            </button> */}
+                                    </div>
+                                    {showContent && <div className="logoutDiv">
+                                        <div onClick={takeToDashboard}>
+                                            <div>
+                                                <img src={dashboard} />
+                                            </div>
+                                            <p>Dashboard</p>
+                                        </div>
+                                        <div onClick={takeToAdmin}>
+                                            <div>
+                                                <img src={account} />
+                                            </div>
+                                            <p>My Account</p>
+                                        </div>
+                                        {user?.userType === "user" ? null : (
+                                            <div onClick={takeToSettings}>
+                                                <div>
+                                                    <img src={account} />
+                                                </div>
+                                                <p>Settings</p>
+                                            </div>
+                                        )}
+                                        <div onClick={logOut}>
+                                            <div>
+                                                <img src={logout} />
+                                            </div>
+                                            <p>Logout</p>
+                                        </div>
+                                    </div>}
+                                </div>
+                            </div>
+                        </nav>
+                        <UserDashboardSection />
+                    </>
+
+                ) : (
+                    <>
+                        <HeaderOption />
+                        <nav className="navbar navbar-expand-lg navbar-dark" style={{
+                            backgroundColor: "#0d3756",
+                            padding: "10px 15px",
+                            // borderTopLeftRadius: "10px",
+                            // borderTopRightRadius: "10px",
+                            margin: "0px 30px 0 30px",
+                            marginTop: '-15px'
+                        }}>
+                            {/* <HeaderOption /> */}
+                            <div className="container-fluid" style={{ position: "relative" }}>
+                                <div>
+                                    <img onClick={() => navigate('/')} className="logo1" src={logo} />
                                     {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                                 <span className="navbar-toggler-icon"></span>
                             </button> */}
                                 </div>
                                 <div ref={logoutDivRef}>
-                                    <div className="d-flex amButton" role="search">
-                                        <p>{user?.name.charAt(0).toUpperCase() + user?.name.slice(1)} ({userType})</p>
+                                    <div className="d-flex amButton text-center align-items-center" role="search">
+                                        {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
+                                            <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p>
+                                            <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/workCards")}>How It Work</p> */}
+                                        <p className="text-center">{user?.name.charAt(0).toUpperCase() + user?.name.slice(1)} ({userType})</p>
                                         <button onClick={() => setShowContent(!showContent)} className="userName">
                                             {capitalizedWord + wordsAfterSpace}
                                         </button>
@@ -647,11 +667,9 @@ function UserHeader() {
                         <UserDashboardSection />
                         {/* <img className="line" src={line} /> */}
                     </>
-                </section>
-            )}
-        </div>
-
-
+                )}
+            </div>
+        </>
     )
 }
 

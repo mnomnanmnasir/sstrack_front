@@ -24,6 +24,10 @@ import paidStamp from '../images/paid.png';
 import { Link } from 'react-router-dom'
 // import { link}
 import BillingComponent from "./BillingComponent";
+import Payment from './payment'
+
+
+
 
 function Account() {
 
@@ -35,7 +39,9 @@ function Account() {
     const [newPassword2, setNewPassword2] = useState("");
     const [verify, setVerify] = useState(false);
     const [invoices, setInvoices] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
+    const [activeTab, setActiveTab] = useState('invoices');
     let token = localStorage.getItem('token');
     const navigate = useNavigate('');
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
@@ -43,8 +49,15 @@ function Account() {
     let headers = {
         Authorization: 'Bearer ' + token,
     }
+    const [selectedPlan, setSelectedPlan] = useState(null);
+
     console.log('usercompany==============', items);
     const storedPlanId = JSON.parse(localStorage.getItem('planId'));
+
+
+    const handleTabClick = (tab) => {
+        setActiveTab(tab);
+    };
 
     const fetchInvoices = async () => {
         try {
@@ -52,7 +65,7 @@ function Account() {
                 headers,
             });
             const data = await res.json();
-            console.log('============================', data);
+            console.log('invoices', data);
 
             // Transform the API data to the desired structure
             const transformedInvoices = data.data.map((invoice) => {
@@ -215,17 +228,6 @@ function Account() {
                 doc.text(plandetail, width - rightMargin - 100, invoiceDetailsY + 60);
 
 
-
-
-
-
-
-
-
-
-
-
-
                 // Add customer details on the left side
                 const customerDetailsY = invoiceDetailsY; // Use the same top margin as invoice details
                 const customerDetailsX = 40; // Left margin
@@ -354,7 +356,84 @@ function Account() {
             });
         });
     };
+    const paymentPDF = (payments) => {
+        getBase64Image(logo, (logoBase64, logoWidth, logoHeight) => {
+            getBase64Image(paidStamp, (paidStampBase64, paidStampWidth, paidStampHeight) => {
+                const doc = new jsPDF('p', 'pt', 'a4');
+                const width = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 40;
 
+                // Define the maximum width and height for the logo image
+                const maxLogoWidth = 100;
+                const maxLogoHeight = 50;
+
+                // Calculate the new width and height while maintaining the aspect ratio
+                if (logoWidth > maxLogoWidth || logoHeight > maxLogoHeight) {
+                    const aspectRatio = logoWidth / logoHeight;
+                    if (logoWidth > maxLogoWidth) {
+                        logoWidth = maxLogoWidth;
+                        logoHeight = maxLogoWidth / aspectRatio;
+                    }
+                    if (logoHeight > maxLogoHeight) {
+                        logoHeight = maxLogoHeight;
+                        logoWidth = maxLogoHeight * aspectRatio;
+                    }
+                }
+
+                // Define the header height and draw the header with line
+                const headerHeight = 60;
+                const headerY = 20;
+                const logoX = 40;
+                const companyDetailsX = logoX + logoWidth + 20; // Position company details to the right of the logo
+
+                // Add the header line (adjusted to move up)
+                doc.setLineWidth(5);
+                doc.setDrawColor(211, 211, 211);
+                const headerLineY = headerY + headerHeight; // Adjust this value to move the line up
+                doc.line(40, headerLineY, width - 40, headerLineY);
+
+                // Add the logo
+                doc.addImage(logoBase64, 'PNG', logoX, headerY, logoWidth, logoHeight);
+
+                // Add company details to the right of the logo
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('I8IS', companyDetailsX, headerY + 5); // Align with top of logo
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text('SSTRACK', companyDetailsX, headerY + 20); // Align with top of logo
+                doc.text('4370 Steeles Avenue West', companyDetailsX, headerY + 35); // New address line 1
+                doc.text('Unit 204 Vaughan ON L4L 4Y4', companyDetailsX, headerY + 50); // New address line 2
+
+                // Adding the "Customer" section
+                doc.setFont("helvetica", "bold");
+                doc.text('Customer:', 40, 100);
+                doc.setFont("helvetica", "normal");
+                doc.text('I8IS', 40, 120);
+                doc.text('Kamran', 40, 135);
+                mailto: doc.text('kamrantariq@hotmail.com', 40, 150);
+                doc.text('Canada', 40, 165);
+
+                // Adding the "Payment Receipt" section
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(18);
+                doc.text(`Payment Receipt #${payments.id}`, 40, 220);
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                doc.text(`Payment #: ${payments.id}`, 40, 250);
+                doc.text(`Payment date: ${payments.date}`, 40, 270);
+                doc.text(`Description: PayPal, Transaction #76A80100YW016703J`, 40, 290);
+                doc.setFont("helvetica", "bold");
+                doc.text(`Total paid: $${payments.amount}`, 40, 310);
+                doc.setFont("helvetica", "normal");
+                doc.text(`Your current balance: ($${payments.amount})`, 40, 330);
+
+                // Download the PDF
+                doc.save(`Invoice_${payments.id}.pdf`);
+            });
+        });
+    }
 
     const [plans, setPlans] = useState('')
 
@@ -479,61 +558,61 @@ function Account() {
     // }
     const updateMyPassword = async () => {
         if (newPassword === "" || newPassword2 === "") {
-          console.log("asddas");
+            console.log("asddas");
         }
         if (newPassword === currentPassword || newPassword2 === currentPassword) {
-          enqueueSnackbar("New password should unique", {
-            variant: "error",
-            anchorOrigin: {
-              vertical: "top",
-              horizontal: "right"
-            }
-          })
+            enqueueSnackbar("New password should unique", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            })
         } else {
             setUpdatePassword(false)
             try {
-              const params = new URLSearchParams();
-              params.append('password', newPassword);
-              
-            const res = await fetch(`${apiUrl}/signin/users/Update`, {
-              method: "PATCH",
-              body: params,
-              headers: {
-                Authorization: `Bearer ${token}`
-              },
-            });
-            console.log("API Response:", res);
-            if (res.status === 200) {
-              console.log((await res.json()));
-              enqueueSnackbar("password updated successfully", {
-                variant: "success",
-                anchorOrigin: {
-                  vertical: "top",
-                  horizontal: "right"
+                const params = new URLSearchParams();
+                params.append('password', newPassword);
+
+                const res = await fetch(`${apiUrl}/signin/users/Update`, {
+                    method: "PATCH",
+                    body: params,
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                });
+                console.log("API Response:", res);
+                if (res.status === 200) {
+                    console.log((await res.json()));
+                    enqueueSnackbar("password updated successfully", {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
+                } else {
+                    console.log("Error updating password:", res.status, res.statusText);
+                    enqueueSnackbar("Failed to update password", {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
                 }
-              })
-            } else {
-              console.log("Error updating password:", res.status, res.statusText);
-              enqueueSnackbar("Failed to update password", {
-                variant: "error",
-                anchorOrigin: {
-                  vertical: "top",
-                  horizontal: "right"
-                }
-              })
+            } catch (error) {
+                console.log("Error updating password:", error);
+                enqueueSnackbar("Error updating password", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                })
             }
-          } catch (error) {
-            console.log("Error updating password:", error);
-            enqueueSnackbar("Error updating password", {
-              variant: "error",
-              anchorOrigin: {
-                vertical: "top",
-                horizontal: "right"
-              }
-            })
-          }
         }
-      }
+    }
 
 
     const offsetInMinutes = moment.tz(items.timezone).utcOffset();
@@ -553,66 +632,66 @@ function Account() {
     //     const [Cardetail, setCardetail] = useState(''); // Default card details
     //     const [storedPlanId, setStoredPlanId] = useState(null); // Plan details
 
-    //     useEffect(() => {
-    //         // Retrieve and parse the stored card details
-    //         const storedCardDetails = localStorage.getItem('carddetail');
-    //         console.log("=============>>>>>>>>>>>>>", storedCardDetails)
-    //         if (storedCardDetails) {
-    //             try {
-    //                 const cardDetails = JSON.parse(storedCardDetails);
-    //                 if (cardDetails) {
-    //                     setCardetail(cardDetails); // Get last 4 digits of the card
-    //                 }
-    //             } catch (error) {
-    //                 console.error('Error parsing card details:', error);
-    //             }
-    //         } else {
-    //             console.log('No card details found in localStorage.');
-    //         }
+        // useEffect(() => {
+        //     // Retrieve and parse the stored card details
+        //     const storedCardDetails = localStorage.getItem('carddetail');
+        //     console.log("=============>>>>>>>>>>>>>", storedCardDetails)
+        //     if (storedCardDetails) {
+        //         try {
+        //             const cardDetails = JSON.parse(storedCardDetails);
+        //             if (cardDetails) {
+        //                 setCardetail(cardDetails); // Get last 4 digits of the card
+        //             }
+        //         } catch (error) {
+        //             console.error('Error parsing card details:', error);
+        //         }
+        //     } else {
+        //         console.log('No card details found in localStorage.');
+        //     }
 
-    //         // Optionally, retrieve plan details if necessary
-    //         const storedPlan = localStorage.getItem('planId');
+        //     // Optionally, retrieve plan details if necessary
+        //     const storedPlan = localStorage.getItem('planId');
 
-    //         if (storedPlan) {
-    //             try {
-    //                 const planDetails = JSON.parse(storedPlan);
-    //                 setStoredPlanId(planDetails);
-    //             } catch (error) {
-    //                 console.error('Error parsing plan details:', error);
-    //             }
-    //         }
+        //     if (storedPlan) {
+        //         try {
+        //             const planDetails = JSON.parse(storedPlan);
+        //             setStoredPlanId(planDetails);
+        //         } catch (error) {
+        //             console.error('Error parsing plan details:', error);
+        //         }
+        //     }
 
-    //         // Optionally, retrieve billing balance if necessary
-    //         const storedBilling = localStorage.getItem('billdetail');
-    //         let price = 0;
+        //     // Optionally, retrieve billing balance if necessary
+        //     const storedBilling = localStorage.getItem('billdetail');
+        //     let price = 0;
 
-    //         if (storedBilling === 'Standard') {
-    //             price = 3.99;
-    //           } else if (storedBilling === 'Premium') {
-    //             price = 4.99;
-    //           } else {
-    //             price = 0; // default to 0 if no plan is selected
-    //           }
+        //     if (storedBilling === 'Standard') {
+        //         price = 3.99;
+        //     } else if (storedBilling === 'Premium') {
+        //         price = 4.99;
+        //     } else {
+        //         price = 0; // default to 0 if no plan is selected
+        //     }
 
-    //         if (storedBilling) {
-    //             try {
-    //                 const billingDetails = JSON.parse(storedBilling);
-    //                 setBilling(billingDetails); // Assuming the stored data has a `balance` field
-    //             } catch (error) {
-    //                 console.error('Error parsing billing details:', error);
-    //             }
-    //         }
-    //     }, []);
+        //     if (storedBilling) {
+        //         try {
+        //             const billingDetails = JSON.parse(storedBilling);
+        //             setBilling(billingDetails); // Assuming the stored data has a `balance` field
+        //         } catch (error) {
+        //             console.error('Error parsing billing details:', error);
+        //         }
+        //     }
+        // }, []);
     //     return (
     //         <>
-    //             {!(items?.userType === 'user' || items?.userType === 'manager') && (
+    //             {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
     //                 <div style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}>
     //                     <div style={{ marginBottom: '20px' }}>
     //                         <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>{storedPlanId?.planType ? `${storedPlanId?.planType[0].toUpperCase()}${storedPlanId?.planType.slice(1)}` : 'Free'} Plan</h2>
     //                         <p style={{ margin: '5px 0' }}>
     //                             Price: <strong>${storedPlanId ? storedPlanId?.costPerUser : 0}/employee/mo</strong>
     //                         </p>
-    //                         <Link to='/payment' style={{ color: '#007bff', textDecoration: 'none' }}>Change plan</Link>
+    //                         {/* <Link to='/payment' style={{ color: '#007bff', textDecoration: 'none' }}>Change plan</Link> */}
     //                         <div>
     //                             <Link to='/team' style={{ color: '#007bff', textDecoration: 'none', marginTop: '10px', display: 'inline-block' }}>
     //                                 <span role="img" aria-label="employee icon">👥</span> Add or remove employees
@@ -641,11 +720,41 @@ function Account() {
     //     );
     // };
 
-
+    const payments = [
+        {
+            id: 'PAY-001',
+            date: '2024-10-01',
+            description: 'For 04/06/2024–03/07/2024',
+            amount: 150.00,
+        },
+        {
+            id: 'PAY-002',
+            date: '2024-09-15',
+            description: 'For 04/06/2024–03/07/2024',
+            amount: 200.00,
+        },
+        {
+            id: 'PAY-003',
+            date: '2024-08-30',
+            description: 'For 04/06/2024–03/07/2024',
+            amount: 350.00,
+        },
+        {
+            id: 'PAY-004',
+            date: '2024-08-05',
+            description: 'For 04/06/2024–03/07/2024',
+            amount: 450.00,
+        },
+        {
+            id: 'PAY-005',
+            date: '2024-07-22',
+            description: 'For 04/06/2024–03/07/2024',   
+            amount: 500.00,
+        },
+    ];
 
     return (
         <div>
-
             <SnackbarProvider />
             {show ? <Modal show={show} onHide={() => setShow(false)} animation={false} centered>
                 <Modal.Body>
@@ -668,7 +777,7 @@ function Account() {
                     }
                 }}>
                     <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>Change password</p>
-                    <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>Old password</p>
+                    <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>Current password</p>
                     <input
                         value={currentPassword}
                         placeholder="Current password"
@@ -767,49 +876,71 @@ function Account() {
                         <BillingComponent />
                         <p className="companyPlan">Company plan</p>
                         <p className="userEmail">If you track your time for other companies - you do not need a plan and do not have to pay - your company pays for you.</p>
-                        {!(items?.userType === 'user' || items?.userType === 'manager') && (
+                        {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
                             <div style={{ width: '80%', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
                                 <div style={{ display: 'flex', borderBottom: '2px solid #ddd', marginBottom: '10px' }}>
-                                    <span style={{ padding: '10px 20px', fontWeight: 'bold', borderBottom: '3px solid #28659C', color: 'black' }}>
+                                    <span
+                                        style={{
+                                            padding: '10px 20px',
+                                            fontWeight: 'bold',
+                                            borderBottom: activeTab === 'invoices' ? '3px solid #28659C' : 'none',
+                                            color: activeTab === 'invoices' ? 'black' : 'grey',
+                                            cursor: 'pointer',
+                                        }}
+                                        onClick={() => handleTabClick('invoices')}
+                                    >
                                         Invoices
                                     </span>
-                                    {/* <span style={{ padding: '10px 20px', cursor: 'pointer', color: 'grey' }}>Payments</span> */}
+                                    <span
+                                        style={{
+                                            padding: '10px 20px',
+                                            fontWeight: 'bold',
+                                            borderBottom: activeTab === 'payments' ? '3px solid #28659C' : 'none',
+                                            color: activeTab === 'payments' ? 'black' : 'grey',
+                                            cursor: 'pointer',
+                                        }}
+                                        onClick={() => handleTabClick('payments')}
+                                    >
+                                        Payments
+                                    </span>
                                 </div>
-                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                    <thead>
-                                        <tr>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Invoice #
-                                            </th>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Date
-                                            </th>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Description
-                                            </th>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Amount
-                                            </th>
-                                            {/* <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                            Balance
-                                        </th> */}
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {invoices.map((invoice) => (
-                                            <tr key={invoice.id}>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
-                                                    {invoice.status === 'unpaid' ? (
-                                                        <span style={{ color: 'orange', marginRight: '5px' }}>&#9888;</span>
-                                                    ) : (
-                                                        <span style={{ color: 'green', marginRight: '5px' }}>&#10003;</span>
-                                                    )}
-                                                    {invoice.id} <br />
-                                                    {/* {console.log('chllllllllllllllllllllll', invoice.status)} */}
-                                                    {invoice.status === 'unpaid' && (
+
+                                {activeTab === 'invoices' ? (
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Invoice #
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Date
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Description
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Amount
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {invoices.map((invoice) => (
+                                                <tr key={invoice.id}>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
+                                                        {invoice.status === 'unpaid' ? (
+                                                            <span style={{ color: 'orange', marginRight: '5px' }}>&#9888;</span>
+                                                        ) : (
+                                                            <span style={{ color: 'green', marginRight: '5px' }}>&#10003;</span>
+                                                        )}
+                                                        {invoice.id}
+                                                    </td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.date}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.description}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${invoice.amount}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
                                                         <a
-                                                            href=""
+                                                            href="#"
                                                             style={{
                                                                 color: '#28659C',
                                                                 textDecoration: 'none',
@@ -818,35 +949,66 @@ function Account() {
                                                             }}
                                                             onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
                                                             onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
+                                                            onClick={() => generatePDF(invoice)} // Generate PDF on click
                                                         >
-                                                            Pay
+                                                            PDF
                                                         </a>
-                                                    )}
-                                                </td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.date}</td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.description}</td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${invoice.amount}</td>
-                                                {/* <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${invoice.balance}</td> */}
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
-                                                    <a
-                                                        href="#"
-                                                        style={{
-                                                            color: '#28659C',
-                                                            textDecoration: 'none',
-                                                            fontWeight: 'bold',
-                                                            cursor: 'pointer',
-                                                        }}
-                                                        onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
-                                                        onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
-                                                        onClick={() => generatePDF(invoice)} // Generate PDF on click
-                                                    >
-                                                        PDF
-                                                    </a>
-                                                </td>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    // Payments Table
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Payment #
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Date
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Description
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Amount
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}></th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {payments.map((payment) => (
+                                                <tr key={payment.id}>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.id}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.date}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${payment.description}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${payment.amount}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
+                                                        <a
+                                                            href="#"
+                                                            style={{
+                                                                color: '#28659C',
+                                                                textDecoration: 'none',
+                                                                fontWeight: 'bold',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                            onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
+                                                            onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
+                                                            onClick={() =>
+                                                                paymentPDF(payments)
+                                                                // console.log('dfsdfsdfs')
+                                                            } // View receipt on click
+                                                        >
+                                                            PDF
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
                                 {/* <a
                                 href="#"
                                 style={{
@@ -867,10 +1029,11 @@ function Account() {
                     </div>
                 </div>
             </div>
+            {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
+                <Payment />
+            )}
             <img className="accountLine" src={line} />
         </div>
     )
-
 }
-
 export default Account;

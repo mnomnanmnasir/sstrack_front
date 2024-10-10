@@ -61,23 +61,24 @@ function OwnerReport() {
     setSelectedUsers(selectedUsers);
     const userIds = selectedUsers.map((user) => user.id);
     setEmployeeId(userIds);
-  
+
+
     // Calculate total hours of selected users
     const totalHours = selectedUsers.reduce((acc, user) => {
       const hours = acc.hours + Math.floor(user.totalHours);
       const minutes = acc.minutes + (user.totalHours % 1) * 60;
       return { hours, minutes: minutes % 60 };
     }, { hours: 0, minutes: 0 });
-  
+
     // Parse existing totalHours value
     const [existingHours, existingMinutes] = reportData.totalHours.split('h ').map((val) => parseInt(val.replace('m', '')));
-  
+
     // Calculate new total hours
     const newHours = existingHours + totalHours.hours;
     const newMinutes = existingMinutes + totalHours.minutes;
-  
+
     const totalActivity = 0;
-    
+
     debugger
     // Update reportData state with total hours of selected users
     setReportData({
@@ -106,7 +107,7 @@ function OwnerReport() {
         let totalProjectHours = 0; // Initialize to 0
         let totalProjectActivity = 0; // Initialize to 0
         let projects = [];
-    
+
         if (user.projects && Array.isArray(user.projects)) {
           user.projects.forEach((project) => {
             totalProjectHours += project.projectHours;
@@ -118,10 +119,10 @@ function OwnerReport() {
             });
           });
         }
-    
+
         totalProjectHours += user.duration;
         totalProjectActivity += user.activity;
-    
+
         return {
           employee: user.label, // Display the employee name
           Duration: `${Math.floor(totalProjectHours)}h ${(totalProjectHours % 1) * 60}m`, // Display duration
@@ -208,14 +209,14 @@ function OwnerReport() {
   //   }
   // })
 
-  
+
 
   const getData = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`${apiUrl}/timetrack/totalDate?startDate=${new Date(startDate).toLocaleDateString()}&endDate=${new Date(endDate).toLocaleDateString()}`, { headers })
+      const response = await axios.get(`${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
       if (response.status === 200) {
-        console.log(response);
+        console.log('New Api response', response);
         setLoading(false)
         setReportData(response.data?.data)
       }
@@ -322,6 +323,39 @@ function OwnerReport() {
   }, []);
 
 
+  // const getReports = async (type) => {
+
+  //   let response;
+  //   if (userType === 'admin' || userType === 'owner') {
+  //     if (employeeId) {
+  //       response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}&userId=${employeeId}`, { headers });
+  //     }
+  //     else {
+  //       response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}`, { headers });
+  //     }
+  //   }
+  //   else if (user === 'manager') {
+  //     // If user is a manager, filter managers based on the logged-in manager's ID
+  //     const loggedInManager = response.data.employees.find(employee => employee.email === items.email);
+  //     if (loggedInManager) {
+  //       return response.data.employees.filter(employee => employee.managerId === loggedInManager._id);
+  //     } else {
+  //       return [];
+  //     }
+  //   }
+  //   else {
+  //     response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}${type}&userId=${items._id}`, { headers });
+  //   }
+  //   if (response.status === 200) {
+  //     console.log(response);
+  //     setReportData(response.data.data);
+  //   }
+  //   if (response.status === 200) {
+  //     return response.data.data;
+  //   } else {
+  //     throw new Error('Failed to fetch reports');
+  //   }
+  // };
 
   const getReports = async () => {
     setLoading(true);
@@ -329,7 +363,7 @@ function OwnerReport() {
       let response;
       if (userType === 'admin' || userType === 'owner') {
         // Fetch reports for all users
-        response = await axios.get(`${apiUrl}/timetrack/totalDate?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}`, { headers });
+        response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${employeeId}`, { headers });
       } else if (user === 'manager') {
         // If user is a manager, filter managers based on the logged-in manager's ID
         const loggedInManager = response.data.employees.find(employee => employee.email === items.email);
@@ -340,7 +374,7 @@ function OwnerReport() {
         }
       } else {
         // Fetch reports for a single user
-        response = await axios.get(`${apiUrl}/timetrack/totalDate?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${items._id}`, { headers });
+        response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${items._id}`, { headers });
       }
       if (response.status === 200) {
         console.log(response);
@@ -444,7 +478,7 @@ function OwnerReport() {
       setReportData(response.data.data);
     }
     if (response.status === 200) {
-      return response.data.data;  
+      return response.data.data;
     } else {
       throw new Error('Failed to fetch reports');
     }
@@ -723,10 +757,10 @@ function OwnerReport() {
   const user = users?.map(user => {
     const totalProjectHours = user.projects?.reduce((acc, project) => acc + (project.projectHours || 0), 0) || 0;
     const totalProjectActivity = user.projects?.reduce((acc, project) => acc + (project.projectActivity || 0), 0) || 0;
-  
+
     const userDuration = user.duration !== null && user.duration !== undefined ? user.duration : 0;
     const userActivity = user.activity !== null && user.activity !== undefined ? user.activity : 0;
-  
+
     return {
       label: user.name,
       value: user.email,
@@ -740,9 +774,9 @@ function OwnerReport() {
       })),
     };
   });
-  
-  console.log("main agya users ho main",users);
-{console.log("User showing...", user)}
+
+  console.log("main agya users ho main", users);
+  { console.log("User showing...", user) }
   const defaultValue = user.length > 0 ? [{ value: user[0].value }] : [];
 
   console.log(dateFilter);
@@ -766,7 +800,9 @@ function OwnerReport() {
 
               <div className="calenderInnerDiv">
                 <div className="dateDiv">
-                  <div> <button> <DatePicker placeholderText={new Date().toLocaleDateString()} className="bg-transparent border-0 text-center " selected={startDate} onChange={date => setStartDate(date)} /></button>
+                  <div> <button> <DatePicker placeholderText={new Date().toLocaleDateString()} className="bg-transparent border-0 text-center " selected={startDate}
+                    onChange={date => setStartDate(date)}
+                  /></button>
                   </div>
                   <div>  ►  </div>
                   <div>
@@ -915,14 +951,19 @@ function OwnerReport() {
             </div>
             <div className="crossButtonDiv">
               <SelectBox
-                onChange={(e) => handleSelectUsers(e)}
-                options={allUsers.filter(user => user.label)} // Add this filter condition
+                onChange={(e) =>
+                  handleSelectUsers(e)
+                }
+                options={allUsers.filter(user => user.label)}
                 closeMenuOnSelect={true}
                 components={animatedComponents}
                 defaultValue={defaultValue}
                 isMulti={true}
+              // maxValues={1} // Limit the number of selections to 1
+              // isClearable={true} // Allow the user to clear the selection
+              // value={selectedUsers.length > 0 ? selectedUsers[0] : null} // Set the value to the first selected user
               />
-              {console.log("User detials", user)}
+              {console.log("User  detials", user)}
             </div>
             <div>
               {/* <img className="reportButton" src={reportButton} /> */}
@@ -991,6 +1032,88 @@ function OwnerReport() {
                 </div>
               )
             })}
+            {/* {reportData?.allUsers?.map((data, index) => {
+              return (
+                <div className="asadMehmoodDiv">
+                  <div>
+                    <p>
+                      <img src={addButton} />
+                      <span>{data?.employee}</span>
+                    </p>
+                  </div>
+                  <div className="durationDiv">
+                    <p>{data?.Duration}</p>
+                    <p>{Math.floor(data.Activity)} %</p>
+                  </div>
+                </div>
+              );
+            })} */}
+            {/* {filteredData.length > 0 ? (
+              filteredData.map((data, index) => {
+                return (
+                  <div className="asadMehmoodDiv">
+                    <div>
+                      <p>
+                        <img src={addButton} />
+                        <span>{data.employee}</span>
+                      </p>
+                    </div>
+                    <div className="durationDiv">
+                      <p>{data.Duration}</p>
+                      <p>{Math.floor(data.Activity)} %</p>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              reportData?.allUsers?.map((data, index) => {
+                return (
+                  <div className="asadMehmoodDiv">
+                    <div>
+                      <p>
+                        <img src={addButton} />
+                        <span>{data?.employee}</span>
+                      </p>
+                    </div>
+                    <div className="durationDiv">
+                      <p>{data?.Duration}</p>
+                      <p>{Math.floor(data?.Activity)} %</p>
+                    </div>
+                  </div>
+                );
+              })
+            )} */}
+            {/* {filteredData.map((data, index) => {
+              return (
+                <div className="asadMehmoodDiv">
+                  <div>
+                    <p>
+                      <img src={addButton} />
+                      <span>{data.employee}</span>
+                    </p>
+                  </div>
+                  <div className="durationDiv">
+                    <p>{data.Duration}</p>
+                    <p>{Math.floor(data.Activity)} %</p>
+                  </div>
+                </div>
+              );
+            })} */}
+            {/* {reportData?.allUsers?.map((data, index) => {
+              return (
+                <div className="asadMehmoodDiv">
+                  <div>
+                    {selectedUsers.length === 0 && (
+                      <p><img src={addButton} /><span>{data?.employee}</span></p>
+                    )}
+                  </div>
+                  <div className="durationDiv">
+                    <p>{data?.Duration}</p>
+                    <p>{Math.floor(data?.Activity)} %</p>
+                  </div>
+                </div>
+              )
+            })} */}
           </div>
         </div>
       </div>

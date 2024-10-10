@@ -114,7 +114,6 @@ function Screenshot() {
                     <select className="myselect">
                         <option>Allow blur</option>
                         <option>Blur</option>
-
                     </select>
                 </p>
                 <p>

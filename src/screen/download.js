@@ -67,21 +67,21 @@ const Download = () => {
                                 <p>This application is <span style={{ fontWeight: "700", color: "#7ACB59" }}>for employees, managers</span></p>
                                 <p>Company administrators can review the tracked hours and screenshots on this website.</p>
                                 <img width={300} src={DownloadProduct} alt="" />
-                               <br />
-                               <br />
-                               <h4>Description</h4>
+                                <br />
+                                <br />
+                                <h4>Description</h4>
                                 <p>This is a Windows desktop application designed for employees. It allows an employee to start and stop tracking their work time and captures screenshots of their computer during work hours.</p>
                                 <p>Once the stop button is activated, it ceases to take screenshots. Your work time and screenshots can be reviewed in My Home, where you also have the option to delete any screenshots.</p>
-                               <br />
+                                <br />
                                 <h4>Post-installation</h4>
                                 <p>Once the application is installed, launch it and click "Start" to begin monitoring your time and capturing screenshots.</p>
                             </div>
-                            
+
                             <div className="col-lg-6">
-                                <div className="card w-100" style={{ width: '20rem',background: '#E1E1E1'}}>
+                                <div className="card w-100" style={{ width: '20rem', background: '#E1E1E1' }}>
                                     <div className="card-body">
                                         <p style={{ marginLeft: "-8px", color: 'black' }} className=' px-2 py-2 fs-5'>Need Windows Version ?</p>
-                                        <button style={{ backgroundColor: '#0e4772', padding: '2%', width: '50%' , marginLeft: '0%'}} className={loading1 ? "disable-download-button" : "download-button"} disabled={loading1 ? true : false} onClick={() => handleDownload("WIN")}>
+                                        <button style={{ backgroundColor: '#0e4772', padding: '2%', width: '50%', marginLeft: '0%' }} className={loading1 ? "disable-download-button" : "download-button"} disabled={loading1 ? true : false} onClick={() => handleDownload("WIN")}>
                                             {loading1 ? "Downloading..." : (
                                                 <>
                                                     <BsWindows color="white" size={18} style={{ margin: "-5px 10px 0 0", color: 'white' }} />
@@ -90,7 +90,7 @@ const Download = () => {
                                             )}
                                         </button>
                                         <p style={{ marginLeft: "-8px" }} className='px-2 py-2 fs-5'>Need browser extension ?</p>
-                                        <button style={{ backgroundColor: '#0e4772', padding: '2%', width: '50%',marginLeft: '0%' }}
+                                        <button style={{ backgroundColor: '#0e4772', padding: '2%', width: '50%', marginLeft: '0%' }}
                                             className={loading2 ? "disable-download-button" : "download-button"}
                                             disabled={loading2 ? true : false}
                                             onClick={handleClick}
@@ -98,8 +98,7 @@ const Download = () => {
                                             {loading2 ? "Downloading..." : (
                                                 <>
                                                     <BsGoogle color="white" size={18} style={{ margin: "-5px 10px 0 0" }} />
-                                                    <span style={{ color: 'white' }}>    Download extension</span>
-
+                                                    <span style={{ color: 'white' }}>Browser extension</span>
                                                 </>
                                             )}
                                         </button>
@@ -107,13 +106,13 @@ const Download = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
             </div>
 
-          
+
         </>
     );
 }

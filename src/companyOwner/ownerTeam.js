@@ -66,9 +66,12 @@ function OwnerTeam() {
 
     function getAssignedUsersCount(users, assignedUsers, currentUserId) {
         const assignedUsersList = users?.filter((u) => assignedUsers.includes(u._id) && u._id !== currentUserId);
-        return assignedUsersList.length > 0 ? assignedUsersList.length - 1 : 0;
+            return assignedUsersList.length;
+        // return assignedUsersList.length > 0 ? assignedUsersList.length - 1 : 0;
     }
-
+    // function getAssignedUsersCount(users, assignedUsers, currentUserId) {
+    //     const assignedUsersList = users?.filter((u) => assignedUsers.includes(u._id) && u._id !== currentUserId);
+    //   } 
     // function getAssignedUsersCount(users, assignedUsers, currentUserId) {
     //     // const assignedUsersList = users?.filter((u) => assignedUsers.includes(u._id));
     //     const assignedUsersList = users?.filter((u) => assignedUsers.includes(u._id) && u._id !== currentUserId);
@@ -770,7 +773,7 @@ function OwnerTeam() {
                                                                         {/* getAssignedUsersCount(users, e.assignedUsers, e._id, currentUserType) */}
 
                                                                         {/* {getAssignedUsersCount(users, e.assignedUsers, e._id) + (e?.userType === "manager" ? 1 : 0)} */}
-                                                                        {getAssignedUsersCount(users, e.assignedUsers, e._id) + 1}
+                                                                        {getAssignedUsersCount(users, e.assignedUsers, e._id)}
                                                                     </p>
                                                                 </div>
                                                             )}

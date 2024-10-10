@@ -116,17 +116,19 @@ import PrivacyPolicy2 from '../screen/privacy-policy2'
 import Project from "../screen/Project";
 import Payment from "../screen/payment";
 import axios from "axios";
-
-
+import Pricing from '../screen/pricing'
+import WorkCards from "../screen/workCards";
 
 export default function AppRouter() {
   const [suspended, setSuspended] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     const fetchTokenAndSuspendedStatus = async () => {
       if (token) {
+        console.log('++++++++++++++++++++', token)
         try {
           const headers = {
             Authorization: `Bearer ${token}`,
@@ -134,20 +136,25 @@ export default function AppRouter() {
           const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
           const response = await axios.get(`${apiUrl}/owner/getCompanyInfo`, { headers });
           // For objects or arrays:
-          const planId = response?.data.data[0].planId[1].id;
-
+          const planindex = response?.data.data[0].planId.length - 1;
+          const planId = response?.data.data[0].planId[planindex].id;
+          console.log('me yaha hnnnnnnnnnnnn', response?.data.data[0].planId[planindex])
+          console.log('mera hn length - 1', planindex)
+          console.log('mera hn length', response?.data.data[0].planId.length)
 
           // Save to localStorage after converting to a string
           localStorage.setItem('planId', JSON.stringify(planId));
+          localStorage.setItem('planIdforHome', JSON.stringify(planId));
           // Simulate a delay of 2 seconds
           setTimeout(() => {
             setSuspended(response?.data.data[0].suspended);
             setLoading(false); // Move this inside the timeout
           }, 2000);
         } catch (err) {
-          console.error('Error fetching data', err);
+          console.error('Error fetching data%%%%%%%%%%%%%%%%%%%%%%%', err);
           let planId = null;
           localStorage.setItem('planId', JSON.stringify(planId));
+          localStorage.setItem('planIdforHome', JSON.stringify(planId));
         }
       }
       setLoading(false);
@@ -157,6 +164,10 @@ export default function AppRouter() {
     console.log('suspended=========', suspended);
 
   }, [token]);
+
+
+
+
 
   // if (loading) {
   //   return <div>Loading...</div>;
@@ -177,7 +188,7 @@ export default function AppRouter() {
 
             <Route path="/download" element={<Download />} />
             <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
-            <Route path="/payment" element={token ? <Payment /> : <Navigate to="/signin" />} />
+            <Route path="/account" element={token ? <Account /> : <Navigate to="/signup" />} />
             <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/dashboard" />} />
             <Route path="/systemAdminLogin" element={<SystemAdminLogin />} />
             <Route path="/" element={<Home />} />
@@ -190,7 +201,8 @@ export default function AppRouter() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
-
+            {/* <Route path="/pricing" element={<Pricing />} /> */}
+            {/* <Route path="/workCards" element={token ? (suspended ? <Navigate to="/account" /> : <WorkCards />) : <Navigate to="/" />} /> */}
             {/* Private Routes */}
 
             <Route path="/dashboard" element={token ? (suspended ? <Navigate to="/account" /> : <UserDashboard />) : <Navigate to="/" />} />
@@ -204,6 +216,8 @@ export default function AppRouter() {
             <Route path="/company-owner-user" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserSignup />) : <Navigate to="/" />} />
             <Route path="/activity/:id" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserTimeline />) : <Navigate to="/" />} />
             <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} />
+            <Route path="/pricing" element={token ? (suspended ? <Navigate to="/account" /> : <Pricing />) : <Navigate to="/" />} />
+            <Route path="/workCards" element={token ? (suspended ? <Navigate to="/account" /> : <WorkCards />) : <Navigate to="/" />} />
             {/* <Route path="/privacy-policy" element={token ? <PrivacyPolicy /> : <Navigate to="/" />} /> */}
             {/* <Route path="/privacy-policy1" element={<PrivacyPolicy1/>} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} /> */}

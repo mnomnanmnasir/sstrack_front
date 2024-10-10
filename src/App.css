@@ -249,15 +249,34 @@
   transition: 0.5s;
 }
 
+.pricingButton:disabled:hover {
+  background-color: #ccc !important;
+  /* transition: 0.5s; */
+}
+
 .pricingButton1:hover {
   background-color: #1d5b8a !important;
   transition: 0.5s;
+}
+
+.pricingButton1:disabled:hover {
+  background-color: #ccc !important;
+  /* cursor: not-allowed; */
 }
 
 /* .pricingButton2:hover {
   background-color: #ccd3d4 !important;
   transition: 0.5s;
 } */
+
+.pricingButton2:disabled:hover {
+  background-color: #ccc !important;
+  /* transition: 0.5s; */
+  cursor: default;
+
+}
+
+
 .signUpButton1:hover {
   /* font-size: 18px;
   font-weight: 600 !important;
@@ -302,8 +321,21 @@ nav li a {
 }
 
 .logo {
-  width: 200px;
+  width: 330px;
   cursor: pointer;
+  margin-left: 10px;
+  /* margin-top: -70px; */
+  /* margin-bottom: -30%;
+  z-index: 40px !important; */
+}
+
+.logo1 {
+  width: 330px;
+  cursor: pointer;
+  margin-left: 10px;
+  margin-top: -70px;
+  /* margin-bottom: -30%;
+  z-index: 40px !important; */
 }
 
 
@@ -4921,6 +4953,27 @@ input.checkboxes:checked {
   cursor: pointer;
 }
 
+.ownerSectionUser1 {
+  padding: 8px 10px !important;
+  border-radius: 6px !important;
+  color: #7ACB59;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ownerSectionUser1:hover {
+  /* padding: 8px 10px !important;
+  border-radius: 6px !important; */
+  color: #7ACB59 !important;
+  /* font-size: 17px;
+  font-weight: 500;
+  cursor: pointer; */
+  transition: 1s;
+}
+
+
+
 .user-active-tabs {
   padding: 10px 20px !important;
   border-radius: 6px !important;
@@ -4941,9 +4994,33 @@ input.checkboxes:checked {
   cursor: pointer;
 }
 
+.active-tab1 {
+  background-color: #FFF !important;
+  /* padding: 2px 2px 0px 2px !important; */
+  /* padding: 10px 20px !important; */
+  border-radius: 6px !important;
+  color: white;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
 .ownerSectionCompany {
   background-color: #28659C !important;
   padding: 10px 20px !important;
+  border-radius: 6px !important;
+  color: #7ACB59;
+  /* width: 200px; */
+  justify-content: center;
+  font-size: 17px;
+  gap: 23px;
+  /* cursor: none; */
+
+}
+
+.ownerSectionCompany1 {
+  /* background-color: #28659C !important; */
+  /* padding: 10px !important; */
   border-radius: 6px !important;
   color: #7ACB59;
   /* width: 200px; */
@@ -5908,8 +5985,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 
 .pricingButton,
-.pricingButton1,
-.pricingButton2 {
+.pricingButton1 {
   color: #fff;
   font-size: 18px;
   font-weight: 600;
@@ -5919,7 +5995,16 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   border-radius: 5.52px
 }
 
-
+.pricingButton2 {
+  color: #ccc;
+  font-size: 18px;
+  font-weight: 600;
+  display: block;
+  margin: auto;
+  padding: 8px 10px;
+  border-radius: 5.52px;
+  background-color: #ccc !important
+}
 
 
 
@@ -6194,6 +6279,19 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 }
 
+/* @media (max-width: 1100px) and (min-width: 300px) {
+
+
+  .mobhayat {
+
+    inline-size: fit-content;
+
+  }
+
+
+} */
+
+
 @media (max-width: 1100px) and (min-width: 300px) {
 
 
@@ -6203,5 +6301,10 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
   }
 
+  body {
+
+    width: fit-content;
+
+  }
 
 }

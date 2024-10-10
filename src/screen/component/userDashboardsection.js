@@ -29,7 +29,7 @@ function UserDashboardSection(params) {
     //                     }}>Dashboard</p>
     //                 </div>
     //                 {items?.userType === "user" && <div className={location.pathname.includes("/timeline") ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
-                       
+
     //                     <p style={{ margin: 0 }} onClick={() => navigate(`/timeline/${items?._id}`)}>My timeline</p>
     //                 </div>}
     //                 {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
@@ -59,7 +59,7 @@ function UserDashboardSection(params) {
                 padding: "10px 20px",
                 borderBottomLeftRadius: "10px",
                 borderBottomRightRadius: "10px",
-                margin: "0 30px 0 30px",
+                margin: "0px 30px 0 30px",
             }}>
                 <div className="d-flex gap-1 align-items-center">
                     <div className={location.pathname === "/dashboard" ? "active-tab" : "ownerSectionUser"} onClick={() => {
@@ -70,7 +70,7 @@ function UserDashboardSection(params) {
                         }}>Dashboard</p>
                     </div>
                     {items?.userType === "user" && <div className={location.pathname.includes("/timeline") ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
-                        <p style={{ margin: 0 }} onClick={() => navigate(`/timeline/${items?._id}`)}>My timeline</p>
+                        <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate(`/timeline/${items?._id}`)}>My timeline</p>
                     </div>}
                     {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
                         <>
@@ -89,6 +89,20 @@ function UserDashboardSection(params) {
                             </div>
                         </>
                     )}
+                      {/* <div className={location.pathname === "/download" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/download')}>
+                        <p style={{ margin: 0 }} onClick={() => navigate('/download')}>Download</p>
+                    </div>
+                    <div className={location.pathname === "/workCards" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/workCards')}>
+                        <p className="d-flex" style={{ margin: 0 , whiteSpace: 'nowrap'}} onClick={() => navigate('/workCards')}>How It Work</p>
+                    </div>
+                    <div className={location.pathname === "/pricing" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/pricing')}>
+                        <p style={{ margin: 0 }} onClick={() => navigate('/pricing')}>Pricing</p>
+                    </div> */}
+                    <div className="d-flex container">
+                        {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
+                        <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p>
+                        <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/workCards")}>How It Work</p> */}
+                    </div>
                 </div>
                 <div>
                     <div className="ownerSectionCompany d-flex align-items-center cursor-none">

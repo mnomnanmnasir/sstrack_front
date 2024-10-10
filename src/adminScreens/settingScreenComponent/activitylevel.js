@@ -35,6 +35,15 @@ function ActivityLevel(props) {
                     }
                 })
             }
+            else{
+                enqueueSnackbar(res.data.message, {
+                    variant: "false",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                })
+            }
             console.log(res);
         } catch (error) {
             console.log(error);

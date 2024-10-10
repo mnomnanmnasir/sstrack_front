@@ -205,6 +205,7 @@ function Home() {
     section2Ref.current.scrollIntoView({ behavior: 'smooth' });
   };
 
+
   console.log(location);
   console.log(token);
 
@@ -301,6 +302,57 @@ function Home() {
   }
 
 
+  const storedPlanId = JSON.parse(localStorage.getItem('planId'));
+  // Retrieve the stored plan from localStorage and set the selected package
+  useEffect(() => {
+    const storedPlanId = JSON.parse(localStorage.getItem('planId'));
+
+    if (storedPlanId?.planType === 'free') {
+      setSelectedPackage(1); // Basic
+    } else if (storedPlanId?.planType === 'standard') {
+      setSelectedPackage(2); // Standard
+    } else if (storedPlanId?.planType === 'premium') {
+      setSelectedPackage(3); // Premium
+    }
+  }, []); // Empty dependency array to run only once on component mount
+
+
+
+  // Function to return the appropriate button text
+  const getButtonText = (buttonPackage) => {
+    if (buttonPackage === selectedPackage) {
+      return 'Current';
+    } else if (buttonPackage > selectedPackage) {
+      return 'Upgrade';
+    } else {
+      return 'Downgrade';
+    }
+  };
+
+
+  const handleUpgradeClick = (defaultPlanIndex) => {
+    // Update the selected package when a button is clicked
+    navigate('/payment', {
+      state: {
+        plans,
+        fetchError,
+        loading: false,
+        defaultPlanIndex
+      }
+    });
+    // setSelectedPackage(defaultPlanIndex);
+  };
+
+  // Function to return the appropriate button text
+  // const getButtonText = (buttonPackage) => {
+  //   if (buttonPackage === selectedPackage) {
+  //     return 'Current';
+  //   } else if (buttonPackage > selectedPackage) {
+  //     return 'Upgrade';
+  //   } else {
+  //     return 'Downgrade';
+  //   }
+  // };
 
 
   return (
@@ -716,9 +768,13 @@ function Home() {
                           </p>
                           <br />
 
-                          <button type="button" className="pricingButton" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
+                          {/* <button type="button" className="pricingButton" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
                             Current Plan
-                          </button>
+                          </button> */}
+                          <div className="mt-auto">
+                            <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#7ACB59", marginTop: '20px' }}>{getButtonText(2)}</button>
+                          </div>
+
                         </div>
                       </div>
                     </div>
@@ -762,8 +818,9 @@ function Home() {
                           <br />
 
                           <div className="mt-auto">
-                            <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#7ACB59", marginTop: '20px' }}>Upgrade</button>
+                            <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#7ACB59", marginTop: '20px' }} onClick={() => handleUpgradeClick(2)}>{getButtonText(2)}</button>
                           </div>
+
 
                           <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
                         </div>
@@ -810,8 +867,9 @@ function Home() {
                           </p>
 
                           <div className="mt-auto">
-                            <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#0E4772", marginTop: '20px' }}>Upgrade</button>
+                            <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#7ACB59", marginTop: '20px' }} onClick={() => handleUpgradeClick(2)}>{getButtonText(3)}</button>
                           </div>
+
 
                           <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
                         </div>
