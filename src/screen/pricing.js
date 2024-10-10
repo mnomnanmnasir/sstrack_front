@@ -95,11 +95,13 @@ const Pricing = () => {
         }
     };
 
+
+
     return (
         <>
             <div className='container mt-5 mb-4' id="section3">
     
-                <p className="how-it-works-title text-white text-center" onClick={() => location.pathname === "/" ? scrollToSection('section3') : navigate("/")}>Company Plans & Pricing</p>
+                <p className="how-it-works-title text-white text-center">Company Plans & Pricing</p>
                 <p className="text-center text-white">These monthly plans are for Companies to track their employees or for freelancers to track their own time.
                     If you track your own time for other companies — you do not need a plan and do not have to pay — your company pays for you. Just ask your manager to send you an invitation email to their SSTrack team to start tracking your time and screenshots for them.</p>
 
