@@ -172,17 +172,17 @@ function Home() {
     }
   };
 
-  const handleClick = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+  // const handleClick = (pageNumber) => {
+  //   setCurrentPage(pageNumber);
+  // };
 
-  const handlePrevious = () => {
-    setCurrentPage((prevPage) => (prevPage > 1 ? prevPage - 1 : prevPage));
-  };
+  // const handlePrevious = () => {
+  //   setCurrentPage((prevPage) => (prevPage > 1 ? prevPage - 1 : prevPage));
+  // };
 
-  const handleNext = () => {
-    setCurrentPage((prevPage) => (prevPage < totalPages ? prevPage + 1 : prevPage));
-  };
+  // const handleNext = () => {
+  //   setCurrentPage((prevPage) => (prevPage < totalPages ? prevPage + 1 : prevPage));
+  // };
 
   // const paginatedFeedbacks = feedbacks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 

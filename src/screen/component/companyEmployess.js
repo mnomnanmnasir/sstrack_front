@@ -28,7 +28,7 @@ const CompanyEmployess = (props) => {
         const employeeWithBlur = employees.find(employee => employee.effectiveSettings.screenshots?.allowBlur);
         setAllowBlur(!!employeeWithBlur); // Use double negation to convert to boolean
     }, [employees]);
-    
+
     const activeTab = useSelector((state) => state?.adminSlice?.activeTab)
     const dispatch = useDispatch()
     const token = localStorage.getItem('token');
@@ -44,6 +44,10 @@ const CompanyEmployess = (props) => {
 
         console.log(data);
         const findUser = employees.find((f) => f.effectiveSettings[data.key] === false)
+
+        const ssId = data.employee._id; // Assuming ssId should be the employee ID
+
+        console.log('SSID', ssId)
         try {
             const res = await axios.patch(
                 `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${data.employee._id}`,
@@ -78,11 +82,10 @@ const CompanyEmployess = (props) => {
                 });
             }
             console.log(res);
-            const employeeId = ssId; // Assuming ssId corresponds to employee ID
             const updatedAllowBlur = true; // Set to true since the screenshot is blurred
             if (data.key === "allowBlur") {
                 dispatch(setEmployessSetting({
-                    id: employeeId,
+                    id: ssId,
                     allowBlur: updatedAllowBlur
                 }));
                 setAllowBlur(updatedAllowBlur); // Update local state

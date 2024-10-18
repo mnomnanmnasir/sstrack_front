@@ -787,7 +787,7 @@ function UserDetails() {
                         allowBlur: updatedAllowBlur
                     }));
                     setAllowBlur(updatedAllowBlur); // Update local state
-                    props.updateAllowBlur(updatedAllowBlur); // Update parent component state
+                    // props.updateAllowBlur(updatedAllowBlur); // Update parent component state
 
                     // Call handleApplySettings function to update employee settings
                     handleApplySetting(employeeId, "setting3", true);
@@ -836,7 +836,7 @@ function UserDetails() {
                         allowBlur: updatedAllowBlur
                     }));
                     setAllowBlur(updatedAllowBlur); // Update local state
-                    props.updateAllowBlur(updatedAllowBlur); // Update parent component state
+                    // props.updateAllowBlur(updatedAllowBlur); // Update parent component state
                 }
             } catch (error) {
                 console.log(error);
