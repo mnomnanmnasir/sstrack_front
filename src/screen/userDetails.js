@@ -105,7 +105,7 @@ function UserDetails() {
                 });
             }
             console.log(res);
-            const employeeId = ssId; // Assuming ssId corresponds to employee ID
+            // const employeeId = ssId; // Assuming ssId corresponds to employee ID
             const updatedAllowBlur = true; // Set to true since the screenshot is blurred
              // Dispatch the action to update the Redux state
              dispatch(setEmployessSetting({
