@@ -487,7 +487,6 @@ const Payment = ({ updatePaymentStatus }) => {
     // Retrieve the stored plan from localStorage and set the selected package
     useEffect(() => {
         const storedPlanId = JSON.parse(localStorage.getItem('planId'));
-
         if (storedPlanId?.planType === 'free') {
             setSelectedPackage(1); // Basic
         } else if (storedPlanId?.planType === 'standard') {
@@ -869,7 +868,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                                                         onClick={() => {
                                                                             planchange();
                                                                             // setPlanData(plan);
-                                                                            localStorage.setItem('planIdforHome', JSON.stringify(plan));
+                                                                            // localStorage.setItem('planIdforHome', JSON.stringify(plan));
                                                                             // handleDirectChangePlan()
                                                                             // window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
                                                                         }}
@@ -916,7 +915,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                                                     planchange();
                                                                     // setPlanData(plan);
                                                                     // handleDirectChangePlan()
-                                                                    localStorage.setItem('planIdforHome', JSON.stringify(plan));
+                                                                    // localStorage.setItem('planIdforHome', JSON.stringify(plan));
                                                                 }}
                                                             >
                                                                 Upgrade

@@ -85,11 +85,11 @@ const Download = () => {
                                             {loading1 ? "Downloading..." : (
                                                 <>
                                                     <BsWindows color="white" size={18} style={{ margin: "-5px 10px 0 0", color: 'white' }} />
-                                                    <span style={{ color: 'white' }}>Download for windows</span>
+                                                    <span style={{ color: 'white' }}>Download for Windows</span>
                                                 </>
                                             )}
                                         </button>
-                                        <p style={{ marginLeft: "-8px" }} className='px-2 py-2 fs-5'>Need browser extension ?</p>
+                                        <p style={{ marginLeft: "-8px" }} className='px-2 py-2 fs-5'>Need Chrome Extension ?</p>
                                         <button style={{ backgroundColor: '#0e4772', padding: '2%', width: '50%', marginLeft: '0%' }}
                                             className={loading2 ? "disable-download-button" : "download-button"}
                                             disabled={loading2 ? true : false}
@@ -98,7 +98,7 @@ const Download = () => {
                                             {loading2 ? "Downloading..." : (
                                                 <>
                                                     <BsGoogle color="white" size={18} style={{ margin: "-5px 10px 0 0" }} />
-                                                    <span style={{ color: 'white' }}>Browser extension</span>
+                                                    <span style={{ color: 'white' }}>Download Extension</span>
                                                 </>
                                             )}
                                         </button>

@@ -3,7 +3,7 @@ import React from "react";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 
-const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete ,onSetDefaultCard}) => {
+const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetDefaultCard }) => {
 
     const handleSetDefaultCard = async (cards) => {
         const token = localStorage.getItem('token');
@@ -13,7 +13,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete ,onSetD
         console.log('default card set', cards);
         const DefaultPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         try {
-            const response = await axios.post(`${DefaultPayApiUrl}/owner/setDefaultCard 	`, {
+            const response = await axios.post(`${DefaultPayApiUrl}/owner/setDefaultCard`, {
                 cardNumber: cards.cardNumber,
                 cardType: cards.cardType,
             }, { headers });
@@ -105,61 +105,58 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete ,onSetD
                             {/* <div className="d-flex justify-content-center"> */}
                             <div className="card align-item-center justify-content-center p-2">
                                 <input
-                                        id={card._id}
-                                        type="radio"
-                                        name="selectedCard"
-                                        value={card._id}
-                                        checked={selectedCard === card._id}
-                                        onChange={() => onSelect(card)}
-                                        className="form-check-input align-items-center mt-3"
-                                    />
+                                    id={card._id}
+                                    type="radio"
+                                    name="selectedCard"
+                                    value={card._id}
+                                    checked={selectedCard === card._id}
+                                    onChange={() => onSelect(card)}
+                                    className="form-check-input align-items-center mt-3"
+                                />
                                 <label htmlFor={card._id} className="w-100 align-items-center justify-content-center">
 
                                     {/* <div className="card h-100 gap-2 w-100"> */}
-                                        <div className="card-body gap-2 align-items-center" style={{ minHeight: '164px' }}> {/* Add this style */}
-                                         
-                                            <div className="d-flex align-items-center mb-2 gap-2">
-                                                <span className="mr-2">{card.cardType}
-                                                </span>
-                                                **** {card.cardNumber}
-                                                <img
-                                                    src={getCardIcon(card.cardType)}
-                                                    alt={card.cardType} style={{ maxWidth: '8%' }}
-                                                    className="img-fluid"
-                                                />
-                                            </div>
-                                            <div className="gap-2">
-                                                <span className="font-weight-bold">{card.cardHolder}</span>
-                                                <br />
-                                                <span style={{ color: 'grey', fontSize: '15px', marginLeft: '1%' }}>Expires on {card.expMonth}/{card.expYear}</span>
-                                                <br />
-                                                <span className="text-warning">⚠️ Unverified</span>
-                                            </div>
-                                            {selectedCard === card._id && (
-                                                <div className="d-flex justify-content-end gap-1"> {/* Add this class */}
-                                                    <button
-                                                        className="btn btn-primary btn-sm mr-2"
-                                                        onClick={() => handleSetDefaultCard(card)}
-                                                        disabled={cards.length === 1} // Add this prop
-                                                    >
-                                                        Default
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-danger btn-sm"
-                                                        onClick={() => handleDeleteCard(card)}
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                            )}
+                                    <div className="card-body gap-2 align-items-center" style={{ minHeight: '164px' }}> {/* Add this style */}
+
+                                        <div className="d-flex align-items-center mb-2 gap-2">
+                                            <span className="mr-2">{card.cardType}
+                                            </span>
+                                            **** {card.cardNumber}
+                                            <img
+                                                src={getCardIcon(card.cardType)}
+                                                alt={card.cardType} style={{ maxWidth: '8%' }}
+                                                className="img-fluid"
+                                            />
                                         </div>
+                                        <div className="gap-2">
+                                            <span className="font-weight-bold">{card.cardHolder}</span>
+                                            <br />
+                                            <span style={{ color: 'grey', fontSize: '15px', marginLeft: '1%' }}>Expires on {card.expMonth}/{card.expYear}</span>
+                                            <br />
+                                            <span className="text-warning">⚠️ Unverified</span>
+                                        </div>
+                                        {selectedCard === card._id && cards.length > 1 && (
+                                            <div className="d-flex justify-content-end gap-1"> {/* Add this class */}
+                                                <button
+                                                    className="btn btn-primary btn-sm mr-2"
+                                                    onClick={() => handleSetDefaultCard(card)}
+                                                    // disabled={cards.length === 1} // Add this prop
+                                                >
+                                                    Default
+                                                </button>
+                                                <button
+                                                    className="btn btn-danger btn-sm"
+                                                    onClick={() => handleDeleteCard(card)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                     {/* </div> */}
-
                                 </label>
-                  
-
-                            {/* </div> */}
-                        </div>
+                                {/* </div> */}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -181,6 +178,8 @@ const getCardIcon = (cardType) => {
             return "";
     }
 };
+
+
 // Inline styles
 const styles = {
     container: {

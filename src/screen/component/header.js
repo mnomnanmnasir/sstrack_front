@@ -48,7 +48,7 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
                     <Navbar.Toggle aria-controls="navbarSupportedContent" className="custom-toggler" style={{ color: 'white' }}>
                         {/* <span className="navbar-toggler-icon"></span> */}
                     </Navbar.Toggle>
-                    {/* <HeaderOption /> */}
+
                     <Navbar.Collapse id="navbarSupportedContent">
                         <Nav className="me-auto mb-2 mb-lg-0">
                             {/* <Nav.Link href="#" className="active" aria-current="page">Home</Nav.Link>
@@ -66,9 +66,8 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
                             {/* <FormControl type="search" placeholder="Search" className="me-2" aria-label="Search" />
                             <Button variant="outline-success" type="submit">Search</Button> */}
                         </Form>
-                        {/* <HeaderOption /> */}
 
-                        <div className='align-items-center' style={{marginTop: '-20px'}}>
+                        <div className='align-items-center' style={{ marginTop: '-20px' }}>
                             <HeaderOption />
                         </div>
                         <div className="d-flex flex-column flex-lg-row align-items-start gap-2">

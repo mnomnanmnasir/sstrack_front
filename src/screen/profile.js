@@ -50,43 +50,43 @@ function Profile() {
         }));
     };
 
-    
+
     async function updateData() {
         setLoading(true)
         try {
-          const response = await axios.patch(`${apiUrl}/signin/users/Update`, {
-            ...model
-          }, {
-            headers: headers
-          })
-          if (response.data) {
-            console.log(response);
-            setLoading(false)
-            enqueueSnackbar("profile updated successfully", {
-              variant: "success",
-              anchorOrigin: {
-                vertical: "top",
-                horizontal: "right"
-              }
+            const response = await axios.patch(`${apiUrl}/signin/users/Update`, {
+                ...model
+            }, {
+                headers: headers
             })
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("items", JSON.stringify(response.data.user));
-            setTimeout(() => {
-              navigate("/account")
-            }, 1000);
-          }
-        } catch (error) {
-          setLoading(false)
-          enqueueSnackbar("Network error", {
-            variant: "error",
-            anchorOrigin: { 
-              vertical: "top",
-              horizontal: "right"
+            if (response.data) {
+                console.log(response);
+                setLoading(false)
+                enqueueSnackbar("profile updated successfully", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                })
+                localStorage.setItem("token", response.data.token);
+                localStorage.setItem("items", JSON.stringify(response.data.user));
+                setTimeout(() => {
+                    navigate("/account")
+                }, 1000);
             }
-          })
-          console.log(error);
+        } catch (error) {
+            setLoading(false)
+            enqueueSnackbar("Network error", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            })
+            console.log(error);
         }
-      }
+    }
 
     function goBack() {
         navigate("/account")
@@ -122,13 +122,14 @@ function Profile() {
                                 <div>
                                     <label className="countryLabel">Email</label>
                                     <div className={(items?.userType === "owner" || items?.userType === "admin") ? "countryDropdown" : "countryDropdownDisabled"}>
-                                        <input disabled={items?.userType !== "owner" ? true : false} onChange={(e) => fillModel("email", e.target.value)} defaultValue={items?.email} />
+                                        <input disabled={items?.userType !== "owner" ? true : false} onChange={(e) => fillModel("email", e.target.value)} style={{ width: '100%', backgroundColor: (items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager") ? "#ccc" : "#E8F4FC" }} defaultValue={items?.email} />
                                     </div>
                                 </div>
                                 <div>
                                     <label className="countryLabel">Company</label>
                                     <div className={(items?.userType === "owner" || items?.userType === "admin") ? "countryDropdown" : "countryDropdownDisabled"}>
-                                        <input disabled={items?.userType !== "owner" ? true : false} onChange={(e) => fillModel("company", e.target.value)} defaultValue={items?.company} />
+                                        <input disabled={items?.userType === "owner" || items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager"} style={{ width: '100%', backgroundColor: (items?.userType === "owner" || items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager") ? "#ccc" : "#E8F4FC" }}
+                                            onChange={(e) => fillModel("company", e.target.value)} defaultValue={items?.company} />
                                     </div>
                                 </div>
                                 <div>

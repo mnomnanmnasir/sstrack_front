@@ -21,7 +21,6 @@ function Screenshot() {
     const ids = useSelector((state) => state.adminSlice.ids)
     const employees = useSelector((state) => state.adminSlice.employess)
 
-    debugger
     const handleApplySettings = async (employee, type, setting) => {
         const settings = {
             ...employee.effectiveSettings,

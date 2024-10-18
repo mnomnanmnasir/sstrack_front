@@ -104,18 +104,27 @@ const Payment = ({ updatePaymentStatus }) => {
     //             });
     //     }
     // };
+
     const fetchInvoices = async () => {
         try {
             const res = await fetch(`${apiUrl}/owner/getInvoice`, {
                 headers,
             });
             const data = await res.json();
-            console.log('============================', data);
+            console.log('invoices', data);
+
+            console.log("Invoices ka data agya", data.data.invoiceInfo.map(invoice => invoice.invoiceNumber));
+
 
             // Transform the API data to the desired structure
-            const transformedInvoices = data.data.map((invoice) => {
+            const transformedInvoices = data.data.invoiceInfo.map((invoice) => {
                 // Log the status of each invoice
                 console.log('Invoice status:', invoice.status);
+                // console.log("Invoices ka data agya main", data.data.invoiceInfo.invpinvoiceNumber)
+
+                data.data.invoiceInfo.forEach((invoice, index) => {
+                    console.log(`Invoice ${index + 1} Number:`, invoice.invoiceNumber);
+                });
 
                 return {
                     id: invoice.invoiceNumber,
@@ -134,6 +143,35 @@ const Payment = ({ updatePaymentStatus }) => {
                     })),
                 };
             });
+
+            // if (Array.isArray(data.data.invoiceInfo)) {
+            //     // Get all invoiceNumbers as an array and log them
+            //     const invoiceNumbers = data.data.invoiceInfo.map(invoice => invoice.invoiceNumber);
+            //     console.log("Invoice Numbers:", invoiceNumbers); // Log all invoice numbers
+
+            //     // Transform the API data to the desired structure
+            //     const transformedInvoices = data.data.invoiceInfo.map((invoice) => {
+            //         // Log the status of each invoice
+            //         console.log('Invoice status:', invoice.status);
+
+            //         return {
+            //             id: invoice.invoiceNumber, // Correcting the reference to use the current invoice
+            //             date: new Date(invoice.invoiceDate).toLocaleDateString(),
+            //             description: `For ${new Date(invoice.employee[0].periodStart).toLocaleDateString()}–${new Date(
+            //                 invoice.employee[0].periodEnd
+            //             ).toLocaleDateString()}`,
+            //             amount: parseFloat(invoice.subTotal).toFixed(2),
+            //             balance: parseFloat(invoice.balance).toFixed(2),
+            //             status: invoice.status,
+            //             details: invoice.employee.map(emp => ({
+            //                 name: emp.name,
+            //                 periodStart: new Date(emp.periodStart).toLocaleDateString(),
+            //                 periodEnd: new Date(emp.periodEnd).toLocaleDateString(),
+            //                 amount: emp.amount,
+            //             })),
+            //         };
+            //     });
+
             setHasUnpaidInvoices(hasUnpaidInvoice); // Set hasUnpaidInvoices state
             setInvoices(transformedInvoices);
             // Check if there is any unpaid invoice
@@ -388,9 +426,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 setError(error.message);
                 setLoading(false);
             } else {
-
                 console.log('Card Info:', {
-
                     cardType: paymentMethod.card.brand,
                     expMonth: paymentMethod.card.exp_month,
                     expYear: paymentMethod.card.exp_year,
@@ -929,8 +965,9 @@ const Payment = ({ updatePaymentStatus }) => {
                     tokenId: paycard.tokenId,
                     cardType: paycard.cardType,
                 }, { headers });
-                if (response.data.success) {
-                    console.log('Payment successful hogi:', response.data.success);
+                 
+                if (response.data.success === 200) {
+                    console.log('Payment successful:', response.data.success);
                     setResponseMessage('Payment successful!');
                     handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
                     // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
@@ -942,7 +979,8 @@ const Payment = ({ updatePaymentStatus }) => {
                             horizontal: "right"
                         }
                     })
-                } else {
+                } 
+                else {
                     console.error('Payment failed:', response.data.error);
                     enqueueSnackbar('Payment failed: ' + response.data.error, {
                         variant: "error",
@@ -1131,6 +1169,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                                 <span></span>
                                             )}
                                         </div>
+                                        
                                     </div>
                                 </div>
                             </div>

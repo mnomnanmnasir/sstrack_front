@@ -39,6 +39,8 @@ function Account() {
     const [newPassword2, setNewPassword2] = useState("");
     const [verify, setVerify] = useState(false);
     const [invoices, setInvoices] = useState([]);
+    const [payments, setPayments] = useState([]);
+
     const [isLoading, setIsLoading] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
     const [activeTab, setActiveTab] = useState('invoices');
@@ -67,8 +69,31 @@ function Account() {
             const data = await res.json();
             console.log('invoices', data);
 
+            console.log("Payment ka data agya", data.data.paymentsInfo.map(payment => payment.TotalAmount));
+
+
+
+            // Transform paymentsInfo similar to invoiceInfo
+            const transformedPayments = data.data.paymentsInfo.map((payment) => {
+                console.log('Payment Total Amount:', payment.TotalAmount);
+                console.log('Payment Receipt Id agyi:', payment.receiptId);
+
+                return {
+
+                    receiptId: payment.receiptId, // Assuming each payment has a unique id
+                    amount: parseFloat(payment.TotalAmount).toFixed(2), // Format the total amount
+                    payDate: new Date(payment.payDate).toLocaleDateString(), // Format payment date
+                    paymentIntentId: payment.paymentIntentId, // Assuming each payment has a unique id
+                    // invoiceNumber: payment.invoiceNumber, // Reference to associated invoice
+                    status: payment.status // Payment status
+                };
+            });
+            setPayments(transformedPayments);
+
+            console.log("Payment ka data agya", transformedPayments);
+
             // Transform the API data to the desired structure
-            const transformedInvoices = data.data.map((invoice) => {
+            const transformedInvoices = data.data.invoiceInfo.map((invoice) => {
                 // Log the status of each invoice
                 console.log('Invoice status:', invoice.status);
 
@@ -90,9 +115,36 @@ function Account() {
                 };
             });
 
+            // const transformedInvoice = data.data.paymentInfo.map((payment) => {
+            //     // Log the status of each invoice
+            //     console.log('Invoice status:', invoice.status);
+
+            //     return {
+            //         id: payment.invoiceNumber,
+            //         date: new Date(payment.invoiceDate).toLocaleDateString(),
+            //         description: `For ${new Date(invoice.employee[0].periodStart).toLocaleDateString()}–${new Date(
+            //             payment.employee[0].periodEnd
+            //         ).toLocaleDateString()}`,
+            //         amount: parseFloat(payment.subTotal).toFixed(2),
+            //         balance: parseFloat(payment.balance).toFixed(2),
+            //         status: (payment.status),
+            //         details: payment.employee.map(emp => ({
+            //             name: emp.name,
+            //             periodStart: new Date(emp.periodStart).toLocaleDateString(),
+            //             periodEnd: new Date(emp.periodEnd).toLocaleDateString(),
+            //             amount: emp.amount,
+            //         })),
+            //     };
+            // });
+
             setInvoices(transformedInvoices);
+            // setInvoices(transformedInvoice);
+
             // Check if there is any unpaid invoice
             const hasUnpaidInvoice = transformedInvoices.some(invoice => invoice.status === 'unpaid');
+            // const hasUnpaidInvoices = transformedInvoice.some(invoice => invoice.status === 'unpaid');
+            // setShowWarning(hasUnpaidInvoices);
+
             setShowWarning(hasUnpaidInvoice);
         } catch (error) {
             console.error('Error fetching invoices:!!!!!!!!!!!!!!!!', error);
@@ -356,7 +408,7 @@ function Account() {
             });
         });
     };
-    const paymentPDF = (payments) => {
+    const paymentPDF = (payment) => {
         getBase64Image(logo, (logoBase64, logoWidth, logoHeight) => {
             getBase64Image(paidStamp, (paidStampBase64, paidStampWidth, paidStampHeight) => {
                 const doc = new jsPDF('p', 'pt', 'a4');
@@ -418,19 +470,19 @@ function Account() {
                 // Adding the "Payment Receipt" section
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(18);
-                doc.text(`Payment Receipt #${payments.id}`, 40, 220);
+                doc.text(`Payment Receipt #${payment.id}`, 40, 220);
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(10);
-                doc.text(`Payment #: ${payments.id}`, 40, 250);
-                doc.text(`Payment date: ${payments.date}`, 40, 270);
+                doc.text(`Payment #: ${payment.id}`, 40, 250);
+                doc.text(`Payment date: ${payment.date}`, 40, 270);
                 doc.text(`Description: PayPal, Transaction #76A80100YW016703J`, 40, 290);
                 doc.setFont("helvetica", "bold");
-                doc.text(`Total paid: $${payments.amount}`, 40, 310);
+                doc.text(`Total paid: $${payment.TotalAmount}`, 40, 310);
                 doc.setFont("helvetica", "normal");
-                doc.text(`Your current balance: ($${payments.amount})`, 40, 330);
+                doc.text(`Your current balance: ($${payment.amount})`, 40, 330);
 
                 // Download the PDF
-                doc.save(`Invoice_${payments.id}.pdf`);
+                doc.save(`Invoice_${payment.id}.pdf`);
             });
         });
     }
@@ -632,56 +684,56 @@ function Account() {
     //     const [Cardetail, setCardetail] = useState(''); // Default card details
     //     const [storedPlanId, setStoredPlanId] = useState(null); // Plan details
 
-        // useEffect(() => {
-        //     // Retrieve and parse the stored card details
-        //     const storedCardDetails = localStorage.getItem('carddetail');
-        //     console.log("=============>>>>>>>>>>>>>", storedCardDetails)
-        //     if (storedCardDetails) {
-        //         try {
-        //             const cardDetails = JSON.parse(storedCardDetails);
-        //             if (cardDetails) {
-        //                 setCardetail(cardDetails); // Get last 4 digits of the card
-        //             }
-        //         } catch (error) {
-        //             console.error('Error parsing card details:', error);
-        //         }
-        //     } else {
-        //         console.log('No card details found in localStorage.');
-        //     }
+    // useEffect(() => {
+    //     // Retrieve and parse the stored card details
+    //     const storedCardDetails = localStorage.getItem('carddetail');
+    //     console.log("=============>>>>>>>>>>>>>", storedCardDetails)
+    //     if (storedCardDetails) {
+    //         try {
+    //             const cardDetails = JSON.parse(storedCardDetails);
+    //             if (cardDetails) {
+    //                 setCardetail(cardDetails); // Get last 4 digits of the card
+    //             }
+    //         } catch (error) {
+    //             console.error('Error parsing card details:', error);
+    //         }
+    //     } else {
+    //         console.log('No card details found in localStorage.');
+    //     }
 
-        //     // Optionally, retrieve plan details if necessary
-        //     const storedPlan = localStorage.getItem('planId');
+    //     // Optionally, retrieve plan details if necessary
+    //     const storedPlan = localStorage.getItem('planId');
 
-        //     if (storedPlan) {
-        //         try {
-        //             const planDetails = JSON.parse(storedPlan);
-        //             setStoredPlanId(planDetails);
-        //         } catch (error) {
-        //             console.error('Error parsing plan details:', error);
-        //         }
-        //     }
+    //     if (storedPlan) {
+    //         try {
+    //             const planDetails = JSON.parse(storedPlan);
+    //             setStoredPlanId(planDetails);
+    //         } catch (error) {
+    //             console.error('Error parsing plan details:', error);
+    //         }
+    //     }
 
-        //     // Optionally, retrieve billing balance if necessary
-        //     const storedBilling = localStorage.getItem('billdetail');
-        //     let price = 0;
+    //     // Optionally, retrieve billing balance if necessary
+    //     const storedBilling = localStorage.getItem('billdetail');
+    //     let price = 0;
 
-        //     if (storedBilling === 'Standard') {
-        //         price = 3.99;
-        //     } else if (storedBilling === 'Premium') {
-        //         price = 4.99;
-        //     } else {
-        //         price = 0; // default to 0 if no plan is selected
-        //     }
+    //     if (storedBilling === 'Standard') {
+    //         price = 3.99;
+    //     } else if (storedBilling === 'Premium') {
+    //         price = 4.99;
+    //     } else {
+    //         price = 0; // default to 0 if no plan is selected
+    //     }
 
-        //     if (storedBilling) {
-        //         try {
-        //             const billingDetails = JSON.parse(storedBilling);
-        //             setBilling(billingDetails); // Assuming the stored data has a `balance` field
-        //         } catch (error) {
-        //             console.error('Error parsing billing details:', error);
-        //         }
-        //     }
-        // }, []);
+    //     if (storedBilling) {
+    //         try {
+    //             const billingDetails = JSON.parse(storedBilling);
+    //             setBilling(billingDetails); // Assuming the stored data has a `balance` field
+    //         } catch (error) {
+    //             console.error('Error parsing billing details:', error);
+    //         }
+    //     }
+    // }, []);
     //     return (
     //         <>
     //             {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
@@ -720,38 +772,8 @@ function Account() {
     //     );
     // };
 
-    const payments = [
-        {
-            id: 'PAY-001',
-            date: '2024-10-01',
-            description: 'For 04/06/2024–03/07/2024',
-            amount: 150.00,
-        },
-        {
-            id: 'PAY-002',
-            date: '2024-09-15',
-            description: 'For 04/06/2024–03/07/2024',
-            amount: 200.00,
-        },
-        {
-            id: 'PAY-003',
-            date: '2024-08-30',
-            description: 'For 04/06/2024–03/07/2024',
-            amount: 350.00,
-        },
-        {
-            id: 'PAY-004',
-            date: '2024-08-05',
-            description: 'For 04/06/2024–03/07/2024',
-            amount: 450.00,
-        },
-        {
-            id: 'PAY-005',
-            date: '2024-07-22',
-            description: 'For 04/06/2024–03/07/2024',   
-            amount: 500.00,
-        },
-    ];
+
+
 
     return (
         <div>
@@ -981,9 +1003,9 @@ function Account() {
                                         <tbody>
                                             {payments.map((payment) => (
                                                 <tr key={payment.id}>
-                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.id}</td>
-                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.date}</td>
-                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${payment.description}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.receiptId}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.payDate}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.paymentIntentId}</td>
                                                     <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${payment.amount}</td>
                                                     <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
                                                         <a

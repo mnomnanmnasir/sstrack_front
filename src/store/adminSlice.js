@@ -75,6 +75,7 @@ const adminSlice = createSlice({
                                 screenshots: {
                                     ...emp.effectiveSettings.screenshots,
                                     enabled: payload.checked,
+                                    allowBlur: payload.allowBlur, // Update allowBlur based on payload
                                 },
                             },
                         }
@@ -210,6 +211,7 @@ const adminSlice = createSlice({
                 }),
             }
         },
+
         setEmployessSetting7: (state, { payload }) => {
             return {
                 ...state,
@@ -229,6 +231,7 @@ const adminSlice = createSlice({
                 }),
             }
         },
+
         setEmployessSetting2: (state, { payload }) => {
             return {
                 ...state,

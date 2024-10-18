@@ -29,268 +29,132 @@ import Payment from './payment'
 
 
 
-function BillingComponent() {
-
-    const [show, setShow] = useState(false);
-    const [deleteAccount, setDeleteAccount] = useState(false);
-    const [updatePassword, setUpdatePassword] = useState(false);
-    const [currentPassword, setCurrentPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [newPassword2, setNewPassword2] = useState("");
-    const [verify, setVerify] = useState(false);
-    const [invoices, setInvoices] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [showWarning, setShowWarning] = useState(false);
-    const [activeTab, setActiveTab] = useState('invoices');
-    let token = localStorage.getItem('token');
-    const navigate = useNavigate('');
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    const items = JSON.parse(localStorage.getItem('items'));
-    let headers = {
-        Authorization: 'Bearer ' + token,
-    }
-    // const [selectedPlan, setSelectedPlan] = useState(null);
-    const [billing, setBilling] = useState(''); // Default billing balance
-    const [Cardetail, setCardetail] = useState(''); // Default card details
-    const [storedPlanId, setStoredPlanId] = useState(null); // Plan details
-    // const storedPlanId = JSON.parse(localStorage.getItem('planId'));
-
-    // useEffect(() => {
-    //     // Retrieve and parse the stored card details
-    //     const storedCardDetails = localStorage.getItem('carddetail');
-    //     console.log("=============>>>>>>>>>>>>>", storedCardDetails)
-    //     if (storedCardDetails) {
-    //         try {
-    //             const cardDetails = JSON.parse(storedCardDetails);
-    //             if (cardDetails) {
-    //                 setCardetail(cardDetails); // Get last 4 digits of the card
-    //             }
-    //         } catch (error) {
-    //             console.error('Error parsing card details:', error);
-    //         }
-    //     } else {
-    //         console.log('No card details found in localStorage.');
-    //     }
-
-    //     // Optionally, retrieve plan details if necessary
-    //     const storedPlan = localStorage.getItem('planId');
-
-    //     if (storedPlan) {
-    //         try {
-    //             const planDetails = JSON.parse(storedPlan);
-    //             setStoredPlanId(planDetails);
-    //         } catch (error) {
-    //             console.error('Error parsing plan details:', error);
-    //         }
-    //     }
-
-    //     // Optionally, retrieve billing balance if necessary
-    //     const storedBilling = localStorage.getItem('billdetail');
-    //     let price = 0;
-
-    //     if (storedBilling === 'Standard') {
-    //         price = 3.99;
-    //     } else if (storedBilling === 'Premium') {
-    //         price = 4.99;
-    //     } else {
-    //         price = 0; // default to 0 if no plan is selected
-    //     }
-
-    //     if (storedBilling) {
-    //         try {
-    //             const billingDetails = JSON.parse(storedBilling);
-    //             setBilling(billingDetails); // Assuming the stored data has a `balance` field
-    //         } catch (error) {
-    //             console.error('Error parsing billing details:', error);
-    //         }
-    //     }
-    // }, []);
-
-    //   const payments = [
-    //     {
-    //       id: 'PAY-001',
-    //       date: '2024-10-01',
-    //       description: 'For 04/06/2024–03/07/2024',
-    //       amount: 150.00,
-    //     },
-    //     {
-    //       id: 'PAY-002',
-    //       date: '2024-09-15',
-    //       description: 'For 04/06/2024–03/07/2024',
-    //       amount: 200.00,
-    //     },
-    //     {
-    //       id: 'PAY-003',
-    //       date: '2024-08-30',
-    //       description: 'For 04/06/2024–03/07/2024',
-    //       amount: 350.00,
-    //     },
-    //     {
-    //       id: 'PAY-004',
-    //       date: '2024-08-05',
-    //       description: 'For 04/06/2024–03/07/2024',
-    //       amount: 450.00,
-    //     },
-    //     {
-    //       id: 'PAY-005',
-    //       date: '2024-07-22',
-    //       description: 'For 04/06/2024–03/07/2024',
-    //       amount: 500.00,
-    //     },
-    //   ];
-
-
-    useEffect(() => {
-        const storedCardDetails = localStorage.getItem('carddetail');
-
-        // Retrieve and parse the stored card details
-        console.log("=============>>>>>>>>>>>>>", storedCardDetails)
-        if (storedCardDetails) {
-            try {
-                const cardDetails = JSON.parse(storedCardDetails);
-                if (cardDetails) {
-                    setCardetail(cardDetails); // Get last 4 digits of the card
-                }
-            } catch (error) {
-                console.error('Error parsing card details:', error);
-            }
-        } else {
-            console.log('No card details found in localStorage.');
-        }
-
-        // Optionally, retrieve plan details if necessary
-        const storedPlan = localStorage.getItem('planId');
-
-        if (storedPlan) {
-            try {
-                const planDetails = JSON.parse(storedPlan);
-                setStoredPlanId(planDetails);
-            } catch (error) {
-                console.error('Error parsing plan details:', error);
-            }
-        }
-
-        // Optionally, retrieve billing balance if necessary
-        const storedBilling = localStorage.getItem('billdetail');
-        let price = 0;
-
-        if (storedBilling === 'Standard') {
-            price = 3.99;
-        } else if (storedBilling === 'Premium') {
-            price = 4.99;
-        } else {
-            price = 0; // default to 0 if no plan is selected
-        }
-
-        if (storedBilling) {
-            try {
-                const billingDetails = JSON.parse(storedBilling);
-                setBilling(billingDetails); // Assuming the stored data has a `balance` field
-            } catch (error) {
-                console.error('Error parsing billing details:', error);
-            }
-        }
-        // const storedCardDetails = localStorage.getItem('carddetail');
-        console.log("=============>>>>>>>>>>>>>", storedCardDetails)
-        if (storedCardDetails) {
-            try {
-                const cardDetails = JSON.parse(storedCardDetails);
-                if (cardDetails) {
-                    setCardetail(cardDetails); // Get last 4 digits of the card
-                }
-            } catch (error) {
-                console.error('Error parsing card details:', error);
-            }
-        } else {
-            console.log('No card details found in localStorage.');
-        }
-
-        // Optionally, retrieve plan details if necessary
-        // const storedPlan = localStorage.getItem('planId');
-
-        if (storedPlan) {
-            try {
-                const planDetails = JSON.parse(storedPlan);
-                setStoredPlanId(planDetails);
-            } catch (error) {
-                console.error('Error parsing plan details:', error);
-            }
-        }
-
-        // Optionally, retrieve billing balance if necessary
-        // const storedBilling = localStorage.getItem('billdetail');
-        // let price = 0;
-
-        if (storedBilling === 'Standard') {
-            price = 3.99;
-        } else if (storedBilling === 'Premium') {
-            price = 4.99;
-        } else {
-            price = 0; // default to 0 if no plan is selected
-        }
-        if (storedBilling) {
-            try {
-                const billingDetails = JSON.parse(storedBilling);
-                setBilling(billingDetails); // Assuming the stored data has a `balance` field
-            } catch (error) {
-                console.error('Error parsing billing details:', error);
-            }
-        }
-    }, []);
-
-    // useEffect(() => {
-    //     // Retrieve and parse the stored card details
-    //     const storedCardDetails = localStorage.getItem('carddetail');
-    //     console.log("=============>>>>>>>>>>>>>", storedCardDetails)
-    //     if (storedCardDetails) {
-    //         try {
-    //             const cardDetails = JSON.parse(storedCardDetails);
-    //             if (cardDetails) {
-    //                 setCardetail(cardDetails); // Get last 4 digits of the card
-    //             }
-    //         } catch (error) {
-    //             console.error('Error parsing card details:', error);
-    //         }
-    //     } else {
-    //         console.log('No card details found in localStorage.');
-    //     }
-
-    //     // Optionally, retrieve plan details if necessary
-    //     const storedPlan = localStorage.getItem('planId');
-
-    //     if (storedPlan) {
-    //         try {
-    //             const planDetails = JSON.parse(storedPlan);
-    //             setStoredPlanId(planDetails);
-    //         } catch (error) {
-    //             console.error('Error parsing plan details:', error);
-    //         }
-    //     }
-
-    //     // Optionally, retrieve billing balance if necessary
-    //     const storedBilling = localStorage.getItem('billdetail');
-    //     let price = 0;
-
-    //     if (storedBilling === 'Standard') {
-    //         price = 3.99;
-    //     } else if (storedBilling === 'Premium') {
-    //         price = 4.99;
-    //     } else {
-    //         price = 0; // default to 0 if no plan is selected
-    //     }
-
-    //     if (storedBilling) {
-    //         try {
-    //             const billingDetails = JSON.parse(storedBilling);
-    //             setBilling(billingDetails); // Assuming the stored data has a `balance` field
-    //         } catch (error) {
-    //             console.error('Error parsing billing details:', error);
-    //         }
-    //     }
-    // }, []);
 
     const BillingComponent = () => {
+        const [show, setShow] = useState(false);
+        const [deleteAccount, setDeleteAccount] = useState(false);
+        const [updatePassword, setUpdatePassword] = useState(false);
+        const [currentPassword, setCurrentPassword] = useState("");
+        const [newPassword, setNewPassword] = useState("");
+        const [newPassword2, setNewPassword2] = useState("");
+        const [verify, setVerify] = useState(false);
+        const [invoices, setInvoices] = useState([]);
+        const [isLoading, setIsLoading] = useState(false);
+        const [showWarning, setShowWarning] = useState(false);
+        const [activeTab, setActiveTab] = useState('invoices');
+        let token = localStorage.getItem('token');
+        const navigate = useNavigate('');
+        const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const items = JSON.parse(localStorage.getItem('items'));
+        let headers = {
+            Authorization: 'Bearer ' + token,
+        }
+    
+        // const [billing, setBilling] = useState(JSON.parse(localStorage.getItem('billdetail')) || ''); // Default billing balance
+        // const [Cardetail, setCardetail] = useState(JSON.parse(localStorage.getItem('carddetail')) || ''); // Default card details
+        // const [storedPlanId, setStoredPlanId] = useState(JSON.parse(localStorage.getItem('planId')) || null); // Plan details
+      
+        // useEffect(() => {
+        //     const storedCardDetails = localStorage.getItem('carddetail');
 
+        //     // Retrieve and parse the stored card details
+        //     console.log("=============>>>>>>>>>>>>>", storedCardDetails)
+        //     if (storedCardDetails) {
+        //         try {
+        //             const cardDetails = JSON.parse(storedCardDetails);
+        //             if (cardDetails) {
+        //                 setCardetail(cardDetails); // Get last 4 digits of the card
+        //             }
+        //         } catch (error) {
+        //             console.error('Error parsing card details:', error);
+        //         }
+        //     } else {
+        //         console.log('No card details found in localStorage.');
+        //     }
+    
+        //     // Optionally, retrieve plan details if necessary
+        //     const storedPlan = localStorage.getItem('planId');
+    
+        //     if (storedPlan) {
+        //         try {
+        //             const planDetails = JSON.parse(storedPlan);
+        //             setStoredPlanId(planDetails);
+        //         } catch (error) {
+        //             console.error('Error parsing plan details:', error);
+        //         }
+        //     }
+    
+        //     // Optionally, retrieve billing balance if necessary
+        //     const storedBilling = localStorage.getItem('billdetail');
+        //     // const [billing, setBilling] = useState(JSON.parse(localStorage.getItem('billdetail')) || ''); // Default billing balance
+
+        //     let price = 0;
+    
+        //     if (storedBilling === 'Standard') {
+        //         price = 3.99;
+        //     } else if (storedBilling === 'Premium') {
+        //         price = 4.99;
+        //     } else {
+        //         price = 0; // default to 0 if no plan is selected
+        //     }
+    
+        //     if (storedBilling) {
+        //         try {
+        //             const billingDetails = JSON.parse(storedBilling);
+        //             setBilling(billingDetails); // Assuming the stored data has a `balance` field
+        //         } catch (error) {
+        //             console.error('Error parsing billing details:', error);
+        //         }
+        //     }
+        //     // const storedCardDetails = localStorage.getItem('carddetail');
+        //     console.log("=============>>>>>>>>>>>>>", storedCardDetails)
+        //     if (storedCardDetails) {
+        //         try {
+        //             const cardDetails = JSON.parse(storedCardDetails);
+        //             if (cardDetails) {
+        //                 setCardetail(cardDetails); // Get last 4 digits of the card
+        //             }
+        //         } catch (error) {
+        //             console.error('Error parsing card details:', error);
+        //         }
+        //     } else {
+        //         console.log('No card details found in localStorage.');
+        //     }
+    
+        //     // Optionally, retrieve plan details if necessary
+        //     // const storedPlan = localStorage.getItem('planId');
+    
+        //     if (storedPlan) {
+        //         try {
+        //             const planDetails = JSON.parse(storedPlan);
+        //             setStoredPlanId(planDetails);
+        //         } catch (error) {
+        //             console.error('Error parsing plan details:', error);
+        //         }
+        //     }
+    
+        //     // Optionally, retrieve billing balance if necessary
+        //     // const storedBilling = localStorage.getItem('billdetail');
+        //     // let price = 0;
+    
+        //     if (storedBilling === 'Standard') {
+        //         price = 3.99;
+        //     } else if (storedBilling === 'Premium') {
+        //         price = 4.99;
+        //     } else {
+        //         price = 0; // default to 0 if no plan is selected
+        //     }
+        //     if (storedBilling) {
+        //         try {
+        //             const billingDetails = JSON.parse(storedBilling);
+        //             setBilling(billingDetails); // Assuming the stored data has a `balance` field
+        //         } catch (error) {
+        //             console.error('Error parsing billing details:', error);
+        //         }
+        //     }
+        // }, []);
+    
+     
         const [billing, setBilling] = useState(''); // Default billing balance
         const [Cardetail, setCardetail] = useState(''); // Default card details
         const [storedPlanId, setStoredPlanId] = useState(null); // Plan details
@@ -416,12 +280,5 @@ function BillingComponent() {
     ];
 
 
-    return (
-        <>
-            <BillingComponent />
-        </>
-    );
 
-
-}
 export default BillingComponent;
