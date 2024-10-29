@@ -34,7 +34,7 @@ import CustomModal from './component/CustomModal'
 const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
 
 
-function Account() {
+function Account({ suspended }) {
 
     const [responseMessage, setResponseMessage] = useState(null);
     const location = useLocation();
@@ -72,9 +72,9 @@ function Account() {
     console.log('usercompany==============', items);
     const storedPlanId = JSON.parse(localStorage.getItem('planId'))
     // const premiumPlan = plans.find((plan) => plan.planType === 'premium');
-   
+
     const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
-   
+
     const fetchPlans = async () => {
         try {
             const response = await axios.get(`${planapiUrl}/owner/getPlans`);
@@ -1377,145 +1377,158 @@ function Account() {
 
     return (
         <>
-            
-                <SnackbarProvider />
-                {show ? <Modal show={show} onHide={() => setShow(false)} animation={false} centered>
-                    <Modal.Body>
-                        <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>Are you sure want to delete your account ?</p>
-                        <p>All of the time tracking data and screenshots for this employee will be lost. This can not be undone.</p>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <button className="teamActionButton" onClick={deleteMyAccount}>
-                            DELETE
-                        </button>
-                        <button className="teamActionButton" onClick={() => setShow(false)}>
-                            CANCEL
-                        </button>
-                    </Modal.Footer>
-                </Modal> : null}
-                {updatePassword ? <Modal show={updatePassword} onHide={() => setShow(false)} animation={false} centered>
-                    <Modal.Body onKeyPress={(e) => {
-                        if (e.key === "Enter") {
+
+
+            <SnackbarProvider />
+            {show ? <Modal show={show} onHide={() => setShow(false)} animation={false} centered>
+                <Modal.Body>
+                    <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>Are you sure want to delete your account ?</p>
+                    <p>All of the time tracking data and screenshots for this employee will be lost. This can not be undone.</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <button className="teamActionButton" onClick={deleteMyAccount}>
+                        DELETE
+                    </button>
+                    <button className="teamActionButton" onClick={() => setShow(false)}>
+                        CANCEL
+                    </button>
+                </Modal.Footer>
+            </Modal> : null}
+            {updatePassword ? <Modal show={updatePassword} onHide={() => setShow(false)} animation={false} centered>
+                <Modal.Body onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                        verifyPassword()
+                    }
+                }}>
+                    <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>Change password</p>
+                    <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>Current password</p>
+                    <input
+                        value={currentPassword}
+                        placeholder="Current password"
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        style={{
+                            fontSize: "18px",
+                            padding: "5px 10px",
+                            margin: "10px 0 20px 0",
+                            width: "100%",
+                            border: "1px solid #cacaca"
+                        }}
+                    />
+                    <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>New password</p>
+                    <input
+                        value={newPassword}
+                        placeholder="New password"
+                        onChange={(e) => setNewPassword(e.target.value)} style={{
+                            fontSize: "18px",
+                            padding: "5px 10px",
+                            margin: "10px 0 20px 0",
+                            width: "100%",
+                            border: "1px solid #cacaca"
+                        }}
+                    />
+                    <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>Confirm new password</p>
+                    <input
+                        value={newPassword2}
+                        placeholder="Retype new password"
+                        onChange={(e) => setNewPassword2(e.target.value)}
+                        style={{
+                            fontSize: "18px",
+                            padding: "5px 10px",
+                            margin: "10px 0",
+                            width: "100%",
+                            border: "1px solid #cacaca"
+                        }}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <button style={{ backgroundColor: (currentPassword === "" || newPassword === "" || newPassword2 === "") && "grey", borderColor: (currentPassword === "" || newPassword === "" || newPassword2 === "") && "grey" }} className="teamActionButton" disabled={(currentPassword === "" || newPassword === "" || newPassword2 === "") ? true : false} onClick={() => {
+                        if (verify === true) {
+                            updateMyPassword()
+                        }
+                        else {
                             verifyPassword()
                         }
                     }}>
-                        <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>Change password</p>
-                        <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>Current password</p>
-                        <input
-                            value={currentPassword}
-                            placeholder="Current password"
-                            onChange={(e) => setCurrentPassword(e.target.value)}
-                            style={{
-                                fontSize: "18px",
-                                padding: "5px 10px",
-                                margin: "10px 0 20px 0",
-                                width: "100%",
-                                border: "1px solid #cacaca"
-                            }}
-                        />
-                        <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>New password</p>
-                        <input
-                            value={newPassword}
-                            placeholder="New password"
-                            onChange={(e) => setNewPassword(e.target.value)} style={{
-                                fontSize: "18px",
-                                padding: "5px 10px",
-                                margin: "10px 0 20px 0",
-                                width: "100%",
-                                border: "1px solid #cacaca"
-                            }}
-                        />
-                        <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>Confirm new password</p>
-                        <input
-                            value={newPassword2}
-                            placeholder="Retype new password"
-                            onChange={(e) => setNewPassword2(e.target.value)}
-                            style={{
-                                fontSize: "18px",
-                                padding: "5px 10px",
-                                margin: "10px 0",
-                                width: "100%",
-                                border: "1px solid #cacaca"
-                            }}
-                        />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <button style={{ backgroundColor: (currentPassword === "" || newPassword === "" || newPassword2 === "") && "grey", borderColor: (currentPassword === "" || newPassword === "" || newPassword2 === "") && "grey" }} className="teamActionButton" disabled={(currentPassword === "" || newPassword === "" || newPassword2 === "") ? true : false} onClick={() => {
-                            if (verify === true) {
-                                updateMyPassword()
-                            }
-                            else {
-                                verifyPassword()
-                            }
-                        }}>
-                            UPDATE
-                        </button>
-                        <button className="teamActionButton" onClick={() => setUpdatePassword(false)}>
-                            CANCEL
-                        </button>
-                    </Modal.Footer>
-                </Modal> : null}
-                <div className="container">
-                    <div className="userHeader">
-                        <div className="headerTop">
-                            <img src={user} />
-                            <h5>My Account </h5>
-                        </div>
-                    </div>
-                    <div className="mainwrapper">
-
-                        <div className="accountContainer">
-                            {showWarning && (
-                                <div style={{
-                                    padding: '10px',
-                                    backgroundColor: '#ffdddd',
-                                    border: '1px solid #ffcccc',
-                                    color: '#d8000c',
-                                    marginBottom: '20px',
-                                    borderRadius: '5px',
-                                    textAlign: "center",
-                                }}>
-                                    <strong>Warning:</strong> You have unpaid invoices and payment is past due.
-                                </div>
-                            )}
-                            <p className="asadMehmood">{items?.name} <span>{items?.company}</span></p>
-                            <p className="userEmail">
-                                {items?.email}
-                                <br />
-                                {items?.timezone}
-                                <br />
-                                UTC {formattedOffset}
-                            </p>
-                            <div className="accountDiv">
-                                <div onClick={() => navigate('/profile')} className="accountEditDiv"><div><img src={edit} /></div><p>Edit Profile</p></div>
-                                <div onClick={() => setUpdatePassword(true)} className="accountEditDiv"><div><img src={passwords} /></div><p>Change Password</p></div>
-                                {items?.userType === "owner" && (
-                                    <div onClick={handleShow} className="accountEditDiv">
-                                        <div><img src={deleteIcon} alt="Delete Icon" /></div>
-                                        <p>Delete my Account</p>
-                                    </div>
-                                )}
-                            </div>
-                            {/* <Payment /> */}
-
-                            <BillingComponent />
-                            <PaymentModal
-                                showModal={showModal}
-                                handleClose={handleCloseModal}
-                                selectedPlan={selectedPlan}
-                            />
-                            {/* // )} */}
-                            <Withoutcardpayment
-                                showModalwithoutcard={showModalwithoutcard}
-                                handleCloseModal2={handleCloseModal2}
-                                selectedPlan={selectedPlan}
-                            />
-                            <Payment />
-                        </div>
+                        UPDATE
+                    </button>
+                    <button className="teamActionButton" onClick={() => setUpdatePassword(false)}>
+                        CANCEL
+                    </button>
+                </Modal.Footer>
+            </Modal> : null}
+            <div className="container">
+                <div className="userHeader">
+                    <div className="headerTop">
+                        <img src={user} />
+                        <h5>My Account </h5>
                     </div>
                 </div>
-                <img className="accountLine" src={line} />
-         
+
+                <div className="mainwrapper">
+
+                    <div className="accountContainer">
+                        {suspended ? (
+                            <div className="text-center text-white alert alert-warning" style={{ backgroundColor: '#fc6568' }}>
+                                Your account is currently suspended. Please upgrade your plan
+                            </div>
+                        ) : (
+                            <div>
+                                {/* Regular account content goes here */}
+                                <h1></h1>
+                                {/* Other account details */}
+                            </div>
+                        )}
+                        {showWarning && (
+                            <div style={{
+                                padding: '10px',
+                                backgroundColor: '#ffdddd',
+                                border: '1px solid #ffcccc',
+                                color: '#d8000c',
+                                marginBottom: '20px',
+                                borderRadius: '5px',
+                                textAlign: "center",
+                            }}>
+                                <strong>Warning:</strong> You have unpaid invoices and payment is past due.
+                            </div>
+                        )}
+                        <p className="asadMehmood">{items?.name} <span>{items?.company}</span></p>
+                        <p className="userEmail">
+                            {items?.email}
+                            <br />
+                            {items?.timezone}
+                            <br />
+                            UTC {formattedOffset}
+                        </p>
+                        <div className="accountDiv">
+                            <div onClick={() => navigate('/profile')} className="accountEditDiv"><div><img src={edit} /></div><p>Edit Profile</p></div>
+                            <div onClick={() => setUpdatePassword(true)} className="accountEditDiv"><div><img src={passwords} /></div><p>Change Password</p></div>
+                            {items?.userType === "owner" && (
+                                <div onClick={handleShow} className="accountEditDiv">
+                                    <div><img src={deleteIcon} alt="Delete Icon" /></div>
+                                    <p>Delete my Account</p>
+                                </div>
+                            )}
+                        </div>
+                        {/* <Payment /> */}
+
+                        <BillingComponent />
+                        <PaymentModal
+                            showModal={showModal}
+                            handleClose={handleCloseModal}
+                            selectedPlan={selectedPlan}
+                        />
+                        {/* // )} */}
+                        <Withoutcardpayment
+                            showModalwithoutcard={showModalwithoutcard}
+                            handleCloseModal2={handleCloseModal2}
+                            selectedPlan={selectedPlan}
+                        />
+                        <Payment />
+                    </div>
+                </div>
+            </div>
+            <img className="accountLine" src={line} />
+
             {/* <Payment /> */}
         </>
     )

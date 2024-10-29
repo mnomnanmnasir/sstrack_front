@@ -188,7 +188,7 @@ export default function AppRouter() {
 
             <Route path="/download" element={<Download />} />
             <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
-            <Route path="/account" element={token ? <Account /> : <Navigate to="/signup" />} />
+            <Route path="/account" element={token ? <Account suspended={suspended} /> : <Navigate to="/signup" />} />
             <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/dashboard" />} />
             <Route path="/systemAdminLogin" element={<SystemAdminLogin />} />
             <Route path="/" element={<Home />} />
