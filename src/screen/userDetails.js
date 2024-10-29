@@ -283,7 +283,7 @@ function UserDetails() {
             console.log('Socket connected:', socket.id);
         });
 
-        
+
         const handleUpdateData = () => {
             // console.log('Received updateData event');
             // fetchData();
@@ -357,7 +357,7 @@ function UserDetails() {
 
     const renderCalendar = () => {
         const month = date.getMonth();
-        const [totalHoursByDay, setTotalHoursByDay] = useState([]); // State for total hours by day
+        // const [totalHoursByDay, setTotalHoursByDay] = useState([]); // State for total hours by day
         const year = date.getFullYear();
         const firstDayOfMonth = new Date(year, month, 1);
         const lastDayOfMonth = new Date(year, month + 1, 0);
