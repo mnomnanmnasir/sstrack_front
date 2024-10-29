@@ -66,7 +66,7 @@ function OwnerTeam() {
 
     function getAssignedUsersCount(users, assignedUsers, currentUserId) {
         const assignedUsersList = users?.filter((u) => assignedUsers.includes(u._id) && u._id !== currentUserId);
-            return assignedUsersList.length;
+        return assignedUsersList.length;
         // return assignedUsersList.length > 0 ? assignedUsersList.length - 1 : 0;
     }
     // function getAssignedUsersCount(users, assignedUsers, currentUserId) {
@@ -501,6 +501,8 @@ function OwnerTeam() {
         }
     }
 
+    const [invitedEmail, setInvitedEmail] = useState(""); // State to store the invited email
+
     const handleSendInvitation = async () => {
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (email !== "" && emailRegex.test(email)) {
@@ -522,6 +524,7 @@ function OwnerTeam() {
                         }
                     })
                     fetchOwnerCompanies()
+                    setInvitedEmail(email); // Set the invited email to display
                     setEmail("") // Reset the email input field
                 }
                 console.log("invitationEmail RESPONSE =====>", res);
@@ -727,7 +730,7 @@ function OwnerTeam() {
                                                         </div>
                                                         <p className="groupContent">{e?.inviteStatus === true ? e?.email : e?.name}</p>
                                                     </div>
-                                                    {e?.inviteStatus === true ? (
+                                                    {e?.inviteStatus === true && invitedEmail ? (
                                                         <div style={{
                                                             marginRight: "3px",
                                                             padding: "3px 10px",
@@ -753,6 +756,7 @@ function OwnerTeam() {
                                                         </div>
                                                     ) : null}
                                                 </div>
+                                               
                                                 {
                                                     e?.userType === "owner" ? <div>
                                                         <AiFillStar color="#e7c741" size={20} />

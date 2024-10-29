@@ -66,7 +66,7 @@ import { FerrisWheelSpinner } from "react-spinner-overlay";
 
 function Home() {
 
-  // const { token } = useParams()
+  const { token } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
   const [downloadOS, setDownloadOS] = useState("mac")
@@ -84,7 +84,7 @@ function Home() {
   const [text, setText] = useState("");
   // const [plans, setPlans] = useState([]);
   // const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem('token');
+  // const token = localStorage.getItem('token');
   const [fetchError, setFetchError] = useState(null);
   const [selectedPackage, setSelectedPackage] = useState();
 
@@ -172,17 +172,17 @@ function Home() {
     }
   };
 
-  // const handleClick = (pageNumber) => {
-  //   setCurrentPage(pageNumber);
-  // };
+    // const handleClick = (pageNumber) => {
+    //   setCurrentPage(pageNumber);
+    // };
 
-  // const handlePrevious = () => {
-  //   setCurrentPage((prevPage) => (prevPage > 1 ? prevPage - 1 : prevPage));
-  // };
+    // const handlePrevious = () => {
+    //   setCurrentPage((prevPage) => (prevPage > 1 ? prevPage - 1 : prevPage));
+    // };
 
-  // const handleNext = () => {
-  //   setCurrentPage((prevPage) => (prevPage < totalPages ? prevPage + 1 : prevPage));
-  // };
+    // const handleNext = () => {
+    //   setCurrentPage((prevPage) => (prevPage < totalPages ? prevPage + 1 : prevPage));
+    // };
 
   // const paginatedFeedbacks = feedbacks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -198,19 +198,46 @@ function Home() {
     section2Ref.current.scrollIntoView({ behavior: 'smooth' });
   };
 
-  console.log(location);
-  console.log(token);
+  console.log("localtion",location);
+  console.log("localtion ka path name",location.pathname);
 
-  async function signin() {
-    const decoded = jwtDecode(token);
-    localStorage.setItem("items", JSON.stringify(decoded));
-    // localStorage.setItem("token", token);
-    // navigate("/dashboard")
-  }
+  // console.log("Token agya",token);
+
+
+    const signin = () => {
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          localStorage.setItem("items", JSON.stringify(decoded));
+          localStorage.setItem('token', token); // Ensure the token is stored
+          navigate("/dashboard");
+          window.href.reload();
+          console.log("Dashboard", token)
+        } catch (error) {
+          console.error("Token decoding failed:", error);
+          navigate("/signup");
+        }
+      }
+      else {
+        // If no token, redirect to sign-in or another appropriate page
+        navigate("/signin");
+      }
+    };
+    // signin();
+
+
+  // async function signin() {
+  //   const decoded = jwtDecode(token);
+  //   localStorage.setItem("items", JSON.stringify(decoded));
+  //   localStorage.setItem("token", token);
+  //   navigate("/dashboard")
+  // }
 
   useEffect(() => {
-    signin()
-  }, [])
+    if (token) {
+      signin();
+    }
+  }, [token]); // Run the effect whenever the token changes
 
   console.log(page);
 
@@ -331,8 +358,6 @@ function Home() {
   return (
     <>
       <SnackbarProvider />
-
-
       <br />
       <br />
       <div className='container mt-3 align-items-center justify-content-center'>
@@ -553,12 +578,7 @@ function Home() {
             <button className="startnowButton" onClick={() => navigate("/download")}>Start employee time tracking!</button>
             <p className="creditCancel text-grey">No obligation, no credit card required.</p>
           </div>
-          {/* <div>
-          <img src={lines} className="homeLine" />
-        </div> */}
-          {/* <Footer /> */}
         </section>
-
       </div >
     </>
 

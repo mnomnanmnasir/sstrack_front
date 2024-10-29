@@ -34,6 +34,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const [paycard, setpaycard] = useState();
     const [cards, setCards] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [showModalwithoutcard, setShowModalwithoutcard] = useState(false);
     const [responseMessage, setResponseMessage] = useState(null);
     const [invoice, setInvoice] = useState({ status: 'unpaid' }); // or retrieve it from your API or storage
     const [paymentStatus, setPaymentStatus] = useState('');
@@ -65,6 +66,14 @@ const Payment = ({ updatePaymentStatus }) => {
         setPaymentStatus(status);
         setHasUnpaidInvoices(status !== 'paid');
     };
+
+    const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
+
+    const handleCloseModal2 = () => {
+        setShowModalwithoutcard(false);
+    };
+
+
 
     // const getCardIcon = (cardType) => {
     //     switch (cardType) {
@@ -207,7 +216,6 @@ const Payment = ({ updatePaymentStatus }) => {
         cards.find(card => card.defaultCard)?._id || null
     );
 
-
     const token = localStorage.getItem('token');
     const headers = {
         Authorization: "Bearer " + token,
@@ -216,15 +224,8 @@ const Payment = ({ updatePaymentStatus }) => {
     useEffect(() => {
         if (plans.length > 0) {
             setSelectedPlan(plans[defaultPlanIndex] || plans[0]);
-
         }
     }, [plans, defaultPlanIndex]);
-
-    // const handlePlanSelect = (plan) => {
-    //     setSelectedPlan(plan);
-
-
-    // };
 
     const getPlanDescription = (plan) => {
         return `$${plan.costPerUser} per month per user, up to ${plan.screenshotsPerHr} screenshots per hour, screenshots kept ${plan.ssStored} days, individual settings, activity level tracking, ${plan.mobileApp ? 'mobile app included' : 'no mobile app'}, app & URL tracking`;
@@ -302,8 +303,13 @@ const Payment = ({ updatePaymentStatus }) => {
     const firstBillingPeriodStart = billingDate ? new Date(billingDate) : null;
     const firstBillingPeriodEnd = billingDate ? addMonth(firstBillingPeriodStart) : null;
 
+    const addNewCard = (newCard) => {
+        setCards((prevCards) => [...prevCards, newCard]);
+        setSelectedCard(newCard._id);
 
+    };
 
+    // addNewCard(newCard); // Call the function to update the state
     const CheckoutForm2 = () => {
         const stripe = useStripe();
         const elements = useElements();
@@ -316,8 +322,8 @@ const Payment = ({ updatePaymentStatus }) => {
             Authorization: "Bearer " + token,
         };
 
-        const handleSubmit = async (event) => {
 
+        const handleSubmit = async (event) => {
             event.preventDefault();
             setLoading(true);
 
@@ -347,6 +353,13 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
+                const newCard = {
+                    cardType: paymentMethod.card.brand,
+                    expMonth: paymentMethod.card.exp_month,
+                    expYear: paymentMethod.card.exp_year,
+                    cardNumber: paymentMethod.card.last4,
+                    tokenId: paymentMethod.id,
+                };
                 const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
@@ -364,35 +377,58 @@ const Payment = ({ updatePaymentStatus }) => {
                     }, { headers });
 
                     console.log('Payment Response:', response);
-
                     if (response.data.success) {
+                        console.log('me chalaaaaaaa')
                         setSuccess(true);
-                        handleCloseModal(); // call handleClose function to close the modal
+                        setTimeout(() => {
+                            setshowNewCardModal(false);
+                            addNewCard(newCard); // Call the function to update the state
+                        }, 1000); // Close the modal after 0.5 seconds
                     } else {
                         setError(`Payment failed: ${response.data.message}`);
                     }
                 } catch (error) {
                     setError(`Payment failed: ${error.response ? error.response.data.message : error.message}`);
                 }
+
                 setLoading(false);
             }
         };
 
+        useEffect(() => {
+            if (success) {
+                console.log("paymentv...................")
+                setTimeout(() => {
+                    setShowModal(false);
+                    console.log("paymentv...................")
+                }, 500); // Close the modal after 2 seconds
+            }
+        }, [success, setShowModal]);
+
         return (
-            <Modal show={showModal} onHide={handleCloseModal}>
-                <Modal.Body>
-                    <form onSubmit={handleSubmit} className="payment-form">
-                        <CardElement className="card-element" />
-                        {error && <div className="error-message">{error}</div>}
-                        {success && <div className="success-message">Card Added successful!</div>}
-                        <button type="submit" disabled={!stripe || loading} className="submit-button">
-                            {loading ? 'Adding...' : 'Add Card'}
-                        </button>
-                    </form>
-                </Modal.Body>
-            </Modal>
+
+            success ? (
+                <div>
+                    <div className="success-message">Card Added successful!</div>
+                    {setShowModal(false)}
+                </div>
+            ) : (
+                <form onSubmit={handleSubmit} className="payment-form">
+                    <CardElement className="card-element" />
+                    {error && <div className="error-message">{error}</div>}
+                    {success && <div className="success-message">Card Added successful!</div>
+                    }
+                    {/* {setShowModal(false)} */}
+                    <button type="submit" disabled={!stripe || loading} className="submit-button">
+                        {loading ? 'Adding...' : 'Add Card'}
+                    </button>
+                </form>
+
+            )
+
         );
     };
+
     const CheckoutForm = () => {
         const stripe = useStripe();
         const elements = useElements();
@@ -516,133 +552,28 @@ const Payment = ({ updatePaymentStatus }) => {
 
     const PaymentModal = ({ showModal, handleClose }) => {
 
-        const [showAnotherModal, setShowAnotherModal] = useState(false);
-        const token = localStorage.getItem('token');
-        const headers = {
-            Authorization: "Bearer " + token,
-        };
-        const [upgradeResponse, setUpgradeResponse] = useState(null);
-
-
-        // const handleOkClick = async () => {
-        //     handleClose(); // Add this line to close the modal
-        //     setShowAnotherModal(false);
-
-        //     try {
-        //         const response = await axios.post(`https://myuniversallanguages.com:9093/api/v1/owner/upgrade`, {
-        //             cardType: paycard.cardType,
-        //             expMonth: paycard.expMonth,
-        //             expYear: paycard.expYear,
-        //             cardNumber: paycard.cardNumber,
-        //             TotalAmount: '58.88',
-        //             dueDate: '2024-07-30',
-        //             planId: selectedPlan._id,
-        //         }, { headers });
-
-        //         console.log('upgrade repsonose:', cardType);
-
-        //         if (response.data.success) {
-        // enqueueSnackbar("Payment Successfully", {
-        //     variant: "success",
-        //     anchorOrigin: {
-        //         vertical: "top",
-        //         horizontal: "right"
-        //     }
-        // })
-        //         } else {
-        //             enqueueSnackbar(`Payment failed: ${response.data.message}`, {
-        //                 variant: "error",
-        //                 anchorOrigin: {
-        //                     vertical: "top",
-        //                     horizontal: "right"
-        //                 }
-        //             })
-        //         }
-        //     } catch (error) {
-        //         enqueueSnackbar(`Payment failed: ${error.response ? error.response.data.message : error.message}`, {
-        //             variant: "error",
-        //             anchorOrigin: {
-        //                 vertical: "top",
-        //                 horizontal: "right"
-        //             }
-        //         })
-        //     }
-        // };
-
-        const [error, setError] = useState(null); // Define the error variable
-        const [success, setSuccess] = useState(false);
-
-        const handleOkClick = async (event) => {
-            event.preventDefault();
-            setLoading(true);
-
-            try {
-                const response = await axios.post(`https://myuniversallanguages.com:9093/api/v1/owner/upgrade`, {
-                    cardType: paycard.cardType,
-                    expMonth: paycard.expMonth,
-                    expYear: paycard.expYear,
-                    cardNumber: paycard.cardNumber,
-                    TotalAmount: '58.88',
-                    dueDate: '2024-07-30',
-                    planId: selectedPlan._id,
-                }, { headers });
-
-                console.log('Payment ka reponse:', response);
-
-                if (response.data.success) {
-                    setSuccess(true);
-                } else {
-                    setError(`Payment failed: ${response.data.message}`);
-                }
-            } catch (error) {
-                setError(`Payment failed: ${error.response ? error.response.data.message : error.message}`);
-            }
-            setLoading(false);
-        };
-
         return (
-            <div>
-                <Modal show={showModal && (!paycard || !paycard.cardNumber)} onHide={handleClose} centered>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Payment Details</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <div className="text-left mb-4">
-                            {/* <h5 className="owner-name">Owner Name</h5> */}
-                            {/* <h5 className="employee-count">Number of employees: 5</h5> */}
-                            {selectedPlan && (
-                                <Elements stripe={stripePromise}>
-                                    <div className="payment-container mt-4">
-                                        <p className="mb-4">Complete Your Payment</p>
-                                        <CheckoutForm />
-                                    </div>
-                                </Elements>
-                            )}
-                        </div>
-                    </Modal.Body>
-                </Modal>
-                <Modal show={showModal && paycard && paycard.cardNumber} onHide={() => setShowAnotherModal(false)} centered>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Payment</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <p>are sure you want to change plan?</p>
-                        {upgradeResponse && (
-                            <div>
-                                <h5>Upgrade Response:</h5>
-                                <pre>{JSON.stringify(upgradeResponse, null, 2)}</pre>
-                            </div>
+            <Modal show={showModal} onHide={handleClose} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Payment Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="text-left mb-4">
+                        {/* <h5 className="owner-name">Owner Name</h5> */}
+                        {/* <h5 className="employee-count">Number of employees: 5</h5> */}
+
+                        {selectedPlan && (
+                            <Elements stripe={stripePromise}>
+                                <div className="payment-container mt-4">
+                                    <p className="mb-4">Complete Your Payment</p>
+                                    <CheckoutForm />
+                                    {setShowModal(false)}
+                                </div>
+                            </Elements>
                         )}
-                        <form onSubmit={handleOkClick} className="payment-form">
-                            {error && <div className="error-message">{error}</div>}
-                            {success && <div className="success-message">Payment successful!</div>}
-                            <button type="submit" disabled={loading} className="submit-button">
-                                {loading ? 'Processing...' : 'Pay'}
-                            </button>
-                        </form>
-                    </Modal.Body>
-                </Modal>
-            </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
         );
     };
 
@@ -737,42 +668,80 @@ const Payment = ({ updatePaymentStatus }) => {
             // console.log('Selected Card Full Info:', card);
         };
 
+        const addNewCard = (newCard) => {
+            setCards((prevCards) => [...prevCards, newCard]);
+            setSelectedCard(newCard._id); // Optionally select the new card
+        };
 
         return (
-            <div className="text-left mb-4">
-                <div style={{ display: 'flex', marginBottom: '1rem', }}>
-                    {/* <button
-                        // style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
-                        // onClick={() => setActiveTab('cardSelection')}
-                    >
-                        Card Selection
-                    </button>
+            <>
+                <div className="text-left mb-4">
+                    <div style={{ display: 'flex', marginBottom: '1rem', }}>
+                        {/* <button
+                            // style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
+                            // onClick={() => setActiveTab('cardSelection')}
+                        >
+                            Card Selection
+                        </button>
 
-                    <button
-                        // style={activeTab === 'payment' ? activeTabButtonStyle : tabButtonStyle}
-                        // onClick={() => setActiveTab('payment')}
-                    >
-                        Add New Card
-                    </button> */}
+                        <button
+                            // style={activeTab === 'payment' ? activeTabButtonStyle : tabButtonStyle}
+                            // onClick={() => setActiveTab('payment')}
+                        >
+                            Add New Card
+                        </button> */}
+
+                    </div>
+
+                    <CardSelection
+                        cards={cards}
+                        selectedCard={selectedCard}
+                        onSelect={handleSelectCard}
+                        // onAddCard={handleAddCard} // Pass the function to add a new card
+                        onAddCard={addNewCard} // Pass the function to add a new card
+                        onActionComplete={fetchTokenAndSuspendedStatus}
+                    // setpaycard={setpaycard} // add this prop
+                    />
+                    {/* <Elements stripe={stripePromise}>
+                            <div className="payment-container mt-4">
+                                <p className="mb-4">Complete Your Payment</p>
+                                <CheckoutForm2 />
+                            </div>
+                        </Elements> */}
 
                 </div>
+                <CustomModal
+                    show={showNewCardModal}
+                    onClose={handleClose}
+                    title="Enter Your New Card"
+                >
 
-                <CardSelection
-                    cards={cards}
-                    selectedCard={selectedCard}
-                    onSelect={handleSelectCard}
-                    onActionComplete={fetchTokenAndSuspendedStatus}
-                // setpaycard={setpaycard} // add this prop
-                />
-                {/* <Elements stripe={stripePromise}>
+                    <div style={{ display: 'flex', marginBottom: '1rem', }}>
+                        {/* <button
+                            style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
+                            onClick={() => setActiveTab('cardSelection')}
+                        >
+                            Card Selection
+                        </button> */}
+                    </div>
+                    {/* <CardSelection
+                            cards={cards}
+                            selectedCard={selectedCard}
+                            onSelect={handleSelectCard}
+                            onActionComplete={fetchTokenAndSuspendedStatus}
+
+                        /> */}
+                    {/* {activeTab === 'payment' && ( */}
+                    <Elements stripe={stripePromise}>
                         <div className="payment-container mt-4">
                             <p className="mb-4">Complete Your Payment</p>
-                            <CheckoutForm2 />
+                            <CheckoutForm2 addNewCard={addNewCard} />
                         </div>
-                    </Elements> */}
+                    </Elements>
+                    {/* )} */}
 
-            </div>
-
+                </CustomModal>
+            </>
         );
     };
 
@@ -965,8 +934,8 @@ const Payment = ({ updatePaymentStatus }) => {
                     tokenId: paycard.tokenId,
                     cardType: paycard.cardType,
                 }, { headers });
-                 
-                if (response.data.success === 200) {
+
+                if (response.data.success) {
                     console.log('Payment successful:', response.data.success);
                     setResponseMessage('Payment successful!');
                     handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
@@ -979,7 +948,7 @@ const Payment = ({ updatePaymentStatus }) => {
                             horizontal: "right"
                         }
                     })
-                } 
+                }
                 else {
                     console.error('Payment failed:', response.data.error);
                     enqueueSnackbar('Payment failed: ' + response.data.error, {
@@ -1082,6 +1051,152 @@ const Payment = ({ updatePaymentStatus }) => {
 
     };
 
+    const handleDirectChangePlan = async () => {
+        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        if (paycard) {
+            console.log('Pay with this card:', paycard);
+            // setIsLoading(true);
+            setResponseMessage(null);
+            try {
+                const res = await axios.post(`${DirectPayApiUrl}/owner/upgrade`,
+                    {
+                        planId: selectedPlan._id,
+                    }, { headers })
+                console.log('Response owner', res);
+                const receiptUrl = res.data.data.receiptUrl; // Add this line
+                console.log('Receipt URL:', receiptUrl); // Add this line
+                window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
+
+
+
+                if (res.status === 200) {
+                    console.log('Response', res.data.success)
+                    enqueueSnackbar("Plan Changed Successfully", {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+
+                    })
+                    // window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
+                }
+
+                else {
+                    if (res.status === 403) {
+                        alert("Access denied. Please check your permissions.")
+                    } else if (res.data.success === false) {
+                        alert(res.data.message)
+                    }
+                }
+                handleCloseModal2()
+                // console.log('Employee setting ka message', response?.data?.message);
+            } catch (error) {
+                console.error('Error:', error.response.data.message);
+                if (error.response && error.response.data) {
+                    if (error.response.status === 403 && error.response.data.success === false) {
+                        // alert(error.response.data.message)
+                        enqueueSnackbar("Sorry, upgrade unavailable due to uncleared invoices", {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            }
+                        })
+                    }
+                }
+            }
+            finally {
+                // setIsLoading(false);
+                setShowModalwithoutcard(false);
+            }
+        }
+    }
+
+    const Withoutcardpayment = ({ showModalwithoutcard, handleCloseModal2, selectedPlan }) => {
+        return (
+            <Modal show={showModalwithoutcard} onHide={handleCloseModal2} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Change Your Plan</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="text-left mb-4" >
+                        {/* Optional elements can be placed here */}
+                        {selectedPlan ? (
+                            <div>
+                                Are you sure you want to chage your plan
+                                <div className='container d-flex'>
+                                    <div className="row d-flex" style={{ width: '60rem' }}>
+                                        <div className="col-md-12">
+                                            <div className='card mt-2' style={{ marginLeft: '-12px' }}>
+                                                <div className="card-body" style={{ height: '12rem' }}>
+                                                    <div className='d-flex justify-content-between align-items-center'>
+                                                        {paycard ? paycard.cardType : "Visa"}
+                                                        <img
+                                                            src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
+                                                            alt="Visa logo"
+                                                            style={{ width: '60px', height: 'auto' }}
+                                                        />
+                                                    </div>
+                                                    <span>
+                                                        **** **** **** {paycard ? paycard.cardNumber : ""}
+                                                    </span>
+                                                    <div className='d-flex'>
+                                                        Expires
+                                                    </div>
+                                                    <div>
+                                                        {paycard ? paycard.expMonth : '**'}/{paycard ? paycard.expYear : '**'}
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div>No plan selected</div>
+                        )}
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <button style={{
+                        alignSelf: "center",
+                        marginLeft: '10px',
+                        padding: '5px 10px',  // Adjusting padding for a smaller size
+                        backgroundColor: 'green',  // Green background
+                        color: 'white',  // White text
+                        border: 'none',  // Removing default border
+                        borderRadius: '5px',  // Rounded corners
+                        cursor: 'pointer',  // Pointer on hover
+                        fontSize: '0.875rem'
+                    }}
+                        onClick={() => {
+                            handleDirectChangePlan();
+                            setPlanData(selectedPlan);
+                            localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+                            handleCloseModal2()
+                        }}
+                    // onClick={handleDirectChangePlan}
+                    >Pay Now</button>
+                </Modal.Footer>
+            </Modal >
+        );
+    };
+
+    const planchange = () => {
+        if (paycard) {
+            setShowModalwithoutcard(true);  // For when the paycard is not available
+            console.log('card is available', showModalwithoutcard);
+
+        } else {
+            console.log('card is not available');
+            handleShowModal();
+        }
+        // setPlanData(plan)
+    }
+
+
     const totalbill = selectedPlan?.costPerUser * TotalUsers
     console.log('_____________________', paycard?.cardNumber)
     const Cardetail = paycard?.cardNumber
@@ -1090,102 +1205,71 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
     return (
+        <>
 
-        <div>
             <SnackbarProvider />
-            <div className="container">
-                <div className="userHeader">
+
+            {/* <div className="userHeader">
                     <div>
                         <h5>Paid plan</h5>
                     </div>
-                </div>
-                <div className="mainwrapper">
-                    <div className="ownerTeamContainer">
-                        <h3 className="card-title mb-4">Selected Plan</h3>
-                        <PaymentPlans />
-                        <br />
-                        {/* <button
-                            onClick={
-                                handleShowModal
-                            }
-                            style={{
-                                display: "inline-block",
-                                padding: "8px 16px", // Reduced padding
-                                backgroundColor: "#7CCB58",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "5px",
-                                fontSize: "0.9em", // Reduced font size
-                                cursor: "pointer",
-                                transition: "background-color 0.3s ease",
-                            }}
-                        >
-                            Upgrade to Paid Plan
-                        </button> */}
-                        <div className='container d-flex'>
-                            <div className="row d-flex" style={{ width: '60rem' }}>
-                                <div className="col-md-6">
-                                    <div className='card'>
-                                        <div className="card-body" style={{ height: '12rem' }}>
-                                            <div className='d-flex justify-content-between align-items-center'>
-                                                {paycard ? paycard.cardType : "Visa"}
-                                                <img
-                                                    src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
-                                                    alt="Visa logo"
-                                                    style={{ width: '60px', height: 'auto' }}
-                                                />
-                                            </div>
-                                            <span>
-                                                **** **** **** {paycard ? paycard.cardNumber : ""}
-                                            </span>
-                                            <div className='d-flex'>
-                                                Expires
-                                            </div>
-                                            <div>
-                                                {paycard ? paycard.expMonth : '**'}/{paycard ? paycard.expYear : '**'}
-                                            </div>
-                                            {invoice.status === 'unpaid' && paycard && paycard.cardNumber ? (
-                                                <button
-                                                    style={{
-                                                        position: 'absolute',
-                                                        bottom: '20px',
-                                                        right: '20px',
-                                                        display: "inline-block",
-                                                        padding: "10px 20px",
-                                                        backgroundColor: isLoading ? "#ccc" : "#7CCB58",
-                                                        color: "white",
-                                                        border: "none",
-                                                        borderRadius: "5px",
-                                                        fontSize: "14px",
-                                                        cursor: isLoading ? "not-allowed" : "pointer",
-                                                        transition: "background-color 0.3s ease",
-                                                    }}
-                                                    onClick={selectedPlan ? handlePayWithThisCard : null}
-                                                    disabled={isLoading || !selectedPlan}
-                                                >
-                                                    {isLoading ? "Processing..." : "Pay with this card"}
-                                                </button>
-                                            ) : (
-                                                <span></span>
-                                            )}
-                                        </div>
-                                        
-                                    </div>
+                </div> */}
+            {/* <h3 className="card-title mb-4">Selected Plan</h3> */}
+            {/* <PaymentPlans /> */}
+
+            <PaymentModal
+                showModal={showModal}
+                handleClose={handleCloseModal}
+                selectedPlan={selectedPlan}
+            />
+            {/* // )} */}
+            <Withoutcardpayment
+                showModalwithoutcard={showModalwithoutcard}
+                handleCloseModal2={handleCloseModal2}
+                selectedPlan={selectedPlan}
+            />
+            <br />
+            {/* <button
+                                onClick={
+                                    handleShowModal
+                                }
+                                style={{
+                                    display: "inline-block",
+                                    padding: "8px 16px", // Reduced padding
+                                    backgroundColor: "#7CCB58",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "5px",
+                                    fontSize: "0.9em", // Reduced font size
+                                    cursor: "pointer",
+                                    transition: "background-color 0.3s ease",
+                                }}
+                            >
+                                Upgrade to Paid Plan
+                            </button> */}
+            {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
+                <div className="row d-flex mt-3" style={{ width: '60rem' }}>
+                    <div className="col-md-6">
+                        <div className='card'>
+                            <div className="card-body" style={{ height: '12rem' }}>
+                                <div className='d-flex justify-content-between align-items-center'>
+                                    {paycard ? paycard.cardType : "Visa"}
+                                    <img
+                                        src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
+                                        alt="Visa logo"
+                                        style={{ width: '60px', height: 'auto' }}
+                                    />
                                 </div>
-                            </div>
-                        </div>
-                        <br />
-                        <NewCardModal
-                            paycard={paycard}
-                            setpaycard={setpaycard}
-                            cards={cards}
-                        />
-                        {/* <div className="card" style={{ width: '18rem' }}>
-                            <div className="card-body">
-                                <h5 className="card-title">Card title</h5>
-                                <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                                <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                {invoice.status === 'unpaid' ? (
+                                <span>
+                                    **** **** **** {paycard ? paycard.cardNumber : ""}
+                                </span>
+                                <div className='d-flex'>
+                                    Expires
+                                </div>
+                                <div>
+                                    {paycard ? paycard.expMonth : '**'}/{paycard ? paycard.expYear : '**'}
+                                </div>
+                                {invoice.status === 'unpaid' && paycard && paycard.cardNumber ? (
                                     <button
                                         style={{
                                             position: 'absolute',
@@ -1210,39 +1294,181 @@ const Payment = ({ updatePaymentStatus }) => {
                                     <span></span>
                                 )}
                             </div>
-                        </div> */}
-                        {/* <CardSelection
-                            cards={cards}
-                            selectedCard={selectedCard}
-                            onSelect={handleSelectCard}
-                            onActionComplete={fetchTokenAndSuspendedStatus}
-                        /> */}
-                        {/* {responseMessage && (
-                                <div style={{
-                                    marginTop: '50px',
-                                    padding: '10px',
-                                    borderRadius: '5px',
-                                    backgroundColor: responseMessage.includes('successful') ? '#7CCB58' : '#ff4d4d',
-                                    color: 'white',
-                                    fontWeight: 'bold',
-                                    textAlign: 'center',
-                                }}>
-                                    {responseMessage}
-                                </div>
-                            )} */}
-                        {/* <br /> */}
-                        <PaymentCards />
-                        {/* <PaymentPlans /> */}
+
+                        </div>
                     </div>
                 </div>
-                <PaymentModal
-                    showModal={showModal}
-                    handleClose={handleCloseModal}
-                    selectedPlan={selectedPlan}
+            )}
+            <br />
+            {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
+                <NewCardModal
+                    paycard={paycard}
+                    setpaycard={setpaycard}
+                    cards={cards}
+                    showNewCardModal={showNewCardModal}
+                    handleClose={handleCloseNewModal}
+                    addNewCard={addNewCard} // Pass the function here
                 />
-            </div>
+            )}
+            {/* <div className="card" style={{ width: '18rem' }}>
+                                <div className="card-body">
+                                    <h5 className="card-title">Card title</h5>
+                                    <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
+                                    <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                                    {invoice.status === 'unpaid' ? (
+                                        <button
+                                            style={{
+                                                position: 'absolute',
+                                                bottom: '20px',
+                                                right: '20px',
+                                                display: "inline-block",
+                                                padding: "10px 20px",
+                                                backgroundColor: isLoading ? "#ccc" : "#7CCB58",
+                                                color: "white",
+                                                border: "none",
+                                                borderRadius: "5px",
+                                                fontSize: "14px",
+                                                cursor: isLoading ? "not-allowed" : "pointer",
+                                                transition: "background-color 0.3s ease",
+                                            }}
+                                            onClick={selectedPlan ? handlePayWithThisCard : null}
+                                            disabled={isLoading || !selectedPlan}
+                                        >
+                                            {isLoading ? "Processing..." : "Pay with this card"}
+                                        </button>
+                                    ) : (
+                                        <span></span>
+                                    )}
+                                </div>
+                            </div> */}
+            {/* <CardSelection
+                                cards={cards}
+                                selectedCard={selectedCard}
+                                onSelect={handleSelectCard}
+                                onActionComplete={fetchTokenAndSuspendedStatus}
+                            /> */}
+            {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
+                <>
+                    <div className='row' style={{ marginLeft: '2px', gap: '50px' }}>
 
-        </div >
+                        <div className="card" style={{ width: '22rem' }}>
+                            <div className="card-body text-center">
+                                <h3 className='text-center'
+                                    style={{
+                                        fontSize: "1.2em", // Reduced font size
+                                        color: "#333",
+                                        marginBottom: "5px", // Reduced margin
+                                    }}
+                                >
+                                    or Pay with PayPal
+                                </h3>
+                                <button className='align-items-center text-center'
+                                    onClick={handlePayPalClick}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        padding: '10px 20px',
+                                        backgroundColor: '#FFB730', // Yellow background color
+                                        border: '2px solid #FFB730', // Border to match the background
+                                        borderRadius: '50px', // Rounded corners
+                                        cursor: 'pointer',
+                                        textDecoration: 'none',
+                                        fontSize: '1em',
+                                        fontWeight: 'bold',
+                                        color: '#0070BA', // PayPal blue color for text
+                                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)', // Slight shadow for effect
+                                        transition: 'background-color 0.3s ease',
+                                        margin: '10px',
+                                    }}
+                                >
+                                    <img
+                                        src="https://www.paypalobjects.com/webstatic/icon/pp258.png"
+                                        alt="PayPal"
+                                        style={{
+                                            width: '24px',
+                                            height: 'auto',
+                                            marginRight: '8px', // Space between icon and text
+                                        }}
+                                    />
+                                    PayPal
+                                </button>
+                                <p style={{ fontSize: "0.9em", marginBottom: "0" }}> {/* Reduced font size and margin */}
+                                    PayPal will <strong>NOT</strong> be charged monthly automatically, we
+                                    will remind you when it is time to pay or you can add credit in
+                                    advance.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="card" style={{ width: '22rem' }}>
+
+                            <div className="card-body text-center mt-3">
+                                <h3
+                                    style={{
+                                        fontSize: "1.2em", // Reduced font size
+                                        color: "#333",
+                                        marginBottom: "5px", // Reduced margin
+                                    }}
+                                >
+                                    Add new card
+                                </h3>
+                                <p style={{ marginBottom: "10px", fontSize: "0.9em" }} className='mt-3' > {/* Reduced margin and font size */}
+                                    The card will be charged monthly
+                                </p>
+                                <button className='mt-2'
+                                    onClick={handleShowNewModal}
+                                    style={{
+                                        display: "inline-block",
+                                        padding: "8px 16px", // Reduced padding
+                                        backgroundColor: "#7CCB58",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        fontSize: "0.9em", // Reduced font size
+                                        cursor: "pointer",
+                                        transition: "background-color 0.3s ease",
+                                    }}
+                                >
+                                    Add Card
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+                    {/* <PaymentModal
+                        showModal={showModal}
+                        handleClose={handleCloseModal}
+                        selectedPlan={selectedPlan}
+                    /> */}
+                    {/* // )} */}
+                </>
+
+            )}
+            {/* {responseMessage && (
+                                    <div style={{
+                                        marginTop: '50px',
+                                        padding: '10px',
+                                        borderRadius: '5px',
+                                        backgroundColor: responseMessage.includes('successful') ? '#7CCB58' : '#ff4d4d',
+                                        color: 'white',
+                                        fontWeight: 'bold',
+                                        textAlign: 'center',
+                                    }}>
+                                        {responseMessage}
+                                    </div>
+                                )} */}
+            {/* <br /> */}
+            {/* <PaymentCards /> */}
+            {/* <PaymentPlans /> */}
+
+
+            <PaymentModal
+                showModal={showModal}
+                handleClose={handleCloseModal}
+                selectedPlan={selectedPlan}
+            />
+
+        </>
     );
 };
 

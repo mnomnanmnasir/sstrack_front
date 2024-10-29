@@ -14,7 +14,7 @@ const adminSlice = createSlice({
             return {
                 ...state,
                 activeTab: payload
-                
+
             }
         },
 
@@ -57,11 +57,11 @@ const adminSlice = createSlice({
             const userId = payload.userId;
             const userIndex = state.employess.findIndex((user) => user._id === userId);
             if (userIndex !== -1) {
-              state.employess[userIndex].hasAcceptedInvitation = true;
+                state.employess[userIndex].hasAcceptedInvitation = true;
             }
             return state;
-          },
-          
+        },
+
 
         setEmployessSetting: (state, { payload }) => {
             return {
@@ -86,6 +86,7 @@ const adminSlice = createSlice({
                 }),
             }
         },
+
         setEmployessSetting3: (state, { payload }) => {
             if (payload.type === "activityLevelTracking") {
                 return {
@@ -513,7 +514,6 @@ export const { getEmployess,
     setEmployessSetting5,
     setEmployessSetting6,
     setEmployessSetting7,
-
     setAllUserSetting,
     setAllUserSetting2,
     setAllUserSetting3,
@@ -525,7 +525,7 @@ export const { getEmployess,
 
     setIds,
     setEmployessSettings,
-    
+
 } = adminSlice.actions
 
 export default adminSlice.reducer

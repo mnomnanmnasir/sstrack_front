@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -39,6 +39,8 @@ const Payment = ({ updatePaymentStatus }) => {
     const [invoice, setInvoice] = useState({ status: 'unpaid' }); // or retrieve it from your API or storage
     const [paymentStatus, setPaymentStatus] = useState('');
     const [hasUnpaidInvoices, setHasUnpaidInvoices] = useState(false);
+    const items = JSON.parse(localStorage.getItem('items'));
+
 
     const navigate = useNavigate();
     const handleUpdatePaymentStatus = (status) => {
@@ -521,7 +523,6 @@ const Payment = ({ updatePaymentStatus }) => {
         }
     };
 
-
     const handleShowNewModal = () => {
         setshowNewCardModal(true);
 
@@ -549,16 +550,14 @@ const Payment = ({ updatePaymentStatus }) => {
         setShowModalwithoutcard(false);
     };
 
-
     const Withoutcardpayment = ({ showModalwithoutcard, handleCloseModal2, selectedPlan }) => {
-
         return (
             <Modal show={showModalwithoutcard} onHide={handleCloseModal2} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Change Your Plan</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="text-left mb-4">
+                    <div className="text-left mb-4" >
                         {/* Optional elements can be placed here */}
                         {selectedPlan ? (
                             <div>
@@ -566,7 +565,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                 <div className='container d-flex'>
                                     <div className="row d-flex" style={{ width: '60rem' }}>
                                         <div className="col-md-12">
-                                            <div className='card'>
+                                            <div className='card mt-2' style={{ marginLeft: '-12px' }}>
                                                 <div className="card-body" style={{ height: '12rem' }}>
                                                     <div className='d-flex justify-content-between align-items-center'>
                                                         {paycard ? paycard.cardType : "Visa"}
@@ -621,8 +620,7 @@ const Payment = ({ updatePaymentStatus }) => {
             </Modal >
         );
     };
-
-
+    
     // const handleDirectChangePlan = async () => {
     // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
     // if (paycard) {
@@ -714,7 +712,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     })
                     // window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
                 }
-                
+
                 else {
                     if (res.status === 403) {
                         alert("Access denied. Please check your permissions.")
@@ -781,6 +779,7 @@ const Payment = ({ updatePaymentStatus }) => {
     return (
         <>
             <SnackbarProvider />
+            
             <div className='container mt-4'>
                 <div className="row">
                     {loading ? (
@@ -959,6 +958,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     </div>
                 </div>
             </div>
+            
             {/* {responseMessage && (
                             <div style={{
                                 marginTop: '50px',
@@ -984,7 +984,10 @@ const Payment = ({ updatePaymentStatus }) => {
                 handleCloseModal2={handleCloseModal2}
                 selectedPlan={selectedPlan}
             />
+
+
         </>
+
     );
 };
 

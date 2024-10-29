@@ -46,22 +46,22 @@
 
 //             {/* Public Routes */}
 
-// <Route path="/download" element={<Download />} />
-// <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
-// {/* <Route path="/payment" element={<Payment />} /> */}
-// <Route path="/payment" element={token ? <Payment /> : <Navigate to="/signin" />} />
-// <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/dashboard" />} />
-// <Route path="/systemAdminLogin" element={<SystemAdminLogin />} />
-// <Route path="/" element={<Home />} />
-// <Route path="/capture-screen" element={<CaptureScreen />} />
-// <Route path="/:token" element={<Home />} />
-// <Route path="/create-account/:code/:email" element={<CreateAccount />} />
-// <Route path="/forget-password" element={<ForgetPassword />} />
-// <Route path="/update-password/:id" element={<UpdatePassword />} />
-// <Route path="/verification-code" element={<VerificationCode />} />
-// <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-// <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
-// <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
+//             <Route path="/download" element={<Download />} />
+//             <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
+//             {/* <Route path="/payment" element={<Payment />} /> */}
+//             <Route path="/payment" element={token ? <Payment /> : <Navigate to="/signin" />} />
+//             <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/dashboard" />} />
+//             <Route path="/systemAdminLogin" element={<SystemAdminLogin />} />
+//             <Route path="/" element={<Home />} />
+//             <Route path="/capture-screen" element={<CaptureScreen />} />
+//             <Route path="/:token" element={<Home />} />
+//             <Route path="/create-account/:code/:email" element={<CreateAccount />} />
+//             <Route path="/forget-password" element={<ForgetPassword />} />
+//             <Route path="/update-password/:id" element={<UpdatePassword />} />
+//             <Route path="/verification-code" element={<VerificationCode />} />
+//             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+//             <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
+//             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
 
 //             {/* Private Routes */}
 
@@ -137,10 +137,11 @@ export default function AppRouter() {
           const response = await axios.get(`${apiUrl}/owner/getCompanyInfo`, { headers });
           // For objects or arrays:
           const planindex = response?.data.data[0].planId.length - 1;
-          const planId = response?.data.data[0].planId[planindex].id;
-          console.log('me yaha hnnnnnnnnnnnn', response?.data.data[0].planId[planindex])
-          console.log('mera hn length - 1', planindex)
-          console.log('mera hn length', response?.data.data[0].planId.length)
+          const planId = response?.data.data[0].planId?.slice(-1)[0]?.id || null;
+          // const planId = response?.data.data[0].planId[planindex].id;
+          console.log('', response?.data.data[0].planId[planindex])
+          console.log('', planindex)
+          console.log('', response?.data.data[0].planId.length)
 
           // Save to localStorage after converting to a string
           localStorage.setItem('planId', JSON.stringify(planId));
@@ -167,16 +168,15 @@ export default function AppRouter() {
 
 
 
-
+  useEffect(() => {
+    if (!token) {
+      setToken(localStorage.getItem("token"));
+    }
+  }, [token]);
 
   // if (loading) {
   //   return <div>Loading...</div>;
   // }
-
-
-
-
-
 
   return (
     <>
@@ -201,10 +201,10 @@ export default function AppRouter() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
+            {/* <Route path="/dashboard" element={<UserDashboard />} /> */}
             {/* <Route path="/pricing" element={<Pricing />} /> */}
             {/* <Route path="/workCards" element={token ? (suspended ? <Navigate to="/account" /> : <WorkCards />) : <Navigate to="/" />} /> */}
             {/* Private Routes */}
-
             <Route path="/dashboard" element={token ? (suspended ? <Navigate to="/account" /> : <UserDashboard />) : <Navigate to="/" />} />
             <Route path="/timeline" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
             <Route path="/timeline/:id" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
@@ -221,7 +221,6 @@ export default function AppRouter() {
             {/* <Route path="/privacy-policy" element={token ? <PrivacyPolicy /> : <Navigate to="/" />} /> */}
             {/* <Route path="/privacy-policy1" element={<PrivacyPolicy1/>} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} /> */}
-
           </Route>
           <Route path="*" element={<Navigate to="/signin" />} />
         </Routes>

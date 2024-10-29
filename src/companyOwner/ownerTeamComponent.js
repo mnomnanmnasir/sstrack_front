@@ -243,28 +243,28 @@ function OwnerTeamComponent(props) {
     //     }
     // }
 
-    
+
     const handleAssignUser = async (userID) => {
         try {
-          const response = await axios.patch(`${apiUrl}/superAdmin/assign-user-to-manager/${fixId}`, {
-            userIds: [...new Set([...users.filter(user => user.isAssign).map(user => user._id), userID])]
-          }, { headers })
-          if (response.status) {
-            const assignedUsersCount = users.filter(user => user.isAssign).length;
-            enqueueSnackbar(`Settings saved`, {
-              variant: "success",
-              anchorOrigin: {
-                vertical: "top",
-                horizontal: "right"
-              }
-            })
-          }
+            const response = await axios.patch(`${apiUrl}/superAdmin/assign-user-to-manager/${fixId}`, {
+                userIds: [...new Set([...users.filter(user => user.isAssign).map(user => user._id), userID])]
+            }, { headers })
+            if (response.status) {
+                const assignedUsersCount = users.filter(user => user.isAssign).length;
+                enqueueSnackbar(`Settings saved`, {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                })
+            }
         }
         catch (err) {
-          setLoading(false)
-          console.log(err);
+            setLoading(false)
+            console.log(err);
         }
-      }
+    }
 
     // const handleAssignUser = async (userID) => {
     //     try {
@@ -343,20 +343,33 @@ function OwnerTeamComponent(props) {
                                 <>
                                     {user.userType !== 'manager' && (
                                         <>
-                                            <div className="pauseMain mt-3">
-                                                <p><img className="paueIcon" src={pause} alt="pauseIcon.png" />Pause</p>
-                                            </div>
-                                            <div className="archiveMain mt-3" onClick={archived_unarchived_users}>
-                                                <p><img className="paueIcon" src={archive} alt="Archive.png" />{isUserArchive ? "Archive" : "Unarchive"}</p>
-                                            </div>
+                                            {selectedUser?.userType !== 'owner' &&
+                                                (
+                                                    <>
+                                                        <div className="pauseMain mt-3">
+                                                            <p><img className="paueIcon" src={pause} alt="pauseIcon.png" />Pause</p>
+                                                        </div>
+                                                        <div className="archiveMain mt-3" onClick={archived_unarchived_users}>
+
+                                                            <p><img className="paueIcon" src={archive} alt="Archive.png" />{isUserArchive ? "Archive" : "Unarchive"}</p>
+                                                        </div>
+                                                    </>
+                                                )}
                                         </>
                                     )}
                                 </>
                             )}
                             {user?.userType === 'owner' && deleteUser && (
-                                <div className="deleteMain mt-3" onClick={deleteUser}>
-                                    <p><img className="paueIcon" src={deleteIcon} alt="DeleteTeam.png" />Delete</p>
-                                </div>
+                                <>
+                                    {selectedUser?.userType !== 'owner' &&
+                                        (
+                                            <>
+                                                <div className="deleteMain mt-3" onClick={deleteUser}>
+                                                    <p><img className="paueIcon" src={deleteIcon} alt="DeleteTeam.png" />Delete</p>
+                                                </div>
+                                            </>
+                                        )}
+                                </>
                             )}
                             {console.log("User Type", userType)}
                         </div>

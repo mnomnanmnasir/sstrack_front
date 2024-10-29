@@ -207,7 +207,7 @@ function Home() {
 
 
   console.log(location);
-  console.log(token);
+  console.log("Token Agya",token);
 
   async function signin() {
     const decoded = jwtDecode(token);

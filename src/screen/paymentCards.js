@@ -17,12 +17,13 @@ const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvi
 // secret_key= sk_test_51PvKZy04DfRmMVhLpUwgsNqAG7DjWlohkftPfj49gTzGMIBiZKaXh0DHYgdrKPElaAw71X94yF20MvWYyOKWOSHj00P3ayGG2K
 
 
-const Payment = ({ updatePaymentStatus }) => {
+const PaymentCard = ({ updatePaymentStatus }) => {
 
 
     const navigate = useNavigate()
     const location = useLocation();
     const [plans, setPlans] = useState(location.state?.plans || []);
+    // const [cards, setCards] = useState([]);
     const [fetchError] = useState(location.state?.fetchError || null);
     const [loading, setLoading] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState(null);
@@ -102,13 +103,15 @@ const Payment = ({ updatePaymentStatus }) => {
             }
             setTotalUsers(response?.data?.count);
         } catch (err) {
-            console.log(err);
+            console.log(err);   
         } finally {
             setLoading(false);
         }
     }, [headers]);
 
-
+    const addNewCard = (newCard) => {
+        setCards((prevCards) => [...prevCards, newCard]);
+    };
 
 
     const fetchTokenAndSuspendedStatus = async () => {
@@ -138,11 +141,6 @@ const Payment = ({ updatePaymentStatus }) => {
         }
         setLoading(false);
     };
-
-
-
-
-
 
     useEffect(() => {
         getData();
@@ -185,6 +183,7 @@ const Payment = ({ updatePaymentStatus }) => {
             Authorization: "Bearer " + token,
         };
 
+
         const handleSubmit = async (event) => {
             event.preventDefault();
             setLoading(true);
@@ -215,6 +214,13 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
+                const newCard = {
+                    cardType: paymentMethod.card.brand,
+                    expMonth: paymentMethod.card.exp_month,
+                    expYear: paymentMethod.card.exp_year,
+                    cardNumber: paymentMethod.card.last4,
+                    tokenId: paymentMethod.id,
+                };
                 const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
@@ -237,6 +243,7 @@ const Payment = ({ updatePaymentStatus }) => {
                         setSuccess(true);
                         setTimeout(() => {
                             setshowNewCardModal(false);
+                            addNewCard(newCard); // Call the function to update the state
                         }, 1000); // Close the modal after 0.5 seconds
                     } else {
                         setError(`Payment failed: ${response.data.message}`);
@@ -244,7 +251,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 } catch (error) {
                     setError(`Payment failed: ${error.response ? error.response.data.message : error.message}`);
                 }
-    
+
                 setLoading(false);
             }
         };
@@ -279,6 +286,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 </form>
 
             )
+          
         );
     };
 
@@ -470,10 +478,45 @@ const Payment = ({ updatePaymentStatus }) => {
         };
 
         return (
+            <>
+            <div className="text-left mb-4">
+                    <div style={{ display: 'flex', marginBottom: '1rem', }}>
+                        {/* <button
+                        // style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
+                        // onClick={() => setActiveTab('cardSelection')}
+                    >
+                        Card Selection
+                    </button>
+
+                    <button
+                        // style={activeTab === 'payment' ? activeTabButtonStyle : tabButtonStyle}
+                        // onClick={() => setActiveTab('payment')}
+                    >
+                        Add New Card
+                    </button> */}
+
+                    </div>
+
+                    <CardSelection
+                        cards={cards}
+                        selectedCard={selectedCard}
+                        onSelect={handleSelectCard}
+                        onAddCard={addNewCard} // Pass the function to add a new card
+                        onActionComplete={fetchTokenAndSuspendedStatus}
+                    // setpaycard={setpaycard} // add this prop
+                    />
+                    {/* <Elements stripe={stripePromise}>
+                        <div className="payment-container mt-4">
+                            <p className="mb-4">Complete Your Payment</p>
+                            <CheckoutForm2 />
+                        </div>
+                    </Elements> */}
+
+                </div>
             <CustomModal
                 show={showNewCardModal}
                 onClose={handleClose}
-                title="Enter your new card"
+                title="Enter Your New Card"
             >
                 <div className="text-left mb-12">
                     <div style={{ display: 'flex', marginBottom: '1rem', }}>
@@ -483,11 +526,7 @@ const Payment = ({ updatePaymentStatus }) => {
                         >
                             Card Selection
                         </button> */}
-
-
                     </div>
-
-
                     {/* <CardSelection
                             cards={cards}
                             selectedCard={selectedCard}
@@ -495,18 +534,17 @@ const Payment = ({ updatePaymentStatus }) => {
                             onActionComplete={fetchTokenAndSuspendedStatus}
 
                         /> */}
-
-
                     {/* {activeTab === 'payment' && ( */}
                     <Elements stripe={stripePromise}>
                         <div className="payment-container mt-4">
                             <p className="mb-4">Complete Your Payment</p>
-                            <CheckoutForm2 />
+                            <CheckoutForm2 addNewCard={addNewCard} />
                         </div>
                     </Elements>
                     {/* )} */}
                 </div>
             </CustomModal>
+            </>
         );
     };
 
@@ -719,6 +757,8 @@ const Payment = ({ updatePaymentStatus }) => {
         }
     }, [selectedPlan]);
 
+    
+    
     return (
         <>
             <div className='container'>
@@ -819,6 +859,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 <NewCardModal
                     showNewCardModal={showNewCardModal}
                     handleClose={handleCloseNewModal}
+                    addNewCard={addNewCard} // Pass the function here
                 />
             </div>
         </>
@@ -835,4 +876,4 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
 
-export default Payment;
+export default PaymentCard;

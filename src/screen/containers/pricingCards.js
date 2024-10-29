@@ -63,6 +63,7 @@ const Pricing = () => {
     };
 
     const handleUpgradeClicks = (selectedPlan) => {
+        // setSelectedPackage(selectedPlan); // Update the selected package state
         // Navigate to the payment page, passing along the relevant data
         navigate('/account', {
             state: {
