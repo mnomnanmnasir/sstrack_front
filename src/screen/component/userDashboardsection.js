@@ -58,11 +58,11 @@ function UserDashboardSection(params) {
     //     </div>
     // )    
 
-    // useEffect(() => {
-    //     if (!items?.company) {
-    //         navigate('/profile');
-    //     }
-    // }, [items, navigate]);
+    useEffect(() => {
+        if (!items?.company) {
+            navigate('/profile');
+        }
+    }, [items, navigate]);
 
     return (
         <div className="cursor-pointer">

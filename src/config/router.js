@@ -107,6 +107,8 @@ export default function AppRouter() {
             <Route path="/" element={<Home />} />
             <Route path="/capture-screen" element={<CaptureScreen />} />
             <Route path="/:token" element={<Home />} />
+            {/* <Route path="//:token" element={<Home />} /> */}
+
             <Route path="/create-account/:code/:email" element={<CreateAccount />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/update-password/:id" element={<UpdatePassword />} />
