@@ -1075,7 +1075,7 @@ const BillingComponent = () => {
             const plans = response.data.data;
             console.log('plansssss====>', plans)
             setPlans(plans)
-            setSelectedPlan(plans[0]);
+            setSelectedPlan(plans[1]);
             // Store plans in localStorage
             // localStorage.setItem('plans', JSON.stringify(plans));
             setLoading(false);
@@ -1104,7 +1104,8 @@ const BillingComponent = () => {
 
     useEffect(() => {
         if (plans.length > 0) {
-            setSelectedPlan(plans[0]);
+            setSelectedPlan(plans[defaultPlanIndex - 1] || plans[1]);
+
         } else {
             fetchPlans();
             // setSelectedPlan(plans[0])
@@ -1227,12 +1228,10 @@ const BillingComponent = () => {
         const storedPlanId = JSON.parse(localStorage.getItem('planId'));
         if (storedPlanId?.planType === 'free') {
             setSelectedPackage(1); // Basic
-        } 
-        // else if (storedPlanId?.planType === 'standard') {
-        //     setSelectedPackage(2); // Standard
-        // } 
-        else if (storedPlanId?.planType === 'premium') {
-            setSelectedPackage(2); // Premium
+        } else if (storedPlanId?.planType === 'standard') {
+            setSelectedPackage(2); // Standard
+        } else if (storedPlanId?.planType === 'premium') {
+            setSelectedPackage(3); // Premium
         }
     }, []); // Empty dependency array to run only once on component mount
 
@@ -1810,7 +1809,7 @@ const BillingComponent = () => {
                             <p className="col-12">{fetchError}</p>
                         ) : (
                             plans
-                                .filter((plan) => (plan.planType !== 'standard' && plan.planType !== 'trial')) // Filter out trial plans
+                                .filter((plan) => plan.planType !== 'trial') // Filter out trial plans
                                 .map((plan, index) => (
 
                                     <div className={`col-6 ${index % 2 === 0 ? '' : 'pl-2'}`} style={{

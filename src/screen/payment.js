@@ -1010,10 +1010,11 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardType: paycard.cardType,
                 }, { headers });
 
+                
                 console.log('API Response:', response.data); // Log the entire response data
                 const paypalResponse = await axios.post(`${DirectPayApiUrl}/owner/payNowPayPal`, 
                     {
-                        transactionId: transactionId,  // Send transactionId directly
+                        // transactionId: transactionId,  // Send transactionId directly
                         invoiceId: unpaidInvoiceIds // Send invoiceId as an array
                     },
                     {
@@ -1062,6 +1063,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 }
                     // Check if the API indicates success
                     if (response.data.status === 200) {
+                    const successMessage = response.data.message || "Payment Successful"; // Default success message
                         // Display success message in snackbar
                         enqueueSnackbar(successMessage, {
                             variant: "success",
