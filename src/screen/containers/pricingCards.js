@@ -24,7 +24,7 @@ const Pricing = () => {
     const [userCount, setUserCount] = useState('');
     const [joinTiming, setJoinTiming] = useState(''); // New state for join timing
     const [phoneNo, setPhone] = useState('')
-    const [companyName, setcompanyName] = useState('')
+    const [companyName, setCompanyName] = useState('')
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
