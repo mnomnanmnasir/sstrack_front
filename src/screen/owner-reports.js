@@ -458,6 +458,7 @@ function OwnerReport() {
       throw new Error('Failed to fetch reports');
     }
   };
+  
   const getWeeklyReports = async (type) => {
 
     let response;
@@ -970,7 +971,7 @@ function OwnerReport() {
               // isClearable={true} // Allow the user to clear the selection
               // value={selectedUsers.length > 0 ? selectedUsers[0] : null} // Set the value to the first selected user
               />
-              {console.log("User  detials", user)}
+              {console.log("User Detials", user)}
             </div>
             <div>
               {/* <img className="reportButton" src={reportButton} /> */}
@@ -1091,6 +1092,7 @@ function OwnerReport() {
                         <div key={projectIndex} className="projectDetails">
                           <p>Project Name: {project.projectname || 'No project name'}</p>
                           <p>Duration: {project.hours || 'No duration'}</p>
+                          {console.log("Report Total Hours", project.hours)}
                           <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
                         </div>
                       ))}

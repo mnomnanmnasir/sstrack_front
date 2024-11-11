@@ -549,23 +549,33 @@ function UserHeader() {
                                 <div>
                                     <img onClick={() => navigate('/')} className="logo1" src={logo} />
                                     {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                            <span className="navbar-toggler-icon"></span>
-                        </button> */}
+                                <span className="navbar-toggler-icon"></span>
+                            </button> */}
                                 </div>
                                 <div ref={logoutDivRef}>
                                     <div className="d-flex amButton" role="search">
                                         {/* <h1>
-                                        Hello
-                                    </h1> */}
+                                            Hello
+                                        </h1> */}
                                         {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
-                                        <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p> */}
+                                            <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p> */}
+                                        {/* {token && user && (
+                                                <>
+                                                    <p>
+                                                        {user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)} ({userType})
+                                                    </p>
+                                                    <button onClick={() => setShowContent(!showContent)} className="userName">
+                                                        {capitalizedWord + wordsAfterSpace}
+                                                    </button>
+                                                </>
+                                            )} */}
                                         <p>{user?.name.charAt(0).toUpperCase() + user?.name.slice(1)} ({userType})</p>
                                         <button onClick={() => setShowContent(!showContent)} className="userName">
                                             {capitalizedWord + wordsAfterSpace}
                                         </button>
                                         {/* <button onClick={() => updateData()} className="userName">
-                                {capitalizedWord}
-                            </button> */}
+                                    {capitalizedWord}
+                                </button> */}
                                     </div>
                                     {showContent && <div className="logoutDiv">
                                         <div onClick={takeToDashboard}>
@@ -617,21 +627,27 @@ function UserHeader() {
                                 <div>
                                     <img onClick={() => navigate('/')} className="logo1" src={logo} />
                                     {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                                <span className="navbar-toggler-icon"></span>
-                            </button> */}
+                                    <span className="navbar-toggler-icon"></span>
+                                </button> */}
                                 </div>
                                 <div ref={logoutDivRef}>
                                     <div className="d-flex amButton text-center align-items-center" role="search">
                                         {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
-                                            <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p>
-                                            <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/workCards")}>How It Work</p> */}
-                                        <p className="text-center">{user?.name.charAt(0).toUpperCase() + user?.name.slice(1)} ({userType})</p>
-                                        <button onClick={() => setShowContent(!showContent)} className="userName">
-                                            {capitalizedWord + wordsAfterSpace}
-                                        </button>
+                                                <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p>
+                                                <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/workCards")}>How It Work</p> */}
+                                        {token && user && (
+                                            <>
+                                                <p>
+                                                    {user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)} ({userType})
+                                                </p>
+                                                <button onClick={() => setShowContent(!showContent)} className="userName">
+                                                    {capitalizedWord + wordsAfterSpace}
+                                                </button>
+                                            </>
+                                        )}
                                         {/* <button onClick={() => updateData()} className="userName">
-                                    {capitalizedWord}
-                                </button> */}
+                                        {capitalizedWord}
+                                    </button> */}
                                     </div>
                                     {showContent && <div className="logoutDiv">
                                         <div onClick={takeToDashboard}>
@@ -664,7 +680,9 @@ function UserHeader() {
                                 </div>
                             </div>
                         </nav>
-                        <UserDashboardSection />
+                        {token && (
+                            <UserDashboardSection />
+                        )}
                         {/* <img className="line" src={line} /> */}
                     </>
                 )}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import menu from "../../images/menu.webp";
 import loader from "../../images/Rectangle.webp";
 import check from "../../images/check.webp";
@@ -9,10 +9,15 @@ function UserDashboardSection(params) {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const items = JSON.parse(localStorage.getItem('items'));
+    const [items, setItems] = useState(() => JSON.parse(localStorage.getItem('items')) || {});
 
-    console.log(items);
+    useEffect(() => {
+        const updatedItems = JSON.parse(localStorage.getItem('items'));
+        setItems(updatedItems);
+    }, []);
 
+    console.log('Items from localStorage:', items);
+    
     // return (
     //     <div className="cursor-pointer">
     //         <div className="d-flex justify-content-between align-items-center" style={{
@@ -51,7 +56,14 @@ function UserDashboardSection(params) {
     //             </div>
     //         </div>
     //     </div>
-    // )
+    // )    
+
+    // useEffect(() => {
+    //     if (!items?.company) {
+    //         navigate('/profile');
+    //     }
+    // }, [items, navigate]);
+
     return (
         <div className="cursor-pointer">
             <div className="d-flex justify-content-between align-items-center" style={{
@@ -82,14 +94,14 @@ function UserDashboardSection(params) {
                     <div className={location.pathname === "/reports" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/reports')}>
                         <p style={{ margin: 0 }} onClick={() => navigate('/reports')}>Reports</p>
                     </div>
-                    {(items?.userType !== "manager") && (items?.userType !== "user")  && (
+                    {(items?.userType !== "manager") && (items?.userType !== "user") && (
                         <>
                             <div className={location.pathname === "/Projects" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/Projects')}>
                                 <p style={{ margin: 0 }} onClick={() => navigate('/Projects')}>Projects</p>
                             </div>
                         </>
                     )}
-                      {/* <div className={location.pathname === "/download" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/download')}>
+                    {/* <div className={location.pathname === "/download" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/download')}>
                         <p style={{ margin: 0 }} onClick={() => navigate('/download')}>Download</p>
                     </div>
                     <div className={location.pathname === "/workCards" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/workCards')}>

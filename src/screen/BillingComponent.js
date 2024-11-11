@@ -34,6 +34,79 @@ import Payment from './payment'
 const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
 
 
+const PayPalButton = ({ amount, setMerchantId, selectedPlan }) => {
+    useEffect(() => {
+        // Load the PayPal SDK script
+        const script = document.createElement('script');
+        script.src = `https://www.paypal.com/sdk/js?client-id=AbjWITfwZjHD0s6nwfnGmZFpRKnhKLet_QEaADR6xkZ4LiBjI2niy3U6sHRvYi6zCKgaCA4H4RX3mIPh&currency=USD&disable-funding=credit,card`;
+        script.async = true;
+        document.body.appendChild(script);
+
+        script.onload = () => {
+            window.paypal.Buttons({
+                createOrder: (data, actions) => {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: { value: amount.toString() }, // Ensure it's a string
+                        }],
+                    });
+                },
+            
+                onApprove: async (data, actions) => {
+                    return actions.order.capture().then(async details => {
+                        console.log("Transaction completed by:", details.payer.name.given_name);
+                        const transactionId = details.purchase_units[0].payments.captures[0].id;
+                        setMerchantId(transactionId);
+                    
+                        const requestData = {
+                            planId: selectedPlan?._id,
+                            transactionId: transactionId
+                        };
+                        console.log("Sending API request with:", requestData);
+
+                        if (!requestData.planId || !requestData.transactionId) {
+                            alert("Missing required parameters: planId or transactionId.");
+                            return;
+                        }
+
+                        try {
+                            // Retrieve the token from localStorage
+                            const token = localStorage.getItem('token');
+
+                            const res = await axios.post("https://myuniversallanguages.com:9093/api/v1/owner/upgradePayPal", requestData, {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}` // Send the token in the headers
+                                }
+                            });
+                            console.log('API Response:', res.data);
+                            if (res.status === 200) {
+                                alert("Payment processed successfully!");
+                            } else {
+                                alert("Error: " + (res.data.message || 'Unknown error.'));
+                            }
+                        } catch (error) {
+                            console.error('API Error:', error);
+                            alert("An error occurred while processing the payment.");
+                        }
+                    });
+                },
+                
+                onError: (err) => {
+                    console.error('PayPal Checkout onError', err);
+                    alert("An error occurred with PayPal. Please try again.");
+                },
+            }).render('#paypal-button-container');
+        };
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, [amount, selectedPlan]);
+
+    return <div id="paypal-button-container" style={{ width: '200px', margin: '0 auto' }}></div>; // Set desired width
+};
+
+
 
 const BillingComponent = () => {
 
@@ -90,6 +163,7 @@ const BillingComponent = () => {
                     amount: parseFloat(payment.TotalAmount).toFixed(2), // Format the total amount
                     payDate: new Date(payment.payDate).toLocaleDateString(), // Format payment date
                     paymentIntentId: payment.paymentIntentId, // Assuming each payment has a unique id
+                    cardType: payment.cardType,
                     // invoiceNumber: payment.invoiceNumber, // Reference to associated invoice
                     status: payment.status // Payment status
                 };
@@ -104,7 +178,7 @@ const BillingComponent = () => {
                 const bDate = new Date(b.payDate).setHours(0, 0, 0, 0); // Resetting time for comparison
                 return bDate - aDate; // Sort by payDate in descending order
             });
-            
+
             setPayments(transformedPayments);
 
             console.log("Payment ka data agya", transformedPayments);
@@ -304,7 +378,6 @@ const BillingComponent = () => {
                 doc.text(items.name, customerDetailsX, customerDetailsY + 30);
                 doc.text(items.email, customerDetailsX, customerDetailsY + 45);
                 doc.text('Canada', customerDetailsX, customerDetailsY + 60);
-
                 // Add PAID stamp if paid
                 if (invoice.status === 'paid') {
                     // Define the maximum width and height for the PAID stamp image
@@ -424,7 +497,6 @@ const BillingComponent = () => {
             getBase64Image(paidStamp, (paidStampBase64, paidStampWidth, paidStampHeight) => {
                 const doc = new jsPDF('p', 'pt', 'a4');
                 const width = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
                 const margin = 40;
 
                 // Define the maximum width and height for the logo image
@@ -444,59 +516,68 @@ const BillingComponent = () => {
                     }
                 }
 
-                // Define the header height and draw the header with line
+                // Define header parameters
                 const headerHeight = 60;
                 const headerY = 20;
-                const logoX = 40;
+                const logoX = margin;
                 const companyDetailsX = logoX + logoWidth + 20; // Position company details to the right of the logo
 
-                // Add the header line (adjusted to move up)
+                // Add the header line
                 doc.setLineWidth(5);
                 doc.setDrawColor(211, 211, 211);
-                const headerLineY = headerY + headerHeight; // Adjust this value to move the line up
-                doc.line(40, headerLineY, width - 40, headerLineY);
+                const headerLineY = headerY + headerHeight;
+                doc.line(margin, headerLineY, width - margin, headerLineY);
 
                 // Add the logo
                 doc.addImage(logoBase64, 'PNG', logoX, headerY, logoWidth, logoHeight);
 
-                // Add company details to the right of the logo
+                // Add company details
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
-                doc.text('I8IS', companyDetailsX, headerY + 5); // Align with top of logo
+                doc.text('I8IS', companyDetailsX, headerY + 5);
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
-                doc.text('SSTRACK', companyDetailsX, headerY + 20); // Align with top of logo
-                doc.text('4370 Steeles Avenue West', companyDetailsX, headerY + 35); // New address line 1
-                doc.text('Unit 204 Vaughan ON L4L 4Y4', companyDetailsX, headerY + 50); // New address line 2
+                doc.text('SSTRACK', companyDetailsX, headerY + 20);
+                doc.text('4370 Steeles Avenue West', companyDetailsX, headerY + 35);
+                doc.text('Unit 204 Vaughan ON L4L 4Y4', companyDetailsX, headerY + 50);
 
                 // Adding the "Customer" section
                 doc.setFont("helvetica", "bold");
-                doc.text('Customer:', 40, 100);
+                doc.text('Customer:', margin, 100);
                 doc.setFont("helvetica", "normal");
-                doc.text('I8IS', 40, 120);
-                doc.text('Kamran', 40, 135);
-                mailto: doc.text('kamrantariq@hotmail.com', 40, 150);
-                doc.text('Canada', 40, 165);
+                doc.text('I8IS', margin, 120);
+                doc.text('Kamran', margin, 135);
+                doc.text('kamrantariq@hotmail.com', margin, 150);
+                doc.text('Canada', margin, 165);
 
                 // Adding the "Payment Receipt" section
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(18);
-                doc.text(`Payment Receipt #${payment.id}`, 40, 220);
+                doc.text(`Payment Receipt #${payment.receiptId}`, margin, 220);
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(10);
-                doc.text(`Payment #: ${payment.id}`, 40, 250);
-                doc.text(`Payment date: ${payment.date}`, 40, 270);
-                doc.text(`Description: PayPal, Transaction #76A80100YW016703J`, 40, 290);
-                doc.setFont("helvetica", "bold");
-                doc.text(`Total paid: $${payment.TotalAmount}`, 40, 310);
+                doc.text(`Payment #: ${payment.receiptId}`, margin, 250);
+                doc.text(`Description: ${payment.cardType}, Transaction #: ${payment.paymentIntentId}`, margin, 290);
+                doc.text(`Payment date: ${payment.payDate}`, margin, 270);
+                // doc.text({payment.cardType}, Transaction#{payment.paymentIntentId}, margin, 290);
                 doc.setFont("helvetica", "normal");
-                doc.text(`Your current balance: ($${payment.amount})`, 40, 330);
+                doc.text(`Total paid: `, margin, 310);
+
+                // Set font to bold for the amount
+                doc.setFont("helvetica", "bold");
+                doc.text(`$${parseFloat(payment.amount).toFixed(2)}`, margin + doc.getTextWidth(`Total Paid: `), 310); // Positioning the amount right after the text
+
+                doc.setFont("helvetica", "normal");
+                doc.text(`Your current balance: ($${payment.amount})`, margin, 330);
+
+                // Optionally add a paid stamp if needed
+                // doc.addImage(paidStampBase64, 'PNG', width - 140, 20, 100, 50); // Position and size as needed
 
                 // Download the PDF
-                doc.save(`Invoice_${payment.id}.pdf`);
+                doc.save(`Payment_${payment.receiptId}.pdf`);
             });
         });
-    }
+    };
     // const [billing, setBilling] = useState(JSON.parse(localStorage.getItem('billdetail')) || ''); // Default billing balance
     // const [Cardetail, setCardetail] = useState(JSON.parse(localStorage.getItem('carddetail')) || ''); // Default card details
     // const [storedPlanId, setStoredPlanId] = useState(JSON.parse(localStorage.getItem('planId')) || null); // Plan details
@@ -994,7 +1075,7 @@ const BillingComponent = () => {
             const plans = response.data.data;
             console.log('plansssss====>', plans)
             setPlans(plans)
-            setSelectedPlan(plans[1]);
+            setSelectedPlan(plans[0]);
             // Store plans in localStorage
             // localStorage.setItem('plans', JSON.stringify(plans));
             setLoading(false);
@@ -1005,11 +1086,25 @@ const BillingComponent = () => {
         }
     };
 
+    // const handlePayPalClick = () => {
+    //     const amount = selectedPlan.costPerUser * TotalUsers;
+    //     const paypalUrl = `https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount=${amount}&currency_code=USD`;
+    //     window.open(paypalUrl, '_blank');
+    // };
+    const [showPayPal, setShowPayPal] = useState(false);
+    const amount = 10.00; // Set your amount here
+
+    const handlePayPalClick = () => {
+        handleDirectChangePlan(); // Pass the captureId directly
+        setPlanData(selectedPlan);
+        localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+        handleCloseModal2();
+        setShowPayPal(true); // Show the PayPal button
+    };
 
     useEffect(() => {
         if (plans.length > 0) {
-            setSelectedPlan(plans[defaultPlanIndex - 1] || plans[1]);
-
+            setSelectedPlan(plans[0]);
         } else {
             fetchPlans();
             // setSelectedPlan(plans[0])
@@ -1132,10 +1227,12 @@ const BillingComponent = () => {
         const storedPlanId = JSON.parse(localStorage.getItem('planId'));
         if (storedPlanId?.planType === 'free') {
             setSelectedPackage(1); // Basic
-        } else if (storedPlanId?.planType === 'standard') {
-            setSelectedPackage(2); // Standard
-        } else if (storedPlanId?.planType === 'premium') {
-            setSelectedPackage(3); // Premium
+        } 
+        // else if (storedPlanId?.planType === 'standard') {
+        //     setSelectedPackage(2); // Standard
+        // } 
+        else if (storedPlanId?.planType === 'premium') {
+            setSelectedPackage(2); // Premium
         }
     }, []); // Empty dependency array to run only once on component mount
 
@@ -1238,25 +1335,44 @@ const BillingComponent = () => {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <button style={{
-                        alignSelf: "center",
-                        marginLeft: '10px',
-                        padding: '5px 10px',  // Adjusting padding for a smaller size
-                        backgroundColor: 'green',  // Green background
-                        color: 'white',  // White text
-                        border: 'none',  // Removing default border
-                        borderRadius: '5px',  // Rounded corners
-                        cursor: 'pointer',  // Pointer on hover
-                        fontSize: '0.875rem'
-                    }}
-                        onClick={() => {
-                            handleDirectChangePlan();
-                            setPlanData(selectedPlan);
-                            localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
-                            handleCloseModal2()
+                    <div className='d-flex' style={{ justifyContent: 'space-between', width: '100%' }}>
+                        <button style={{
+                            alignSelf: "center",
+
+                            border: 'none',  // Removing default border
+                            cursor: 'pointer',  // Pointer on hover
                         }}
-                    // onClick={handleDirectChangePlan}
-                    >Pay Now</button>
+                            onClick={() => {
+                                handleDirectChangePlan1();
+                                setPlanData(selectedPlan);
+                                localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+                                handleCloseModal2()
+                            }}
+                        // onClick={handleDirectChangePlan}
+                        >
+                            <PayPalButton amount={amount} selectedPlan={selectedPlan} setMerchantId={setMerchantId} />
+                        </button>
+
+                        <button style={{
+                            alignSelf: "center",
+                            marginLeft: '10px',
+                            padding: '5px 10px',  // Adjusting padding for a smaller size
+                            backgroundColor: 'green',  // Green background
+                            color: 'white',  // White text
+                            border: 'none',  // Removing default border
+                            borderRadius: '5px',  // Rounded corners
+                            cursor: 'pointer',  // Pointer on hover
+                            fontSize: '0.875rem'
+                        }}
+                            onClick={() => {
+                                handleDirectChangePlan();
+                                setPlanData(selectedPlan);
+                                localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+                                handleCloseModal2()
+                            }}
+                        // onClick={handleDirectChangePlan}
+                        >Pay Now</button>
+                    </div>
                 </Modal.Footer>
             </Modal >
         );
@@ -1325,6 +1441,8 @@ const BillingComponent = () => {
     // }
     //     }
     // };
+
+
     const handleDirectChangePlan = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
@@ -1387,6 +1505,92 @@ const BillingComponent = () => {
         }
     }
 
+    // Example function to fetch or set merchantId
+    // const fetchMerchantId = async () => {
+    //     // Logic to fetch or set merchantId from API or context
+    //     const fetchedMerchantId = await getMerchantIdFromApi(); // Replace with your actual fetching logic
+    //     setMerchantId(fetchedMerchantId);
+    // };
+
+    // useEffect(() => {
+    //     fetchMerchantId(); // Fetch merchantId when component mounts
+    // }, []);
+
+    const [merchantId, setMerchantId] = useState(''); // Or whatever method you are using to get the ID
+
+    const handleDirectChangePlan1 = async () => {
+        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    
+        if (paycard) {
+            console.log('Pay with this card:', paycard);
+            setResponseMessage(null);
+    
+            try {
+                // Retrieve the token from localStorage
+                const token = localStorage.getItem('token'); // Make sure the token is stored in localStorage
+    
+                // Make the request, including planId, transactionId, and token in the data
+                const res = await axios.post(`${DirectPayApiUrl}/owner/upgradePayPal`, {
+                    planId: selectedPlan._id,
+                    transactionId: merchantId, // Use the merchantId from props
+                    token // Include token in the request body
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                });
+    
+                // If you get a new token in the response, decode and store it
+                const newToken = res.data.token;
+                if (newToken) {
+                    const decoded = jwtDecode(newToken);
+                    localStorage.setItem("items", JSON.stringify(decoded));
+                    localStorage.setItem("token", newToken); // Update the token if needed
+                }
+                console.log('Response owner', res);
+    
+                // Handle receipt URL if available
+                const receiptUrl = res.data.data.receiptUrl;
+                console.log('Receipt URL:', receiptUrl);
+                window.open(receiptUrl, '_blank');
+    
+                // Display success message
+                if (res.status === 200) {
+                    enqueueSnackbar("Plan Changed Successfully", {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    });
+                } else {
+                    if (res.status === 403) {
+                        alert("Access denied. Please check your permissions.");
+                    } else if (res.data.success === false) {
+                        alert(res.data.message);
+                    }
+                }
+                handleCloseModal2();
+            } catch (error) {
+                console.error('Error:', error.response?.data?.message);
+                if (error.response && error.response.data) {
+                    if (error.response.status === 403 && error.response.data.success === false) {
+                        enqueueSnackbar("Sorry, upgrade unavailable due to uncleared invoices", {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            }
+                        });
+                    }
+                }
+            } finally {
+                setShowModalwithoutcard(false);
+            }
+        }
+    };
+    
+
     const getBase64Image = (imgUrl, callback) => {
         const img = new Image();
         img.crossOrigin = 'Anonymous';
@@ -1435,7 +1639,6 @@ const BillingComponent = () => {
     const handleOpenModal = () => {
         setIsOpen(true);
     };
-
 
     return (
         <>
@@ -1557,7 +1760,7 @@ const BillingComponent = () => {
                                             <tr key={payment.id}>
                                                 <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.receiptId}</td>
                                                 <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.payDate}</td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.paymentIntentId}</td>
+                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.cardType}, Transaction#{payment.paymentIntentId}</td>
                                                 <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${payment.amount}</td>
                                                 <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
                                                     <a
@@ -1571,7 +1774,7 @@ const BillingComponent = () => {
                                                         onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
                                                         onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
                                                         onClick={() =>
-                                                            paymentPDF(payments)
+                                                            paymentPDF(payment)
                                                             // console.log('dfsdfsdfs')
                                                         } // View receipt on click
                                                     >
@@ -1607,7 +1810,7 @@ const BillingComponent = () => {
                             <p className="col-12">{fetchError}</p>
                         ) : (
                             plans
-                                .filter((plan) => plan.planType !== 'trial') // Filter out trial plans
+                                .filter((plan) => (plan.planType !== 'standard' && plan.planType !== 'trial')) // Filter out trial plans
                                 .map((plan, index) => (
 
                                     <div className={`col-6 ${index % 2 === 0 ? '' : 'pl-2'}`} style={{

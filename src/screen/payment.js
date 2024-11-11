@@ -7,9 +7,10 @@ import axios from 'axios';
 import CardSelection from './component/CardSelection';
 import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
-import PaymentCards from './paymentCards'
+import PaymentCards from './paymentCards1'
 import PaymentPlans from './paymentPlan'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
+import PayPalButton from './PayPalButton'
 
 
 // const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
@@ -38,6 +39,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const [responseMessage, setResponseMessage] = useState(null);
     const [invoice, setInvoice] = useState({ status: 'unpaid' }); // or retrieve it from your API or storage
     const [paymentStatus, setPaymentStatus] = useState('');
+    const [showPayPal, setShowPayPal] = useState(false);  // To toggle PayPal button visibility
     const [hasUnpaidInvoices, setHasUnpaidInvoices] = useState(false);
     const [show, setShow] = useState(false);
     const [deleteAccount, setDeleteAccount] = useState(false);
@@ -73,6 +75,8 @@ const Payment = ({ updatePaymentStatus }) => {
         setShowModalwithoutcard(false);
     };
 
+
+    const amount = selectedPlan?.costPerUser * TotalUsers;
 
 
     // const getCardIcon = (cardType) => {
@@ -116,78 +120,44 @@ const Payment = ({ updatePaymentStatus }) => {
 
     const fetchInvoices = async () => {
         try {
-            const res = await fetch(`${apiUrl}/owner/getInvoice`, {
-                headers,
-            });
+            const res = await fetch(`${apiUrl}/owner/getInvoice`, { headers });
             const data = await res.json();
-            console.log('invoices', data);
 
-            console.log("Invoices ka data agya", data.data.invoiceInfo.map(invoice => invoice.invoiceNumber));
+            // Filter unpaid invoices and map to their IDs
+            const unpaidInvoiceIds = data.data.invoiceInfo
+                .filter(invoice => invoice.status === 'unpaid')
+                .map(invoice => invoice._id);
+
+            if (unpaidInvoiceIds) {
+                console.log('Using unpaidInvoiceIds:', unpaidInvoiceIds);
+                // Call the next function with unpaidInvoiceIds
+                handlePayWithThisCard(unpaidInvoiceIds['invoice 1', 'Invoice 2']);
+            }
 
 
-            // Transform the API data to the desired structure
-            const transformedInvoices = data.data.invoiceInfo.map((invoice) => {
-                // Log the status of each invoice
-                console.log('Invoice status:', invoice.status);
-                // console.log("Invoices ka data agya main", data.data.invoiceInfo.invpinvoiceNumber)
+            // Set the invoices state and any related UI flags
+            const transformedInvoices = data.data.invoiceInfo.map(invoice => ({
+                id: invoice.invoiceNumber,
+                date: new Date(invoice.invoiceDate).toLocaleDateString(),
+                description: `For ${new Date(invoice.employee[0].periodStart).toLocaleDateString()}–${new Date(invoice.employee[0].periodEnd).toLocaleDateString()}`,
+                amount: parseFloat(invoice.subTotal).toFixed(2),
+                balance: parseFloat(invoice.balance).toFixed(2),
+                status: invoice.status,
+                details: invoice.employee.map(emp => ({
+                    name: emp.name,
+                    periodStart: new Date(emp.periodStart).toLocaleDateString(),
+                    periodEnd: new Date(emp.periodEnd).toLocaleDateString(),
+                    amount: emp.amount,
+                })),
+            }));
 
-                data.data.invoiceInfo.forEach((invoice, index) => {
-                    console.log(`Invoice ${index + 1} Number:`, invoice.invoiceNumber);
-                });
-
-                return {
-                    id: invoice.invoiceNumber,
-                    date: new Date(invoice.invoiceDate).toLocaleDateString(),
-                    description: `For ${new Date(invoice.employee[0].periodStart).toLocaleDateString()}–${new Date(
-                        invoice.employee[0].periodEnd
-                    ).toLocaleDateString()}`,
-                    amount: parseFloat(invoice.subTotal).toFixed(2),
-                    balance: parseFloat(invoice.balance).toFixed(2),
-                    status: (invoice.status),
-                    details: invoice.employee.map(emp => ({
-                        name: emp.name,
-                        periodStart: new Date(emp.periodStart).toLocaleDateString(),
-                        periodEnd: new Date(emp.periodEnd).toLocaleDateString(),
-                        amount: emp.amount,
-                    })),
-                };
-            });
-
-            // if (Array.isArray(data.data.invoiceInfo)) {
-            //     // Get all invoiceNumbers as an array and log them
-            //     const invoiceNumbers = data.data.invoiceInfo.map(invoice => invoice.invoiceNumber);
-            //     console.log("Invoice Numbers:", invoiceNumbers); // Log all invoice numbers
-
-            //     // Transform the API data to the desired structure
-            //     const transformedInvoices = data.data.invoiceInfo.map((invoice) => {
-            //         // Log the status of each invoice
-            //         console.log('Invoice status:', invoice.status);
-
-            //         return {
-            //             id: invoice.invoiceNumber, // Correcting the reference to use the current invoice
-            //             date: new Date(invoice.invoiceDate).toLocaleDateString(),
-            //             description: `For ${new Date(invoice.employee[0].periodStart).toLocaleDateString()}–${new Date(
-            //                 invoice.employee[0].periodEnd
-            //             ).toLocaleDateString()}`,
-            //             amount: parseFloat(invoice.subTotal).toFixed(2),
-            //             balance: parseFloat(invoice.balance).toFixed(2),
-            //             status: invoice.status,
-            //             details: invoice.employee.map(emp => ({
-            //                 name: emp.name,
-            //                 periodStart: new Date(emp.periodStart).toLocaleDateString(),
-            //                 periodEnd: new Date(emp.periodEnd).toLocaleDateString(),
-            //                 amount: emp.amount,
-            //             })),
-            //         };
-            //     });
-
-            setHasUnpaidInvoices(hasUnpaidInvoice); // Set hasUnpaidInvoices state
             setInvoices(transformedInvoices);
-            // Check if there is any unpaid invoice
-            const hasUnpaidInvoice = transformedInvoices.some(invoice => invoice.status === 'unpaid');
-            setShowButton(hasUnpaidInvoice);
+            setHasUnpaidInvoices(unpaidInvoiceIds.length > 0);
+            setShowButton(unpaidInvoiceIds.length > 0);
+            return unpaidInvoiceIds; // Return unpaid invoice IDs for use in other functions
+
         } catch (error) {
-            console.error('Error fetching invoices:!!!!!!!!!!!!!!!!', error);
+            console.error('Error fetching invoices:', error);
         }
     };
 
@@ -195,7 +165,6 @@ const Payment = ({ updatePaymentStatus }) => {
     useEffect(() => {
         fetchInvoices();
     }, []);
-
 
 
     // Update hasUnpaidInvoices state when invoice status changes
@@ -258,10 +227,8 @@ const Payment = ({ updatePaymentStatus }) => {
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
                 console.log('Fetched Cards:', fetchedCards);
-
                 // Set the cards
                 setCards(fetchedCards);
-
                 // Set the default card as the selected card
                 const defaultCard = fetchedCards.find(card => card.defaultCard);
                 if (defaultCard) {
@@ -276,18 +243,11 @@ const Payment = ({ updatePaymentStatus }) => {
         setLoading(false);
     };
 
-
-
-
-
-
     useEffect(() => {
         getData();
         fetchTokenAndSuspendedStatus();
         console.log('selectedPlan=========jjjjjjjjjjjj', selectedPlan);
-
     }, []);
-
 
     const formatDate = (date) => {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -306,7 +266,6 @@ const Payment = ({ updatePaymentStatus }) => {
     const addNewCard = (newCard) => {
         setCards((prevCards) => [...prevCards, newCard]);
         setSelectedCard(newCard._id);
-
     };
 
     // addNewCard(newCard); // Call the function to update the state
@@ -378,7 +337,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
                     console.log('Payment Response:', response);
                     if (response.data.success) {
-                        console.log('me chalaaaaaaa')
+                        console.log('me')
                         setSuccess(true);
                         setTimeout(() => {
                             setshowNewCardModal(false);
@@ -700,7 +659,7 @@ const Payment = ({ updatePaymentStatus }) => {
                         // onAddCard={handleAddCard} // Pass the function to add a new card
                         onAddCard={addNewCard} // Pass the function to add a new card
                         onActionComplete={fetchTokenAndSuspendedStatus}
-                    // setpaycard={setpaycard} // add this prop
+                        paycard={paycard} // Pass the paycard
                     />
                     {/* <Elements stripe={stripePromise}>
                             <div className="payment-container mt-4">
@@ -764,10 +723,13 @@ const Payment = ({ updatePaymentStatus }) => {
         setShowModal(false);
     };
 
+    // const handlePayPalClick = () => {
+    //     const amount = selectedPlan.costPerUser * TotalUsers;
+    //     const paypalUrl = `https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount=${amount}&currency_code=USD`;
+    //     window.open(paypalUrl, '_blank');
+    // };
     const handlePayPalClick = () => {
-        const amount = selectedPlan.costPerUser * TotalUsers;
-        const paypalUrl = `https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount=${amount}&currency_code=USD`;
-        window.open(paypalUrl, '_blank');
+        setShowPayPal(prevState => !prevState);
     };
 
     // const handleSubmit = async (event) => {
@@ -917,16 +879,129 @@ const Payment = ({ updatePaymentStatus }) => {
     //       setIsLoading(false);
     //     };
     //   }, []);
-
-    const handlePayWithThisCard = async () => {
+    const handlePayWithThisCard1 = async (unpaidInvoiceIds) => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setIsLoading(true);
             setResponseMessage(null);
-            // setButtonText("Processing...");
+
             try {
-                // setIsLoading(true);
+                const response = await axios.post(`${DirectPayApiUrl}/owner/payNowPayPal`, {
+                    transactionId: '123',
+                    invoiceId: unpaidInvoiceIds
+                }, { headers });
+
+                console.log('API Response:', response.data); // Log the entire response data
+
+                // Check for successful response
+                if (response.data.status == 200) {
+                    const successMessage = response.data.message || "Payment Successful"; // Default success message
+                    console.log("Response Payment", successMessage);
+
+                    // Check if the API indicates success
+                    if (response.data.status === 200) {
+                        // Display success message in snackbar
+                        enqueueSnackbar(successMessage, {
+                            variant: "success",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
+                            }
+                        });
+                        setResponseMessage(successMessage); // Update response message with success message
+                        handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
+                        setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+                        setHasUnpaidInvoices(false); // Set hasUnpaidInvoices to false when payment is successful
+                    } else {
+                        // Handle case where response indicates failure even if status is 200
+                        const errorMessage = response.data.message || "Payment failed";
+                        enqueueSnackbar(errorMessage, {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
+                            }
+                        });
+                    }
+                } else {
+                    // Handle unexpected response status
+                    // console.error('Unexpected response status:', response.status);
+                    enqueueSnackbar('Payment Successfull', {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        },
+                        onExited: () => {
+                            setIsLoading(false); // Set isLoading to false when the snackbar exits
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error occurred during payment:', error);
+                if (error.response && error.response.data) {
+                    if (error.response.status === 400 && error.response.data.success === false) {
+                        enqueueSnackbar(error.response.data.message, {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
+                            }
+                        });
+                    } else {
+                        // Handle other types of errors
+                        enqueueSnackbar('An error occurred. Please try again.', {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
+                            }
+                        });
+                    }
+                } else {
+                    // Handle cases where there is no response
+                    enqueueSnackbar('Network error. Please check your connection.', {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        },
+                        onExited: () => {
+                            setIsLoading(false); // Set isLoading to false when the snackbar exits
+                        }
+                    });
+                }
+            } finally {
+                setTimeout(() => {
+                    setIsLoading(false); // Set isLoading to false after a delay
+                }, 1000); // Wait for 1 second before setting isLoading to false
+            }
+        }
+    };
+   
+    const handlePayWithThisCard = async (unpaidInvoiceIds) => {
+        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
+        if (paycard) {
+            console.log('Pay with this card:', paycard);
+            setIsLoading(true);
+            setResponseMessage(null);
+
+            try {
                 const response = await axios.post(`${DirectPayApiUrl}/owner/payNow`, {
                     cardNumber: paycard.cardNumber,
                     expMonth: paycard.expMonth,
@@ -935,50 +1010,91 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardType: paycard.cardType,
                 }, { headers });
 
-                if (response.data.success) {
-                    console.log('Payment successful:', response.data.success);
-                    setResponseMessage('Payment successful!');
-                    handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
-                    // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
-                    setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
-                    enqueueSnackbar("Payment Successfully", {
+                console.log('API Response:', response.data); // Log the entire response data
+                const paypalResponse = await axios.post(`${DirectPayApiUrl}/owner/payNowPayPal`, 
+                    {
+                        transactionId: transactionId,  // Send transactionId directly
+                        invoiceId: unpaidInvoiceIds // Send invoiceId as an array
+                    },
+                    {
+                        headers: {
+                            ...headers,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                console.log('Second API Response:', paypalResponse.data);
+                // Check for successful response
+                if (response.data.status == 200) {
+                    const successMessage = response.data.message || "Payment Successful"; // Default success message
+                    console.log("Response Payment", successMessage);
+                    if (paypalResponse.status === 200) {
+                        enqueueSnackbar(successMessage, {
+                            variant: "success",
+                            anchorOrigin: { vertical: "top", horizontal: "right" },
+                            onExited: () => setIsLoading(false)
+                        });
+                        setResponseMessage(successMessage);
+                        handleUpdatePaymentStatus('paid');
+                        setInvoice({ status: 'paid' });
+                        setHasUnpaidInvoices(false);
+                    } else {
+                        enqueueSnackbar('Payment Successfull' || "PayPal Payment failed", {
+                            variant: "error",
+                            anchorOrigin: { vertical: "top", horizontal: "right" },
+                            onExited: () => setIsLoading(false)
+                        });
+                    }
+                } else {
+                    // Handle unexpected response status
+                    // console.error('Unexpected response status:', response.status);
+                    enqueueSnackbar('Payment Successfull', {
                         variant: "success",
                         anchorOrigin: {
                             vertical: "top",
                             horizontal: "right"
+                        },
+                        onExited: () => {
+                            setIsLoading(false); // Set isLoading to false when the snackbar exits
                         }
-                    })
+                    });
                 }
-                else {
-                    console.error('Payment failed:', response.data.error);
-                    enqueueSnackbar('Payment failed: ' + response.data.error, {
-                        variant: "error",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right"
-                        }
-                    })
-                }
-                // if (res.status === 200) {
-                //     enqueueSnackbar("Payment Successfully", {
-                //         variant: "success",
-                //         anchorOrigin: {
-                //             vertical: "top",
-                //             horizontal: "right"
-                //         }
-                //     })
-                // }
-                // else {
-                //     if (res.status === 403) {
-                //         alert("Access denied. Please check your permissions.")
-                //     } else if (res.data.success === false) {
-                //         alert(res.data.message)
-                //     }
-                // }
+                    // Check if the API indicates success
+                    if (response.data.status === 200) {
+                        // Display success message in snackbar
+                        enqueueSnackbar(successMessage, {
+                            variant: "success",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
+                            }
+                        });
+                        setResponseMessage(successMessage); // Update response message with success message
+                        handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
+                        setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+                        setHasUnpaidInvoices(false); // Set hasUnpaidInvoices to false when payment is successful
+                    } else {
+                        // Handle case where response indicates failure even if status is 200
+                        const errorMessage = response.data.message || "Payment failed";
+                        enqueueSnackbar(errorMessage, {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
+                            }
+                        });
+                    }
             } catch (error) {
+                console.error('Error occurred during payment:', error);
                 if (error.response && error.response.data) {
                     if (error.response.status === 400 && error.response.data.success === false) {
-                        // alert(error.response.data.message)
                         enqueueSnackbar(error.response.data.message, {
                             variant: "error",
                             anchorOrigin: {
@@ -986,71 +1102,42 @@ const Payment = ({ updatePaymentStatus }) => {
                                 horizontal: "right"
                             },
                             onExited: () => {
-                                setIsLoading(false); // Add this line to set isLoading to false
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
                             }
-                        })
-                        // console.log('Erorr agya', error.response.data.message)
-                        // alert(error.response.data.message)
+                        });
+                    } else {
+                        // Handle other types of errors
+                        enqueueSnackbar('An error occurred. Please try again.', {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
+                            }
+                        });
                     }
+                } else {
+                    // Handle cases where there is no response
+                    enqueueSnackbar('Payment Successfull', {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        },
+                        onExited: () => {
+                            setIsLoading(false); // Set isLoading to false when the snackbar exits
+                        }
+                    });
                 }
-            }
-            finally {
+            } finally {
                 setTimeout(() => {
-                    setIsLoading(false); // Add this line to set isLoading to false
-                }, 1000); // Wait for 2 seconds before setting isLoading to false
+                    setIsLoading(false); // Set isLoading to false after a delay
+                }, 1000); // Wait for 1 second before setting isLoading to false
             }
-            // finally {
-            //     // setIsLoading(false); // Add this line to set isLoading to false
-            //     if (error.response.data.message) {
-            //         enqueueSnackbar(error.response.data.message, {
-            //             variant: "error",
-            //             anchorOrigin: {
-            //                 vertical: "top",
-            //                 horizontal: "right"
-            //             }
-            //         })
-            //     }
-            // }
-            // setIsLoading(false);
-            // finally {
-            //     setIsLoading(false); // Add this line to set isLoading to false
-            //   }
-            // finally {
-
-            //     if (error.response && error.response.data) {
-            //         if (error.response.status === 400 && error.response.data.success === false) {
-            //             // alert(error.response.data.message)
-            //             setIsLoading(false);
-            //             enqueueSnackbar(error.response.data.message, {
-            //                 variant: "error",
-            //                 anchorOrigin: {
-            //                     vertical: "top",
-            //                     horizontal: "right"
-            //                 }
-            //             })
-
-
-            //             // console.log('Erorr agya', error.response.data.message)
-            //             // alert(error.response.data.message)
-            //         }
-            //     }
-            // }
-            // setIsLoading(false);
-            // setTimeout(() => {
-            //     enqueueSnackbar(error.response.data.message, {
-            //         variant: "error",
-            //         anchorOrigin: {
-            //             vertical: "top",
-            //             horizontal: "right"
-            //         }
-            //     })
-            // }, 100)
-
-            // setIsLoading(false);
         }
-
     };
-
     const handleDirectChangePlan = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
@@ -1067,8 +1154,6 @@ const Payment = ({ updatePaymentStatus }) => {
                 console.log('Receipt URL:', receiptUrl); // Add this line
                 window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
 
-
-
                 if (res.status === 200) {
                     console.log('Response', res.data.success)
                     enqueueSnackbar("Plan Changed Successfully", {
@@ -1077,11 +1162,9 @@ const Payment = ({ updatePaymentStatus }) => {
                             vertical: "top",
                             horizontal: "right"
                         }
-
                     })
                     // window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
                 }
-
                 else {
                     if (res.status === 403) {
                         alert("Access denied. Please check your permissions.")
@@ -1362,36 +1445,31 @@ const Payment = ({ updatePaymentStatus }) => {
                                 >
                                     or Pay with PayPal
                                 </h3>
-                                <button className='align-items-center text-center'
+                                <button
+                                    className="mt-2"
                                     onClick={handlePayPalClick}
                                     style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        padding: '10px 20px',
-                                        backgroundColor: '#FFB730', // Yellow background color
-                                        border: '2px solid #FFB730', // Border to match the background
-                                        borderRadius: '50px', // Rounded corners
-                                        cursor: 'pointer',
-                                        textDecoration: 'none',
+                                        display: 'inline-block',
+                                        padding: '5px 10px',
+                                        backgroundColor: '#FFB730',
+                                        // color: '#0070BA',
+                                        border: 'none',
+                                        borderRadius: '10px',
                                         fontSize: '1em',
-                                        fontWeight: 'bold',
-                                        color: '#0070BA', // PayPal blue color for text
-                                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)', // Slight shadow for effect
+                                        cursor: 'pointer',
                                         transition: 'background-color 0.3s ease',
-                                        margin: '10px',
+                                        // boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
                                     }}
                                 >
                                     <img
                                         src="https://www.paypalobjects.com/webstatic/icon/pp258.png"
                                         alt="PayPal"
-                                        style={{
-                                            width: '24px',
-                                            height: 'auto',
-                                            marginRight: '8px', // Space between icon and text
-                                        }}
+                                        style={{ width: '24px', marginRight: '8px' }}
                                     />
-                                    PayPal
+                                    PayPal  {/* <PayPalButton amount={amount} /> */}
+                                    {showPayPal &&
+                                        <PayPalButton amount={amount} />
+                                    }
                                 </button>
                                 <p style={{ fontSize: "0.9em", marginBottom: "0" }}> {/* Reduced font size and margin */}
                                     PayPal will <strong>NOT</strong> be charged monthly automatically, we
@@ -1435,6 +1513,7 @@ const Payment = ({ updatePaymentStatus }) => {
                             </div>
                         </div>
                     </div>
+                    {/* <PaymentCards /> */}
                     {/* <PaymentModal
                         showModal={showModal}
                         handleClose={handleCloseModal}

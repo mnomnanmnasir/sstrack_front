@@ -102,8 +102,8 @@ function Home() {
 
   const plans = [
     { id: 1, name: 'Free' },
-    { id: 2, name: 'Standard' },
-    { id: 3, name: 'Premium' }
+    // { id: 2, name: 'Standard' },
+    { id: 2, name: 'Premium' }
   ];
 
 
@@ -115,10 +115,12 @@ function Home() {
     // Check the stored plan type to set the selected package
     if (!storedPlanId?.planType || storedPlanId?.planType === 'free') {
       setSelectedPackage(1); // Free plan
-    } else if (storedPlanId?.planType === 'standard') {
-      setSelectedPackage(2); // Standard plan
-    } else if (storedPlanId?.planType === 'premium') {
-      setSelectedPackage(3); // Premium plan
+    } 
+    // else if (storedPlanId?.planType === 'standard') {
+    //   setSelectedPackage(2); // Standard plan
+    // }
+     else if (storedPlanId?.planType === 'premium') {
+      setSelectedPackage(2); // Premium plan
     }
   }, []); // Empty dependency array to run only once on component mount
 
@@ -158,8 +160,8 @@ function Home() {
     if (!token) {
       // If token is not available, show the plan names (Free, Standard, Premium)
       if (planId === 1) return 'Free';
-      if (planId === 2) return 'Standard';
-      if (planId === 3) return 'Premium';
+      // if (planId === 2) return 'Standard';
+      if (planId === 2) return 'Premium';
     }
 
     // If token is available, show relevant text based on the selected plan
@@ -431,8 +433,6 @@ function Home() {
         <br />
 
         {/* --------------------- pricing section ------------------------------- */}
-
-
        <PricingCards />
         <br />
         <br />

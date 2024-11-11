@@ -6308,3 +6308,19 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   }
 
 }
+/* @media (max-width: 1000px) and (min-width: 300px) {
+
+
+  .mobhayat {
+
+    inline-size: fit-content;
+
+  }
+
+  body {
+
+    width: fit-content;
+
+  }
+
+} */

@@ -49,9 +49,9 @@ const Project = () => {
     const queryClient = useQueryClient();
 
     const fetchProject = async () => {
-        console.log("me chlaaaaaaaa");
-        // const response = await axios.get(`${apiUrl}/timeTrack/getProjects`, { headers });
-        const response = await axios.get(`http://localhost:9093/api/v1/superAdmin/getProjects`, { headers });
+        // console.log("me chlaaaaaaaa");
+        const response = await axios.get(`${apiUrl}/timeTrack/getProjects`, { headers });
+        // const response = await axios.get(`${apiUrl}/superAdmin/getProjects`, { headers });
         return response.data;  // React Query will handle the response status internally
     };
 

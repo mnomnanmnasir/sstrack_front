@@ -1057,7 +1057,7 @@ function Account({ suspended }) {
         return (
             <Modal show={showModalwithoutcard} onHide={handleCloseModal2} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Change Your Plan</Modal.Title>
+                    {/* <Modal.Title>Change Your Plan</Modal.Title> */}
                 </Modal.Header>
                 <Modal.Body>
                     <div className="text-left mb-4" >
