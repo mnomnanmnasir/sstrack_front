@@ -29,7 +29,7 @@ import { Link } from 'react-router-dom'
 import CustomModal from './component/CustomModal'
 import CardSelection from './component/CardSelection';
 import Payment from './payment'
-
+import jwtDecode from 'jwt-decode';
 
 const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
 
