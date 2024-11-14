@@ -195,13 +195,15 @@ function Profile() {
                     timezoneOffset: model.timezoneOffset,
                 };
                 window.location.reload()
-
+                // Navigate to the dashboard after a short delay to allow the snackbar to display
+                setTimeout(() => {
+                    navigate("/dashboard");
+                }, 2000); // Adjust the delay as needed
                 localStorage.setItem('items', JSON.stringify(updatedItems)); // Save to localStorage
 
                 console.log('Data from API if post successful:', response.data);
                 setLoading(false);
                 enqueueSnackbar("Account Created Successfully", { variant: "success", anchorOrigin: { vertical: "top", horizontal: "right" } });
-                navigate("/dashboard");
             } else {
                 console.error('API response indicates failure:', response.data);
                 setLoading(false);
@@ -213,6 +215,56 @@ function Profile() {
             console.error('Error during API request:', error);
         }
     }
+    // async function merafunction() {
+    //     console.log('Current model:', model);
+    //     setLoading(true);
+    
+    //     try {
+    //         const response = await axios.post(
+    //             `https://myuniversallanguages.com:9093/api/v1/auth/microsoft/authSignup`,
+    //             {
+    //                 userId: "672cc6df2a2b7806b4bea9cb", // Replace with the actual userId if needed
+    //                 name: model.name, // Use model.name
+    //                 userType: "owner", // Ensure this is the correct user type
+    //                 timezone: model.timezone, // Use the timezone from the model
+    //                 timezoneOffset: model.timezoneOffset, // Use the timezone offset from the model
+    //                 company: model.company // Ensure you're using model.company
+    //             },
+    //             { headers: headers }
+    //         );
+    
+    //         // Log the entire response for debugging
+    //         console.log('Response from API:', response);
+    
+    //         if (response.data.success) {
+    //             // Save the updated model to localStorage
+    //             const updatedItems = {
+    //                 ...JSON.parse(localStorage.getItem('items')),
+    //                 name: model.name,
+    //                 email: model.email,
+    //                 company: model.company,
+    //                 timezone: model.timezone,
+    //                 timezoneOffset: model.timezoneOffset,
+    //             };
+    
+    //             localStorage.setItem('items', JSON.stringify(updatedItems)); // Save to localStorage
+    //             enqueueSnackbar("Account Created Successfully", { variant: "success", anchorOrigin: { vertical: "top", horizontal: "right" } });
+    
+    //             // Navigate to the dashboard after a short delay to allow the snackbar to display
+    //             setTimeout(() => {
+    //                 navigate("/dashboard");
+    //             }, 2000); // Adjust the delay as needed
+    //         } else {
+    //             console.error('API response indicates failure:', response.data);
+    //             enqueueSnackbar("Failed to create account", { variant: "error", anchorOrigin: { vertical: "top", horizontal: "right" } });
+    //         }
+    //     } catch (error) {
+    //         enqueueSnackbar("Network error", { variant: "error", anchorOrigin: { vertical: "top", horizontal: "right" } });
+    //         console.error('Error during API request:', error);
+    //     } finally {
+    //         setLoading(false); // Ensure loading state is set to false in all cases
+    //     }
+    // }
 
 
     return (

@@ -11,6 +11,8 @@ import leftArrow from "../../images/Leftarrow.webp";
 import rightArrow from "../../images/Rightarrow.webp";
 import dean from "../../images/manage.svg";
 import { Modal, Form } from 'react-bootstrap';
+import { SnackbarProvider, enqueueSnackbar } from "notistack";
+
 
 
 const Pricing = () => {
@@ -35,6 +37,29 @@ const Pricing = () => {
         { id: 3, name: 'Premium' }
     ];
 
+    const handleApply = () => {
+        // Here you can handle the API call to apply for the plan
+        // For example: await api.applyForPlan({ email, phoneNo, companyName, userCount, joinTiming });
+
+        if (!email || !phoneNo || !companyName || !userCount || !joinTiming) {
+            enqueueSnackbar("Please fill in all required fields.", { variant: "error", anchorOrigin: { vertical: "top", horizontal: "right" } });
+            return;
+        }
+        else if (email && phoneNo && companyName && userCount && joinTiming) {
+            enqueueSnackbar("Your application has been successfully submitted", { variant: "success", anchorOrigin: { vertical: "top", horizontal: "right" } });
+
+        }
+        // Show Snackbar message
+        // enqueueSnackbar('Your application has been successfully submitted', { variant: 'success' });
+
+        // Reset form fields
+        setEmail('');
+        setPhone('');
+        setCompanyName('');
+        setUserCount('');
+        setJoinTiming('');
+        handleCloseModal(); // Close the modal after applying
+    };
 
     // const storedPlanId = JSON.parse(localStorage.getItem('planId'));
     // Retrieve the stored plan from localStorage and set the selected package
@@ -105,6 +130,8 @@ const Pricing = () => {
 
     return (
         <>
+            <SnackbarProvider />
+
             <div className='container' id="section3">
                 <p className="how-it-works-title text-center">Company Plans & Pricing</p>
                 <p className="text-center">These monthly plans are for Companies to track their employees or for freelancers to track their own time.
@@ -184,7 +211,7 @@ const Pricing = () => {
                                 Time Tracking
                                 SSTrack
                                 up to <b>30</b> screenshots per hour
-                                screenshots stored for <b>1 <br /> year</b>
+                                screenshots stored for <b>6 <br /> months</b>
                             </p>
                             <p className="activtiyUrl text-center">    Individual settings
                             </p>
@@ -215,25 +242,32 @@ const Pricing = () => {
                         </span>
                     </div> */}
                             {/* <p className="text-center"> per user per month</p> */}
-                            <div className="price-container new-price mt-5">
-                                <span style={{ fontSize: "3rem" }}>
-                                    <small className="small-dollar"></small>Upto 50%<sup className="small-number"></sup>
+                            <div className="price-container new-price mt-4">
+                                <span style={{ fontSize: "2.6rem" }}>
+                                    <small className="small-dollar"></small>Upto 50% Off<sup className="small-number"></sup>
                                 </span>
                             </div>
-                            <p className="text-center text-red mt-3">
-                                per user per month if you start now!
+                            <p className="text-center text-red mt-2" style={{ fontSize: "0.9rem" }}>
+                                Ideal for organizations with 50+ users
                             </p>
 
-                            <p className="card-text text-center">
+                            <p className="text-center" style={{ fontSize: "0.85rem", color: "#555", fontWeight: "500", marginTop: "-5px" }}>
+                                Enhance productivity with enterprise-level support and advanced features.
+                            </p>
+
+                            <p className="card-text text-center" style={{ marginTop: '-10px' }}>
                                 Time Tracking SSTrack up to <b>30</b> screenshots per hour
                                 screenshots stored for <b>1<br /> year</b>
                             </p>
                             <p className="activtiyUrl text-center">Individual settings</p>
                             <p className="text-center">Activity Level Tracking</p>
                             <p className="activtiyUrl text-center">App & URL Tracking</p>
+                            <p className="activtiyUrl text-center">
+                                Mobile Application
+                            </p>
                             <br />
                             <div className="mt-auto">
-                                <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#7ACB59", marginTop: '20px' }}
+                                <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#7ACB59", marginTop: '-20px' }}
                                     onClick={handleOpenModal}
                                 >
                                     Apply
@@ -242,7 +276,6 @@ const Pricing = () => {
                             <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
                         </div>
                     </div>
-
                     {/* Modal for applying */}
 
                     <Modal show={showModal} onHide={handleCloseModal} centered>
@@ -255,6 +288,7 @@ const Pricing = () => {
                                 <Form.Group controlId="formName">
                                     <Form.Label>Email</Form.Label>
                                     <Form.Control
+                                        required
                                         type="email"
                                         placeholder="Enter your Email"
                                         value={email}
@@ -264,6 +298,7 @@ const Pricing = () => {
                                 <Form.Group controlId="formName" className="mt-3">
                                     <Form.Label>Phone Number</Form.Label>
                                     <Form.Control
+                                        required
                                         type="number"
                                         placeholder="Enter your Phone No"
                                         value={phoneNo}
@@ -335,7 +370,7 @@ const Pricing = () => {
                             }} onClick={() => {
                                 // Handle the apply action here
                                 // For example, you could call an API to apply for the plan
-                                handleCloseModal(); // Close the modal after applying
+                                handleApply(); // Close the modal after applying
                             }}>
                                 Apply
                             </button>
