@@ -44,7 +44,7 @@ function UserDetails() {
     // console.log('Employees ka blur dekhna hai mujhyy', employees)
     const [allowBlur, setAllowBlur] = useState(true);
     // const allowBlur = employees.some(employee => employee.effectiveSettings.screenshots?.allowBlur);
-    console.log("Allow Blur agyaaa", allowBlur)
+    // console.log("Allow Blur agyaaa", allowBlur)
     // const { employee, allowBlur } = props;
 
     useEffect(() => {
@@ -71,7 +71,7 @@ function UserDetails() {
         const findUser = employees.find((f) => f.effectiveSettings[data.key] === false)
         try {
             const res = await axios.patch(
-                `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${data.employee._id}`,
+                `https://ss-track-xi.vercel.app/api/v1/owner/settingsE/${data.employee._id}`,
                 {
                     userId: data.employee._id,
                     effectiveSettings: {
@@ -177,7 +177,7 @@ function UserDetails() {
         noteRef.current = event.target.value;
     };
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     let token = localStorage.getItem('token');
     let items = JSON.parse(localStorage.getItem('items'));
     let headers = {
@@ -223,6 +223,7 @@ function UserDetails() {
             setLoading(false);
         }
     };
+    
     // const fetchData = async () => {
     //     if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
     //         try {
@@ -404,17 +405,17 @@ function UserDetails() {
                 //         </Tooltip>
                 //     }
                 // >
-                    <div
-                        style={{ cursor: "pointer", border: "1px solid #ebeaea" }}
-                        className={`col cell ${isWeekend ? "week day week first" : "day"} ${dayKey === activeButton ? "active" : isCurrentDate ? "active2" : ""}`}
-                        onClick={() => handleClick(dayKey)}
-                    >
-                        <p className="weekName">{currentDay.toLocaleString("en-US", { weekday: "short" })}</p>
-                        <p className="Weekdate">{currentDay.getDate()}</p>
-                        <div style={{ padding: "2px" }}>
-                            <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
-                        </div>
+                <div
+                    style={{ cursor: "pointer", border: "1px solid #ebeaea" }}
+                    className={`col cell ${isWeekend ? "week day week first" : "day"} ${dayKey === activeButton ? "active" : isCurrentDate ? "active2" : ""}`}
+                    onClick={() => handleClick(dayKey)}
+                >
+                    <p className="weekName">{currentDay.toLocaleString("en-US", { weekday: "short" })}</p>
+                    <p className="Weekdate">{currentDay.getDate()}</p>
+                    <div style={{ padding: "2px" }}>
+                        <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
                     </div>
+                </div>
                 // </OverlayTrigger>
             );
 
@@ -1078,167 +1079,167 @@ function UserDetails() {
                             </div>
                             <div className="days-weeks">{renderCalendar()}</div>
                             {items.userType === "user" ? (
-                                  <div className="timerAndTracking">
-                                  <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
-                                      <div>
-                                          <img width={120} src={logo} alt="" />
-                                      </div>
-                                      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
-                                          <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]} </p>
-                                          <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
-                                          <p className="weekDateTimer">{formattedDate == todayDate ? months[currentMonth] : months[month]}</p>
-                                          <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(data?.totalactivity)} %</Tooltip>}>
-                                              <div className="circular-progress" style={{
-                                                  cursor: "pointer"
-                                              }}>
-                                                  <CircularProgressBar activityPercentage={data?.totalactivity} size={30} />
-                                              </div>
-                                          </OverlayTrigger>
-                                          <p className="timerClock">{data?.totalHours?.daily}</p>
-                                          <p className="weekTimer">Week</p>
-                                          <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
-                                          <img src={circleDot} alt="CircleDot.png" />
-                                          <p className="weekTimer">Month</p>
-                                          <p className="monthTimerDigit">{data?.totalHours?.monthly}</p>
-                                      </div>
-                                  </div>
-                                  <div className="activity-image-container">
-                                      <div className="activityMainHeading">
-                                          <h4 className="activityMainHeadingContent">Activity Tracker</h4>
-                                          <p className="activityMainContent">Activity Level</p>
-                                      </div>
-                                      <div className="activityMeternContent">
-                                          <div className="activityMeterContentMain">
-                                              <div className="activityMeterContent">
-                                                  <img src={perc_20} alt="" />
-                                                  <p className="activityMeterContentPercent">0 - 20 %</p>
-                                              </div>
-                                              <div className="activityMeterContent">
-                                                  <img src={perc_40} alt="" />
-                                                  <p className="activityMeterContentPercent">21 - 40 %</p>
-                                              </div>
-                                              <div className="activityMeterContent">
-                                                  <img src={perc_60} alt="" />
-                                                  <p className="activityMeterContentPercent">41 - 60 %</p>
-                                              </div>
-                                              <div className="activityMeterContent">
-                                                  <img src={perc_80} alt="" />
-                                                  <p className="activityMeterContentPercent">61 - 80 %</p>
-                                              </div>
-                                              <div className="activityMeterContent" style={{ width: 200 }}>
-                                                  <img src={perc_100} alt="" />
-                                                  <p className="activityMeterContentPercent" >81 - 100 %</p>
-                                              </div>
-                                          </div>
-                                          <div className="activityMeterMain">
-                                              <div className="activityMeterMainContainer">
-                                                  <img className="activityMeterMainImage" src={activityImage} alt="" />
-                                                  <div className="needleContainerMain">
-                                                      <div
-                                                          className="needleContainerMainAlingment"
-                                                          style={{
-                                                              transform: `translateY(-50%) rotate(${Math.floor(data?.totalactivity) <= 20 ? -75 :
-                                                                  Math.floor(data?.totalactivity) > 20 && Math.floor(data?.totalactivity) <= 40 ? -38 :
-                                                                      Math.floor(data?.totalactivity) > 40 && Math.floor(data?.totalactivity) <= 60 ? 0 :
-                                                                          Math.floor(data?.totalactivity) > 60 && Math.floor(data?.totalactivity) <= 80 ? 35 :
-                                                                              Math.floor(data?.totalactivity) > 80 ? 75 : -108
-                                                                  }deg)`
-                                                          }}
-                                                      >
-                                                          <div className="needleContainerAlingment">
-                                                              <div className="diamond"></div>
-                                                              <div className="needlePointerMain"></div>
-                                                              <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(data?.totalactivity)} %</Tooltip>}>
-                                                                  <div className="needleScrewMain"></div>
-                                                              </OverlayTrigger>
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                            ) : <div className="timerAndTracking">
-                            <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
-                                <div>
-                                    <img width={120} src={logo} alt="" />
-                                </div>
-                                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
-                                    <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]} </p>
-                                    <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
-                                    <p className="weekDateTimer">{formattedDate == todayDate ? months[currentMonth] : months[month]}</p>
-                                    <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
-                                        <div className="circular-progress" style={{
-                                            cursor: "pointer"
-                                        }}>
-                                            <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
+                                <div className="timerAndTracking">
+                                    <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
+                                        <div>
+                                            <img width={120} src={logo} alt="" />
                                         </div>
-                                    </OverlayTrigger>
-                                    <p className="timerClock">{data?.totalHours?.daily}</p>
-                                    <p className="weekTimer">Week</p>
-                                    <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
-                                    <img src={circleDot} alt="CircleDot.png" />
-                                    <p className="weekTimer">Month</p>
-                                    <p className="monthTimerDigit">{data?.totalHours?.monthly}</p>
-                                </div>
-                            </div>
-                            <div className="activity-image-container">
-                                <div className="activityMainHeading">
-                                    <h4 className="activityMainHeadingContent">Activity Tracker</h4>
-                                    <p className="activityMainContent">Activity Level</p>
-                                </div>
-                                <div className="activityMeternContent">
-                                    <div className="activityMeterContentMain">
-                                        <div className="activityMeterContent">
-                                            <img src={perc_20} alt="" />
-                                            <p className="activityMeterContentPercent">0 - 20 %</p>
-                                        </div>
-                                        <div className="activityMeterContent">
-                                            <img src={perc_40} alt="" />
-                                            <p className="activityMeterContentPercent">21 - 40 %</p>
-                                        </div>
-                                        <div className="activityMeterContent">
-                                            <img src={perc_60} alt="" />
-                                            <p className="activityMeterContentPercent">41 - 60 %</p>
-                                        </div>
-                                        <div className="activityMeterContent">
-                                            <img src={perc_80} alt="" />
-                                            <p className="activityMeterContentPercent">61 - 80 %</p>
-                                        </div>
-                                        <div className="activityMeterContent" style={{ width: 200 }}>
-                                            <img src={perc_100} alt="" />
-                                            <p className="activityMeterContentPercent" >81 - 100 %</p>
+                                        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                                            <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]} </p>
+                                            <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
+                                            <p className="weekDateTimer">{formattedDate == todayDate ? months[currentMonth] : months[month]}</p>
+                                            <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(data?.totalactivity)} %</Tooltip>}>
+                                                <div className="circular-progress" style={{
+                                                    cursor: "pointer"
+                                                }}>
+                                                    <CircularProgressBar activityPercentage={data?.totalactivity} size={30} />
+                                                </div>
+                                            </OverlayTrigger>
+                                            <p className="timerClock">{data?.totalHours?.daily}</p>
+                                            <p className="weekTimer">Week</p>
+                                            <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
+                                            <img src={circleDot} alt="CircleDot.png" />
+                                            <p className="weekTimer">Month</p>
+                                            <p className="monthTimerDigit">{data?.totalHours?.monthly}</p>
                                         </div>
                                     </div>
-                                    <div className="activityMeterMain">
-                                        <div className="activityMeterMainContainer">
-                                            <img className="activityMeterMainImage" src={activityImage} alt="" />
-                                            <div className="needleContainerMain">
-                                                <div
-                                                    className="needleContainerMainAlingment"
-                                                    style={{
-                                                        transform: `translateY(-50%) rotate(${Math.floor(totalActivityByDay?.totalactivity) <= 20 ? -75 :
-                                                            Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
-                                                                Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
-                                                                    Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
-                                                                        Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -108
-                                                            }deg)`
-                                                    }}>
-                                                    <div className="needleContainerAlingment">
-                                                        <div className="diamond"></div>
-                                                        <div className="needlePointerMain"></div>
-                                                        <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
-                                                            <div className="needleScrewMain"></div>
-                                                        </OverlayTrigger>
+                                    <div className="activity-image-container">
+                                        <div className="activityMainHeading">
+                                            <h4 className="activityMainHeadingContent">Activity Tracker</h4>
+                                            <p className="activityMainContent">Activity Level</p>
+                                        </div>
+                                        <div className="activityMeternContent">
+                                            <div className="activityMeterContentMain">
+                                                <div className="activityMeterContent">
+                                                    <img src={perc_20} alt="" />
+                                                    <p className="activityMeterContentPercent">0 - 20 %</p>
+                                                </div>
+                                                <div className="activityMeterContent">
+                                                    <img src={perc_40} alt="" />
+                                                    <p className="activityMeterContentPercent">21 - 40 %</p>
+                                                </div>
+                                                <div className="activityMeterContent">
+                                                    <img src={perc_60} alt="" />
+                                                    <p className="activityMeterContentPercent">41 - 60 %</p>
+                                                </div>
+                                                <div className="activityMeterContent">
+                                                    <img src={perc_80} alt="" />
+                                                    <p className="activityMeterContentPercent">61 - 80 %</p>
+                                                </div>
+                                                <div className="activityMeterContent" style={{ width: 200 }}>
+                                                    <img src={perc_100} alt="" />
+                                                    <p className="activityMeterContentPercent" >81 - 100 %</p>
+                                                </div>
+                                            </div>
+                                            <div className="activityMeterMain">
+                                                <div className="activityMeterMainContainer">
+                                                    <img className="activityMeterMainImage" src={activityImage} alt="" />
+                                                    <div className="needleContainerMain">
+                                                        <div
+                                                            className="needleContainerMainAlingment"
+                                                            style={{
+                                                                transform: `translateY(-50%) rotate(${Math.floor(data?.totalactivity) <= 20 ? -75 :
+                                                                    Math.floor(data?.totalactivity) > 20 && Math.floor(data?.totalactivity) <= 40 ? -38 :
+                                                                        Math.floor(data?.totalactivity) > 40 && Math.floor(data?.totalactivity) <= 60 ? 0 :
+                                                                            Math.floor(data?.totalactivity) > 60 && Math.floor(data?.totalactivity) <= 80 ? 35 :
+                                                                                Math.floor(data?.totalactivity) > 80 ? 75 : -108
+                                                                    }deg)`
+                                                            }}
+                                                        >
+                                                            <div className="needleContainerAlingment">
+                                                                <div className="diamond"></div>
+                                                                <div className="needlePointerMain"></div>
+                                                                <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(data?.totalactivity)} %</Tooltip>}>
+                                                                    <div className="needleScrewMain"></div>
+                                                                </OverlayTrigger>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>}
+                            ) : <div className="timerAndTracking">
+                                <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
+                                    <div>
+                                        <img width={120} src={logo} alt="" />
+                                    </div>
+                                    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                                        <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]} </p>
+                                        <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
+                                        <p className="weekDateTimer">{formattedDate == todayDate ? months[currentMonth] : months[month]}</p>
+                                        <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
+                                            <div className="circular-progress" style={{
+                                                cursor: "pointer"
+                                            }}>
+                                                <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
+                                            </div>
+                                        </OverlayTrigger>
+                                        <p className="timerClock">{data?.totalHours?.daily}</p>
+                                        <p className="weekTimer">Week</p>
+                                        <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
+                                        <img src={circleDot} alt="CircleDot.png" />
+                                        <p className="weekTimer">Month</p>
+                                        <p className="monthTimerDigit">{data?.totalHours?.monthly}</p>
+                                    </div>
+                                </div>
+                                <div className="activity-image-container">
+                                    <div className="activityMainHeading">
+                                        <h4 className="activityMainHeadingContent">Activity Tracker</h4>
+                                        <p className="activityMainContent">Activity Level</p>
+                                    </div>
+                                    <div className="activityMeternContent">
+                                        <div className="activityMeterContentMain">
+                                            <div className="activityMeterContent">
+                                                <img src={perc_20} alt="" />
+                                                <p className="activityMeterContentPercent">0 - 20 %</p>
+                                            </div>
+                                            <div className="activityMeterContent">
+                                                <img src={perc_40} alt="" />
+                                                <p className="activityMeterContentPercent">21 - 40 %</p>
+                                            </div>
+                                            <div className="activityMeterContent">
+                                                <img src={perc_60} alt="" />
+                                                <p className="activityMeterContentPercent">41 - 60 %</p>
+                                            </div>
+                                            <div className="activityMeterContent">
+                                                <img src={perc_80} alt="" />
+                                                <p className="activityMeterContentPercent">61 - 80 %</p>
+                                            </div>
+                                            <div className="activityMeterContent" style={{ width: 200 }}>
+                                                <img src={perc_100} alt="" />
+                                                <p className="activityMeterContentPercent" >81 - 100 %</p>
+                                            </div>
+                                        </div>
+                                        <div className="activityMeterMain">
+                                            <div className="activityMeterMainContainer">
+                                                <img className="activityMeterMainImage" src={activityImage} alt="" />
+                                                <div className="needleContainerMain">
+                                                    <div
+                                                        className="needleContainerMainAlingment"
+                                                        style={{
+                                                            transform: `translateY(-50%) rotate(${Math.floor(totalActivityByDay?.totalactivity) <= 20 ? -75 :
+                                                                Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
+                                                                    Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
+                                                                        Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
+                                                                            Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -108
+                                                                }deg)`
+                                                        }}>
+                                                        <div className="needleContainerAlingment">
+                                                            <div className="diamond"></div>
+                                                            <div className="needlePointerMain"></div>
+                                                            <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
+                                                                <div className="needleScrewMain"></div>
+                                                            </OverlayTrigger>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>}
                             <div className="time-scale" style={{ display: "flex", justifyContent: "space-between" }}>
                                 {renderTimeIntervals()}
                             </div>

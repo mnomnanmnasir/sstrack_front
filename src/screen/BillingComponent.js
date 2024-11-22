@@ -77,7 +77,7 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
                             // Retrieve the token from localStorage
                             const token = localStorage.getItem('token');
 
-                            const res = await axios.post("https://myuniversallanguages.com:9093/api/v1/owner/upgradePayPal", requestData, {
+                            const res = await axios.post("https://ss-track-xi.vercel.app/api/v1/owner/upgradePayPal", requestData, {
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${token}` // Send the token in the headers
@@ -162,9 +162,7 @@ const BillingComponent = () => {
             const transformedPayments = data.data.paymentsInfo.map((payment) => {
                 // console.log('Payment Total Amount:', payment.TotalAmount);
                 // console.log('Payment Receipt Id agyi:', payment.receiptId);
-
                 return {
-
                     receiptId: payment.receiptId, // Assuming each payment has a unique id
                     amount: parseFloat(payment.TotalAmount).toFixed(2), // Format the total amount
                     payDate: new Date(payment.payDate).toLocaleDateString(), // Format payment date
@@ -808,8 +806,6 @@ const BillingComponent = () => {
 
     // const handlePlanSelect = (plan) => {
     //     setSelectedPlan(plan);
-
-
     // };
 
 
@@ -818,7 +814,7 @@ const BillingComponent = () => {
     };
     console.log('Selected plan:==============', plans);
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
@@ -834,16 +830,42 @@ const BillingComponent = () => {
         }
     }, [headers]);
 
+    // const fetchTokenAndSuspendedStatus = async () => {
+    //     if (token) {
+    //         try {
+    //             const headers = {
+    //                 Authorization: `Bearer ${token}`,
+    //             };
+    //             const apiUrl1 = 'https://ss-track-xi.vercel.app/api/v1';
+    //             const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
+    //             const fetchedCards = response?.data.data[0].cardInfo;
+    //             console.log('Fetched Cards:', fetchedCards);
 
+    //             // Set the cards
+    //             setCards(fetchedCards);
+
+    //             // Set the default card as the selected card
+    //             const defaultCard = fetchedCards.find(card => card.defaultCard);
+    //             if (defaultCard) {
+    //                 setSelectedCard(defaultCard._id);
+    //                 setpaycard(defaultCard);
+    //             }
+    //         } catch (err) {
+    //             console.error('Error fetching data', err);
+    //         }
+    //     }
+    //     setLoading(false);
+    // };
     const fetchTokenAndSuspendedStatus = async () => {
         if (token) {
             try {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
+                const apiUrl1 = 'https://ss-track-xi.vercel.app/api/v1';
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
+    
                 console.log('Fetched Cards:', fetchedCards);
 
                 // Set the cards
@@ -853,16 +875,17 @@ const BillingComponent = () => {
                 const defaultCard = fetchedCards.find(card => card.defaultCard);
                 if (defaultCard) {
                     setSelectedCard(defaultCard._id);
-                    setpaycard(defaultCard);
+                    setpaycard(defaultCard); // Update paycard state correctly
+                } else {
+                    setpaycard(null); // Clear paycard if no default card exists
                 }
-
             } catch (err) {
                 console.error('Error fetching data', err);
             }
         }
         setLoading(false);
     };
-
+    
 
     useEffect(() => {
         getData();
@@ -873,7 +896,12 @@ const BillingComponent = () => {
 
 
 
-
+    useEffect(() => {
+        if (paycard) {
+            localStorage.setItem('carddetail', JSON.stringify(paycard.cardNumber));
+        }
+    }, [paycard]);
+    
 
 
 
@@ -893,7 +921,7 @@ const BillingComponent = () => {
 
 
 
-    const CheckoutForm2 = () => {
+    const CheckoutForm2 = ({ fetchTokenAndSuspendedStatus, setpaycard }) => {
         const stripe = useStripe();
         const elements = useElements();
         const [error, setError] = useState(null);
@@ -935,7 +963,7 @@ const BillingComponent = () => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
                         // tokenId: paymentMethod.id,
@@ -954,6 +982,9 @@ const BillingComponent = () => {
                     console.log('Payment Response:', response);
 
                     if (response.data.success) {
+
+                        await fetchTokenAndSuspendedStatus();
+                        setpaycard(newCard);
                         setSuccess(true);
                         setTimeout(() => {
                             setshowNewCardModal(false);
@@ -1024,7 +1055,7 @@ const BillingComponent = () => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
@@ -1073,7 +1104,7 @@ const BillingComponent = () => {
 
 
     //this api is for pricing plan who's data is to send to payment page
-    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const planapiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
 
     const fetchPlans = async () => {
@@ -1151,77 +1182,80 @@ const BillingComponent = () => {
         );
     };
 
-    const NewCardModal = ({ showNewCardModal, handleClose }) => {
 
-        const token = localStorage.getItem('token');
 
-        const [activeTab, setActiveTab] = useState('cardSelection');
-        const tabButtonStyle = {
-            flex: 1,
-            padding: '0.5rem',
-            border: '1px solid #6ABB47',
-            backgroundColor: 'white',
-            color: '#6ABB47',
-            textAlign: 'center',
-            cursor: 'pointer',
-            transition: 'background-color 0.3s, color 0.3s'
-        };
+    //     const token = localStorage.getItem('token');
 
-        const activeTabButtonStyle = {
-            ...tabButtonStyle,
-            backgroundColor: '#6ABB47',
-            color: 'white'
-        };
+    //     const [activeTab, setActiveTab] = useState('cardSelection');
+    //     const tabButtonStyle = {
+    //         flex: 1,
+    //         padding: '0.5rem',
+    //         border: '1px solid #6ABB47',
+    //         backgroundColor: 'white',
+    //         color: '#6ABB47',
+    //         textAlign: 'center',
+    //         cursor: 'pointer',
+    //         transition: 'background-color 0.3s, color 0.3s'
+    //     };
 
-        const handleSelectCard = (card) => {
-            setSelectedCard(card._id);
-            // console.log('Selected Card Full Info:', card);
-        };
+    //     const activeTabButtonStyle = {
+    //         ...tabButtonStyle,
+    //         backgroundColor: '#6ABB47',
+    //         color: 'white'
+    //     };
 
-        return (
-            <CustomModal
-                show={showNewCardModal}
-                onClose={handleClose}
-                title="Select Card for Payment"
-            >
-                <div className="text-left mb-4">
-                    <div style={{ display: 'flex', marginBottom: '1rem', }}>
-                        <button
-                            style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
-                            onClick={() => setActiveTab('cardSelection')}
-                        >
-                            Card Selection
-                        </button>
-                        <button
-                            style={activeTab === 'payment' ? activeTabButtonStyle : tabButtonStyle}
-                            onClick={() => setActiveTab('payment')}
-                        >
-                            Add New Card
-                        </button>
+    //     const handleSelectCard = (card) => {
+    //         setSelectedCard(card._id);
+    //         // console.log('Selected Card Full Info:', card);
+    //     };
 
-                    </div>
+    //     return (
+    //         <CustomModal
+    //             show={showNewCardModal}
+    //             onClose={handleClose}
+    //             title="Select Card for Payment"
+    //         >
+    //             <div className="text-left mb-4">
+    //                 <div style={{ display: 'flex', marginBottom: '1rem', }}>
+    //                     <button
+    //                         style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
+    //                         onClick={() => setActiveTab('cardSelection')}
+    //                     >
+    //                         Card Selection
+    //                     </button>
+    //                     <button
+    //                         style={activeTab === 'payment' ? activeTabButtonStyle : tabButtonStyle}
+    //                         onClick={() => setActiveTab('payment')}
+    //                     >
+    //                         Add New Card
+    //                     </button>
 
-                    {activeTab === 'cardSelection' && (
-                        <CardSelection
-                            cards={cards}
-                            selectedCard={selectedCard}
-                            onSelect={handleSelectCard}
-                            onActionComplete={fetchTokenAndSuspendedStatus}
+    //                 </div>
 
-                        />
-                    )}
-                    {activeTab === 'payment' && (
-                        <Elements stripe={stripePromise}>
-                            <div className="payment-container mt-4">
-                                <p className="mb-4">Complete Your Payment</p>
-                                <CheckoutForm2 />
-                            </div>
-                        </Elements>
-                    )}
-                </div>
-            </CustomModal>
-        );
-    };
+    //                 {activeTab === 'cardSelection' && (
+    //                     <CardSelection
+    //                         cards={cards}
+    //                         selectedCard={selectedCard}
+    //                         onSelect={handleSelectCard}
+    //                         onActionComplete={fetchTokenAndSuspendedStatus}
+
+    //                     />
+    //                 )}
+    //                 {activeTab === 'payment' && (
+    //                     <Elements stripe={stripePromise}>
+    //                         <div className="payment-container mt-4">
+    //                             <p className="mb-4">Complete Your Payment</p>
+    //                             <CheckoutForm2
+    //                                 fetchTokenAndSuspendedStatus={fetchTokenAndSuspendedStatus}
+    //                                 setpaycard={setpaycard}
+    //                             />
+    //                         </div>
+    //                     </Elements>
+    //                 )}
+    //             </div>
+    //         </CustomModal>
+    //     );
+    // };
 
 
     const [selectedPackage, setSelectedPackage] = useState();
@@ -1297,17 +1331,40 @@ const BillingComponent = () => {
                     <Modal.Title>Change Your Plan</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="text-left mb-4" >
-                        {/* Optional elements can be placed here */}
+                    <div className="text-left mb-4">
                         {selectedPlan ? (
                             <div>
-                                Are you sure you want to chage your plan
-                                <div className='container d-flex'>
+                                {selectedPlan.planType === 'standard' ? (
+                                    <p>
+                                        If you proceed with upgrading or downgrading to this plan, the cost will be
+                                        <strong>
+                                            ${selectedPlan.costPerUser}
+                                        </strong>
+                                        per user per month.
+
+                                        Starting today, this plan will take effect immediately. The price of ${selectedPlan.costPerUser} will be applied to your current billing cycle, and future payments will also reflect this price. All invoices moving forward will be generated based on the updated plan and its pricing structure.
+                                        {/* You are Upgrading/Downgrade to the{' '}
+                                        <strong>{selectedPlan.planType.charAt(0).toUpperCase() + selectedPlan.planType.slice(1)} Plan</strong>.
+                                        <strong>Plan Price:</strong> ${selectedPlan.costPerUser} / month */}
+                                    </p>
+                                ) : (
+
+                                    <p>
+                                        If you proceed with upgrading or downgrading to this plan, the cost will be ${selectedPlan.costPerUser} per user per month.
+
+                                        Starting today, this plan will take effect immediately. The price of ${selectedPlan.costPerUser} will be applied to your current billing cycle, and future payments will also reflect this price. All invoices moving forward will be generated based on the updated plan and its pricing structure.
+                                        {/* You are upgrading{' '}
+                                        <strong>{selectedPlan.planType.charAt(0).toUpperCase() + selectedPlan.planType.slice(1)} Plan</strong>.
+                                        <strong>Plan Price:</strong> ${selectedPlan.costPerUser} / month */}
+                                    </p>
+                                )
+                                }
+                                <div className="container d-flex">
                                     <div className="row d-flex" style={{ width: '60rem' }}>
                                         <div className="col-md-12">
-                                            <div className='card mt-2' style={{ marginLeft: '-12px' }}>
+                                            <div className="card mt-2" style={{ marginLeft: '-12px' }}>
                                                 <div className="card-body" style={{ height: '12rem' }}>
-                                                    <div className='d-flex justify-content-between align-items-center'>
+                                                    <div className="d-flex justify-content-between align-items-center">
                                                         {paycard ? paycard.cardType : "Visa"}
                                                         <img
                                                             src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
@@ -1318,13 +1375,12 @@ const BillingComponent = () => {
                                                     <span>
                                                         **** **** **** {paycard ? paycard.cardNumber : ""}
                                                     </span>
-                                                    <div className='d-flex'>
+                                                    <div className="d-flex">
                                                         Expires
                                                     </div>
                                                     <div>
                                                         {paycard ? paycard.expMonth : '**'}/{paycard ? paycard.expYear : '**'}
                                                     </div>
-
                                                 </div>
                                             </div>
                                         </div>
@@ -1395,7 +1451,7 @@ const BillingComponent = () => {
     const [responseMessage, setResponseMessage] = useState(null);
 
     // const handleDirectChangePlan = async () => {
-    // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    // const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
     // if (paycard) {
     //     console.log('Pay with this card:', paycard);
     //     // setIsLoading(true);
@@ -1458,7 +1514,7 @@ const BillingComponent = () => {
 
 
     // const handleDirectChangePlan = async () => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
     //     if (paycard) {
     //         console.log('Pay with this card:', paycard);
     //         // setIsLoading(true);
@@ -1518,8 +1574,14 @@ const BillingComponent = () => {
     //         }
     //     }
     // }
+    useEffect(() => {
+        if (selectedPlan) {
+            localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+        }
+    }, [selectedPlan]);
+    
     const handleDirectChangePlan = async () => {
-        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setResponseMessage(null);
@@ -1578,7 +1640,7 @@ const BillingComponent = () => {
         }
     };
     // const handleDirectChangePlan = async () => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
     //     if (paycard) {
     //         setIsPlanChanging(true); // Start loader
     //         try {
@@ -1621,7 +1683,7 @@ const BillingComponent = () => {
     const [merchantId, setMerchantId] = useState(''); // Or whatever method you are using to get the ID
 
     const handleDirectChangePlan1 = async () => {
-        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
         if (paycard) {
             console.log('Pay with this card:', paycard);
@@ -1712,17 +1774,65 @@ const BillingComponent = () => {
 
     const plandetail = `${costPerUser}/employee/mo`;
 
+    // const planchange = () => {
+    //     if (paycard) {
+    //         setShowModalwithoutcard(true);  // For when the paycard is not available
+    //         console.log('card is available', showModalwithoutcard);
+    //         setSelectedPlan(selectedPlan)
+    //     } else {
+    //         console.log('card is not available');
+    //         // handleShowModal();
+    //     }
+    //     // setPlanData(plan)
+    // }
+    // const planchange = () => {
+    //     if (paycard?.cardNumber) {
+    //         console.log('Card is available, setting modal state to true...');
+    //         setShowModalwithoutcard(true);  // Open the modal
+    //         setSelectedPlan(selectedPlan); // Set the selected plan
+    //     } else {
+    //         enqueueSnackbar("Please add your card", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right"
+    //             }
+    //         });
+    //         console.log('No card available.');
+    //     }
+    // };
     const planchange = () => {
-        if (paycard) {
-            setShowModalwithoutcard(true);  // For when the paycard is not available
-            console.log('card is available', showModalwithoutcard);
-            setSelectedPlan(selectedPlan)
+        console.log('Paycard:', paycard); // Debugging log
+        if (paycard?.cardNumber) {
+            setShowModalwithoutcard(true); // Open the modal
+            setSelectedPlan(selectedPlan); // Set the selected plan
         } else {
-            console.log('card is not available');
-            // handleShowModal();
+            enqueueSnackbar("Please add your card", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
         }
-        // setPlanData(plan)
-    }
+    };
+    // const planchange = () => {
+    //     if (paycard?.cardNumber) {
+    //         // Proceed with upgrade if card exists
+    //         setShowModalwithoutcard(true);  // For when the paycard is not available
+    //         console.log('Card is available, upgrading...');
+    //         setSelectedPlan(selectedPlan)
+    //         // Insert logic here to handle the upgrade, e.g., call the upgrade API
+    //     } else {
+    //         enqueueSnackbar("Please add your card ", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right"
+    //             }
+    //         });
+    //         // Show Snackbar if no card is available
+    //         console.log('Card is not available.');
+    //         // Optional: Open modal to add a new card
+    //     }
+    // };
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -1756,139 +1866,140 @@ const BillingComponent = () => {
                         </Link>
                         <p className="companyPlan">Company plan</p>
                         <p className="userEmail">If you track your time for other companies - you do not need a plan and do not have to pay - your company pays for you.</p>
-                        <div style={{ width: '80%', margin: '10px auto', fontFamily: 'Arial, sans-serif' }}>
-                            <div style={{ display: 'flex', borderBottom: '2px solid #ddd', marginBottom: '10px' }}>
-                                <span
-                                    style={{
-                                        padding: '10px 20px',
-                                        fontWeight: 'bold',
-                                        borderBottom: activeTab === 'invoices' ? '3px solid #28659C' : 'none',
-                                        color: activeTab === 'invoices' ? 'black' : 'grey',
-                                        cursor: 'pointer',
-                                    }}
-                                    onClick={() => handleTabClick('invoices')}
-                                >
-                                    Invoices
-                                </span>
-                                <span
-                                    style={{
-                                        padding: '10px 20px',
-                                        fontWeight: 'bold',
-                                        borderBottom: activeTab === 'payments' ? '3px solid #28659C' : 'none',
-                                        color: activeTab === 'payments' ? 'black' : 'grey',
-                                        cursor: 'pointer',
-                                    }}
-                                    onClick={() => handleTabClick('payments')}
-                                >
-                                    Payments
-                                </span>
-                            </div>
+                        {invoices.length > 0 && (
+                            <div style={{ width: '80%', margin: '10px auto', fontFamily: 'Arial, sans-serif' }}>
 
-                            {activeTab === 'invoices' ? (
-                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                    <thead>
-                                        <tr>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Invoice #
-                                            </th>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Date
-                                            </th>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Description
-                                            </th>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Amount
-                                            </th>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {invoices.map((invoice) => (
-                                            <tr key={invoice.id}>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
-                                                    {invoice.status === 'unpaid' ? (
-                                                        <span style={{ color: 'orange', marginRight: '5px' }}>&#9888;</span>
-                                                    ) : (
-                                                        <span style={{ color: 'green', marginRight: '5px' }}>&#10003;</span>
-                                                    )}
-                                                    {invoice.id}
-                                                </td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.date}</td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.description}</td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${invoice.amount}</td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
-                                                    <a
-                                                        href="#"
-                                                        style={{
-                                                            color: '#28659C',
-                                                            textDecoration: 'none',
-                                                            fontWeight: 'bold',
-                                                            cursor: 'pointer',
-                                                        }}
-                                                        onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
-                                                        onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
-                                                        onClick={() => generatePDF(invoice)} // Generate PDF on click
-                                                    >
-                                                        PDF
-                                                    </a>
-                                                </td>
+                                <div style={{ display: 'flex', borderBottom: '2px solid #ddd', marginBottom: '10px' }}>
+                                    <span
+                                        style={{
+                                            padding: '10px 20px',
+                                            fontWeight: 'bold',
+                                            borderBottom: activeTab === 'invoices' ? '3px solid #28659C' : 'none',
+                                            color: activeTab === 'invoices' ? 'black' : 'grey',
+                                            cursor: 'pointer',
+                                        }}
+                                        onClick={() => handleTabClick('invoices')}
+                                    >
+                                        Invoices
+                                    </span>
+                                    <span
+                                        style={{
+                                            padding: '10px 20px',
+                                            fontWeight: 'bold',
+                                            borderBottom: activeTab === 'payments' ? '3px solid #28659C' : 'none',
+                                            color: activeTab === 'payments' ? 'black' : 'grey',
+                                            cursor: 'pointer',
+                                        }}
+                                        onClick={() => handleTabClick('payments')}
+                                    >
+                                        Payments
+                                    </span>
+                                </div>
+                                {activeTab === 'invoices' ? (
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Invoice #
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Date
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Description
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Amount
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}></th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            ) : (
-                                // Payments Table
-                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                    <thead>
-                                        <tr>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Payment #
-                                            </th>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Date
-                                            </th>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Description
-                                            </th>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                                Amount
-                                            </th>
-                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {payments.map((payment) => (
-                                            <tr key={payment.id}>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.receiptId}</td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.payDate}</td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.cardType}, Transaction#{payment.paymentIntentId}</td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${payment.amount}</td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
-                                                    <a
-                                                        href="#"
-                                                        style={{
-                                                            color: '#28659C',
-                                                            textDecoration: 'none',
-                                                            fontWeight: 'bold',
-                                                            cursor: 'pointer',
-                                                        }}
-                                                        onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
-                                                        onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
-                                                        onClick={() =>
-                                                            paymentPDF(payment)
-                                                            // console.log('dfsdfsdfs')
-                                                        } // View receipt on click
-                                                    >
-                                                        PDF
-                                                    </a>
-                                                </td>
+                                        </thead>
+                                        <tbody>
+                                            {invoices.map((invoice) => (
+                                                <tr key={invoice.id}>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
+                                                        {invoice.status === 'unpaid' ? (
+                                                            <span style={{ color: 'orange', marginRight: '5px' }}>&#9888;</span>
+                                                        ) : (
+                                                            <span style={{ color: 'green', marginRight: '5px' }}>&#10003;</span>
+                                                        )}
+                                                        {invoice.id}
+                                                    </td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.date}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.description}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${invoice.amount}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
+                                                        <a
+                                                            href="#"
+                                                            style={{
+                                                                color: '#28659C',
+                                                                textDecoration: 'none',
+                                                                fontWeight: 'bold',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                            onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
+                                                            onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
+                                                            onClick={() => generatePDF(invoice)} // Generate PDF on click
+                                                        >
+                                                            PDF
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    // Payments Table
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Payment #
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Date
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Description
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                    Amount
+                                                </th>
+                                                <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}></th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            )}
-                            {/* <a
+                                        </thead>
+                                        <tbody>
+                                            {payments.map((payment) => (
+                                                <tr key={payment.id}>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.receiptId}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.payDate}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.cardType}, Transaction#{payment.paymentIntentId}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${payment.amount}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
+                                                        <a
+                                                            href="#"
+                                                            style={{
+                                                                color: '#28659C',
+                                                                textDecoration: 'none',
+                                                                fontWeight: 'bold',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                            onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
+                                                            onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
+                                                            onClick={() =>
+                                                                paymentPDF(payment)
+                                                                // console.log('dfsdfsdfs')
+                                                            } // View receipt on click
+                                                        >
+                                                            PDF
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                                {/* <a
                                 href="#"
                                 style={{
                                     display: 'inline-block',
@@ -1903,7 +2014,8 @@ const BillingComponent = () => {
                             >
                                 Download
                             </a> */}
-                        </div>
+                            </div>
+                        )}
                     </div>
                     <div className="row mt-4">
                         {loading ? (
@@ -2000,7 +2112,6 @@ const BillingComponent = () => {
                                                                                 selectedPlan?.planType?.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'
                                                                             )}
                                                                         </button>
-
                                                                         {/* <a
                                                                         href={receiptUrl}
                                                                         target="_blank"
@@ -2056,8 +2167,6 @@ const BillingComponent = () => {
                                 ))
                         )}
                     </div>
-
-
                     <div className='card mt-4'>
                         <div className='card-body'>
                             <h3 className="card-title mt-4">Estimated payments</h3>

@@ -29,7 +29,7 @@ function OwnerTeamComponent(props) {
     const [role, setRole] = useState("")
     const [data, setData] = useState({});
     let { fixId, archived_unarchived_users, deleteUser, isUserArchive, inviteStatus, handleSendInvitation, payrate, reSendInvitation, users, setUsers, selectedUser } = props
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const token = localStorage.getItem('token');
     const headers = {
         Authorization: "Bearer " + token,
@@ -408,84 +408,104 @@ function OwnerTeamComponent(props) {
                                     cursor: "pointer",
                                     textDecoration: "underline"
                                 }}>View timeline</p>}
-                            <div>
-                                {(user?.userType === 'manager') ? (
-                                    // Display only Manager role for managers
-                                    <div>
-                                        {/* <p className="employeeDetailName1">Role</p>
-                                            <p lassName="employeeDetailName2" style={{ color: '#0E4772', fontSize: '20px' }}>Manager</p> */}
-                                    </div>
-                                ) : (
-                                    // Display role options for other scenarios
-                                    <div>
-                                        {!(user?.userType === 'admin' && (selectedUser?.userType === 'owner' || selectedUser?._id === user?._id)) && !(user?.userType === 'owner' && selectedUser?._id === user?._id) && (
-                                            <div>
-                                                <p style={{ color: '#0E4772', fontWeight: '600', fontSize: '22px' }}>Role</p>
-                                                {/* User Role */}
-                                                < div >
-                                                    <input
-                                                        disabled={data?.userType === 'owner'}
-                                                        checked={role === 'user'}
-                                                        onChange={() => {
-                                                            setRole('user');
-                                                            changeUserType('user');
-                                                        }}
-                                                        type="radio"
-                                                        id="html"
-                                                        name="user"
-                                                        value="user"
-                                                        className={data?.userType === 'owner' ? 'disabledinput' : ''}
-                                                    />
-                                                    <label htmlFor="html">
-                                                        User - <span style={{ fontSize: '16px', fontWeight: '600' }}>can see their own data only</span>
-                                                    </label>
+                           
+                                <div>
+                                {data && Object.keys(data).length > 0 && data.name ? ( // Check if data is not empty and data.name exists
+                                    // {data && Object.keys(data).length > 0 ? (
+                                        <>
+                                            {/* <p className="employeeDetailName1">{data.name}</p>
+                                            <p className="employeeDetailName2">{data.email}</p> */}
+
+                                            {(user?.userType === 'manager') ? (
+                                                // Display only Manager role for managers
+                                                <div>
+                                                    {/* Manager-specific content can go here */}
                                                 </div>
-                                                {/* Admin Role */}
-                                                <div style={{ margin: '10px 0 0 0' }}>
-                                                    <input
-                                                        disabled={data?.userType === 'owner'}
-                                                        checked={role === 'admin'}
-                                                        onChange={() => {
-                                                            setRole('admin');
-                                                            changeUserType('admin');
-                                                        }}
-                                                        type="radio"
-                                                        id="css"
-                                                        name="admin"
-                                                        value="admin"
-                                                        className={data?.userType === 'owner' ? 'disabledinput' : ''}
-                                                    />
-                                                    <label htmlFor="css">
-                                                        Admin -{' '}
-                                                        <span style={{ fontSize: '16px', fontWeight: '600' }}>
-                                                            full control over Team, Projects & Settings. Does not have access to owner's "My Account" page settings.
-                                                        </span>
-                                                    </label>
+                                            ) : (
+                                                // Display role options for other scenarios
+                                                <div>
+                                                    {!(
+                                                        user?.userType === 'admin' &&
+                                                        (selectedUser?.userType === 'owner' || selectedUser?._id === user?._id)
+                                                    ) &&
+                                                        !(user?.userType === 'owner' && selectedUser?._id === user?._id) && (
+                                                            <div>
+                                                                <p style={{ color: '#0E4772', fontWeight: '600', fontSize: '22px' }}>Role</p>
+                                                                {/* User Role */}
+                                                                <div>
+                                                                    <input
+                                                                        disabled={data?.userType === 'owner'}
+                                                                        checked={role === 'user'}
+                                                                        onChange={() => {
+                                                                            setRole('user');
+                                                                            changeUserType('user');
+                                                                        }}
+                                                                        type="radio"
+                                                                        id="html"
+                                                                        name="user"
+                                                                        value="user"
+                                                                        className={data?.userType === 'owner' ? 'disabledinput' : ''}
+                                                                    />
+                                                                    <label htmlFor="html">
+                                                                        User -{' '}
+                                                                        <span style={{ fontSize: '16px', fontWeight: '600' }}>
+                                                                            can see their own data only
+                                                                        </span>
+                                                                    </label>
+                                                                </div>
+                                                                {/* Admin Role */}
+                                                                <div style={{ margin: '10px 0 0 0' }}>
+                                                                    <input
+                                                                        disabled={data?.userType === 'owner'}
+                                                                        checked={role === 'admin'}
+                                                                        onChange={() => {
+                                                                            setRole('admin');
+                                                                            changeUserType('admin');
+                                                                        }}
+                                                                        type="radio"
+                                                                        id="css"
+                                                                        name="admin"
+                                                                        value="admin"
+                                                                        className={data?.userType === 'owner' ? 'disabledinput' : ''}
+                                                                    />
+                                                                    <label htmlFor="css">
+                                                                        Admin -{' '}
+                                                                        <span style={{ fontSize: '16px', fontWeight: '600' }}>
+                                                                            full control over Team, Projects & Settings. Does not have access to
+                                                                            owner's "My Account" page settings.
+                                                                        </span>
+                                                                    </label>
+                                                                </div>
+                                                                {/* Manager Role */}
+                                                                <div style={{ margin: '10px 0 0 0' }}>
+                                                                    <input
+                                                                        checked={role === 'manager'}
+                                                                        onChange={() => {
+                                                                            setRole('manager');
+                                                                            changeUserType('manager');
+                                                                        }}
+                                                                        type="radio"
+                                                                        id="owner2"
+                                                                        name="manager"
+                                                                        value="manager"
+                                                                    />
+                                                                    <label htmlFor="owner2">
+                                                                        Manager -{' '}
+                                                                        <span style={{ fontSize: '16px', fontWeight: '600' }}>
+                                                                            can see selected user's Timeline & Reports (but not rates)
+                                                                        </span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                 </div>
-                                                {/* Manager Role */}
-                                                <div style={{ margin: '10px 0 0 0' }}>
-                                                    <input
-                                                        checked={role === 'manager'}
-                                                        onChange={() => {
-                                                            setRole('manager');
-                                                            changeUserType('manager');
-                                                        }}
-                                                        type="radio"
-                                                        id="owner2"
-                                                        name="manager"
-                                                        value="manager"
-                                                    />
-                                                    <label htmlFor="owner2">
-                                                        Manager -{' '}
-                                                        <span style={{ fontSize: '16px', fontWeight: '600' }}>
-                                                            can see selected user's Timeline & Reports (but not rates)
-                                                        </span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                            )}
+                                        </>
+                                    ) : (
+                                        <p></p>
+                                    )}
+                                </div>
+
                                 {role === "manager" && (
                                     <div style={{ marginTop: 20 }}>
                                         <div>
@@ -568,7 +588,7 @@ function OwnerTeamComponent(props) {
                                 fontWeight: 600,
                             }}>save</button>} */}
                                 {/* <UserSettings /> */}
-                            </div>
+                        
                         </>
                     )}
                     {/* {inviteStatus === false && viewTimeline ? (

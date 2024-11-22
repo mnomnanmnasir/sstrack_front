@@ -20,7 +20,7 @@ function AccountAdmin() {
     const [verify, setVerify] = useState(false);
     let token = localStorage.getItem('token');
     const navigate = useNavigate('');
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const items = JSON.parse(localStorage.getItem('items'));
 
     let headers = {

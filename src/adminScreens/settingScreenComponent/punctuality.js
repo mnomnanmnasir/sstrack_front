@@ -251,6 +251,56 @@ function Screenshot() {
         getData()
     }, [])
 
+    const [startTime, setStartTime] = useState("");
+    const [endTime, setEndTime] = useState("");
+    const [calculatedDuration, setCalculatedDuration] = useState("");
+    const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
+
+    const validateTimeDifference = (start, end) => {
+        if (start && end) {
+            const startDate = new Date(`1970-01-01T${start}:00`);
+            const endDate = new Date(`1970-01-01T${end}:00`);
+
+            const differenceMs = endDate - startDate;
+            const differenceMinutes = differenceMs / (1000 * 60); // Convert ms to minutes
+
+            if (differenceMinutes > 60) {
+                enqueueSnackbar("The time difference cannot exceed 1 hour.", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                });
+                setEndTime(""); // Clear the invalid end time
+            } else if (differenceMinutes < 0) {
+                enqueueSnackbar("End time must be after start time.", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                });
+                setEndTime(""); // Clear the invalid end time
+            } else {
+                setEndTime(end); // Valid end time
+            }
+        }
+    };
+
+    const handleStartTimeChange = (e) => {
+        setStartTime(e.target.value);
+        // Re-validate the end time when the start time changes
+        if (endTime) {
+            validateTimeDifference(e.target.value, endTime);
+        }
+    };
+
+    const handleEndTimeChange = (e) => {
+        const newEndTime = e.target.value;
+        validateTimeDifference(startTime, newEndTime);
+    };
+
     console.log("screenshot employess =====>", employees);
     debugger
     return (
@@ -258,7 +308,7 @@ function Screenshot() {
             <SnackbarProvider />
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                 <div>
-                    <p className="settingScreenshotHeading">Screenshots</p>
+                    <p className="settingScreenshotHeading">Punctuality</p>
                 </div>
             </div>
             <div className="settingScreenshotDiv">
@@ -266,16 +316,40 @@ function Screenshot() {
                 <p>This number is an average since screenshots are taken at random intervals.</p>
             </div>
             <div className="takeScreenShotDiv">
-                <div>
-                    <input
-                        checked={employees?.find(f => f?.effectiveSettings?.individualss === false && f?.effectiveSettings?.screenshots?.enabled === true)}
-                        onChange={() => {
-                            dispatch(setAllUserSetting({ checked: true }))
-                            handleApply("take")
-                        }} type="radio" id="test1" name="radio-group" />
-                    <label for="test1">Take</label>
-                </div>
-                <div>
+            <div style={{ marginBottom: "10px" }}>
+                        <label htmlFor="startTime">Start Time:</label>
+                        <input
+                            id="startTime"
+                            type="time"
+                            value={startTime}
+                            onChange={handleStartTimeChange}
+                            // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
+                            style={{
+                                marginLeft: "10px",
+                                padding: "5px",
+                                borderRadius: "4px",
+                                border: "1px solid #ccc",
+                            }}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: "10px" }}>
+                        <label htmlFor="endTime">End Time:</label>
+                        <input
+                            id="endTime"
+                            type="time"
+                            value={endTime}
+                            onChange={handleEndTimeChange}
+                            // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
+                            style={{
+                                marginLeft: "10px",
+                                padding: "5px",
+                                borderRadius: "4px",
+                                border: "1px solid #ccc",
+                            }}
+                        />
+                    </div>
+                {/* <div>
                     <select
                         value={number}
                         className="myselect"
@@ -341,8 +415,8 @@ function Screenshot() {
                         <option value={20}>20</option>
                         <option value={30}>30</option>
                     </select>
-                </div>
-                <div>
+                </div> */}
+                {/* <div>
                     <p>screenshots per hour</p>
                 </div>
                 <div>
@@ -385,8 +459,8 @@ function Screenshot() {
                         <option value="Disallow Blur">Disallow Blur</option>
                         <option value="Blur all">Blur all</option>
                     </select>
-                </div>
-                <div>
+                </div> */}
+                {/* <div>
                     <input
                         checked={employees?.find(f => f?.effectiveSettings?.individualss === false && f?.effectiveSettings?.screenshots?.enabled === false)}
                         onChange={() => {
@@ -394,7 +468,7 @@ function Screenshot() {
                             handleApply("do not take")
                         }} type="radio" id="test2" name="radio-group" />
                     <label for="test2">Do not Take</label>
-                </div>
+                </div> */}
             </div>
             <div className="activityLevelIndividual">
                 <p className="settingScreenshotIndividual">Individual Settings</p>

@@ -37,7 +37,7 @@ const Projectcomponent = (props) => {
     const [users, setUsers] = useState(null);
 
     const { fixId, archived_unarchived_users, isUserArchive, inviteStatus, handleSendInvitation, projectName, getData, allowEmp, setAllowemp } = props
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const token = localStorage.getItem('token');
     const headers = {
         Authorization: "Bearer " + token,

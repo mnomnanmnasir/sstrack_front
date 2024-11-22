@@ -16,15 +16,9 @@ import { FerrisWheelSpinner } from "react-spinner-overlay";
 import logo from '../images/inner-icon.svg'
 import showPasswordIcon from '../images/showPassword.svg';
 import hidePasswordIcon from '../images/hidePassword.svg';
-import { GoogleLogin, googleLogout } from '@react-oauth/google';
-// import { googleLogout } from '@react-oauth/google';
-import jwt_decode from 'jwt-decode';
-
-
 
 function Signup() {
 
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
@@ -39,7 +33,7 @@ function Signup() {
     });
     const [err, setErr] = useState("");
     const [error, setError] = useState("");
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const [timezone, setSelectedTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
     const [currentTimezone, setCurrentTimeZone] = useState('')
 
@@ -105,12 +99,6 @@ function Signup() {
         }
     }
 
-    const handleGoogleLogout = () => {
-        googleLogout(); // Logs out of Google session
-        setIsLoggedIn(false); // Update state to logged out
-        enqueueSnackbar("Logged out successfully", { variant: "info" });
-    };
-
     // async function handleCreateAccount() {
     //     console.log(model);
     //     if (model?.name === "" || model?.company === "" || model?.email === "" || model?.password === "" || model?.timezone === "" || model?.timezoneOffset === "") {
@@ -138,6 +126,7 @@ function Signup() {
     //         navigate('/payment');
     //     }
     // }
+
 
     const handleStartDateChange = (selectedtimezone) => {
         // Assuming selectedtimezone is an object with a 'value' property representing the time zone name
@@ -188,15 +177,15 @@ function Signup() {
                         <p className="account">Create an account</p>
                         <div className="inputDiv">
                             <div><img src={user} /></div>
-                            <input value={model.name} onChange={(e) => fillModel("name", e.target.value)} placeholder="Your full name" />
+                            <input value={model?.name} onChange={(e) => fillModel("name", e.target.value)} placeholder="Your full name" />
                         </div>
                         <div className="inputDiv">
                             <div><img src={account} /></div>
-                            <input value={model.company} onChange={(e) => fillModel("company", e.target.value)} placeholder="Company" />
+                            <input value={model?.company} onChange={(e) => fillModel("company", e.target.value)} placeholder="Company" />
                         </div>
                         <div className="inputDiv">
                             <div><img src={email} /></div>
-                            <input className="autofill" value={model.email} onChange={(e) => fillModel("email", e.target.value)} placeholder="Email" />
+                            <input className="autofill" value={model?.email} onChange={(e) => fillModel("email", e.target.value)} placeholder="Email" />
                         </div>
                         {/* <div className="inputDiv">
                             <div><img src={password} /></div>
@@ -210,66 +199,6 @@ function Signup() {
                             {/* </div> */}
                         </div>
                         <button disabled={loading} onClick={handleCreateAccount} className={loading ? "disabledAccountButton" : "accountButton"}>{loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Create Account"}</button>
-                        {/* <GoogleLogin
-                        onSuccess={credentialResponse => {
-                            const token = credentialResponse.credential;
-                            const decodedToken = jwt_decode(token); // Decode the token
-                            console.log("User's email:", decodedToken.email); // Log the email
-                        }}
-                        onError={() => {
-                            console.log('Login Failed');
-                        }}
-                        useOneTap
-                    /> */}
-                        <div className="d-flex justify-content-center mt-4">
-                            {/* <GoogleLogin
-                                onSuccess={credentialResponse => {
-                                    const token = credentialResponse.credential;
-                                    const decodedToken = jwt_decode(token); // Decode the token
-                                    console.log("User's email:", decodedToken.email); // Log the email
-                                    localStorage.setItem("googleEmail", decodedToken.email); // Store the email
-                                    localStorage.setItem("googleName", decodedToken.name); // Store the email
-                                    console.log("User's name:", decodedToken.name); // Log the email
-                                    // Redirect to "/profile" with email as state
-                                    navigate('/profile');
-                                }}
-                                onError={() => {
-                                    console.log('Login Failed');
-                                }}
-                                // useOneTap
-                            /> */}
-                        </div>
-                        <div class="container">
-                            <div className="text-center justify-content-center text-primary gap-4 d-flex">
-                                <a href="https://myuniversallanguages.com:9093/api/v1/auth/google" className="btn btn-light border-3" style={{ borderRadius: '50px', border: '5px solid #000000' }}
-                                ><span class="fa fa-google"></span> Sign Up with Google</a
-                                >
-                                <br />
-                                <br />
-                                <a href="https://myuniversallanguages.com:9093/api/v1/auth/microsoft" className="btn btn-primary border-3" style={{ borderRadius: '40px' }}>
-                                    <span class="fa fa-windows"></span> Sign Up with Microsoft
-                                </a>
-                            </div>
-                        </div>
-                        {/* <div className="d-flex justify-content-center mt-4">
-                            <GoogleLogin
-                                onSuccess={credentialResponse => {
-                                    const token = credentialResponse.credential;
-                                    const decodedToken = jwt_decode(token);
-                                    const email = decodedToken.email;
-                                    console.log("User Email", email)
-                                    // Save email to localStorage
-                                    localStorage.setItem("googleEmail", email);
-
-                                    // Redirect to "/profile" with email as state
-                                    navigate('/profile');
-                                }}
-                                onError={() => {
-                                    console.log('Login Failed');
-                                }}
-                                useOneTap
-                            />
-                        </div> */}
                     </div>
                 </div>
                 <p className="loginFont">Already have an account? <span
@@ -279,7 +208,6 @@ function Signup() {
                         cursor: "pointer",
                     }}
                     onClick={() => navigate('/signin')}>Login</span></p>
-
             </section>
             <img className="liness" src={line} />
             {/* <Footer /> */}

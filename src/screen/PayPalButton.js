@@ -44,7 +44,7 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
                             // Retrieve the token from localStorage
                             const token = localStorage.getItem('token');
 
-                            const res = await axios.post("https://myuniversallanguages.com:9093/api/v1/owner/upgradePayPal", requestData, {
+                            const res = await axios.post("https://ss-track-xi.vercel.app/api/v1/owner/upgradePayPal", requestData, {
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${token}` // Send the token in the headers

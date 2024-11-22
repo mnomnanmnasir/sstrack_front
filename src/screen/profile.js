@@ -10,7 +10,7 @@ import OwnerDashboardHeader from "../companyOwner/ownerComponent/ownerSection";
 import axios from "axios";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { FerrisWheelSpinner } from "react-spinner-overlay";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import goBackIcon from '../images/go-back.svg'
 
 function Profile() {
@@ -24,6 +24,7 @@ function Profile() {
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         timezoneOffset: null
     });
+    const location = useLocation();
     const [loading, setLoading] = useState(false);
     let token = localStorage.getItem('token');
     const [email, setEmail] = useState("");
@@ -41,7 +42,7 @@ function Profile() {
         'Content-Type': 'application/json'
     };
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
     let fillModel = (key, val) => {
         setModel((prevModel) => ({
@@ -59,6 +60,17 @@ function Profile() {
             timezoneOffset: timezone?.offset
         }));
     };
+
+    async function handleSave() {
+        if (location.state?.fromAccount) {
+            // User navigated from /account
+            await updateData();
+        } else {
+            // User navigated directly to profile
+            await merafunction();
+        }
+    }
+
 
     async function updateData() {
         // Check if token is missing
@@ -167,11 +179,11 @@ function Profile() {
 
         try {
             const response = await axios.post(
-                `https://myuniversallanguages.com:9093/api/v1/auth/microsoft/authSignup`,
+                `https://ss-track-xi.vercel.app/api/v1/auth/microsoft/authSignup`,
                 {
                     userId: "672cc6df2a2b7806b4bea9cb", // Replace with the actual userId if needed
                     name: model.name, // Use model.name
-                    userType: "owner", // Ensure this is the correct user type
+                    userType: items?.userType, // Ensure this is the correct user type
                     timezone: model.timezone, // Use the timezone from the model
                     timezoneOffset: model.timezoneOffset, // Use the timezone offset from the model
                     company: model.company // Ensure you're using model.company
@@ -189,7 +201,6 @@ function Profile() {
                     ...JSON.parse(localStorage.getItem('items')),
                     name: model.name,
                     email: model.email,
-
                     company: model.company,
                     timezone: model.timezone,
                     timezoneOffset: model.timezoneOffset,
@@ -221,7 +232,7 @@ function Profile() {
     
     //     try {
     //         const response = await axios.post(
-    //             `https://myuniversallanguages.com:9093/api/v1/auth/microsoft/authSignup`,
+    //             `https://ss-track-xi.vercel.app/api/v1/auth/microsoft/authSignup`,
     //             {
     //                 userId: "672cc6df2a2b7806b4bea9cb", // Replace with the actual userId if needed
     //                 name: model.name, // Use model.name
@@ -322,7 +333,7 @@ function Profile() {
                             </div>
                         </div>
                         <div className="saveCancelButton">
-                            <button disabled={loading} onClick={merafunction} className={loading ? "disabledAccountButton2" : "saveButton"}>{loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Save"}</button>
+                            <button disabled={loading} onClick={handleSave} className={loading ? "disabledAccountButton2" : "saveButton"}>{loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Save"}</button>
                             <p>Or</p>
                             <button onClick={() => navigate("/dashboard")} className="cancelButton">Cancel</button>
                             {/* <button onClick={merafunction} className="cancelButton">me hn buttn</button> */}

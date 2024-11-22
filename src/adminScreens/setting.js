@@ -23,7 +23,8 @@ import AdminHead from "../screen/component/adminHeadSection";
 import { getEmployess, setActiveTab, setIds } from "../store/adminSlice";
 import { useDispatch } from "react-redux";
 import axios from "axios";
-
+import BreakTime from './settingScreenComponent/breakTime'
+import Punctuality from './settingScreenComponent/punctuality'
 function Setting() {
 
     const [loading, setLoading] = useState(false);
@@ -33,13 +34,15 @@ function Setting() {
         { id: 3, name: "App & URL tracking", isActive: false, icon: "Yes" },
         { id: 5, name: "Auto pause tracking after", isActive: false, icon: "5 min" },
         { id: 6, name: "Allow adding offline time", isActive: false, icon: "Yes" },
+        { id: 7, name: "Break Time", isActive: false, icon: "1hr" },
+        { id: 8, name: "Punctuality", isActive: false, icon: "Yes" },
         // { id: 4, showSetting: <WeeklyLimit />, name: "Weekly time limit", isActive: false, icon: "100 hr" },
         // { id: 7, showSetting: <Notify />, name: "Notify when screeshot is taken", isActive: false, icon: "Yes" },
         // { id: 8, showSetting: <WeekStart />, name: "Week starts on", isActive: false, icon: "Sun" },
         // { id: 9, showSetting: <CurrencySymbol />, name: "Currency symbol", isActive: false, icon: "$" },
     ]);
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     let token = localStorage.getItem('token');
     let user = JSON.parse(localStorage.getItem('items'));
     let headers = {
@@ -53,7 +56,7 @@ function Setting() {
             const json = await response.json();
             dispatch(getEmployess(json?.convertedEmployees))
             // json?.convertedEmployees.map(async (employee) => {
-            //     const data = await axios.get(`https://myuniversallanguages.com:9093/api/v1/superAdmin/Settings/${employee._id}`)
+            //     const data = await axios.get(`https://ss-track-xi.vercel.app/api/v1/superAdmin/Settings/${employee._id}`)
             //     if (data?.data?.employeeSettings?.userId) {
             //         dispatch(setIds(data?.data?.employeeSettings?.userId))
             //     }
@@ -120,6 +123,8 @@ function Setting() {
                                 {settingsTabs[2].isActive && <UrlTracking activeTab={settingsTabs[2]} />}
                                 {settingsTabs[3].isActive && <AutoPause activeTab={settingsTabs[3]} />}
                                 {settingsTabs[4].isActive && <OfflineTime activeTab={settingsTabs[4]} />}
+                                {settingsTabs[5].isActive && <BreakTime activeTab={settingsTabs[5]} />}
+                                {settingsTabs[6].isActive && <Punctuality activeTab={settingsTabs[6]} />}
                             </div>
                         </div>
                     </div>

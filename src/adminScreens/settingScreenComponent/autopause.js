@@ -34,7 +34,7 @@ function AutoPause() {
             }
         }
         try {
-            const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${employee._id}`, {
+            const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/owner/settingsE/${employee._id}`, {
                 userId: employee._id,
                 effectiveSettings: type === "pause" ? setting1 : setting2
             }, { headers })
@@ -128,7 +128,7 @@ function AutoPause() {
                         onChange={async (e) => {
                             dispatch(setAllUserSetting7(true))
                             try {
-                                const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
+                                const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/settingsE`,
                                     employees?.filter(f => f.effectiveSettings?.individualAutoPause === false)?.map((prevEmployess) => {
                                         return {
                                             userId: prevEmployess._id,
@@ -169,7 +169,7 @@ function AutoPause() {
                             if (e.target.value >= 0) {
                                 dispatch(setAllUserSetting8(e.target.value))
                                 try {
-                                    const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
+                                    const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/settingsE`,
                                         employees?.filter(f => f.effectiveSettings?.individualAutoPause === false)?.map((prevEmployess) => {
                                             return {
                                                 userId: prevEmployess._id,
@@ -211,7 +211,7 @@ function AutoPause() {
                         onChange={async (e) => {
                             dispatch(setAllUserSetting7(false))
                             try {
-                                const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
+                                const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/settingsE`,
                                     employees?.filter(f => f.effectiveSettings?.individualAutoPause === false)?.map((prevEmployess) => {
                                         return {
                                             userId: prevEmployess._id,

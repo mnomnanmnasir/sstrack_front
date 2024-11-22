@@ -30,6 +30,7 @@ import Pricing from '../screen/pricing'
 import WorkCards from "../screen/workCards";
 // import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleLogin } from '@react-oauth/google';
+import OwnerLeaveManagement from '../companyOwner/owner-setting-components/ownerLeaveManagement'
 
 
 export default function AppRouter() {
@@ -46,7 +47,7 @@ export default function AppRouter() {
           const headers = {
             Authorization: `Bearer ${token}`,
           };
-          const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
+          const apiUrl = 'https://ss-track-xi.vercel.app/api/v1';
           const response = await axios.get(`${apiUrl}/owner/getCompanyInfo`, { headers });
           // For objects or arrays:
           const planindex = response?.data.data[0].planId.length - 1;
@@ -124,6 +125,7 @@ export default function AppRouter() {
             {/* <Route path="/workCards" element={token ? (suspended ? <Navigate to="/account" /> : <WorkCards />) : <Navigate to="/" />} /> */}
             {/* Private Routes */}
             <Route path="/dashboard" element={token ? (suspended ? <Navigate to="/account" /> : <UserDashboard />) : <Navigate to="/" />} />
+            <Route path="/dashboard" element={token ? (suspended ? <Navigate to="/account" /> : <UserDashboard />) : <Navigate to="/" />} />
             <Route path="/timeline" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
             <Route path="/timeline/:id" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
             <Route path="/account" element={token ? <Account /> : <Navigate to="/" />} />
@@ -134,6 +136,7 @@ export default function AppRouter() {
             <Route path="/company-owner-user" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserSignup />) : <Navigate to="/" />} />
             <Route path="/activity/:id" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserTimeline />) : <Navigate to="/" />} />
             <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} />
+            <Route path="/leave-management" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerLeaveManagement />) : <Navigate to="/" />} />
             {/* <Route
               path="/profile"
               element={

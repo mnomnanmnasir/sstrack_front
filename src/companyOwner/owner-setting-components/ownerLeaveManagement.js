@@ -11,7 +11,7 @@ import AutoPause from "../owner-setting-components/autopause";
 import OfflineTime from "../owner-setting-components/offlinetime";
 import Notify from "../owner-setting-components/notify";
 import WeekStart from "../owner-setting-components/weekStart";
-import CurrencySymbol from "../owner-setting-components/currencySymbol";
+import CurrencySymbol from "../owner-setting-components/ownerLeave";
 
 function UserSettings() {
 
@@ -65,22 +65,26 @@ function UserSettings() {
     console.log(employess);
 
     const [settingsTabs, setSettingTabs] = useState([
-        { id: 1, showSetting: <Screenshot loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Screenshots", isActive: true, icon: "12/hr" },
-        { id: 2, showSetting: <ActivityLevel loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Activity level tracking", isActive: false, icon: "Yes" },
-        { id: 3, showSetting: <UrlTracking loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "App & URL tracking", isActive: false, icon: "Yes" },
-        { id: 4, showSetting: <WeeklyLimit loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Weekly time limit", isActive: false, icon: "100 hr" },
-        { id: 5, showSetting: <AutoPause loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Auto pause tracking after", isActive: false, icon: "5 min" },
-        { id: 6, showSetting: <OfflineTime loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Allow adding offline time", isActive: false, icon: "Yes" },
-        { id: 7, showSetting: <Notify loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Notify when screeshot is taken", isActive: false, icon: "Yes" },
-        { id: 8, showSetting: <WeekStart loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Week starts on", isActive: false, icon: "Sun" },
-        { id: 9, showSetting: <CurrencySymbol loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Currency symbol", isActive: false, icon: "$" },
-       
-
+        // { id: 1, showSetting: <Screenshot loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Screenshots", isActive: true, icon: "12/hr" },
+        // { id: 2, showSetting: <ActivityLevel loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Activity level tracking", isActive: false, icon: "Yes" },
+        // { id: 3, showSetting: <UrlTracking loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "App & URL tracking", isActive: false, icon: "Yes" },
+        // { id: 4, showSetting: <WeeklyLimit loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Weekly time limit", isActive: false, icon: "100 hr" },
+        // { id: 5, showSetting: <AutoPause loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Auto pause tracking after", isActive: false, icon: "5 min" },
+        // { id: 6, showSetting: <OfflineTime loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Allow adding offline time", isActive: false, icon: "Yes" },
+        // { id: 7, showSetting: <Notify loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Notify when screeshot is taken", isActive: false, icon: "Yes" },
+        // { id: 8, showSetting: <WeekStart loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Week starts on", isActive: false, icon: "Sun" },
+        // { id: 9, showSetting: <CurrencySymbol loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Currency symbol", isActive: false, icon: "$" },
     ]);
 
     return (
         <div>
             <div className="container">
+            <div className="userHeader">
+                    <div className="headerTop">
+                        <img src={setting} />
+                        <h5>Leave Management</h5>
+                    </div>
+                </div>
                 <div className="mainwrapper">
                     <div className="settingContainer">
                         <div className="settingMainDiv">

@@ -37,7 +37,7 @@ function CreateAccount() {
     });
     const [err, setErr] = useState("");
     const [error, setError] = useState("");
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const [timezone, setSelectedTimezone] = useState(
         Intl.DateTimeFormat().resolvedOptions().timeZone
     )
@@ -143,13 +143,14 @@ function CreateAccount() {
             const res = await axios.get(`${apiUrl}/superAdmin/checkinvite/${code}/${email}`)
             if (res.status === 200) {
                 console.log(res);
-                setModel({
-                    ...model,
+                setModel(() => ({
+                    ...model, // Properly spread the previous state
                     id: res.data.user._id,
                     email: res.data.user.email,
                     company: res.data.user.company,
                     name: res.data.user.name
-                })
+                }));                
+                console.log('Accounts Data',res)
                 setUser(res.data.user)
                 setLinkExpired(false)
                 setLinkStatusMessage("")
@@ -162,6 +163,46 @@ function CreateAccount() {
         }
     }
 
+    useEffect(() => {
+        console.log("Updated Model State:", model);
+    }, [model]);
+
+    
+    // async function getLink() {
+    //     try {
+    //         const res = await axios.get(`${apiUrl}/superAdmin/checkinvite/${code}/${email}`);
+    //         cons
+    //         if (res.status === 200) {
+    //             console.log("API Response:", res.data);
+    
+    //             // Update the model with fetched data
+    //             setModel((prevModel) => ({
+    //                 ...prevModel, // Spread the existing state
+    //                 id: res.data.user._id || "", // Ensure all fields have a default value
+    //                 email: res.data.user.email || "",
+    //                 company: res.data.user.company || "",
+    //                 name: res.data.user.name || ""
+    //             }));
+    
+    //             console.log("Updated Model:", {
+    //                 id: res.data.user._id,
+    //                 email: res.data.user.email,
+    //                 company: res.data.user.company,
+    //                 name: res.data.user?.name
+    //             });
+    
+    //             setUser(res.data.user); // Update the `user` state
+    //             setLinkExpired(false);
+    //             setLinkStatusMessage("");
+    //         }
+    //     } catch (error) {
+    //         console.error("Error in getLink:", error);
+    //         setUser(null);
+    //         setLinkExpired(true);
+    //         setLinkStatusMessage(error.response?.data?.message || "An error occurred");
+    //     }
+    // }
+    
     useEffect(() => {
         getLink()
     }, [])
@@ -212,9 +253,10 @@ function CreateAccount() {
                                 <div><img src={userIcon} /></div>
                                 <input
                                     className="autofill"
-                                    value={model.name} // Directly use model.name
+                                    value={model.name || ""} // Ensure no undefined values
+                                    // value={model?.name} // Directly use model.name
                                     // type='text'  // Correct type for text input
-                                    // onChange={(e) => fillModel("name", e.target.value)}
+                                    onChange={(e) => fillModel("name", e.target.value)}
                                     placeholder="Your full name"
                                 />
                             </div>

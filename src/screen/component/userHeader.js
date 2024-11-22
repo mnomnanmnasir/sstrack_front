@@ -27,7 +27,7 @@
 //         'Content-Type': 'application/json'
 //     }
 
-//     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+//     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
 //     const logoutDivRef = useRef(null);
 
@@ -217,7 +217,7 @@
 //     'Content-Type': 'application/json'
 // }
 
-//     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+//     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
 // const logoutDivRef = useRef(null);
 
@@ -350,7 +350,7 @@ function UserHeader() {
         'Content-Type': 'application/json'
     }
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
     const logoutDivRef = useRef(null);
 
@@ -458,6 +458,11 @@ function UserHeader() {
     function takeToSettings() {
         setShowContent(false)
         navigate("/effective-settings")
+    }
+
+    function leaveManagement() {
+        setShowContent(false)
+        navigate("/leave-management")
     }
 
     const wordsAfterSpace = user?.name?.split(" ")[1] ? user?.name?.split(" ")[1].charAt(0).toUpperCase() : "";
@@ -656,6 +661,12 @@ function UserHeader() {
                                             </div>
                                             <p>Dashboard</p>
                                         </div>
+                                        {/* <div onClick={leaveManagement}>
+                                            <div>
+                                                <img src={dashboard} />
+                                            </div>
+                                            <p>Leave Management</p>
+                                        </div> */}
                                         <div onClick={takeToAdmin}>
                                             <div>
                                                 <img src={account} />
@@ -676,7 +687,17 @@ function UserHeader() {
                                             </div>
                                             <p>Logout</p>
                                         </div>
-                                    </div>}
+                                    </div>
+                                        // {user?.userType === "user" ? null : (
+                                        //     <div onClick={takeToSettings}>
+                                        //         <div>
+                                        //             <img src={account} />
+                                        //         </div>
+                                        //         <p>leaveManagement</p>
+
+                                        //     </div>
+                                        // )}
+                                    }
                                 </div>
                             </div>
                         </nav>

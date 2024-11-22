@@ -322,7 +322,7 @@ function Home() {
 
 
   //this api is for pricing plan who's data is to send to payment page
-  const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
+  const planapiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
   useEffect(() => {
     const fetchPlans = async () => {

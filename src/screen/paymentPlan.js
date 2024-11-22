@@ -89,7 +89,7 @@ const Payment = ({ updatePaymentStatus }) => {
     };
     console.log('Selected plan:==============', plans);
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
@@ -112,7 +112,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
+                const apiUrl1 = 'https://ss-track-xi.vercel.app/api/v1';
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
                 console.log('Fetched Cards:', fetchedCards);
@@ -204,9 +204,8 @@ const Payment = ({ updatePaymentStatus }) => {
                     expMonth: paymentMethod.card.exp_month,
                     expYear: paymentMethod.card.exp_year,
                     cardNumber: paymentMethod.card.last4,
-
                 });
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
                         // tokenId: paymentMethod.id,
@@ -295,7 +294,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
@@ -344,7 +343,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
     //this api is for pricing plan who's data is to send to payment page
-    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const planapiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
 
     const fetchPlans = async () => {
@@ -605,7 +604,7 @@ const Payment = ({ updatePaymentStatus }) => {
     };
     
     // const handleDirectChangePlan = async () => {
-    // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    // const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
     // if (paycard) {
     //     console.log('Pay with this card:', paycard);
     //     // setIsLoading(true);
@@ -666,7 +665,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //     }
     // };
     const handleDirectChangePlan = async () => {
-        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
         if (paycard) {
             console.log('Pay with this card:', paycard);
             // setIsLoading(true);
@@ -731,7 +730,6 @@ const Payment = ({ updatePaymentStatus }) => {
         if (paycard) {
             setShowModalwithoutcard(true);  // For when the paycard is not available
             console.log('card is available', showModalwithoutcard);
-
         } else {
             console.log('card is not available');
             handleShowModal();
@@ -920,7 +918,7 @@ const Payment = ({ updatePaymentStatus }) => {
             <div className='container'>
                 <div className='card'>
                     <div className='card-body'>
-                        <h3 className="card-title mt-4">Estimated payments</h3>
+                        <h3 className="card-title mt-4">Estimated</h3>
                         <div className="mt-2" style={{ maxWidth: "70%", color: 'grey' }}>Pay only for what you use. There is no minimum fee. If you add a worker for a single day, you'll pay for this day only. Not month. You are free to add or remove workers anytime as you see fit. Your credit card will not be charged today, only at the end of your billing period.</div>
                         <div className="container mt-4">
                             <div className="row">

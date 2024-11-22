@@ -25,7 +25,7 @@ const CompanyEmployess = (props) => {
 
     useEffect(() => {
         // Set allowBlur based on the Redux store
-        const employeeWithBlur = employees.find(employee => employee.effectiveSettings.screenshots?.allowBlur);
+        const employeeWithBlur = employees.find(employee => employee.effectiveSettings?.screenshots?.allowBlur);
         setAllowBlur(!!employeeWithBlur); // Use double negation to convert to boolean
     }, [employees]);
 
@@ -50,7 +50,7 @@ const CompanyEmployess = (props) => {
         console.log('SSID', ssId)
         try {
             const res = await axios.patch(
-                `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${data.employee._id}`,
+                `https://ss-track-xi.vercel.app/api/v1/owner/settingsE/${data.employee._id}`,
                 {
                     userId: data.employee._id,
                     effectiveSettings: {
@@ -120,7 +120,7 @@ const CompanyEmployess = (props) => {
             <div>
                 <SnackbarProvider />
                 {filteredEmployees && filteredEmployees.length > 0 ? filteredEmployees?.map((employee, index) => {
-
+                
                     {/* {employees && employees.length > 0 ? employees?.filter(employee => employee.invitationStatus === 'accepted' || (employee.invitationStatus === 'pending' && employee.invitedBy === userId)).map((employee, index) => { */ }
                     return (
                         loading ? (

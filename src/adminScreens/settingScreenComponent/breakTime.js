@@ -103,7 +103,7 @@ function Screenshot() {
                         name={`${employee._id}_takeOption`} // Unique name for this user's radio button group
                         value="take"
                     />
-                    <label htmlFor={`${employee._id}_take`}>Take</label>
+                    <label htmlFor={`${employee._id}_take`}>Take21212</label>
                 </div>
                 <div>
                     <select
@@ -252,13 +252,271 @@ function Screenshot() {
     }, [])
 
     console.log("screenshot employess =====>", employees);
-    debugger
+    const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
+
+    // const handleCheckboxChange = () => {
+    //     setIsCheckboxChecked(!isCheckboxChecked);
+    // };
+    // const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
+
+    const [startTime, setStartTime] = useState("");
+    const [endTime, setEndTime] = useState("");
+    const [calculatedDuration, setCalculatedDuration] = useState("");
+
+
+
+
+    const handleDurationChange = (e) => {
+        const input = e.target.value; // Capture user input
+        setCalculatedDuration(input); // Update the field value immediately
+
+        // Only validate if input matches the complete format
+        const regex = /^(\d+)\s*hr\s*(\d+)?\s*min?$/i; // Match "X hr Y min"
+        const match = input.match(regex);
+
+        if (match) {
+            const hours = parseInt(match[1], 10) || 0; // Extract hours
+            const minutes = parseInt(match[2], 10) || 0; // Extract minutes
+
+            if ((hours === 0 && minutes >= 1 && minutes <= 59) || (hours === 1 && minutes === 0)) {
+                // Valid duration range
+                calculateStartAndEndTime(hours, minutes);
+            } else {
+                enqueueSnackbar("Please enter a valid duration between 0 hr 1 min and 1 hr 0 min.", {
+                    variant: "warning",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                });
+            }
+        }
+    };
+
+    const validateAndFormatDuration = (input) => {
+        const regex = /^(\d+)\s*hr\s*(\d+)?\s*min?$/i; // Match inputs like "0 hr 1 min"
+        const match = input.match(regex);
+
+        if (match) {
+            const hours = parseInt(match[1], 10) || 0; // Extract hours
+            const minutes = parseInt(match[2], 10) || 0; // Extract minutes
+
+            if (hours === 0 && minutes >= 1 && minutes <= 59) {
+                // Allow valid range for 0 hours
+                setCalculatedDuration(`0 hr ${minutes} min`);
+                calculateStartAndEndTime(0, minutes);
+            } else if (hours === 1 && minutes === 0) {
+                // Allow exactly 1 hr 0 min
+                setCalculatedDuration("1 hr 0 min");
+                calculateStartAndEndTime(1, 0);
+            } else {
+                // Invalid input
+                setCalculatedDuration("Invalid Time Range");
+                alert("Please enter a valid duration between 0 hr 1 min and 1 hr 0 min.");
+            }
+        } else if (input === "") {
+            // Clear input
+            setCalculatedDuration("");
+        } else {
+            // Invalid input
+            setCalculatedDuration("Invalid Time Range");
+            alert("Please enter a valid duration between 0 hr 1 min and 1 hr 0 min.");
+        }
+    };
+
+
+    const formatDurationInput = (input) => {
+        const regex = /^(\d+)\s*:?(\d+)?$/; // Matches numbers with optional separator (e.g., "2 30" or "2:30")
+        const match = input.match(regex);
+
+        if (match) {
+            const hours = Math.min(parseInt(match[1], 10) || 0, 1); // Restrict hours to max 1
+            const minutes = parseInt(match[2], 10) || 0;
+
+            if (hours === 1 && minutes > 0) {
+                // If hours is 1, minutes must be 0
+                setCalculatedDuration("1 hr 0 min");
+                calculateStartAndEndTime(1, 0);
+            } else if (hours === 0 && minutes >= 1 && minutes <= 59) {
+                // Allow valid minutes range for 0 hours
+                setCalculatedDuration(`0 hr ${minutes} min`);
+                calculateStartAndEndTime(0, minutes);
+            } else if (hours === 1 && minutes === 0) {
+                // Allow exactly 1 hr 0 min
+                setCalculatedDuration("1 hr 0 min");
+                calculateStartAndEndTime(1, 0);
+            } else {
+                // Invalid input outside the range
+                setCalculatedDuration("Invalid Time Range");
+                alert("Please enter a valid duration between 0 hr 1 min and 1 hr 0 min.");
+            }
+        } else {
+            setCalculatedDuration("");
+        }
+    };
+
+
+
+
+    const calculateStartAndEndTime = (hours, minutes) => {
+        const startDate = new Date();
+        startDate.setHours(9, 0, 0); // Default start time: 09:00 AM
+        const endDate = new Date(startDate);
+        endDate.setHours(startDate.getHours() + hours, startDate.getMinutes() + minutes);
+
+        const startTimeString = startDate.toTimeString().slice(0, 5); // Format as HH:MM
+        const endTimeString = endDate.toTimeString().slice(0, 5); // Format as HH:MM
+
+        setStartTime(startTimeString);
+        setEndTime(endTimeString);
+    };
+
+    const formatEndTime = (startDate, hours, minutes) => {
+        const endDate = new Date(startDate);
+        endDate.setHours(startDate.getHours() + hours, startDate.getMinutes() + minutes);
+        return endDate.toTimeString().slice(0, 5);
+    };
+
+
+    // const handleCheckboxChange = () => {
+    //     setIsCheckboxChecked(!isCheckboxChecked);
+    //     setStartTime(""); // Reset fields when toggling
+    //     setEndTime("");
+    //     setCalculatedDuration("");
+    // };
+
+    // const handleStartTimeChange = (e) => {
+    //     setStartTime(e.target.value);
+    //     // Re-validate the end time when the start time changes
+    //     if (endTime) {
+    //         validateTimeDifference(e.target.value, endTime);
+    //     }
+    // };
+
+    // const handleEndTimeChange = (e) => {
+    //     const newEndTime = e.target.value;
+    //     validateTimeDifference(startTime, newEndTime);
+    // };
+
+   const handleStartTimeChange = (e) => {
+    const newStartTime = e.target.value;
+    setStartTime(newStartTime);
+    calculateDuration(newStartTime, endTime);
+};
+
+const handleEndTimeChange = (e) => {
+    const newEndTime = e.target.value;
+    setEndTime(newEndTime);
+    calculateDuration(startTime, newEndTime);
+};
+
+const calculateDuration = (start, end) => {
+    if (start && end) {
+        const startDate = new Date(`1970-01-01T${start}:00`);
+        const endDate = new Date(`1970-01-01T${end}:00`);
+
+        if (endDate > startDate) {
+            const durationMs = endDate - startDate;
+            const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
+            const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+
+            // Check if duration exceeds 1 hour
+            if (durationHours > 1 || (durationHours === 1 && durationMinutes > 0)) {
+                setCalculatedDuration("Invalid Time Range");
+                enqueueSnackbar("Duration cannot exceed 1 hour.", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                });
+                setEndTime(""); // Reset invalid end time
+            } else {
+                setCalculatedDuration(`${durationHours} hr ${durationMinutes} min`);
+            }
+        } else {
+            setCalculatedDuration("Invalid Time Range");
+            enqueueSnackbar("End time must be after start time.", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
+        }
+    } else {
+        setCalculatedDuration("");
+    }
+};
+
+
+    const validateTimeDifference = (start, end) => {
+        if (start && end) {
+            const startDate = new Date(`1970-01-01T${start}:00`);
+            const endDate = new Date(`1970-01-01T${end}:00`);
+
+            const differenceMs = endDate - startDate;
+            const differenceMinutes = differenceMs / (1000 * 60); // Convert ms to minutes
+
+            if (differenceMinutes > 60) {
+                enqueueSnackbar("The time difference cannot exceed 1 hour.", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                });
+                setEndTime(""); // Clear the invalid end time
+            } else if (differenceMinutes < 0) {
+                enqueueSnackbar("End time must be after start time.", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                });
+                setEndTime(""); // Clear the invalid end time
+            } else {
+                setEndTime(end); // Valid end time
+            }
+        }
+    };
+
+    const handleCheckboxChange = () => {
+        setIsCheckboxChecked(!isCheckboxChecked);
+        // Reset all fields when checkbox is unchecked
+        if (isCheckboxChecked) {
+            setStartTime("");
+            setEndTime("");
+            setCalculatedDuration("");
+        }
+    };
+
+
+    // const calculateDuration = (start, end) => {
+    //     if (start && end) {
+    //         const startDate = new Date(`1970-01-01T${start}:00`);
+    //         const endDate = new Date(`1970-01-01T${end}:00`);
+
+    //         if (endDate > startDate) {
+    //             const durationMs = endDate - startDate;
+    //             const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
+    //             const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+    //             setCalculatedDuration(`${durationHours} hr ${durationMinutes} min`);
+    //         } else {
+    //             setCalculatedDuration("Invalid Time Range");
+    //         }
+    //     } else {
+    //         setCalculatedDuration("");
+    //     }
+    // };
+
     return (
         <div>
             <SnackbarProvider />
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                 <div>
-                    <p className="settingScreenshotHeading">Screenshots</p>
+                    <p className="settingScreenshotHeading">Break Time</p>
                 </div>
             </div>
             <div className="settingScreenshotDiv">
@@ -266,134 +524,58 @@ function Screenshot() {
                 <p>This number is an average since screenshots are taken at random intervals.</p>
             </div>
             <div className="takeScreenShotDiv">
-                <div>
-                    <input
-                        checked={employees?.find(f => f?.effectiveSettings?.individualss === false && f?.effectiveSettings?.screenshots?.enabled === true)}
-                        onChange={() => {
-                            dispatch(setAllUserSetting({ checked: true }))
-                            handleApply("take")
-                        }} type="radio" id="test1" name="radio-group" />
-                    <label for="test1">Take</label>
-                </div>
-                <div>
-                    <select
-                        value={number}
-                        className="myselect"
-                        onChange={async (e) => {
-                            dispatch(setAllUserSetting2({ value: e.target.value }))
-                            const value = e.target.value;
-                            try {
-                                const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/settingsE`,
-                                    employees?.filter(f => f.effectiveSettings?.individualss === false)?.map((prevEmployess) => {
-                                        return {
-                                            userId: prevEmployess._id,
-                                            settings: {
-                                                ...prevEmployess?.effectiveSettings,
-                                                screenshots: {
-                                                    ...prevEmployess?.effectiveSettings?.screenshots,
-                                                    frequency: `${value}/hr`,
-                                                },
-                                                userId: prevEmployess._id,
-                                            }
-                                        }
-                                    }), { headers })
-                                if (res.status === 200) {
-                                    enqueueSnackbar("Employee settings updated", {
-                                        variant: "success",
-                                        anchorOrigin: {
-                                            vertical: "top",
-                                            horizontal: "right"
-                                        }
-                                    })
-                                }
-                                else {
-                                    enqueueSnackbar(res.data.message, {
-                                        variant: "error",
-                                        anchorOrigin: {
-                                            vertical: "top",
-                                            horizontal: "right"
-                                        }
-                                    })
-                                }
-                                console.log(res);
-                            } catch (error) {
-                                if (error.response && error.response.data) {
-                                    if (error.response.status === 404 && error.response.data.success === false) {
-                                        // alert(error.response.data.message)
-                                        console.log('setting response screenshots', error.response.data.message)
-                                        enqueueSnackbar(error.response.data.message, {
-                                            variant: "error",
-                                            anchorOrigin: {
-                                                vertical: "top",
-                                                horizontal: "right"
-                                            }
-                                        })
-                                    }
-                                }
-                            }
-                        }}>
-                        <option value={3}>3</option>
-                        <option value={5}>5</option>
-                        <option value={6}>6</option>
-                        <option value={10}>10</option>
-                        <option value={12}>12</option>
-                        <option value={15}>15</option>
-                        <option value={20}>20</option>
-                        <option value={30}>30</option>
-                    </select>
-                </div>
-                <div>
-                    <p>screenshots per hour</p>
-                </div>
-                <div>
-                    <select
-                        value={employees?.find(f => f?.effectiveSettings?.individualss === false)?.effectiveSettings?.screenshots?.allowBlur === true ? "Allow Blur" : "Disallow Blur"}
-                        className="myselect"
-                        onChange={async (e) => {
-                            console.log(e.target.value);
-                            dispatch(setAllUserSetting3({ value: e.target.value === "Allow Blur" ? true : false }))
-                            try {
-                                const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/settingsE`,
-                                    employees?.filter(f => f.effectiveSettings?.individualss === false)?.map((prevEmployess) => {
-                                        return {
-                                            userId: prevEmployess._id,
-                                            settings: {
-                                                ...prevEmployess?.effectiveSettings,
-                                                screenshots: {
-                                                    ...prevEmployess?.effectiveSettings?.screenshots,
-                                                    allowBlur: e.target.value === "Allow Blur" ? true : false
-                                                },
-                                                userId: prevEmployess._id,
-                                            }
-                                        }
-                                    }), { headers })
-                                if (res.status === 200) {
-                                    enqueueSnackbar('Employee settings updated', {
-                                        variant: "error",
-                                        anchorOrigin: {
-                                            vertical: "top",
-                                            horizontal: "right"
-                                        }
-                                    })
-                                }
-                                console.log('Reponse agyaa', res);
-                            } catch (error) {
-                                console.log(error);
-                            }
-                        }}>
-                        <option value="Allow Blur">Allow Blur</option>
-                        <option value="Disallow Blur">Disallow Blur</option>
-                        <option value="Blur all">Blur all</option>
-                    </select>
-                </div>
-                <div>
-                    <input
-                        checked={employees?.find(f => f?.effectiveSettings?.individualss === false && f?.effectiveSettings?.screenshots?.enabled === false)}
-                        onChange={() => {
-                            dispatch(setAllUserSetting({ checked: false }))
-                            handleApply("do not take")
-                        }} type="radio" id="test2" name="radio-group" />
-                    <label for="test2">Do not Take</label>
+                <div className="d-flex gap-3">
+                    <div style={{ marginBottom: "10px" }}>
+                        {/* <label htmlFor="calculatedDuration">Duration:</label> */}
+                        <input
+                            id="calculatedDuration"
+                            type="text"
+                            value={calculatedDuration}
+                            readOnly
+                            disabled
+                            placeholder="Total Hours"
+                            style={{
+                                marginLeft: "10px",
+                                padding: "5px",
+                                borderRadius: "4px",
+                                border: "1px solid #ccc",
+                            }}
+                        />
+                    </div>
+                    <div style={{ marginBottom: "10px" }}>
+                        <label htmlFor="startTime">Start Time:</label>
+                        <input
+                            id="startTime"
+                            type="time"
+                            value={startTime}
+                            onChange={handleStartTimeChange}
+                            // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
+                            style={{
+                                marginLeft: "10px",
+                                padding: "5px",
+                                borderRadius: "4px",
+                                border: "1px solid #ccc",
+                            }}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: "10px" }}>
+                        <label htmlFor="endTime">End Time:</label>
+                        <input
+                            id="endTime"
+                            type="time"
+                            value={endTime}
+                            onChange={handleEndTimeChange}
+                            // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
+                            style={{
+                                marginLeft: "10px",
+                                padding: "5px",
+                                borderRadius: "4px",
+                                border: "1px solid #ccc",
+                            }}
+                        />
+                    </div>
+
                 </div>
             </div>
             <div className="activityLevelIndividual">
@@ -412,7 +594,7 @@ function Screenshot() {
                 {/* )} */}
             </div>
         </div>
-    )
+    );
 }
 
 export default Screenshot;

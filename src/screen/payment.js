@@ -20,27 +20,148 @@ const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvi
 // publishable_key= pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw
 // secret_key= sk_test_51PvKZy04DfRmMVhLpUwgsNqAG7DjWlohkftPfj49gTzGMIBiZKaXh0DHYgdrKPElaAw71X94yF20MvWYyOKWOSHj00P3ayGG2K
 
+// const PayPalButton = ({ setMerchantId, selectedPlan }) => {
+//     const [unpaidTotalAmount, setUnpaidTotalAmount] = useState("0.00");
+//     const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+
+//     const fetchUnpaidInvoices = async () => {
+//         try {
+//             const res = await axios.get('https://ss-track-xi.vercel.app/api/v1/owner/getInvoice', {
+//                 headers: {
+//                     Authorization: `Bearer ${localStorage.getItem('token')}`
+//                 }
+//             });
+//             const invoices = res.data.data.invoiceInfo.filter(invoice => invoice.status === 'unpaid');
+
+//             // Calculate the total amount of unpaid invoices
+//             const total = invoices.reduce((acc, invoice) => acc + parseFloat(invoice.subTotal), 0);
+//             setUnpaidTotalAmount(total.toFixed(2)); // Set the total unpaid amount
+//             console.log("Total unpaid amount:", total);
+//         } catch (error) {
+//             console.error('Error fetching unpaid invoices:', error);
+//         }
+//     };
+
+//     useEffect(() => {
+//         fetchUnpaidInvoices();
+//     }, []);
+
+//     useEffect(() => {
+//         if (!isScriptLoaded) {
+//             const script = document.createElement('script');
+//             script.src = `https://www.paypal.com/sdk/js?client-id=AbjWITfwZjHD0s6nwfnGmZFpRKnhKLet_QEaADR6xkZ4LiBjI2niy3U6sHRvYi6zCKgaCA4H4RX3mIPh&currency=USD&disable-funding=credit,card`;
+//             script.async = true;
+//             script.onload = () => setIsScriptLoaded(true); // Set flag to true when script loads
+//             document.body.appendChild(script);
+
+//             return () => {
+//                 document.body.removeChild(script);
+//             };
+//         }
+//     }, [isScriptLoaded]);
+
+//     useEffect(() => {
+//         if (isScriptLoaded && unpaidTotalAmount > 0) {
+//             window.paypal.Buttons({
+//                 createOrder: (data, actions) => {
+//                     return actions.order.create({
+//                         purchase_units: [{
+//                             amount: { value: unpaidTotalAmount.toString() },
+//                         }],
+//                     });
+//                 },
+//                 onApprove: async (data, actions) => {
+//                     return actions.order.capture().then(async details => {
+//                         const transactionId = details.purchase_units[0].payments.captures[0].id;
+//                         setMerchantId(transactionId);
+
+//                         const requestData = {
+//                             planId: selectedPlan?._id,
+//                             transactionId: transactionId
+//                         };
+
+//                         try {
+//                             const token = localStorage.getItem('token');
+//                             const res = await axios.post("https://ss-track-xi.vercel.app/api/v1/owner/payNowPayPal", requestData, {
+//                                 headers: {
+//                                     'Content-Type': 'application/json',
+//                                     'Authorization': `Bearer ${token}`
+//                                 }
+//                             });
+//                             if (res.status === 200) {
+//                                 alert("Payment processed successfully!");
+//                             } else {
+//                                 alert("Error: " + (res.data.message || 'Unknown error.'));
+//                             }
+//                         } catch (error) {
+//                             console.error('API Error:', error);
+//                             alert("An error occurred while processing the payment.");
+//                         }
+//                     });
+//                 },
+//                 onError: (err) => {
+//                     console.error('PayPal Checkout onError', err);
+//                     alert("An error occurred with PayPal. Please try again.");
+//                 },
+//             }).render('#paypal-button-container');
+//         }
+//     }, [isScriptLoaded, unpaidTotalAmount, selectedPlan]);
+
+//     return (
+//         <div>
+//             {/* <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+//                 <p>Total Unpaid Amount: ${unpaidTotalAmount}</p>
+//             </div> */}
+//             <div id="paypal-button-container" style={{ width: '200px', margin: '0 auto' }}></div>
+//         </div>
+//     );
+// };
 const PayPalButton = ({ setMerchantId, selectedPlan }) => {
     const [unpaidTotalAmount, setUnpaidTotalAmount] = useState("0.00");
     const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+    const [unpaidInvoiceIds, setUnpaidInvoiceIds] = useState([]); // State to hold unpaid invoice IDs
 
+    // const fetchUnpaidInvoices = async () => {
+    //     try {
+    //         const res = await axios.get('https://ss-track-xi.vercel.app/api/v1/owner/getInvoice', {
+    //             headers: {
+    //                 Authorization: `Bearer ${localStorage.getItem('token')}`
+    //             }
+    //         });
+    //         const invoices = res.data.data.invoiceInfo.filter(invoice => invoice.status === 'unpaid');
+
+    //         // Extract the invoice IDs and total amount
+    //         const invoiceIds = invoices.map(invoice => invoice._id);
+    //         const total = invoices.reduce((acc, invoice) => acc + parseFloat(invoice.subTotal), 0);
+
+    //         setUnpaidInvoiceIds(invoiceIds); // Set the unpaid invoice IDs
+    //         setUnpaidTotalAmount(total.toFixed(2)); // Set the total unpaid amount
+    //         console.log("Total unpaid amount:", total);
+    //     } catch (error) {
+    //         console.error('Error fetching unpaid invoices:', error);
+    //     }
+    // };
     const fetchUnpaidInvoices = async () => {
         try {
-            const res = await axios.get('https://myuniversallanguages.com:9093/api/v1/owner/getInvoice', {
+            const res = await axios.get('https://ss-track-xi.vercel.app/api/v1/owner/getInvoice', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
             const invoices = res.data.data.invoiceInfo.filter(invoice => invoice.status === 'unpaid');
 
-            // Calculate the total amount of unpaid invoices
+            // Extract invoiceNumber for unpaid invoices
+            const invoiceIds = invoices.map(invoice => invoice.invoiceNumber);
             const total = invoices.reduce((acc, invoice) => acc + parseFloat(invoice.subTotal), 0);
-            setUnpaidTotalAmount(total.toFixed(2)); // Set the total unpaid amount
-            console.log("Total unpaid amount:", total);
+
+            setUnpaidInvoiceIds(invoiceIds); // Set unpaid invoice numbers as IDs
+            setUnpaidTotalAmount(total.toFixed(2)); // Set total unpaid amount
+            console.log("Unpaid Invoice Numbers:", invoiceIds);
         } catch (error) {
             console.error('Error fetching unpaid invoices:', error);
         }
     };
+
 
     useEffect(() => {
         fetchUnpaidInvoices();
@@ -51,7 +172,7 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
             const script = document.createElement('script');
             script.src = `https://www.paypal.com/sdk/js?client-id=AbjWITfwZjHD0s6nwfnGmZFpRKnhKLet_QEaADR6xkZ4LiBjI2niy3U6sHRvYi6zCKgaCA4H4RX3mIPh&currency=USD&disable-funding=credit,card`;
             script.async = true;
-            script.onload = () => setIsScriptLoaded(true); // Set flag to true when script loads
+            script.onload = () => setIsScriptLoaded(true);
             document.body.appendChild(script);
 
             return () => {
@@ -76,13 +197,14 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
                         setMerchantId(transactionId);
 
                         const requestData = {
-                            planId: selectedPlan?._id,
-                            transactionId: transactionId
+                            // planId: selectedPlan?._id,
+                            transactionId: transactionId,
+                            invoiceId: unpaidInvoiceIds // Send invoice numbers as invoiceId
                         };
-
+                        console.log("Request PayPal Data", requestData)
                         try {
                             const token = localStorage.getItem('token');
-                            const res = await axios.post("https://myuniversallanguages.com:9093/api/v1/owner/upgradePayPal", requestData, {
+                            const res = await axios.post("https://ss-track-xi.vercel.app/api/v1/owner/payNowPayPal", requestData, {
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${token}`
@@ -105,17 +227,15 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
                 },
             }).render('#paypal-button-container');
         }
-    }, [isScriptLoaded, unpaidTotalAmount, selectedPlan]);
+    }, [isScriptLoaded, unpaidTotalAmount, selectedPlan, unpaidInvoiceIds]);
 
     return (
         <div>
-            {/* <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-                <p>Total Unpaid Amount: ${unpaidTotalAmount}</p>
-            </div> */}
             <div id="paypal-button-container" style={{ width: '200px', margin: '0 auto' }}></div>
         </div>
     );
 };
+
 
 
 
@@ -180,7 +300,7 @@ const Payment = ({ updatePaymentStatus }) => {
     };
     const fetchUnpaidInvoices = async () => {
         try {
-            const res = await axios.get('https://myuniversallanguages.com:9093/api/v1/owner/getInvoice', {
+            const res = await axios.get('https://ss-track-xi.vercel.app/api/v1/owner/getInvoice', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -335,7 +455,7 @@ const Payment = ({ updatePaymentStatus }) => {
     };
     console.log('Selected plan:==============', plans);
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
@@ -357,7 +477,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
+                const apiUrl1 = 'https://ss-track-xi.vercel.app/api/v1';
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
                 console.log('Fetched Cards:', fetchedCards);
@@ -403,7 +523,126 @@ const Payment = ({ updatePaymentStatus }) => {
     };
 
     // addNewCard(newCard); // Call the function to update the state
-    const CheckoutForm2 = () => {
+    // const CheckoutForm2 = ({ addNewCard }) => {
+    //     const stripe = useStripe();
+    //     const elements = useElements();
+    //     const [error, setError] = useState(null);
+    //     const [success, setSuccess] = useState(false);
+    //     const [loading, setLoading] = useState(false);
+    //     const items = JSON.parse(localStorage.getItem('items'));
+    //     const token = localStorage.getItem('token');
+    //     const headers = {
+    //         Authorization: "Bearer " + token,
+    //     };
+
+
+    //     const handleSubmit = async (event) => {
+    //         event.preventDefault();
+    //         setLoading(true);
+
+    //         if (!stripe || !elements) {
+    //             setError('Stripe has not loaded correctly.');
+    //             setLoading(false);
+    //             return;
+    //         }
+
+    //         const cardElement = elements.getElement(CardElement);
+
+    //         const { error, paymentMethod } = await stripe.createPaymentMethod({
+    //             type: 'card',
+    //             card: elements.getElement(CardElement),
+    //         });
+
+    //         if (error) {
+    //             setError(error.message);
+    //             setLoading(false);
+    //         } else {
+
+    //             console.log('Card Info:', {
+    //                 cardType: paymentMethod.card.brand,
+    //                 expMonth: paymentMethod.card.exp_month,
+    //                 expYear: paymentMethod.card.exp_year,
+    //                 cardNumber: paymentMethod.card.last4,
+    //             });
+    //             const newCard = {
+    //                 cardType: paymentMethod.card.brand,
+    //                 expMonth: paymentMethod.card.exp_month,
+    //                 expYear: paymentMethod.card.exp_year,
+    //                 cardNumber: paymentMethod.card.last4,
+    //                 tokenId: paymentMethod.id,
+    //             };
+    //             const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    //             try {
+    //                 const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
+    //                     // tokenId: paymentMethod.id,
+    //                     // TotalAmount: selectedPlan.costPerUser,
+    //                     // planId: selectedPlan._id,
+    //                     cardType: paymentMethod.card.brand,
+    //                     expMonth: paymentMethod.card.exp_month,
+    //                     expYear: paymentMethod.card.exp_year,
+    //                     cardNumber: paymentMethod.card.last4,
+    //                     tokenId: paymentMethod.id,
+    //                     // TotalAmount: '58.88',
+    //                     // dueDate: '2024-07-30',
+    //                     // planId: selectedPlan._id,
+    //                 }, { headers });
+
+    //                 console.log('Payment Response:', response);
+    //                 if (response.data.success) {
+    //                     // setpaycard(newCard); // Update the current paycard
+    //                     // addNewCard(newCard); // Add to the card list
+    //                     // window.location.reload(); // Reload the page
+    //                     console.log('me')
+    //                     setSuccess(true);
+    //                     setTimeout(() => {
+    //                         setshowNewCardModal(false);
+    //                         addNewCard(newCard); // Call the function to update the state
+    //                     }, 1000); // Close the modal after 0.5 seconds
+    //                 } else {
+    //                     setError(`Payment failed: ${response.data.message}`);
+    //                 }
+    //             } catch (error) {
+    //                 setError(`Payment failed: ${error.response ? error.response.data.message : error.message}`);
+    //             }
+
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     useEffect(() => {
+    //         if (success) {
+    //             console.log("paymentv...................")
+    //             setTimeout(() => {
+    //                 setShowModal(false);
+    //                 console.log("paymentv...................")
+    //             }, 500); // Close the modal after 2 seconds
+    //         }
+    //     }, [success, setShowModal]);
+
+    //     return (
+
+    //         success ? (
+    //             <div>
+    //                 <div className="success-message">Card Added successful!</div>
+    //                 {setShowModal(false)}
+    //             </div>
+    //         ) : (
+    //             <form onSubmit={handleSubmit} className="payment-form">
+    //                 <CardElement className="card-element" />
+    //                 {error && <div className="error-message">{error}</div>}
+    //                 {success && <div className="success-message">Card Added successful!</div>
+    //                 }
+    //                 {/* {setShowModal(false)} */}
+    //                 <button type="submit" disabled={!stripe || loading} className="submit-button">
+    //                     {loading ? 'Adding...' : 'Add Card'}
+    //                 </button>
+    //             </form>
+
+    //         )
+
+    //     );
+    // };
+    const CheckoutForm2 = ({ addNewCard }) => {
         const stripe = useStripe();
         const elements = useElements();
         const [error, setError] = useState(null);
@@ -439,12 +678,10 @@ const Payment = ({ updatePaymentStatus }) => {
             } else {
 
                 console.log('Card Info:', {
-
                     cardType: paymentMethod.card.brand,
                     expMonth: paymentMethod.card.exp_month,
                     expYear: paymentMethod.card.exp_year,
                     cardNumber: paymentMethod.card.last4,
-
                 });
                 const newCard = {
                     cardType: paymentMethod.card.brand,
@@ -453,7 +690,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
                     tokenId: paymentMethod.id,
                 };
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
                         // tokenId: paymentMethod.id,
@@ -471,6 +708,9 @@ const Payment = ({ updatePaymentStatus }) => {
 
                     console.log('Payment Response:', response);
                     if (response.data.success) {
+                        // setpaycard(newCard); // Update the current paycard
+                        // addNewCard(newCard); // Add to the card list
+                        // window.location.reload(); // Reload the page
                         console.log('me')
                         setSuccess(true);
                         setTimeout(() => {
@@ -498,30 +738,131 @@ const Payment = ({ updatePaymentStatus }) => {
             }
         }, [success, setShowModal]);
 
+
         return (
+            <>
+                <h3 className="mb-4" style={{ fontWeight: 'bold', fontSize: '2rem' }}>
+                    Payment Details
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="#007a5a"
+                        width="40px"
+                        height="60px"
+                        style={{ marginLeft: '8px' }}
+                    >
+                        <path d="M21 7H5a2 2 0 00-2 2v7a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zm0 9H5V9h16v7zm-2-4h-4a1 1 0 100 2h4a1 1 0 100-2zm-9-8H4a1 1 0 00-1 1v1h16a2 2 0 012 2V9H3V5a3 3 0 013-3h7a3 3 0 013 3v1h-2V5a1 1 0 00-1-1z" />
+                    </svg>
+                </h3>
 
-            success ? (
-                <div>
-                    <div className="success-message">Card Added successful!</div>
-                    {setShowModal(false)}
-                </div>
-            ) : (
-                <form onSubmit={handleSubmit} className="payment-form">
-                    <CardElement className="card-element" />
-                    {error && <div className="error-message">{error}</div>}
-                    {success && <div className="success-message">Card Added successful!</div>
-                    }
-                    {/* {setShowModal(false)} */}
-                    <button type="submit" disabled={!stripe || loading} className="submit-button">
-                        {loading ? 'Adding...' : 'Add Card'}
-                    </button>
-                </form>
+                {success ? (
+                    <div className="alert alert-success">
+                        <strong>Success!</strong> Card added successfully!
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit} style={{ backgroundColor: '#f9f9f9', padding: '20px', width: '110%', orderRadius: '10px', boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)' }}>
+                        {/* Card Type */}
+                        <div className="mb-4">
+                            <label className="form-label" style={{ fontWeight: 'bold' }}>Card Type *</label>
+                            <div className="d-flex align-items-center">
+                                <div className="me-3">
+                                    <input type="radio" id="visa" name="cardType" value="Visa" defaultChecked />
+                                    <label htmlFor="visa" className="ms-2">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" style={{ width: '50px' }} />
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="mastercard" name="cardType" value="Mastercard" />
+                                    <label htmlFor="mastercard" className="ms-2">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" style={{ width: '50px' }} />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
 
-            )
+                        {/* Card Element */}
+                        <div className="mb-4">
+                            <label className="form-label" style={{ fontWeight: 'bold' }}>Card Details *</label>
+                            <CardElement
+                                options={{
+                                    style: {
+                                        base: {
+                                            fontSize: '16px',
+                                            // width: '100%'
+                                            color: '#32325d',
+                                            fontFamily: 'Arial, sans-serif',
+                                            '::placeholder': { color: '#aab7c4' },
+                                        },
+                                        invalid: { color: '#fa755a', width: '100%' },
+                                    },
+                                }}
+                                className="form-control"
+                            />
+                            {error && <div className="text-danger mt-2">{error}</div>}
+                        </div>
+
+                        {/* Expiration Date and CVV */}
+                        {/* Expiration Month and Year */}
+                        <div className="mb-4">
+                            <label className="form-label" style={{ fontWeight: 'bold' }}>Expiration Month / Year*</label>
+                            <input
+                                type="month"
+                                className="form-control"
+                                style={{
+                                    width: '100%',
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '5px',
+                                    padding: '10px',
+                                }}
+                            />
+                        </div>
+
+                        {/* <div className="mb-4">
+                            <label className="form-label" style={{ fontWeight: 'bold' }}>Expiration Year *</label>
+                            <select
+                                className="form-select"
+                                style={{
+                                    width: '100%',
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '5px',
+                                    padding: '10px',
+                                }}
+                            >
+                                <option value="">Select Year</option>
+                                {Array.from({ length: 20 }, (_, i) => (
+                                    <option key={i} value={new Date().getFullYear() + i}>
+                                        {new Date().getFullYear() + i}
+                                    </option>
+                                ))}
+                            </select>
+                        </div> */}
+
+                        {/* Submit Button */}
+                        <div className="d-flex justify-content-end">
+                            <button
+                                type="submit"
+                                className="btn btn-success d-flex justify-content-between"
+                                style={{
+                                    padding: '10px 20px',
+                                    background: loading ? '#bbb' : '#28a745',
+                                    border: 'none',
+                                    color: '#fff',
+                                }}
+                                disabled={loading}
+                            >
+                                {loading ? 'Processing...' : 'Pay'}
+                            </button>
+                        </div>
+                    </form>
+                )}
+            </>
 
         );
     };
-
     const CheckoutForm = () => {
         const stripe = useStripe();
         const elements = useElements();
@@ -562,7 +903,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
@@ -606,8 +947,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
     //this api is for pricing plan who's data is to send to payment page
-    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
-
+    const planapiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
     const fetchPlans = async () => {
         try {
@@ -702,7 +1042,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //         Authorization: "Bearer " + token,
     //     };
     //     console.log('default card set', cards);
-    //     const DefaultPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DefaultPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
     //     try {
     //         const response = await axios.post(`${DefaultPayApiUrl}/owner/setDefaultCard 	`, {
     //             cardNumber: cards.cardNumber,
@@ -761,10 +1101,32 @@ const Payment = ({ updatePaymentStatus }) => {
             // console.log('Selected Card Full Info:', card);
         };
 
+        // const addNewCard = (newCard) => {
+        //     setCards((prevCards) => [...prevCards, newCard]);
+        // setSelectedCard(newCard._id); // Optionally select the new card
+        // };
+
         const addNewCard = (newCard) => {
             setCards((prevCards) => [...prevCards, newCard]);
             setSelectedCard(newCard._id); // Optionally select the new card
+            // Only set the paycard if it is not already set
+            if (!paycard) {
+                window.location.reload();
+                setpaycard(newCard); // Update paycard state with the first card
+            }
         };
+
+        // const addNewCard = (newCard) => {
+        //     setCards((prevCards) => [...prevCards, newCard]);
+        //     setSelectedCard(newCard);
+        //     onAddCard(newCard); // Call the parent function to add the card
+
+        //     // Refresh the page
+        //     setTimeout(() => {
+        //         window.location.reload();
+        //     }, 500); // Small delay for a smooth transition
+        // };
+
 
         return (
             <>
@@ -783,7 +1145,6 @@ const Payment = ({ updatePaymentStatus }) => {
                         >
                             Add New Card
                         </button> */}
-
                     </div>
 
                     <CardSelection
@@ -828,7 +1189,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     <Elements stripe={stripePromise}>
                         <div className="payment-container mt-4">
                             <p className="mb-4">Complete Your Payment</p>
-                            <CheckoutForm2 addNewCard={addNewCard} />
+                            <CheckoutForm2 setpaycard={setpaycard} addNewCard={addNewCard} />
                         </div>
                     </Elements>
                     {/* )} */}
@@ -896,7 +1257,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //             cardNumber: paymentMethod.card.last4,
 
     //         });
-    //         const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //         const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
     //         try {
     //             const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
     //                 // tokenId: paymentMethod.id,
@@ -926,7 +1287,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //     }
     // };
     // const handlePayWithCard = async () => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
     //     if (paycard) {
     //         console.log('Pay with this card:', paycard);
     //         setIsLoading(true);
@@ -958,7 +1319,7 @@ const Payment = ({ updatePaymentStatus }) => {
     // };
 
     // const handlePayWithThisCard = async () => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
     //     if (paycard) {
     //         console.log('Pay with this card:', paycard);
     //         setIsLoading(true);
@@ -1014,7 +1375,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //     };
     //   }, []);
     // const handlePayWithThisCard1 = async (unpaidInvoiceIds) => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
     //     if (paycard) {
     //         console.log('Pay with this card:', paycard);
@@ -1133,7 +1494,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const handlePayWithThisCard = async () => {
         // setShowModalwithoutcard(true)
         // setShowModalwithoutCard(true); // Open modal at the start
-        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setIsLoading(true);
@@ -1200,7 +1561,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     });
                 }
                 // Check if the API indicates success
-                
+
                 if (response.data.status === 200) {
                     // Display success message in snackbar
                     const successMessage = response.data.message || "Payment Successful"; // Default success message
@@ -1280,7 +1641,7 @@ const Payment = ({ updatePaymentStatus }) => {
         }
     };
     const handleDirectChangePlan = async () => {
-        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
         if (paycard) {
             console.log('Pay with this card:', paycard);
             // setIsLoading(true);
@@ -1355,7 +1716,7 @@ const Payment = ({ updatePaymentStatus }) => {
                             <div>
                                 Are you sure you want to chage your plan
                                 <div className='container d-flex'>
-                                    <div className="row d-flex" style={{ width: '60rem' }}>
+                                    {/* <div className="row d-flex" style={{ width: '60rem' }}>
                                         <div className="col-md-12">
                                             <div className='card mt-2' style={{ marginLeft: '-12px' }}>
                                                 <div className="card-body" style={{ height: '12rem' }}>
@@ -1380,7 +1741,61 @@ const Payment = ({ updatePaymentStatus }) => {
                                                 </div>
                                             </div>
                                         </div>
+                                    </div> */}
+
+
+
+
+
+
+
+
+                                    {/* testing card */}
+                                    <div className="row d-flex mt-3" style={{ width: '60rem' }}>
+                                        <div className="col-md-12">
+                                            <div className="card shadow-sm" style={{ borderRadius: '12px', overflow: 'hidden', backgroundColor: '#f9f9f9' }}>
+                                                <div className="card-body position-relative" style={{ height: '12rem', padding: '1.5rem' }}>
+
+                                                    {/* Card Header */}
+                                                    <div className='d-flex justify-content-between align-items-center mb-3'>
+                                                        <span style={{ fontWeight: '600', fontSize: '1.2rem', color: '#555' }}>
+                                                            <i className="fas fa-credit-card mr-2"></i> {/* Icon for card type */}
+                                                            {paycard ? paycard.cardType : "Visa"}
+                                                        </span>
+                                                        <img
+                                                            src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
+                                                            alt="Visa logo"
+                                                            style={{ width: '50px', height: 'auto' }}
+                                                        />
+                                                    </div>
+
+                                                    {/* Card Number */}
+                                                    <span style={{
+                                                        fontSize: '1.5rem',
+                                                        letterSpacing: '2px',
+                                                        fontFamily: 'monospace',
+                                                        display: 'block',
+                                                        color: '#333',
+                                                    }}>
+                                                        **** **** **** {paycard ? paycard.cardNumber : "****"}
+                                                    </span>
+
+                                                    {/* Expiration Date */}
+                                                    <div className='mt-3' style={{ color: '#777', fontSize: '0.9rem' }}>
+                                                        <i className="far fa-calendar-alt mr-2"></i> {/* Icon for expiration */}
+                                                        Expires
+                                                        <span style={{ marginLeft: '10px', fontWeight: 'bold', color: '#333' }}>
+                                                            {paycard ? `${paycard.expMonth}/${paycard.expYear}` : "**/**"}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Pay Button */}
+
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+
                                 </div>
                             </div>
                         ) : (
@@ -1532,77 +1947,122 @@ const Payment = ({ updatePaymentStatus }) => {
                                 Upgrade to Paid Plan
                             </button> */}
             {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
-                <div className="row d-flex mt-3" style={{ width: '60rem' }}>
+                <div className="row d-flex mt-3">
                     <div className="col-md-6">
-                        <div className='card'>
-                            <div className="card-body" style={{ height: '12rem' }}>
-                                <div className='d-flex justify-content-between align-items-center'>
-                                    {paycard ? paycard.cardType : "Visa"}
+                        <div
+                            className="card shadow-lg"
+                            style={{
+                                borderRadius: '15px',
+                                overflow: 'hidden',
+                                backgroundColor: '#ffffff',
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                            }}
+                        >
+                            <div
+                                className="card-body position-relative"
+                                style={{
+                                    padding: '20px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'space-between',
+                                    height: 'auto',
+                                    minHeight: '180px',
+                                }}
+                            >
+                                {/* Card Header */}
+                                <div
+                                    className="d-flex justify-content-between align-items-center"
+                                    style={{ marginBottom: '15px' }}
+                                >
+                                    <span
+                                        style={{
+                                            fontWeight: '600',
+                                            fontSize: '1.2rem',
+                                            color: '#333',
+                                            textTransform: 'capitalize',
+                                        }}
+                                    >
+                                        {paycard ? paycard.cardType : 'Visa'}
+                                    </span>
                                     <img
-                                        src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
-                                        alt="Visa logo"
-                                        style={{ width: '60px', height: 'auto' }}
+                                        src={
+                                            paycard && paycard.cardType === 'Mastercard'
+                                                ? 'https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg'
+                                                : 'https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg'
+                                        }
+                                        alt={`${paycard ? paycard.cardType : 'Visa'} logo`}
+                                        style={{
+                                            width: '50px',
+                                            height: 'auto',
+                                        }}
                                     />
                                 </div>
-                                <span>
-                                    **** **** **** {paycard ? paycard.cardNumber : ""}
-                                </span>
-                                <div className='d-flex'>
-                                    Expires
+
+                                {/* Card Number */}
+                                <div
+                                    style={{
+                                        fontSize: '1.5rem',
+                                        letterSpacing: '3px',
+                                        fontFamily: 'monospace',
+                                        color: '#333',
+                                        marginBottom: '20px',
+                                    }}
+                                >
+                                    **** **** **** {paycard ? paycard.cardNumber : '****'}
                                 </div>
-                                <div>
-                                    {paycard ? paycard.expMonth : '**'}/{paycard ? paycard.expYear : '**'}
+
+                                {/* Expiration Date */}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        fontSize: '0.9rem',
+                                        color: '#777',
+                                    }}
+                                >
+                                    <span>
+                                        <i className="far fa-calendar-alt mr-2"></i> Expires:{' '}
+                                        <span
+                                            style={{
+                                                fontWeight: 'bold',
+                                                color: '#333',
+                                            }}
+                                        >
+                                            {paycard ? `${paycard.expMonth}/${paycard.expYear}` : '**/**'}
+                                        </span>
+                                    </span>
                                 </div>
-                                {/* {invoice.status === 'unpaid' && paycard && paycard.cardNumber ? (
-                                    <button
-                                        style={{
-                                            position: 'absolute',
-                                            bottom: '20px',
-                                            right: '20px',
-                                            display: "inline-block",
-                                            padding: "10px 20px",
-                                            backgroundColor: isLoading ? "#ccc" : "#7CCB58",
-                                            color: "white",
-                                            border: "none",
-                                            borderRadius: "5px",
-                                            fontSize: "14px",
-                                            cursor: isLoading ? "not-allowed" : "pointer",
-                                            transition: "background-color 0.3s ease",
-                                        }}
-                                        onClick={selectedPlan ? handlePayWithThisCard : null}
-                                        disabled={isLoading || !selectedPlan}
-                                    >
-                                        Pay With This Card
-                                        {isLoading ? "Processing..." : "Pay with this card"}
-                                    </button>
-                                ) : (
-                                    <span></span>
-                                )} */}
+
+                                {/* Pay Button */}
                                 <button
                                     style={{
-                                        position: 'absolute',
-                                        bottom: '20px',
-                                        right: '20px',
-                                        display: "inline-block",
-                                        padding: "10px 20px",
-                                        backgroundColor: isLoading ? "#ccc" : "#7CCB58",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "5px",
-                                        fontSize: "14px",
-                                        cursor: isLoading ? "not-allowed" : "pointer",
-                                        transition: "background-color 0.3s ease",
+                                        padding: '12px 30px',
+                                        marginTop: '15px',
+                                        background: isLoading
+                                            ? 'linear-gradient(45deg, #ddd, #bbb)'
+                                            : 'linear-gradient(45deg, #4caf50, #66bb6a)',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontSize: '1rem',
+                                        fontWeight: '600',
+                                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                                        transition: 'transform 0.2s ease-in-out, background-color 0.3s ease',
+                                        boxShadow: '0 3px 6px rgba(0, 0, 0, 0.15)',
                                     }}
                                     onClick={handlePayWithThisCard2}
-                                // disabled={isLoading || !selectedPlan}
+                                    disabled={isLoading}
+                                    onMouseOver={(e) => !isLoading && (e.target.style.transform = 'scale(1.03)')}
+                                    onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
                                 >
-                                    Pay With This Card
+                                    {isLoading ? 'Processing...' : 'Pay with This Card'}
                                 </button>
                             </div>
-
                         </div>
                     </div>
                 </div>
+
             )}
             <br />
             {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (

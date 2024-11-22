@@ -17,7 +17,7 @@ function UserDashboardSection(params) {
     }, []);
 
     console.log('Items from localStorage:', items);
-    
+
     // return (
     //     <div className="cursor-pointer">
     //         <div className="d-flex justify-content-between align-items-center" style={{
@@ -101,6 +101,20 @@ function UserDashboardSection(params) {
                             </div>
                         </>
                     )}
+                    {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
+                        <>
+                            <div className={location.pathname === "/leave-management" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/leave-management')}>
+                                <p style={{ margin: 0 }} onClick={() => navigate('/leave-management')}>Leave</p>
+                            </div>
+                        </>
+                    )}
+                    {/* {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
+                        <>
+                            <div className={location.pathname === "/leave-management" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/leave-management')}>
+                                <p style={{ margin: 0 }} onClick={() => navigate('/leave-management')}>Leave Management</p>
+                            </div>
+                        </>
+                    )} */}
                     {/* <div className={location.pathname === "/download" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/download')}>
                         <p style={{ margin: 0 }} onClick={() => navigate('/download')}>Download</p>
                     </div>

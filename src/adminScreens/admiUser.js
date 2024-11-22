@@ -101,7 +101,7 @@ function AdminUser() {
     let headers = {
         Authorization: "Bearer " + token,
     }
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const dispatch = useDispatch()
     const userTimeline = useSelector((state) => state.userTimeline)
     const showUserTimeline = useSelector((state) => state.showTimelineData)

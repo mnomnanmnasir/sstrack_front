@@ -8,7 +8,7 @@ const Download = () => {
     const [downloadOS, setDownloadOS] = useState("mac")
     const [loading1, setLoading1] = useState(false)
     const [loading2, setLoading2] = useState(false)
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
     const handleDownload = async (type) => {
         console.log(type);
@@ -138,7 +138,7 @@ export default Download;
 //     const [downloadOS, setDownloadOS] = useState("mac")
 //     const [loading1, setLoading1] = useState(false)
 //     const [loading2, setLoading2] = useState(false)
-//     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+//     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
 
 //     const handleDownload = async (type) => {
 //         console.log(type);
