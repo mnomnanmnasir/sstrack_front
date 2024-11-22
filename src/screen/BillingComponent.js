@@ -984,7 +984,7 @@ const BillingComponent = () => {
                     if (response.data.success) {
 
                         await fetchTokenAndSuspendedStatus();
-                        setpaycard(newCard);
+                        setpaycard();
                         setSuccess(true);
                         setTimeout(() => {
                             setshowNewCardModal(false);
