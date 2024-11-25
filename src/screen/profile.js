@@ -171,8 +171,6 @@ function Profile() {
     //     }
     // }
 
-    debugger
-
     async function merafunction() {
         console.log('Current model:', model);
         setLoading(true);

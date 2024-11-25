@@ -460,10 +460,10 @@ function UserHeader() {
         navigate("/effective-settings")
     }
 
-    function leaveManagement() {
-        setShowContent(false)
-        navigate("/leave-management")
-    }
+    // function leaveManagement() {
+    //     setShowContent(false)
+    //     navigate("/leave-management")
+    // }
 
     const wordsAfterSpace = user?.name?.split(" ")[1] ? user?.name?.split(" ")[1].charAt(0).toUpperCase() : "";
     const capitalizedWord = user?.name?.charAt(0).toUpperCase();

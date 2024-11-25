@@ -3,7 +3,7 @@ import Switch from "../../screen/component/switch";
 import user from '../../images/groupImg.svg'
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
-import CompanyEmployess from "../../screen/component/companyEmployess";
+import CompanyEmployess from "../../screen/component/breakTimeEmployess";
 import SaveChanges from "../../screen/component/button";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { getEmployess, setAllUserSetting, setAllUserSetting2, setAllUserSetting3, setEmployess, setEmployessSetting, setEmployessSetting2, setEmployessSetting4 } from "../../store/adminSlice";
@@ -302,7 +302,7 @@ function Screenshot() {
     };
 
     console.log("screenshot employess =====>", employees);
-    debugger
+    
     return (
         <div>
             <SnackbarProvider />

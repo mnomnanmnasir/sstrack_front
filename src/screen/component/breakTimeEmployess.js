@@ -4,7 +4,7 @@ import userIcon from '../../images/groupImg.svg'
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useDispatch, useSelector } from "react-redux";
-import { setEmployess, setEmployessSetting, setPunctualitySettings } from "../../store/adminSlice";
+import { setEmployess, setEmployessSetting, setPunctualitySettings } from "../../store/breakSlice";
 import axios from "axios";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import brushIcon from '../../images/brush.svg'
@@ -14,6 +14,7 @@ import UserDetails from "../userDetails";
 
 const CompanyEmployess = (props) => {
 
+     const [localToggleState, setLocalToggleState] = useState({}); // Manage local toggle states
     const state = useSelector((state) => state)
     const [setting, setSetting] = useState([])
     const { Setting, loading } = props
@@ -50,67 +51,7 @@ const CompanyEmployess = (props) => {
     const updateAllowBlur = (allowBlur) => {
         setAllowBlur(allowBlur);
     };
-    async function handleBreakTimeToggle(data) {
-        const employeeId = data.employee._id;
-
-        // Define breakTime settings for toggle
-        const settingsToUpdate = {
-            breakTime: data.isSelected
-                ? [
-                    {
-                        TotalHours: "1h:0m",
-                        breakStartTime: new Date().toISOString(),
-                        breakEndTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour later
-                    },
-                    {
-                        TotalHours: "1h:30m",
-                        breakStartTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours later
-                        breakEndTime: new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString(), // 2.5 hours later
-                    },
-                ]
-                : [], // Clear break times if toggled off
-        };
-
-        // Prepare the request payload
-        const requestData = {
-            userId: employeeId,
-            settings: settingsToUpdate,
-        };
-
-        try {
-            // Send API request
-            const res = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
-                requestData,
-                { headers }
-            );
-
-            if (res.status === 200) {
-                enqueueSnackbar("BreakTime settings updated successfully!", {
-                    variant: "success",
-                    anchorOrigin: { vertical: "top", horizontal: "right" },
-                });
-
-                // Dispatch Redux action to update the state
-                dispatch(setEmployess({
-                    id: employeeId,
-                    isSelected: data.isSelected,
-                    key: "breakTime",
-                }));
-            } else {
-                enqueueSnackbar("Failed to update BreakTime settings.", {
-                    variant: "error",
-                    anchorOrigin: { vertical: "top", horizontal: "right" },
-                });
-            }
-        } catch (error) {
-            console.error("Error updating BreakTime settings:", error);
-            enqueueSnackbar("An error occurred while updating BreakTime settings.", {
-                variant: "error",
-                anchorOrigin: { vertical: "top", horizontal: "right" },
-            });
-        }
-    }
+   
 
     // async function handleApplySetting(data) {
     //     const employeeId = data.employee._id;
@@ -441,69 +382,69 @@ const CompanyEmployess = (props) => {
     // }
 
 
-    async function handleApplySetting(data) {
+    // async function handleApplySetting(data) {
 
-        console.log(data);
-        const findUser = employees.find((f) => f.effectiveSettings[data.key] === false)
+    //     console.log(data);
+    //     const findUser = employees.find((f) => f.effectiveSettings[data.key] === false)
 
-        const ssId = data.employee._id; // Assuming ssId should be the employee ID
+    //     const ssId = data.employee._id; // Assuming ssId should be the employee ID
 
-        console.log('SSID', ssId)
-        try {
-            const res = await axios.patch(
-                `https://ss-track-xi.vercel.app/api/v1/owner/settingsE/${data.employee._id}`,
-                {
-                    userId: data.employee._id,
-                    effectiveSettings: {
-                        ...findUser?.effectiveSettings,
-                        [data.key]: data.isSelected,
-                        userId: data.employee._id
-                    }
-                },
-                {
-                    headers
-                }
-            );
+    //     console.log('SSID', ssId)
+    //     try {
+    //         const res = await axios.patch(
+    //             `https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality`
+    //             {
+    //                 userId: data.employee._id,
+    //                 effectiveSettings: {
+    //                     ...findUser?.effectiveSettings,
+    //                     [data.key]: data.isSelected,
+    //                     userId: data.employee._id
+    //                 }
+    //             },
+    //             {
+    //                 headers
+    //             }
+    //         );
 
-            if (res.status === 200) {
-                enqueueSnackbar("Employee settings updated", {
-                    variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right"
-                    }
-                });
-            } else {
-                enqueueSnackbar("Failed to update employee settings", {
-                    variant: "error",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right"
-                    }
-                });
-            }
-            console.log(res);
-            const updatedAllowBlur = true; // Set to true since the screenshot is blurred
-            if (data.key === "allowBlur") {
-                dispatch(setEmployessSetting({
-                    id: ssId,
-                    allowBlur: updatedAllowBlur
-                }));
-                setAllowBlur(updatedAllowBlur); // Update local state
-                props.updateAllowBlur(updatedAllowBlur); // Update parent component state
-            }
+    //         if (res.status === 200) {
+    //             enqueueSnackbar("Employee settings updated", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             });
+    //         } else {
+    //             enqueueSnackbar("Failed to update employee settings", {
+    //                 variant: "error",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             });
+    //         }
+    //         console.log(res);
+    //         const updatedAllowBlur = true; // Set to true since the screenshot is blurred
+    //         if (data.key === "allowBlur") {
+    //             dispatch(setEmployessSetting({
+    //                 id: ssId,
+    //                 allowBlur: updatedAllowBlur
+    //             }));
+    //             setAllowBlur(updatedAllowBlur); // Update local state
+    //             props.updateAllowBlur(updatedAllowBlur); // Update parent component state
+    //         }
 
-        } catch (error) {
-            console.error("Error updating employee settings:", error);
-            enqueueSnackbar("An error occurred while updating employee settings", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right"
-                }
-            });
-        }
-    }
+    //     } catch (error) {
+    //         console.error("Error updating employee settings:", error);
+    //         enqueueSnackbar("An error occurred while updating employee settings", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right"
+    //             }
+    //         });
+    //     }
+    // }
 
     // const userCount = employees !== null && employees !== undefined ? employees.length : 0;
     // const userCount = employees !== null && employees !== undefined ? employees.filter(employee => employee !== null).length : 0;
@@ -534,7 +475,7 @@ const CompanyEmployess = (props) => {
                                         <p style={{ marginLeft: 10 }}>{employee?.name}</p>
                                     </div>
 
-                                    <div style={{ marginRight: 10 }}>
+                                    {/* <div style={{ marginRight: 10 }}>
                                         <label class="switch">
                                             <input
                                                 checked={(
@@ -570,7 +511,7 @@ const CompanyEmployess = (props) => {
                                             />
                                             <span class="slider round"></span>
                                         </label>
-                                    </div>
+                                    </div> */}
                                     {/* <div style={{ marginRight: 10 }}>
                                         <label className="switch">
                                             <input
@@ -590,7 +531,7 @@ const CompanyEmployess = (props) => {
                                         </label>
                                     </div> */}
 
-                                    {/* <div style={{ marginRight: 10 }}>
+                                    <div style={{ marginRight: 10 }}>
                                         <label className="switch">
                                             <input
                                                 type="checkbox"
@@ -604,7 +545,7 @@ const CompanyEmployess = (props) => {
                                             />
                                             <span className="slider round"></span>
                                         </label>
-                                    </div> */}
+                                    </div>
 
                                     {/* Show additional fields when the toggle is ON */}
                                     {/* {employee?.effectiveSettings?.individualBreakTime && (
@@ -689,4 +630,3 @@ const CompanyEmployess = (props) => {
 }
 
 export default CompanyEmployess;
-
