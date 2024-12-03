@@ -1,0 +1,578 @@
+import React, { useEffect, useState } from 'react';
+import { Box, Typography, Button, Paper, TextField, Grid, MenuItem, Select } from '@mui/material';
+import TopBar from '../topBar';
+import axios from 'axios';
+
+
+
+function RequestsContent() {
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [requests, setRequests] = useState([]); // State to store API data
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null);
+
+  // Editable fields state
+  const [editableFields, setEditableFields] = useState({
+    userCount: '',
+    contactNumber: '',
+    screenshotsTime: '',
+    discount: '',
+  });
+
+  const fetchRequests = async () => {
+    const token = localStorage.getItem('token_for_sa'); // Get token from local storage
+    if (!token) {
+      setError('Token not found');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        'https://ss-track-xi.vercel.app/api/v1/SystemAdmin/getEnterpriseRequests',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+
+        const pendingRequests = response.data.pending.map((request) => {
+          const company = request.companyId || {};
+          return {
+            id: request._id,
+            name: company.companyName || 'Unknown Company', // Company name from nested object
+            plan: request.paymentPlan || 'N/A', // Use `paymentPlan` or fallback value
+            time: new Date(request.createdAt).toLocaleTimeString(), // Convert timestamp to readable time
+            details: {
+              email: 'Not Provided', // Placeholder for email
+              userCount: request.userCounts || 'N/A', // User count
+              paymentPlan: request.paymentPlan || 'N/A',
+              contactNumber: request.contactNumber || 'N/A',
+              screenshotsTime: request.ssStoredFor || 'N/A',
+              discount: `${request.Discount || '0'}% Discount`, // Add % to discount
+              totalAmount: `$${request.totalAmount || '0'}`, // Add total amount with $
+              billingDate: company.billingDate
+                ? new Date(company.billingDate).toLocaleDateString()
+                : 'N/A', // Billing date in readable format
+              cardInfo: company.cardInfo?.find((card) => card.defaultCard) || {}, // Default card details
+            },
+          };
+        });
+
+        setRequests(pendingRequests); // Update the state with transformed data
+      } else {
+        setError(response.data.message || 'Failed to fetch enterprise requests');
+      }
+    } catch (err) {
+      setError('An error occurred while fetching data');
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchRequests();
+    console.log('selected Request', selectedRequest)
+  }, [])
+
+
+  const handleViewClick = (request) => {
+    setSelectedRequest(request);
+    setEditableFields({
+      userCount: request.details?.userCount || '',
+      contactNumber: request.details?.contactNumber || '',
+      screenshotsTime: request.details?.screenshotsTime || '',
+      discount: request.details?.discount || '',
+    });
+  };
+
+
+  const handleFieldChange = (field, value) => {
+    setEditableFields((prev) => ({ ...prev, [field]: value }));
+  };
+
+
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    formData.append('requestId', selectedRequest.id);
+    formData.append('companyName', selectedRequest.name);
+    formData.append('userCounts', editableFields.userCount);
+    formData.append('contactNumber', editableFields.contactNumber);
+    formData.append('ssStoredFor', editableFields.screenshotsTime);
+    formData.append('Discount', editableFields.discount);
+    console.log('formdata===>', formData)
+    try {
+      const token = localStorage.getItem('token_for_sa');
+      const response = await axios.post('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        alert('Request updated successfully!');
+      } else {
+        alert(`Failed to update the request. Status: ${response.status}`);
+      }
+    } catch (err) {
+      console.error('Error details:', err);
+      // Check if the error response is available for better insight
+      if (err.response) {
+        console.error('Response error:', err.response.data);
+        alert(`Error updating request: ${err.response.data.message || 'Unknown error'}`);
+      } else if (err.request) {
+        console.error('Request error:', err.request);
+        alert('Error making the request. Please check your network connection.');
+      } else {
+        console.error('Unexpected error:', err.message);
+        alert('Unexpected error occurred while updating the request.');
+      }
+    }
+  };
+  const handleApprove = async () => {
+    const formData = new FormData();
+    formData.append('approved', "approved");
+    formData.append('requestId', selectedRequest.id);
+    formData.append('companyName', selectedRequest.name);
+    formData.append('userCounts', editableFields.userCount);
+    formData.append('contactNumber', editableFields.contactNumber);
+    formData.append('ssStoredFor', editableFields.screenshotsTime);
+    formData.append('Discount', editableFields.discount);
+    console.log('formdata===>', formData)
+    try {
+      const token = localStorage.getItem('token_for_sa');
+      const response = await axios.post('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        alert('Request updated successfully!');
+      } else {
+        alert(`Failed to update the request. Status: ${response.status}`);
+      }
+    } catch (err) {
+      console.error('Error details:', err);
+      // Check if the error response is available for better insight
+      if (err.response) {
+        console.error('Response error:', err.response.data);
+        alert(`Error updating request: ${err.response.data.message || 'Unknown error'}`);
+      } else if (err.request) {
+        console.error('Request error:', err.request);
+        alert('Error making the request. Please check your network connection.');
+      } else {
+        console.error('Unexpected error:', err.message);
+        alert('Unexpected error occurred while updating the request.');
+      }
+    }
+  };
+  const handleCancel = async () => {
+    const formData = new FormData();
+    formData.append('approved', "canceled");
+    formData.append('requestId', selectedRequest.id);
+    formData.append('companyName', selectedRequest.name);
+    formData.append('userCounts', editableFields.userCount);
+    formData.append('contactNumber', editableFields.contactNumber);
+    formData.append('ssStoredFor', editableFields.screenshotsTime);
+    formData.append('Discount', editableFields.discount);
+    console.log('formdata===>', formData)
+    try {
+      const token = localStorage.getItem('token_for_sa');
+      const response = await axios.post('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        alert('Request updated successfully!');
+      } else {
+        alert(`Failed to update the request. Status: ${response.status}`);
+      }
+    } catch (err) {
+      console.error('Error details:', err);
+      // Check if the error response is available for better insight
+      if (err.response) {
+        console.error('Response error:', err.response.data);
+        alert(`Error updating request: ${err.response.data.message || 'Unknown error'}`);
+      } else if (err.request) {
+        console.error('Request error:', err.request);
+        alert('Error making the request. Please check your network connection.');
+      } else {
+        console.error('Unexpected error:', err.message);
+        alert('Unexpected error occurred while updating the request.');
+      }
+    }
+  };
+
+
+  const handleBackClick = () => {
+    setSelectedRequest(null); // Clear the selected request to go back to the list view
+  };
+
+  return (
+    <Box sx={{ padding: 3, fontFamily: 'Arial, sans-serif', alignSelf: 'start', flex: 1 }}>
+      {/* TopBar */}
+      <TopBar />
+
+      {/* Conditionally render the list or the details view */}
+      {selectedRequest ? (
+        <>
+          <Box sx={{ maxWidth: '90%', marginX: 'auto' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '24px',
+                cursor: 'pointer',
+              }}
+              onClick={handleBackClick} // Trigger the back function when clicked
+            >
+              {/* Left Arrow Icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+                style={{
+                  color: '#333',
+                }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+
+              {/* Header Text */}
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                sx={{
+                  color: '#2E3A59',
+                  fontSize: '24px',
+                }}
+              >
+                {selectedRequest.name}
+              </Typography>
+            </Box>
+            {/* <Typography variant="h6" fontWeight="bold" sx={{ fontSize: '24px', color: '#333', marginBottom: 2 }}>
+              {selectedRequest.name}
+            </Typography> */}
+            {/* Action Buttons */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mb: 4 }}>
+              <Button
+                onClick={handleCancel}
+                sx={{
+                  color: '#4caf50',
+                  backgroundColor: '#f1f8e9',
+                  borderRadius: '20px',
+                  textTransform: 'none',
+                  fontWeight: 'bold',
+                  '&:hover': { backgroundColor: '#e8f5e9' },
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                variant="contained"
+                sx={{
+                  backgroundColor: '#4caf50',
+                  color: '#fff',
+                  borderRadius: '20px',
+                  textTransform: 'none',
+                  fontWeight: 'bold',
+                  '&:hover': { backgroundColor: '#43a047' },
+                }}
+              >
+                Save
+              </Button>
+              <Button
+                onClick={handleApprove}
+                variant="contained"
+                sx={{
+                  backgroundColor: '#66bb6a',
+                  color: '#fff',
+                  borderRadius: '20px',
+                  textTransform: 'none',
+                  fontWeight: 'bold',
+                  '&:hover': { backgroundColor: '#43a047' },
+                }}
+
+              >
+                Approve Request
+              </Button>
+            </Box>
+            <Paper
+              sx={{
+                padding: '32px',
+                borderRadius: '12px',
+                boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
+                border: '1px solid #e0e0e0',
+                marginBottom: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 3 }}>
+                Company Information
+              </Typography>
+
+              <Grid container spacing={3}>
+                {[
+                  { label: 'COMPANY NAME', value: selectedRequest?.name || 'Not Provided', subLabel: 'Name' },
+                  { label: 'EMAIL ADDRESS', value: selectedRequest?.details?.email || 'Not Provided', subLabel: 'Email' },
+                  {
+                    label: 'USER COUNT',
+                    value: editableFields.userCount, // Use the state for editable fields
+                    subLabel: 'Users',
+                    isDropdown: true,
+                    options: ['1-50', '50-100', '100-200'],
+                  },
+                  { label: 'PAYMENT PLAN', value: selectedRequest?.details?.paymentPlan || 'Not Provided', subLabel: 'Payment' },
+                  {
+                    label: 'CONTACT NUMBER',
+                    value: editableFields.contactNumber, // Use the state for editable fields
+                    subLabel: 'Phone number for inquiries',
+                    editable: true,
+                  },
+                  {
+                    label: 'SCREENSHOTS SAVED TIME',
+                    value: editableFields.screenshotsTime, // Use the state for editable fields
+                    subLabel: 'Screenshots Saved Time',
+                    editable: true,
+                  },
+                  {
+                    label: 'DISCOUNT',
+                    value: editableFields.discount, // Use the state for editable fields
+                    subLabel: 'Added Discount',
+                    editable: true,
+                  },
+                  { label: 'TOTAL AMOUNT', value: selectedRequest?.details?.totalAmount || 'Not Provided', subLabel: 'Final Payable Amount' },
+                  { label: 'GENERATE INVOICE', value: null, isButton: true, subLabel: 'Download Invoice' },
+                ].map((field, index) => (
+                  <Grid item xs={12} key={index}>
+                    {field.isButton ? (
+                      <Box sx={{ display: 'flex', mt: 2, alignItems: 'center' }}>
+                        <Box sx={{ flex: 1, minWidth: '200px' }}>
+                          <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 'bold' }}>
+                            {field.label}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary" sx={{ fontSize: '12px' }}>
+                            {field.subLabel}
+                          </Typography>
+                        </Box>
+                        <Button
+                          variant="contained"
+                          sx={{
+                            backgroundColor: '#4caf50',
+                            color: '#fff',
+                            borderRadius: '20px',
+                            textTransform: 'none',
+                            fontWeight: 'bold',
+                            padding: '8px 24px',
+                            '&:hover': { backgroundColor: '#43a047' },
+                          }}
+                        >
+                          Download PDF
+                        </Button>
+                      </Box>
+                    ) : field.isDropdown ? (
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Box sx={{ flex: 1, minWidth: '200px' }}>
+                          <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 'bold' }}>
+                            {field.label}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary" sx={{ fontSize: '12px' }}>
+                            {field.subLabel}
+                          </Typography>
+                        </Box>
+                        <Select
+                          value={editableFields.userCount} // Bind directly to editableFields
+                          onChange={(e) => handleFieldChange('userCount', e.target.value)} // Update editableFields state
+                          fullWidth
+                          sx={{
+                            ml: 1,
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '8px',
+                              backgroundColor: '#f9f9f9',
+                            },
+                          }}
+                        >
+                          {field.options.map((option, optionIndex) => (
+                            <MenuItem key={optionIndex} value={option}>
+                              {option}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </Box>
+                    ) : (
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Box sx={{ flex: 1, minWidth: '200px' }}>
+                          <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 'bold' }}>
+                            {field.label}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary" sx={{ fontSize: '12px' }}>
+                            {field.subLabel}
+                          </Typography>
+                        </Box>
+                        {field.editable ? (
+                          <TextField
+                            variant="outlined"
+                            fullWidth
+                            value={field.value}
+                            onChange={(e) => {
+                              if (field.label === 'CONTACT NUMBER') {
+                                handleFieldChange('contactNumber', e.target.value); // Explicit key
+                              } else if (field.label === 'SCREENSHOTS SAVED TIME') {
+                                handleFieldChange('screenshotsTime', e.target.value); // Explicit key
+                              } else if (field.label === 'DISCOUNT') {
+                                handleFieldChange('discount', e.target.value); // Explicit key
+                              }
+                            }}
+                            sx={{
+                              ml: 1,
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: '8px',
+                                backgroundColor: '#f9f9f9',
+                              },
+                            }}
+                          />
+                        ) : (
+                          <TextField
+                            variant="outlined"
+                            fullWidth
+                            value={field.value}
+                            InputProps={{ readOnly: true }}
+                            sx={{
+                              ml: 1,
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: '8px',
+                                backgroundColor: '#f9f9f9',
+                              },
+                            }}
+                          />
+                        )}
+                      </Box>
+                    )}
+                  </Grid>
+                ))}
+              </Grid>
+
+            </Paper>
+
+
+            {/* Download PDF Section */}
+            {/* <Box
+              sx={{
+                textAlign: 'left',
+                mt: 4,
+                alignItems: 'center',      // Center items horizontally
+                justifyContent: 'flex-start',
+                padding: 2,
+                display: 'flex',
+                flexDirection: 'column',    // Stack items vertically
+                gap: 1.5,                   // Space between Typography and Button
+              }}
+            >
+              <Typography variant="caption" color="textSecondary">
+                GENERATE INVOICE
+              </Typography>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: '#4caf50',
+                  color: '#fff',
+                  borderRadius: '20px',
+                  textTransform: 'none',
+                  fontWeight: 'bold',
+                  padding: '8px 24px',
+                  '&:hover': { backgroundColor: '#43a047' },
+                }}
+              >
+                Download PDF
+              </Button>
+            </Box> */}
+
+
+          </Box>
+        </>
+      ) : (
+        <>
+          <Typography variant="h5" fontWeight="bold" sx={{ marginBottom: 2 }}>
+            Requests For Enterprise Plan
+          </Typography>
+
+          {/* List View */}
+          {requests.length === 0 ? (
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              sx={{
+                textAlign: 'center',
+                color: '#666',
+                marginTop: 4,
+              }}
+            >
+              No requests available
+            </Typography>
+          ) : (
+            requests.map((request, index) => (
+              <Paper
+                key={index}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
+                  border: '1px solid #e0e0e0',
+                  marginBottom: 2,
+                  maxWidth: '90%',
+                  marginX: 'auto',
+                }}
+              >
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ fontSize: '16px', color: '#333' }}>
+                    {request.name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontSize: '14px', fontWeight: '500', color: '#666' }}>
+                    {request.plan}
+                  </Typography>
+                  <Typography variant="caption" sx={{ fontSize: '12px', color: '#999' }}>
+                    {request.time}
+                  </Typography>
+                </Box>
+
+                <Button
+                  variant="contained"
+                  onClick={() => handleViewClick(request)}
+                  sx={{
+                    backgroundColor: '#4caf50',
+                    color: '#fff',
+                    borderRadius: '20px',
+                    textTransform: 'none',
+                    padding: '6px 16px',
+                    fontWeight: 'bold',
+                    fontSize: '14px',
+                    boxShadow: 'none',
+                    '&:hover': { backgroundColor: '#43a047' },
+                  }}
+                >
+                  View
+                </Button>
+              </Paper>
+            ))
+          )}
+
+        </>
+      )}
+    </Box>
+  );
+}
+
+export default RequestsContent;

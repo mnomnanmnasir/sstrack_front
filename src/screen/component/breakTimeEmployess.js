@@ -14,7 +14,7 @@ import UserDetails from "../userDetails";
 
 const CompanyEmployess = (props) => {
 
-     const [localToggleState, setLocalToggleState] = useState({}); // Manage local toggle states
+    const [localToggleState, setLocalToggleState] = useState({}); // Manage local toggle states
     const state = useSelector((state) => state)
     const [setting, setSetting] = useState([])
     const { Setting, loading } = props
@@ -23,7 +23,776 @@ const CompanyEmployess = (props) => {
     console.log('Employees', employees)
     // const employees = useSelector((state) => state.adminSlice.employess)
     // .filter((employee) => employee.invitationStatus === 'accepted');
+    // const [timeFields, setTimeFields] = useState({}); // Track time fields for each employee
+    const [timeFields, setTimeFields] = useState({})
+    // useEffect(() => {
+    //     localStorage.setItem("timeFields", JSON.stringify(timeFields));
+    // }, [timeFields]);
+    // const handleToggleChange = (employee, isSelected) => {
+    //     setTimeFields((prev) => ({
+    //         ...prev,
+    //         [employee._id]: {
+    //             ...prev[employee._id],
+    //             showFields: isSelected, // Show fields only when toggle is on
+    //             startTime: prev[employee._id]?.startTime || "",
+    //             endTime: prev[employee._id]?.endTime || "",
+    //         },
+    //     }));
 
+    //     // Example API call to update employee settings
+    //     handlePunctualitySetting({
+    //         employee,
+    //         isSelected,
+    //     });
+    // };
+    // useEffect(() => {
+    //     // Synchronize `timeFields` state with `employees` data on mount or update
+    //     const updatedTimeFields = employees.reduce((fields, employee) => {
+    //         fields[employee._id] = {
+    //             showFields: employee?.punctualityData?.individualbreakTime || false, // Reflect the backend state
+    //             startTime: fields[employee._id]?.startTime || "", // Retain existing values
+    //             endTime: fields[employee._id]?.endTime || "",
+    //         };
+    //         return fields;
+    //     }, {});
+
+    //     setTimeFields(updatedTimeFields);
+    // }, [employees]);
+    // Sync initial data for timeFields
+    useEffect(() => {
+        const initialFields = employees.reduce((acc, employee) => {
+            acc[employee._id] = {
+                showFields: employee?.punctualityData?.individualbreakTime || false,
+                startTime: "",
+                endTime: "",
+            };
+            return acc;
+        }, {});
+        setTimeFields(initialFields);
+    }, [employees]);
+
+    const handleToggleChange = async (employee, isSelected) => {
+        try {
+            // Fetch current settings for the employee to avoid overwriting other fields
+            const response = await axios.get(
+                `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+    
+            if (response.status !== 200) {
+                throw new Error("Failed to fetch current settings.");
+            }
+    
+            const currentSettings = response.data.employeeSettings;
+    
+            // Prepare the API request payload with preserved settings
+            const requestData = {
+                userId: employee._id,
+                settings: {
+                    ...currentSettings, // Preserve current settings
+                    individualbreakTime: isSelected, // Update only the individualbreakTime field
+                },
+            };
+    
+            // Call API to update the settings
+            const updateResponse = await axios.post(
+                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+    
+            if (updateResponse.status === 200) {
+                enqueueSnackbar("Punctuality setting updated successfully!", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                });
+    
+                // Update local state for real-time UI synchronization
+                setTimeFields((prev) => ({
+                    ...prev,
+                    [employee._id]: {
+                        ...prev[employee._id],
+                        individualbreakTime: isSelected, // Reflect the updated state in the UI
+                    },
+                }));
+            } else {
+                enqueueSnackbar("Failed to update punctuality setting.", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                });
+            }
+        } catch (error) {
+            console.error("Error updating punctuality setting:", error);
+            enqueueSnackbar("An error occurred while updating punctuality setting.", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
+        }
+    };
+    
+    // const handleToggleChange = async (employee, isSelected) => {
+    //     try {
+    //         // API payload to update individualbreakTime
+    //         const requestData = {
+    //             userId: employee._id,
+    //             settings: {
+    //                 individualbreakTime: isSelected, // Update based on toggle value
+    //             },
+    //         };
+    // console.log("Requested Data Toggel", requestData)
+    //         // Call API to update the value
+    //         const response = await axios.post(
+    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             requestData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
+
+    //         if (response.status === 200) {
+    //             enqueueSnackbar("Break Time setting updated successfully!", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right",
+    //                 },
+    //             });
+
+    //             // Fetch the updated employee data
+    //             const getResponse = await axios.get(
+    //                 "https://ss-track-xi.vercel.app/api/v1/superAdmin/employees",
+    //                 {
+    //                     headers: {
+    //                         Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     },
+    //                 }
+    //             );
+
+    //             if (getResponse.status === 200) {
+    //                 const updatedEmployees = getResponse.data.convertedEmployees;
+
+    //                 // Update local state based on updated API data
+    //                 const updatedEmployee = updatedEmployees.find(
+    //                     (emp) => emp._id === employee._id
+    //                 );
+
+    //                 if (updatedEmployee) {
+    //                     setTimeFields((prev) => ({
+    //                         ...prev,
+    //                         [employee._id]: {
+    //                             ...prev[employee._id],
+    //                             showFields: updatedEmployee.punctualityData?.individualbreakTime || false,
+    //                         },
+    //                     }));
+    //                 }
+    //             } else {
+    //                 enqueueSnackbar("Failed to fetch updated employee data.", {
+    //                     variant: "error",
+    //                     anchorOrigin: {
+    //                         vertical: "top",
+    //                         horizontal: "right",
+    //                     },
+    //                 });
+    //             }
+    //         } else {
+    //             enqueueSnackbar("Failed to update Break Time setting.", {
+    //                 variant: "error",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right",
+    //                 },
+    //             });
+    //         }
+    //     } catch (error) {
+    //         console.error("Error updating Break Time setting:", error);
+    //         enqueueSnackbar("An error occurred while updating Break Time setting.", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right",
+    //             },
+    //         });
+    //     }
+    // };
+
+    // const handleToggleChange = async (employee, isSelected) => {
+    //     // Update local toggle state immediately for real-time effect
+    //     setTimeFields((prev) => ({
+    //         ...prev,
+    //         [employee._id]: {
+    //             ...prev[employee._id],
+    //             showFields: isSelected,
+    //             startTime: prev[employee._id]?.startTime || "",
+    //             endTime: prev[employee._id]?.endTime || "",
+    //         },
+    //     }));
+
+    //     // props.onToggleChange(employee._id, updatedData);
+
+    //     // Optionally update Redux state to reflect toggle change globally
+    //     dispatch(setEmployessSetting({
+    //         id: employee._id,
+    //         key: "individualbreakTime",
+    //         isSelected,
+    //     }));
+
+    //     // First API call to persist the toggle state
+    //     try {
+    //         await handlePunctualitySetting({ employee, isSelected });
+    //         // enqueueSnackbar("Toggle state updated successfully.", {
+    //         //     variant: "success",
+    //         //     anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         // });
+
+    //         // Second API call after a 1-second delay to fetch updated data
+    //         setTimeout(async () => {
+    //             try {
+    //                 const response = await fetch("https://ss-track-xi.vercel.app/api/v1/superAdmin/employees", {
+    //                     method: "GET",
+    //                     headers: {
+    //                         Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                         "Content-Type": "application/json",
+    //                     },
+    //                 });
+
+    //                 if (response.ok) {
+    //                     const data = await response.json();
+    //                     console.log("Employees data fetched successfully:", data);
+
+    //                     // Update Redux or local state with the refreshed employee data
+    //                     dispatch(setEmployess(data));
+    //                 } else {
+    //                     throw new Error(`Failed to fetch employees: ${response.statusText}`);
+    //                 }
+    //             } catch (error) {
+    //                 // console.error("Error fetching employees data:", error);
+    //                 // enqueueSnackbar("Failed to refresh employees data.", {
+    //                 //     variant: "error",
+    //                 //     anchorOrigin: { vertical: "top", horizontal: "right" },
+    //                 // });
+    //             }
+    //         }, 1000); // 1-second delay
+    //     } catch (error) {
+    //         console.error("Error updating toggle state:", error);
+    //         enqueueSnackbar("Failed to update toggle state.", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+
+    //         // Revert the toggle state in case of an error
+    //         setTimeFields((prev) => ({
+    //             ...prev,
+    //             [employee._id]: {
+    //                 ...prev[employee._id],
+    //                 showFields: !isSelected, // Revert to the previous state
+    //             },
+    //         }));
+    //     }
+    // };
+
+    // Load data from localStorage on component mount
+    //   useEffect(() => {
+    //     const storedTimeFields = localStorage.getItem("timeFields");
+    //     if (storedTimeFields) {
+    //         setTimeFields(JSON.parse(storedTimeFields));
+    //     }
+    // }, []);
+
+    // Save data to localStorage whenever `timeFields` changes
+    // useEffect(() => {
+    //     localStorage.setItem("timeFields", JSON.stringify(timeFields));
+    // }, [timeFields]);
+
+    // useEffect(() => {
+    //     const initialTimeFields = {};
+    //     employees.forEach((employee) => {
+    //         initialTimeFields[employee._id] = {
+    //             showFields: employee?.punctualityData?.individualbreakTime || false, // Default to false or existing state
+    //             startTime: "",
+    //             endTime: "",
+    //         };
+    //     });
+    //     setTimeFields(initialTimeFields);
+    // }, [employees]);
+
+
+    // const handleTimeChange = (employeeId, field, value) => {
+    //     setTimeFields((prev) => ({
+    //         ...prev,
+    //         [employeeId]: {
+    //             ...prev[employeeId],
+    //             [field]: value,
+    //         },
+    //     }));
+    // };
+    // const handleTimeChange = (employeeId, field, value) => {
+    //     setTimeFields((prev) => {
+    //         const updatedFields = {
+    //             ...prev,
+    //             [employeeId]: {
+    //                 ...prev[employeeId],
+    //                 [field]: value,
+    //             },
+    //         };
+    //         // Save to localStorage whenever the timeFields change
+    //         localStorage.setItem("timeFields", JSON.stringify(updatedFields));
+    //         return updatedFields;
+    //     });
+    // };
+
+    const handleTimeChange = (employeeId, field, value) => {
+        setTimeFields((prev) => ({
+            ...prev,
+            [employeeId]: {
+                ...prev[employeeId],
+                [field]: value,
+            },
+        }));
+    };
+
+    // const handleSave = (employeeId) => {
+    //     const { startTime, endTime } = timeFields[employeeId];
+    //     if (!startTime || !endTime   ) {
+    //         enqueueSnackbar("Please fill in both Start Time and End Time.", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+    //         return;
+    //     }
+
+    //     // Call API to save data
+    //     console.log(`Saving for ${employeeId}:`, { startTime, endTime });
+    //     enqueueSnackbar("Start and End Times saved successfully!", {
+    //         variant: "success",
+    //         anchorOrigin: { vertical: "top", horizontal: "right" },
+    //     });
+    // };
+    // const handleSave = async (employeeId) => {
+    //     const { startTime, endTime } = timeFields[employeeId];
+
+    //     // Validate the input times
+    //     if (!startTime || !endTime) {
+    //         enqueueSnackbar("Please fill in both Start Time and End Time.", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+    //         return;
+    //     }
+
+    //     try {
+    //         // Format the start and end time
+    //         const formattedBreakTime = {
+    //             TotalHours: (() => {
+    //                 const start = new Date(`1970-01-01T${startTime}:00`);
+    //                 const end = new Date(`1970-01-01T${endTime}:00`);
+    //                 const totalMinutes = Math.floor((end - start) / (1000 * 60));
+    //                 const hours = Math.floor(totalMinutes / 60);
+    //                 const minutes = totalMinutes % 60;
+    //                 return `${hours}h:${minutes}m`;
+    //             })(),
+    //             breakStartTime: new Date(`1970-01-01T${startTime}:00`).toISOString(),
+    //             breakEndTime: new Date(`1970-01-01T${endTime}:00`).toISOString(),
+    //         };
+
+    //         // Prepare the API payload
+    //         const requestData = {
+    //             userId: employeeId,
+    //             settings: {
+    //                 breakTime: formattedBreakTime, // Send as an array
+    //             },
+    //         };
+
+    //         // API Call
+    //         const response = await axios.post(
+    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             requestData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
+
+    //         // Handle success
+    //         if (response.status === 200) {
+    //             enqueueSnackbar("Break Time rule successfully submitted!", {
+    //                 variant: "success",
+    //                 anchorOrigin: { vertical: "top", horizontal: "right" },
+    //             });
+
+    //             // Update only the relevant user's time fields
+    //             const updatedTimeFields = {
+    //                 ...timeFields,
+    //                 [employeeId]: {
+    //                     ...timeFields[employeeId],
+    //                     startTime,
+    //                     endTime,
+    //                     showFields: true, // Keep the toggle ON
+    //                 },
+    //             };
+    //             setTimeFields(updatedTimeFields);
+    //         } else {
+    //             enqueueSnackbar("Failed to submit punctuality rule.", { variant: "error" });
+    //         }
+    //     } catch (error) {
+    //         enqueueSnackbar(
+    //             error.message || "Error submitting punctuality rule. Please try again later.",
+    //             {
+    //                 variant: "error",
+    //                 anchorOrigin: { vertical: "top", horizontal: "right" },
+    //             }
+    //         );
+    //         console.error("Error submitting punctuality rule:", error);
+    //     }
+    // };
+
+    const [breakStartTime, setBreakStartTime] = useState("");
+    const [breakEndTime, setBreakEndTime] = useState("");
+
+    // const handleSave = async (employeeId) => {
+    //     try {
+    //         // Get the start and end times for the specific employee
+    //         const { startTime, endTime, showFields
+    //         } = timeFields[employeeId];
+
+    //         // Check if both break start and end times are provided
+    //         if (!startTime || !endTime) {
+    //             throw new Error("Both Break Start Time and Break End Time are required.");
+    //         }
+
+    //         // Log break times to console
+    //         console.log("Break Start Time (HH:MM):", startTime);
+    //         console.log("Break End Time (HH:MM):", endTime);
+
+    // const calculateTotalHours = (startTime, endTime) => {
+    //     const start = new Date(`1970-01-01T${startTime}:00`);
+    //     const end = new Date(`1970-01-01T${endTime}:00`);
+    //     const totalMinutes = (end - start) / (1000 * 60); // Calculate total minutes
+    //     const hours = Math.floor(totalMinutes / 60);
+    //     const minutes = totalMinutes % 60;
+    //     return `${hours}h:${minutes}m`; // Return in "Xh:Ym" format
+    // };
+
+    // const totalHours = calculateTotalHours(startTime, endTime);
+
+    // // Get current date in YYYY-MM-DD format
+    // const currentDate = new Date().toISOString().split("T")[0];
+
+    // // Prepare the API payload for the specific user
+    // const requestData = {
+    //     userId: employeeId,
+    //     settings: {
+    //         breakTime: [{
+    //             TotalHours: totalHours, // Function to calculate total hours
+    //             breakStartTime: `${currentDate}T${startTime}`,
+    //             breakEndTime: `${currentDate}T${endTime}`,
+    //         }],
+    //     },
+    // };
+
+    //         // Make the API call
+    //         const response = await axios.post(
+    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             requestData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
+
+    //         // Handle success
+    //         if (response.status === 200) {
+    //             enqueueSnackbar("Break Time successfully submitted!", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right",
+    //                 },
+    //             });
+    //             // Preserve the current state of startTime and endTime after a successful save
+    //             setTimeFields((prev) => ({
+    //                 ...prev,
+    //                 [employeeId]: {
+    //                     ...prev[employeeId],
+    //                     startTime, // Keep the current startTime
+    //                     endTime,   // Keep the current endTime
+    //                     showFields, // Keep the toggle ON
+    //                 },
+    //             }));
+    //         } else {
+    //             enqueueSnackbar("Failed to submit break time rule.", {
+    //                 variant: "error",
+    //             });
+    //         }
+    //     } catch (error) {
+    //         enqueueSnackbar(
+    //             error.message || "Error submitting break time rule. Please try again later.",
+    //             {
+    //                 variant: "error",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right",
+    //                 },
+    //             }
+    //         );
+    //         console.error("Error submitting break time rule:", error);
+    //     }
+    // };
+
+    // Example of how to call handleSave with validation
+    // const onSaveButtonClick = (employeeId) => {
+    //     const { startTime, endTime } = timeFields[employeeId];
+    //     if (!startTime || !endTime) {
+    //         enqueueSnackbar("Both Break Start Time and Break End Time are required.", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right",
+    //             },
+    //         });
+    //         return; // Prevent calling handleSave if times are not set
+    //     }
+    //     handleSave(employeeId);
+    // };
+
+    // Call handleSave with the specific employeeId when the button is clicked
+    // <button onClick={() => handleSave(employee._id)}>Save Break Time</button>
+
+    // Function to calculate total hours from break start and end times
+
+    // const handleSave = async (employeeId) => {
+    //     try {
+    //         const { startTime, endTime } = timeFields[employeeId];
+
+    //         // Validate if both times are provided
+    //         if (!startTime || !endTime) {
+    //             throw new Error("Both Break Start Time and Break End Time are required.");
+    //         }
+
+    //         // Calculate Total Hours
+    //         const calculateTotalHours = (startTime, endTime) => {
+    //             const start = new Date(`1970-01-01T${startTime}:00`);
+    //             const end = new Date(`1970-01-01T${endTime}:00`);
+    //             const totalMinutes = (end - start) / (1000 * 60);
+    //             const hours = Math.floor(totalMinutes / 60);
+    //             const minutes = totalMinutes % 60;
+    //             return `${hours}h:${minutes}m`;
+    //         };
+
+    //         const totalHours = calculateTotalHours(startTime, endTime);
+    //         const currentDate = new Date().toISOString().split("T")[0];
+    //         const fullBreakStartTime = `${currentDate}T${startTime}:00`;
+    //         const fullBreakEndTime = `${currentDate}T${endTime}:00`;
+
+    //         // API Request Data
+    //         const requestData = {
+    //             userId: employeeId,
+    //             settings: {
+    //                 breakTime: [
+    //                     {
+    //                         TotalHours: totalHours,
+    //                         breakStartTime: fullBreakStartTime,
+    //                         breakEndTime: fullBreakEndTime,
+    //                     },
+    //                 ],
+    //             },
+    //         };
+
+    //         // Call API to save data
+    //         const response = await axios.post(
+    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             requestData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
+
+    //         if (response.status === 200) {
+    //             enqueueSnackbar("Break Time successfully submitted!", {
+    //                 variant: "success",
+    //                 anchorOrigin: { vertical: "top", horizontal: "right" },
+    //             });
+
+    //             // Ensure toggle remains ON after saving
+    // setTimeFields((prev) => ({
+    //     ...prev,
+    //     [employeeId]: {
+    //         ...prev[employeeId],
+    //         startTime, // Persist start time
+    //         endTime,   // Persist end time
+    //         showFields: true, // Ensure toggle remains ON
+    //     },
+    // }));
+
+    //             const updatedData = updatedEmployee.data.employeeSettings;
+    //             setTimeFields((prev) => ({
+    //                 ...prev,
+    //                 [employeeId]: {
+    //                     showFields: updatedData.individualbreakTime || false, // Reflect the backend state
+    //                     startTime: updatedData.breakTime?.[0]?.breakStartTime?.substring(11, 16) || startTime,
+    //                     endTime: updatedData.breakTime?.[0]?.breakEndTime?.substring(11, 16) || endTime,
+    //                 },
+    //             }));
+
+    //             // Ensure toggle remains ON after saving
+    //             // setTimeFields((prev) => ({
+
+    //             //     ...prev,
+    //             //     [employeeId]: {
+    //             //         ...prev[employeeId],
+    //             //         startTime, // Persist start time
+    //             //         endTime,   // Persist end time
+    //             //         showFields: true, // Ensure toggle remains ON
+    //             //     },
+    //             // }));
+    //         } else {
+    //             enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
+    //         }
+    //     } catch (error) {
+    //         enqueueSnackbar(error.message || "Error submitting Break Time rule.", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+    //         console.error("Error submitting Break Time rule:", error);
+    //     }
+    // };
+    const handleSave = async (employeeId) => {
+        try {
+            const { startTime, endTime } = timeFields[employeeId];
+
+            // Validate if both times are provided
+            if (!startTime || !endTime) {
+                throw new Error("Both Break Start Time and Break End Time are required.");
+            }
+
+            // Calculate Total Hours
+            const calculateTotalHours = (startTime, endTime) => {
+                const start = new Date(`1970-01-01T${startTime}:00`);
+                const end = new Date(`1970-01-01T${endTime}:00`);
+                const totalMinutes = (end - start) / (1000 * 60);
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                return `${hours}h:${minutes}m`;
+            };
+
+            const totalHours = calculateTotalHours(startTime, endTime);
+            const currentDate = new Date().toISOString().split("T")[0];
+            const fullBreakStartTime = `${currentDate}T${startTime}:00`;
+            const fullBreakEndTime = `${currentDate}T${endTime}:00`;
+
+            // API Request Data
+            const requestData = {
+                userId: employeeId,
+                settings: {
+                    breakTime: [
+                        {
+                            TotalHours: totalHours,
+                            breakStartTime: fullBreakStartTime,
+                            breakEndTime: fullBreakEndTime,
+                        },
+                    ],
+                    individualbreakTime: true, // Ensure the toggle is saved as ON
+                },
+            };
+
+            // Call API to save data
+            const response = await axios.post(
+                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                enqueueSnackbar("Break Time successfully submitted!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                // Fetch updated data to ensure correct toggle state
+                const updatedEmployee = await axios.get(
+                    `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    }
+                );
+
+                if (updatedEmployee.status === 200) {
+                    const updatedData = updatedEmployee.data.employeeSettings;
+
+                    // Update the local state with the fetched data
+                    setTimeFields((prev) => ({
+                        ...prev,
+                        [employeeId]: {
+                            showFields: updatedData.individualbreakTime || false, // Reflect the backend state
+                            startTime: updatedData.breakTime?.[0]?.breakStartTime?.substring(11, 16) || startTime,
+                            endTime: updatedData.breakTime?.[0]?.breakEndTime?.substring(11, 16) || endTime,
+                        },
+                    }));
+                    // setTimeFields((prev) => ({
+                    //     ...prev,
+                    //     [employeeId]: {
+                    //         ...prev[employeeId],
+                    //         startTime, // Persist start time
+                    //         endTime,   // Persist end time
+                    //         showFields: true, // Ensure toggle remains ON
+                    //     },
+                    // }));
+
+                }
+            } else {
+                enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
+            }
+        } catch (error) {
+            enqueueSnackbar(error.message || "Error submitting Break Time rule.", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+            console.error("Error submitting Break Time rule:", error);
+        }
+    };
+
+    const calculateTotalHours = (startTime, endTime) => {
+        const start = new Date(`1970-01-01T${startTime}:00`);
+        const end = new Date(`1970-01-01T${endTime}:00`);
+        const totalMinutes = (end - start) / (1000 * 60); // Calculate total minutes
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        return `${hours}h:${minutes}m`; // Return in "Xh:Ym" format
+    };
     useEffect(() => {
         // Set allowBlur based on the Redux store
         const employeeWithBlur = employees.find(employee => employee.effectiveSettings?.screenshots?.allowBlur);
@@ -40,7 +809,7 @@ const CompanyEmployess = (props) => {
     useEffect(() => {
         // Set local toggle state based on Redux state
         const employeeWithToggleOn = employees.find(
-            (employee) => employee.effectiveSettings?.individualBreakTime
+            (employee) => employee.effectiveSettings?.individualbreakTime
         );
         if (employeeWithToggleOn) {
             setAllowBlur(true); // Example: Update a local state based on Redux
@@ -51,7 +820,6 @@ const CompanyEmployess = (props) => {
     const updateAllowBlur = (allowBlur) => {
         setAllowBlur(allowBlur);
     };
-   
 
     // async function handleApplySetting(data) {
     //     const employeeId = data.employee._id;
@@ -247,7 +1015,7 @@ const CompanyEmployess = (props) => {
             );
 
             if (res.status === 200) {
-                enqueueSnackbar("Punctuality settings updated successfully!", {
+                enqueueSnackbar("Break Time settings updated successfully!", {
                     variant: "success",
                     anchorOrigin: {
                         vertical: "top",
@@ -283,8 +1051,6 @@ const CompanyEmployess = (props) => {
             });
         }
     }
-
-
 
     // async function handlePunctualitySetting(data) {
     //     console.log("Punctuality Data:", data);
@@ -457,12 +1223,49 @@ const CompanyEmployess = (props) => {
     const filteredEmployees = employees.filter(employee => employee.name);
     console.log('=##########=>', filteredEmployees);
 
+    useEffect(() => {
+        const fetchEmployeeData = async () => {
+            const updatedFields = {};
+            for (const employee of employees) {
+                try {
+                    const response = await axios.get(
+                        `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            },
+                        }
+                    );
+
+                    if (response.status === 200) {
+                        const { employeeSettings } = response.data;
+                        const latestBreak = employeeSettings.breakTime?.[0] || {};
+                        updatedFields[employee._id] = {
+                            showFields: employeeSettings.individualbreakTime || false,
+                            startTime: latestBreak.breakStartTime?.substring(11, 16) || "00:00",
+                            endTime: latestBreak.breakEndTime?.substring(11, 16) || "00:00",
+                        };
+                    }
+                } catch (error) {
+                    console.error(`Error fetching data for employee ${employee._id}:`, error);
+                }
+            }
+            setTimeFields((prev) => ({ ...prev, ...updatedFields }));
+        };
+
+        fetchEmployeeData();
+    }, [employees]);
+
+
+
     return (
         <>
             <div>
                 <SnackbarProvider />
                 {filteredEmployees && filteredEmployees.length > 0 ? filteredEmployees?.map((employee, index) => {
-
+                    // console.log("Break Time", employee?.settings?.individualbreakTime)
+                    // console.log("Employee Object:", employee?.punctualityData?.individualbreakTime); // Debug the full employee object
+                    // console.log("Break Time", employee?.settings?.individualbreakTime); // Access the correct property
                     {/* {employees && employees.length > 0 ? employees?.filter(employee => employee.invitationStatus === 'accepted' || (employee.invitationStatus === 'pending' && employee.invitedBy === userId)).map((employee, index) => { */ }
                     return (
                         loading ? (
@@ -516,7 +1319,7 @@ const CompanyEmployess = (props) => {
                                         <label className="switch">
                                             <input
                                                 type="checkbox"
-                                                checked={employee?.effectiveSettings?.breakTime?.length > 0 || false} // Safely access the breakTime toggle
+                                                checked={employee?.effectiveSetting?.individualbreakTime || false} // Safely access the value
                                                 onChange={(e) => {
                                                     const heading = "Break Time"; // Replace this with your actual heading value
                                                     if (heading === "Break Time") {
@@ -535,17 +1338,13 @@ const CompanyEmployess = (props) => {
                                         <label className="switch">
                                             <input
                                                 type="checkbox"
-                                                checked={employee?.effectiveSettings?.individualbreakTime || false} // Safely access the value
-                                                onChange={(e) => {
-                                                    handlePunctualitySetting({
-                                                        employee,
-                                                        isSelected: e.target.checked,
-                                                    });
-                                                }}
+                                                checked={timeFields[employee._id]?.showFields || false} // Reflect updated toggle state
+                                                onChange={(e) => handleToggleChange(employee, e.target.checked)}
                                             />
                                             <span className="slider round"></span>
                                         </label>
                                     </div>
+
 
                                     {/* Show additional fields when the toggle is ON */}
                                     {/* {employee?.effectiveSettings?.individualBreakTime && (
@@ -581,6 +1380,118 @@ const CompanyEmployess = (props) => {
                                         />
                                     )} */}
                                 </div>
+                                {timeFields[employee._id]?.showFields && (
+                                    <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: 'flex', gap: '10px' }}>
+                                        <div>
+                                            <label>
+                                                Break Start Time:
+
+                                                <input
+                                                    type="time"
+
+                                                    value={timeFields[employee._id]?.startTime || ""} // Default to 00:00 if null
+                                                    onChange={(e) =>
+                                                        handleTimeChange(employee._id, "startTime", e.target.value)
+                                                    }
+                                                    style={{ marginLeft: 10 }}
+                                                />
+                                            </label>
+                                            <label>
+                                                Break End Time:
+
+                                                <input
+                                                    type="time"
+                                                    value={timeFields[employee._id]?.endTime || ""} // Default to 00:00 if null
+                                                    onChange={(e) =>
+                                                        handleTimeChange(employee._id, "endTime", e.target.value)
+                                                    }
+                                                    style={{ marginLeft: 10 }}
+                                                />
+                                            </label>
+                                            {/* <button onClick={handleSave}>Save Break Time</button> */}
+                                        </div>
+                                        <button
+                                            onClick={() => handleSave(employee._id)}
+                                            style={{
+                                                padding: "5px 10px",
+                                                backgroundColor: "#7fc45a",
+                                                color: "#fff",
+                                                border: "none",
+                                                borderRadius: 5,
+                                                cursor: "pointer",
+                                            }}
+                                        >
+                                            Save
+                                        </button>
+                                        {/* <button
+                                            onClick={() => onSaveButtonClick(employee._id)} style={{
+                                                padding: "5px 10px",
+                                                backgroundColor: "#7fc45a",
+                                                color: "#fff",
+                                                border: "none",
+                                                borderRadius: 5,
+                                                cursor: "pointer",
+                                            }}
+                                            disabled={!timeFields[employee._id]?.startTime || !timeFields[employee._id]?.endTime}
+                                        >
+                                            Save Break Time
+                                        </button> */}
+                                    </div>
+                                )}
+                                {/* {timeFields[employee._id]?.showFields && (
+                                    <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                            
+                                        {employee.userType && (
+                                            <div style={{ marginBottom: 10 }}>
+                                                <label>
+                                                    User Type:
+                                                    <span style={{ marginLeft: 10, fontWeight: 'bold' }}>{employee.userType}</span>
+                                                </label>
+                                            </div>
+                                        )}
+                                        <div style={{ marginBottom: 10 }}>
+                                            <label>
+                                                Start Time:
+                                                <input
+                                                    type="time"
+                                                    value={timeFields[employee._id]?.startTime || ""}
+                                                    onFocus={(e) => e.target.showPicker()} 
+                                                    onChange={(e) =>
+                                                        handleTimeChange(employee._id, "startTime", e.target.value)
+                                                    }
+                                                    style={{ marginLeft: 10 }}
+                                                />
+                                            </label>
+                                        </div>
+                                        <div style={{ marginBottom: 10 }}>
+                                            <label>
+                                                End Time:
+                                                <input
+                                                    type="time"
+                                                    value={timeFields[employee._id]?.endTime || ""}
+                                                    onFocus={(e) => e.target.showPicker()} 
+                                                    onChange={(e) =>
+                                                        handleTimeChange(employee._id, "endTime", e.target.value)
+                                                    }
+                                                    style={{ marginLeft: 10 }}
+                                                />
+                                            </label>
+                                        </div>
+                                        <button
+                                            onClick={() => handleSave(employee._id)}
+                                            style={{
+                                                padding: "5px 10px",
+                                                backgroundColor: "#7fc45a",
+                                                color: "#fff",
+                                                border: "none",
+                                                borderRadius: 5,
+                                                cursor: "pointer",
+                                            }}
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
+                                )}  */}
                                 {(
                                     employee?.effectiveSettings?.individualss && activeTab?.id === 1
                                 ) ? (
