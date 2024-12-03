@@ -10,7 +10,7 @@ import useLoading from "../hooks/useLoading";
 import { useNavigate } from "react-router-dom";
 import { AiFillStar } from "react-icons/ai";
 
-function SystemAdminDashboard() {
+const SystemAdminDashboard = () => {
 
     const [show, setShow] = useState(false);
     const [activeId, setActiveId] = useState(null)

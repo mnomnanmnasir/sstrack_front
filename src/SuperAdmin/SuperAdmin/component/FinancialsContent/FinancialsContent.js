@@ -5,7 +5,7 @@ import TopBar from '../topBar';
 import axios from 'axios';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-function FinancialsContent() {
+const FinancialsContent = () => {
   const [paymentData, setPaymentData] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [error, setError] = useState('');
@@ -281,7 +281,7 @@ function FinancialsContent() {
                                 <strong>Billing Amount:</strong>
                               </Typography>
                               <Typography variant="body2" sx={{ color: '#777' }}>
-                              ${invoice.subTotal.toFixed(2)} USD
+                                ${invoice.subTotal.toFixed(2)} USD
                               </Typography>
 
                             </Grid>

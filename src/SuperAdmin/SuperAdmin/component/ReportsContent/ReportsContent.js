@@ -1,6 +1,6 @@
 import React from 'react'
 
-function ReportsContent() {
+const ReportsContent = () => {
   return (
     <div>ReportsContent</div>
   )

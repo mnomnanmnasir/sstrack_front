@@ -6,7 +6,7 @@ import TopBar from '../topBar'
 import axios from 'axios';
 import Dcompanies from './d_companies';
 
-function Dashboard({ onNavigate }) {
+const Dashboard = ({ onNavigate }) => {
   // const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

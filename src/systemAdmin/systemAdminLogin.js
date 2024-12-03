@@ -8,7 +8,7 @@ import { FerrisWheelSpinner } from 'react-spinner-overlay'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import axios from "axios";
 
-function SystemAdminLogin() {
+const SystemAdminLogin = () => {
 
     const [model, setModel] = useState({
         email: "",

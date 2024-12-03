@@ -7,7 +7,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import TopBar from '../topBar';
 import axios from 'axios';
 
-function TotalCompanies() {
+const TotalCompanies = () => {
   const [companies, setCompanies] = useState([]); // State for companies data
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [filteredCompanies, setFilteredCompanies] = useState([]);

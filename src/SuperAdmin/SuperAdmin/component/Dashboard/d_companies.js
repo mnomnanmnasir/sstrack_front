@@ -3,7 +3,7 @@ import { Box, Grid, Card, CardContent, Typography, Button, CircularProgress } fr
 import PersonIcon from '@mui/icons-material/Person';
 import axios from 'axios';
 
-function DCompanies() {
+const DCompanies = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [companies, setCompanies] = useState([]);
