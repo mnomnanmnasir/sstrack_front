@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import line from "../images/line.webp";
 import check from "../images/online.webp";
-import screenshot from "../images/white.svg";
+import screenshot from "../images/whiteImages.PNG";
 import setting from "../images/setting.webp";
 import { useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
@@ -40,9 +40,9 @@ function UserDashboard() {
 
 
     // Define URLs based on user type
-    const userUrl = user?.userType === 'user' ? 'https://ss-track-xi.vercel.app/api/v1/timetrack/hours' : null;
-    const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? 'https://ss-track-xi.vercel.app/api/v1/owner/getCompanyemployee' : null;
-    const managerUrl = user?.userType === 'manager' ? 'https://ss-track-xi.vercel.app/api/v1/manager/dashboard' : null;
+    const userUrl = user?.userType === 'user' ? 'https://myuniversallanguages.com:9093/api/v1/timetrack/hours' : null;
+    const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? 'https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee' : null;
+    const managerUrl = user?.userType === 'manager' ? 'https://myuniversallanguages.com:9093/api/v1/manager/dashboard' : null;
 
     // Use React Query to fetch data
     const { data: userData, error: userError, isLoading: isUserLoading } = useQuery({
@@ -95,7 +95,7 @@ function UserDashboard() {
     const getManagerData = async () => {
         setLoading(true)
         try {
-            const response = await axios.get(`https://ss-track-xi.vercel.app/api/v1/manager/dashboard`, {
+            const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/manager/dashboard`, {
                 headers: headers,
             })
             if (response.status) {
@@ -114,7 +114,7 @@ function UserDashboard() {
     const getOwnerData = async () => {
         setLoading(true)
         try {
-            const response = await axios.get(`https://ss-track-xi.vercel.app/api/v1/owner/getCompanyemployee`, {
+            const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee`, {
                 headers: headers,
             })
             if (response.status) {
@@ -269,7 +269,7 @@ function UserDashboard() {
     }, [managerData]);
 
 
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
     const fetchData = async () => {
         setLoading(true);
@@ -619,9 +619,9 @@ function UserDashboard() {
 
 
 //        // Define URLs based on user type
-//        const userUrl = user?.userType === 'user' ? 'https://ss-track-xi.vercel.app/api/v1/timetrack/hours' : null;
-//        const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? 'https://ss-track-xi.vercel.app/api/v1/owner/getCompanyemployee' : null;
-//        const managerUrl = user?.userType === 'manager' ? 'https://ss-track-xi.vercel.app/api/v1/manager/dashboard' : null;
+//        const userUrl = user?.userType === 'user' ? 'https://myuniversallanguages.com:9093/api/v1/timetrack/hours' : null;
+//        const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? 'https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee' : null;
+//        const managerUrl = user?.userType === 'manager' ? 'https://myuniversallanguages.com:9093/api/v1/manager/dashboard' : null;
 
 //        // Use React Query to fetch data
 //        const { data: userData, error: userError, isLoading: isUserLoading } = useQuery({
@@ -674,7 +674,7 @@ function UserDashboard() {
 //     const getManagerData = async () => {
 //         setLoading(true)
 //         try {
-//             const response = await axios.get(`https://ss-track-xi.vercel.app/api/v1/manager/dashboard`, {
+//             const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/manager/dashboard`, {
 //                 headers: headers,
 //             })
 //             if (response.status) {
@@ -693,7 +693,7 @@ function UserDashboard() {
 //     const getOwnerData = async () => {
 //         setLoading(true)
 //         try {
-//             const response = await axios.get(`https://ss-track-xi.vercel.app/api/v1/owner/getCompanyemployee`, {
+//             const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee`, {
 //                 headers: headers,
 //             })
 //             if (response.status) {
@@ -829,7 +829,7 @@ function UserDashboard() {
 // }, [managerData]);
 
 
-//     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+//     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 //     const fetchData = async () => {
 //         setLoading(true);

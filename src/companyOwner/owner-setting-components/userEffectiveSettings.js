@@ -19,7 +19,7 @@ function UserSettings() {
     const [loading2, setLoading2] = useState(false)
     const [employess, setEmployess] = useState(null);
     const [id, setId] = useState(null);
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
     let user = JSON.parse(localStorage.getItem('items'));
     let headers = {

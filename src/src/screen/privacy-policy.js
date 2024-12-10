@@ -10,7 +10,7 @@ function PrivacyPolicy() {
         <div className="trialDiv">
           <div className="employeesDiv" style={{ marginBottom: 50 }}>
             <p className='ethical'>Privacy Policy</p>
-            <p className='employees'>This Privacy Policy outlines the manner in which SS Track collects, uses, maintains, and discloses information collected from users.</p>
+            <p className='employees'>This Privacy Policy outlines the manner in which SSTRACK collects, uses, maintains, and discloses information collected from users.</p>
           </div>
 
           <div style={{ display: "flex", alignItems: 'center', justifyContent: "space-between" }} className="how-it-work-container">
@@ -101,7 +101,7 @@ function PrivacyPolicy() {
               <ul>
               <li>
                 <p className="unitedFont">Purpose of Location Tracking: <br />
-                  The SS Track mobile application includes a location tracking feature designed for employees who work outdoors. This feature is used to monitor outdoor activities, enhance location-based services, and improve operational efficiency for employers. Location tracking is integral to the app’s functionality, especially in a work environment where outdoor tracking is necessary.</p>
+                  The SSTRACK mobile application includes a location tracking feature designed for employees who work outdoors. This feature is used to monitor outdoor activities, enhance location-based services, and improve operational efficiency for employers. Location tracking is integral to the app’s functionality, especially in a work environment where outdoor tracking is necessary.</p>
               </li>
               <br />
                 <li>

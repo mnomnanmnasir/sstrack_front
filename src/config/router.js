@@ -33,6 +33,10 @@ import { GoogleLogin } from '@react-oauth/google';
 import OwnerLeaveManagement from '../companyOwner/owner-setting-components/ownerLeaveManagement'
 import SaLogin from '../SuperAdmin/SuperAdmin/saLogin'
 import SaMain from '../SuperAdmin/SuperAdmin/saMain'
+import UserSettings from '../companyOwner/owner-setting-components/userSetting'
+import ApplyForLeave from '../companyOwner/owner-setting-components/ApplyForLeave'
+
+
 
 export default function AppRouter() {
   const [suspended, setSuspended] = useState(false);
@@ -48,7 +52,7 @@ export default function AppRouter() {
           const headers = {
             Authorization: `Bearer ${token}`,
           };
-          const apiUrl = 'https://ss-track-xi.vercel.app/api/v1';
+          const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
           const response = await axios.get(`${apiUrl}/owner/getCompanyInfo`, { headers });
           // For objects or arrays:
           const planindex = response?.data.data[0].planId.length - 1;
@@ -119,7 +123,7 @@ export default function AppRouter() {
             <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/dashboard" element={<UserDashboard />} />
+            {/* <Route path="/dashboard" element={<UserDashboard />} /> */}
 
             {/* <Route path="/dashboard" element={<UserDashboard />} /> */}
             {/* <Route path="/pricing" element={<Pricing />} /> */}
@@ -131,6 +135,9 @@ export default function AppRouter() {
             <Route path="/timeline/:id" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
             <Route path="/account" element={token ? <Account /> : <Navigate to="/" />} />
             <Route path="/effective-settings" element={token ? (suspended ? <Navigate to="/account" /> : <Setting />) : <Navigate to="/" />} />
+            
+            <Route path="/user-setting" element={token ? (suspended ? <Navigate to="/account" /> : <UserSettings />) : <Navigate to="/" />} />
+            
             <Route path="/team" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerTeam />) : <Navigate to="/" />} />
             <Route path="/reports" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerReport />) : <Navigate to="/" />} />
             <Route path="/Projects" element={token ? (suspended ? <Navigate to="/account" /> : <Project />) : <Navigate to="/" />} />
@@ -138,6 +145,9 @@ export default function AppRouter() {
             <Route path="/activity/:id" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserTimeline />) : <Navigate to="/" />} />
             <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} />
             <Route path="/leave-management" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerLeaveManagement />) : <Navigate to="/" />} />
+            <Route path="/applyForLeave" element={token ? (suspended ? <Navigate to="/account" /> : <ApplyForLeave />) : <Navigate to="/" />} />
+
+            
             {/* <Route
               path="/profile"
               element={
@@ -148,6 +158,7 @@ export default function AppRouter() {
                 )
               }
             /> */}
+            
             {/* <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} /> */}
             <Route path="/pricing" element={token ? (suspended ? <Navigate to="/account" /> : <Pricing />) : <Navigate to="/" />} />
             <Route path="/workCards" element={token ? (suspended ? <Navigate to="/account" /> : <WorkCards />) : <Navigate to="/" />} />

@@ -53,7 +53,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
             Authorization: "Bearer " + token,
         };
         // console.log('default card set', cards);
-        const DefaultPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        const DefaultPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         try {
             const response = await axios.post(`${DefaultPayApiUrl}/owner/setDefaultCard`, {
                 cardNumber: cards.cardNumber,
@@ -101,7 +101,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
         console.log('delete card', card);
         console.log('delete header', headers);
 
-        const DefaultPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        const DefaultPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         try {
             const response = await axios.request({
                 url: `${DefaultPayApiUrl}/owner/deleteCard`,
@@ -235,7 +235,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
 // Function to determine card icon based on card type
 const getCardIcon = (cardType) => {
     switch (cardType) {
-        case "Mastercard":
+        case "mastercard":
             return "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg";
         case "American Express":
             return "https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg";
@@ -245,7 +245,6 @@ const getCardIcon = (cardType) => {
             return "";
     }
 };
-
 
 // Inline styles
 const styles = {

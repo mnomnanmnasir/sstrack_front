@@ -26,7 +26,7 @@
 
 // import { useSocket } from '../io'; // Correct import
 
-// const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+// const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 
 // function OwnerTeam() {
@@ -51,7 +51,7 @@
 //     const [mainId, setMainId] = useState(null)
 //     const [loadingInvite, setLoadingInvite] = useState(false);
 //     const [users, setUsers] = useState(null);
-//     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+//     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 //     const token = localStorage.getItem('token');
 //     const headers = {
 //         Authorization: "Bearer " + token,
@@ -892,7 +892,7 @@ import { useDispatch } from "react-redux";
 
 import { useSocket } from '../io'; // Correct import
 
-const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 
 function OwnerTeam() {
@@ -917,7 +917,7 @@ function OwnerTeam() {
     const [mainId, setMainId] = useState(null)
     const [loadingInvite, setLoadingInvite] = useState(false);
     const [users, setUsers] = useState(null);
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem('token');
     const headers = {
         Authorization: "Bearer " + token,

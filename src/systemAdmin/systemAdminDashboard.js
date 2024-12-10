@@ -19,7 +19,7 @@ const SystemAdminDashboard = () => {
     const [isUserArchive, setIsUserArchive] = useState(false)
     const { loading, setLoading, loading2, setLoading2 } = useLoading()
     const navigate = useNavigate();
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const [data, setData] = useState([])
     let token = localStorage.getItem('adminToken');
     const [fixComponent, setFixComponent] = useState();

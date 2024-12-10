@@ -72,35 +72,46 @@ const CompanyEmployess = (props) => {
     }, [employees]);
 
     const handleToggleChange = async (employee, isSelected) => {
+
+        // Update UI immediately for real-time feedback
+        setTimeFields((prev) => ({
+            ...prev,
+            [employee._id]: {
+                ...prev[employee._id],
+                showFields: isSelected,
+            },
+        }));
+
         try {
             // Fetch current settings for the employee to avoid overwriting other fields
             const response = await axios.get(
-                `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+                `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 }
             );
-    
+
             if (response.status !== 200) {
                 throw new Error("Failed to fetch current settings.");
             }
-    
+
             const currentSettings = response.data.employeeSettings;
-    
+
             // Prepare the API request payload with preserved settings
             const requestData = {
                 userId: employee._id,
                 settings: {
                     ...currentSettings, // Preserve current settings
+                    // ...timeFields[employee._id],
                     individualbreakTime: isSelected, // Update only the individualbreakTime field
                 },
             };
-    
+
             // Call API to update the settings
             const updateResponse = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
                 requestData,
                 {
                     headers: {
@@ -109,7 +120,7 @@ const CompanyEmployess = (props) => {
                     },
                 }
             );
-    
+
             if (updateResponse.status === 200) {
                 enqueueSnackbar("Punctuality setting updated successfully!", {
                     variant: "success",
@@ -118,7 +129,7 @@ const CompanyEmployess = (props) => {
                         horizontal: "right",
                     },
                 });
-    
+
                 // Update local state for real-time UI synchronization
                 setTimeFields((prev) => ({
                     ...prev,
@@ -147,7 +158,7 @@ const CompanyEmployess = (props) => {
             });
         }
     };
-    
+
     // const handleToggleChange = async (employee, isSelected) => {
     //     try {
     //         // API payload to update individualbreakTime
@@ -160,7 +171,7 @@ const CompanyEmployess = (props) => {
     // console.log("Requested Data Toggel", requestData)
     //         // Call API to update the value
     //         const response = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             {
     //                 headers: {
@@ -181,7 +192,7 @@ const CompanyEmployess = (props) => {
 
     //             // Fetch the updated employee data
     //             const getResponse = await axios.get(
-    //                 "https://ss-track-xi.vercel.app/api/v1/superAdmin/employees",
+    //                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/employees",
     //                 {
     //                     headers: {
     //                         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -268,7 +279,7 @@ const CompanyEmployess = (props) => {
     //         // Second API call after a 1-second delay to fetch updated data
     //         setTimeout(async () => {
     //             try {
-    //                 const response = await fetch("https://ss-track-xi.vercel.app/api/v1/superAdmin/employees", {
+    //                 const response = await fetch("https://myuniversallanguages.com:9093/api/v1/superAdmin/employees", {
     //                     method: "GET",
     //                     headers: {
     //                         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -425,7 +436,7 @@ const CompanyEmployess = (props) => {
 
     //         // API Call
     //         const response = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             {
     //                 headers: {
@@ -514,7 +525,7 @@ const CompanyEmployess = (props) => {
 
     //         // Make the API call
     //         const response = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             {
     //                 headers: {
@@ -624,7 +635,7 @@ const CompanyEmployess = (props) => {
 
     //         // Call API to save data
     //         const response = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             {
     //                 headers: {
@@ -683,7 +694,109 @@ const CompanyEmployess = (props) => {
     //         console.error("Error submitting Break Time rule:", error);
     //     }
     // };
+    // const handleSave = async (employeeId) => {
+    //     try {
+    //         const { startTime, endTime } = timeFields[employeeId];
+
+    //         // Validate if both times are provided
+    //         if (!startTime || !endTime) {
+    //             throw new Error("Both Break Start Time and Break End Time are required.");
+    //         }
+
+    //         // Calculate Total Hours
+    //         const calculateTotalHours = (startTime, endTime) => {
+    //             const start = new Date(`1970-01-01T${startTime}:00`);
+    //             const end = new Date(`1970-01-01T${endTime}:00`);
+    //             const totalMinutes = (end - start) / (1000 * 60);
+    //             const hours = Math.floor(totalMinutes / 60);
+    //             const minutes = totalMinutes % 60;
+    //             return `${hours}h:${minutes}m`;
+    //         };
+
+    //         const totalHours = calculateTotalHours(startTime, endTime);
+    //         const currentDate = new Date().toISOString().split("T")[0];
+    //         const fullBreakStartTime = `${currentDate}T${startTime}:00`;
+    //         const fullBreakEndTime = `${currentDate}T${endTime}:00`;
+
+    //         // API Request Data
+    //         const requestData = {
+    //             userId: employeeId,
+    //             settings: {
+    //                 breakTime: [
+    //                     {
+    //                         TotalHours: totalHours,
+    //                         breakStartTime: fullBreakStartTime,
+    //                         breakEndTime: fullBreakEndTime,
+    //                     },
+    //                 ],
+    //                 individualbreakTime: true, // Ensure the toggle is saved as ON
+    //             },
+    //         };
+
+    //         // Call API to save data
+    //         const response = await axios.post(
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+    //             requestData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
+
+    //         if (response.status === 200) {
+    //             enqueueSnackbar("Break Time successfully submitted!", {
+    //                 variant: "success",
+    //                 anchorOrigin: { vertical: "top", horizontal: "right" },
+    //             });
+
+    //             // Fetch updated data to ensure correct toggle state
+    //             const updatedEmployee = await axios.get(
+    //                 `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+    //                 {
+    //                     headers: {
+    //                         Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     },
+    //                 }
+    //             );
+
+    //             if (updatedEmployee.status === 200) {
+    //                 const updatedData = updatedEmployee.data.employeeSettings;
+
+    //                 // Update the local state with the fetched data
+    //                 setTimeFields((prev) => ({
+    //                     ...prev,
+    //                     [employeeId]: {
+    //                         showFields: updatedData.individualbreakTime || false, // Reflect the backend state
+    //                         startTime: updatedData.breakTime?.[0]?.breakStartTime?.substring(11, 16) || startTime,
+    //                         endTime: updatedData.breakTime?.[0]?.breakEndTime?.substring(11, 16) || endTime,
+    //                     },
+    //                 }));
+    //                 // setTimeFields((prev) => ({
+    //                 //     ...prev,
+    //                 //     [employeeId]: {
+    //                 //         ...prev[employeeId],
+    //                 //         startTime, // Persist start time
+    //                 //         endTime,   // Persist end time
+    //                 //         showFields: true, // Ensure toggle remains ON
+    //                 //     },
+    //                 // }));
+
+    //             }
+    //         } else {
+    //             enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
+    //         }
+    //     } catch (error) {
+    //         enqueueSnackbar(error.message || "Error submitting Break Time rule.", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+    //         console.error("Error submitting Break Time rule:", error);
+    //     }
+    // };
     const handleSave = async (employeeId) => {
+
         try {
             const { startTime, endTime } = timeFields[employeeId];
 
@@ -691,6 +804,22 @@ const CompanyEmployess = (props) => {
             if (!startTime || !endTime) {
                 throw new Error("Both Break Start Time and Break End Time are required.");
             }
+
+            // Fetch current settings to preserve unrelated fields
+            const currentSettingsResponse = await axios.get(
+                `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            if (currentSettingsResponse.status !== 200) {
+                throw new Error("Failed to fetch current settings.");
+            }
+
+            const currentSettings = currentSettingsResponse.data?.employeeSettings || {};
 
             // Calculate Total Hours
             const calculateTotalHours = (startTime, endTime) => {
@@ -704,28 +833,27 @@ const CompanyEmployess = (props) => {
 
             const totalHours = calculateTotalHours(startTime, endTime);
             const currentDate = new Date().toISOString().split("T")[0];
-            const fullBreakStartTime = `${currentDate}T${startTime}:00`;
-            const fullBreakEndTime = `${currentDate}T${endTime}:00`;
 
-            // API Request Data
-            const requestData = {
-                userId: employeeId,
-                settings: {
-                    breakTime: [
-                        {
-                            TotalHours: totalHours,
-                            breakStartTime: fullBreakStartTime,
-                            breakEndTime: fullBreakEndTime,
-                        },
-                    ],
-                    individualbreakTime: true, // Ensure the toggle is saved as ON
-                },
+            // Prepare the API request payload
+            const updatedSettings = {
+                ...currentSettings, // Preserve existing settings
+                breakTime: [
+                    {
+                        TotalHours: totalHours,
+                        breakStartTime: `${currentDate}T${startTime}:00`,
+                        breakEndTime: `${currentDate}T${endTime}:00`,
+                    },
+                ],
+                individualbreakTime: true, // Ensure the toggle is saved as ON
             };
 
-            // Call API to save data
+            // Call API to save updated settings
             const response = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
-                requestData,
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                {
+                    userId: employeeId,
+                    settings: updatedSettings,
+                },
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -740,48 +868,24 @@ const CompanyEmployess = (props) => {
                     anchorOrigin: { vertical: "top", horizontal: "right" },
                 });
 
-                // Fetch updated data to ensure correct toggle state
-                const updatedEmployee = await axios.get(
-                    `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                    }
-                );
-
-                if (updatedEmployee.status === 200) {
-                    const updatedData = updatedEmployee.data.employeeSettings;
-
-                    // Update the local state with the fetched data
-                    setTimeFields((prev) => ({
-                        ...prev,
-                        [employeeId]: {
-                            showFields: updatedData.individualbreakTime || false, // Reflect the backend state
-                            startTime: updatedData.breakTime?.[0]?.breakStartTime?.substring(11, 16) || startTime,
-                            endTime: updatedData.breakTime?.[0]?.breakEndTime?.substring(11, 16) || endTime,
-                        },
-                    }));
-                    // setTimeFields((prev) => ({
-                    //     ...prev,
-                    //     [employeeId]: {
-                    //         ...prev[employeeId],
-                    //         startTime, // Persist start time
-                    //         endTime,   // Persist end time
-                    //         showFields: true, // Ensure toggle remains ON
-                    //     },
-                    // }));
-
-                }
+                // Update local state to reflect changes
+                setTimeFields((prev) => ({
+                    ...prev,
+                    [employeeId]: {
+                        ...prev[employeeId],
+                        breakStartTime,
+                        breakEndTime,
+                    },
+                }));
             } else {
                 enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
             }
         } catch (error) {
-            enqueueSnackbar(error.message || "Error submitting Break Time rule.", {
+            enqueueSnackbar(error.message || "Error submitting Break Time.", {
                 variant: "error",
                 anchorOrigin: { vertical: "top", horizontal: "right" },
             });
-            console.error("Error submitting Break Time rule:", error);
+            console.error("Error submitting Break Time:", error);
         }
     };
 
@@ -852,7 +956,7 @@ const CompanyEmployess = (props) => {
     //     try {
     //         // Send API request
     //         const res = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             { headers }
     //         );
@@ -918,7 +1022,7 @@ const CompanyEmployess = (props) => {
     //     try {
     //         // Send the API request
     //         const res = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             { headers }
     //         );
@@ -1004,7 +1108,7 @@ const CompanyEmployess = (props) => {
 
         try {
             const res = await axios.post(
-                `https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality`,
+                `https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality`,
                 {
                     userId: ssId,
                     settings: settingsToUpdate,
@@ -1106,7 +1210,7 @@ const CompanyEmployess = (props) => {
     //     try {
     //         // Send the API request
     //         const res = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             { headers }
     //         );
@@ -1158,7 +1262,7 @@ const CompanyEmployess = (props) => {
     //     console.log('SSID', ssId)
     //     try {
     //         const res = await axios.patch(
-    //             `https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality`
+    //             `https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality`
     //             {
     //                 userId: data.employee._id,
     //                 effectiveSettings: {
@@ -1220,7 +1324,9 @@ const CompanyEmployess = (props) => {
     console.log(activeTab);
 
     console.log('=============>', employees);
-    const filteredEmployees = employees.filter(employee => employee.name);
+    // const filteredEmployees = employees.filter(employee => employee.name);
+    const filteredEmployees = employees.filter(employee => employee.name && employee.userType !== "owner");
+
     console.log('=##########=>', filteredEmployees);
 
     useEffect(() => {
@@ -1229,7 +1335,7 @@ const CompanyEmployess = (props) => {
             for (const employee of employees) {
                 try {
                     const response = await axios.get(
-                        `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+                        `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -1241,7 +1347,7 @@ const CompanyEmployess = (props) => {
                         const { employeeSettings } = response.data;
                         const latestBreak = employeeSettings.breakTime?.[0] || {};
                         updatedFields[employee._id] = {
-                            showFields: employeeSettings.individualbreakTime || false,
+                            showFields: employeeSettings.individualbreakTime || false, // Reflect backend state
                             startTime: latestBreak.breakStartTime?.substring(11, 16) || "00:00",
                             endTime: latestBreak.breakEndTime?.substring(11, 16) || "00:00",
                         };
@@ -1251,6 +1357,7 @@ const CompanyEmployess = (props) => {
                 }
             }
             setTimeFields((prev) => ({ ...prev, ...updatedFields }));
+
         };
 
         fetchEmployeeData();
@@ -1398,7 +1505,7 @@ const CompanyEmployess = (props) => {
                                             </label>
                                             <label>
                                                 Break End Time:
-
+                                                
                                                 <input
                                                     type="time"
                                                     value={timeFields[employee._id]?.endTime || ""} // Default to 00:00 if null

@@ -3,7 +3,7 @@ import { Box, Grid, Card, CardContent, Typography, Button, CircularProgress } fr
 import PersonIcon from '@mui/icons-material/Person';
 import axios from 'axios';
 
-const DCompanies = () => {
+function DCompanies() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [companies, setCompanies] = useState([]);
@@ -17,7 +17,7 @@ const DCompanies = () => {
                 return;
             }
 
-            const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/companies', {
+            const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/companies', {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

@@ -44,7 +44,7 @@ function Screenshot() {
             }
         }
         try {
-            const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/owner/settingsE/${employee._id}`,
+            const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${employee._id}`,
                 {
                     userId: employee._id,
                     effectiveSettings: type === "setting1" ? settings : type === "setting2" ? settings2 : settings3
@@ -171,7 +171,7 @@ function Screenshot() {
 
     async function handleApply(type) {
         try {
-            const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/settingsE`,
+            const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
                 employees?.filter(f => f.effectiveSettings?.individualss === false).map((prevEmployess) => {
                     return {
                         userId: prevEmployess._id,
@@ -221,11 +221,11 @@ function Screenshot() {
 
     async function getData() {
         try {
-            const response = await fetch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/employees`, { headers })
+            const response = await fetch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`, { headers })
             const json = await response.json();
             dispatch(getEmployess(json?.convertedEmployees))
             // json?.convertedEmployees.map(async (employee) => {
-            //     const data = await axios.get(`https://ss-track-xi.vercel.app/api/v1/superAdmin/Settings/${employee._id}`)
+            //     const data = await axios.get(`https://myuniversallanguages.com:9093/api/v1/superAdmin/Settings/${employee._id}`)
             //     if (data?.data?.employeeSettings?.userId) {
             //         dispatch(setIds(data?.data?.employeeSettings?.userId))
             //     }
@@ -283,7 +283,7 @@ function Screenshot() {
                             dispatch(setAllUserSetting2({ value: e.target.value }))
                             const value = e.target.value;
                             try {
-                                const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/settingsE`,
+                                const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
                                     employees?.filter(f => f.effectiveSettings?.individualss === false)?.map((prevEmployess) => {
                                         return {
                                             userId: prevEmployess._id,
@@ -353,7 +353,7 @@ function Screenshot() {
                             console.log(e.target.value);
                             dispatch(setAllUserSetting3({ value: e.target.value === "Allow Blur" ? true : false }))
                             try {
-                                const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/settingsE`,
+                                const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
                                     employees?.filter(f => f.effectiveSettings?.individualss === false)?.map((prevEmployess) => {
                                         return {
                                             userId: prevEmployess._id,

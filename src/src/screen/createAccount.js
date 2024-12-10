@@ -27,9 +27,9 @@ function CreateAccount() {
     const [linkStatusMessage, setLinkStatusMessage] = useState("");
     const navigate = useNavigate();
     const [model, setModel] = useState({
+        name: "",
         company: "",
         email: "",
-        name: "",
         password: "",
         timezone: "",
         timezoneOffset: "",
@@ -37,7 +37,7 @@ function CreateAccount() {
     });
     const [err, setErr] = useState("");
     const [error, setError] = useState("");
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const [timezone, setSelectedTimezone] = useState(
         Intl.DateTimeFormat().resolvedOptions().timeZone
     )
@@ -82,7 +82,6 @@ function CreateAccount() {
                     timezoneOffset: model?.timezoneOffset,
                     userType: model?.userType,
                 })
-                console.log("Response create account", response)
                 if (response.status) {
                     setLoading(false)
                     enqueueSnackbar(response.data.message, {
@@ -143,14 +142,12 @@ function CreateAccount() {
             const res = await axios.get(`${apiUrl}/superAdmin/checkinvite/${code}/${email}`)
             if (res.status === 200) {
                 console.log(res);
-                setModel(() => ({
-                    ...model, // Properly spread the previous state
+                setModel({
+                    ...model,
                     id: res.data.user._id,
                     email: res.data.user.email,
-                    company: res.data.user.company,
-                    name: res.data.user.name
-                }));                
-                console.log('Accounts Data',res)
+                    company: res.data.user.company
+                })
                 setUser(res.data.user)
                 setLinkExpired(false)
                 setLinkStatusMessage("")
@@ -164,50 +161,10 @@ function CreateAccount() {
     }
 
     useEffect(() => {
-        console.log("Updated Model State:", model);
-    }, [model]);
-
-    
-    // async function getLink() {
-    //     try {
-    //         const res = await axios.get(`${apiUrl}/superAdmin/checkinvite/${code}/${email}`);
-    //         cons
-    //         if (res.status === 200) {
-    //             console.log("API Response:", res.data);
-    
-    //             // Update the model with fetched data
-    //             setModel((prevModel) => ({
-    //                 ...prevModel, // Spread the existing state
-    //                 id: res.data.user._id || "", // Ensure all fields have a default value
-    //                 email: res.data.user.email || "",
-    //                 company: res.data.user.company || "",
-    //                 name: res.data.user.name || ""
-    //             }));
-    
-    //             console.log("Updated Model:", {
-    //                 id: res.data.user._id,
-    //                 email: res.data.user.email,
-    //                 company: res.data.user.company,
-    //                 name: res.data.user?.name
-    //             });
-    
-    //             setUser(res.data.user); // Update the `user` state
-    //             setLinkExpired(false);
-    //             setLinkStatusMessage("");
-    //         }
-    //     } catch (error) {
-    //         console.error("Error in getLink:", error);
-    //         setUser(null);
-    //         setLinkExpired(true);
-    //         setLinkStatusMessage(error.response?.data?.message || "An error occurred");
-    //     }
-    // }
-    
-    useEffect(() => {
         getLink()
     }, [])
 
-    console.log('Create Account', model);
+    console.log(model);
 
     return (
         <div>
@@ -251,14 +208,7 @@ function CreateAccount() {
                             <p className="getback">Create user account</p>
                             <div className="inputDiv">
                                 <div><img src={userIcon} /></div>
-                                <input
-                                    className="autofill"
-                                    value={model.name || ""} // Ensure no undefined values
-                                    // value={model?.name} // Directly use model.name
-                                    // type='text'  // Correct type for text input
-                                    onChange={(e) => fillModel("name", e.target.value)}
-                                    placeholder="Your full name"
-                                />
+                                <input onChange={(e) => fillModel("name", e.target.value)} placeholder="Your full name" />
                             </div>
                             <div className="inputDiv">
                                 <div><img src={account} /></div>
@@ -270,7 +220,7 @@ function CreateAccount() {
                             </div>
                             <div className="inputDiv">
                                 <div><img src={password} /></div>
-                                <input className="password" type={showPassword ? 'text' : 'password'} value={model.password} onChange={(e) => fillModel("password", e.target.value)} placeholder="Password (8 or more characters)" />
+                                <input className="autofill" type={showPassword ? 'text' : 'password'} value={model.password} onChange={(e) => fillModel("password", e.target.value)} placeholder="Password (8 or more characters)" />
                                 {model.password !== "" && <img style={{ cursor: "pointer" }} width={30} src={showPassword ? showPasswordIcon : hidePasswordIcon} alt="Password" onClick={() => setShowPassword(!showPassword)} />}
                             </div>
                             <div className="inputDiv2">

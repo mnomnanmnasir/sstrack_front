@@ -42,7 +42,7 @@ function Profile() {
         'Content-Type': 'application/json'
     };
 
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
     let fillModel = (key, val) => {
         setModel((prevModel) => ({
@@ -177,7 +177,7 @@ function Profile() {
 
         try {
             const response = await axios.post(
-                `https://ss-track-xi.vercel.app/api/v1/auth/microsoft/authSignup`,
+                `https://myuniversallanguages.com:9093/api/v1/auth/microsoft/authSignup`,
                 {
                     userId: "672cc6df2a2b7806b4bea9cb", // Replace with the actual userId if needed
                     name: model.name, // Use model.name
@@ -230,7 +230,7 @@ function Profile() {
     
     //     try {
     //         const response = await axios.post(
-    //             `https://ss-track-xi.vercel.app/api/v1/auth/microsoft/authSignup`,
+    //             `https://myuniversallanguages.com:9093/api/v1/auth/microsoft/authSignup`,
     //             {
     //                 userId: "672cc6df2a2b7806b4bea9cb", // Replace with the actual userId if needed
     //                 name: model.name, // Use model.name

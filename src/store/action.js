@@ -27,7 +27,7 @@ export const fetchUserData = (userType, headers) => {
     return async (dispatch) => {
         dispatch(fetchUserDataRequest());
         try {
-            const response = await axios.get(`https://ss-track-xi.vercel.app/api/v1/manager/dashboard`, {
+            const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/manager/dashboard`, {
                 headers,
             });
             console.log('Response data:', response.data); // Log response data

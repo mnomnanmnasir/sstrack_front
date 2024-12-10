@@ -21,7 +21,7 @@ function SignIn() {
     password: ""
   });
   const [loading, setLoading] = useState(false)
-  const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+  const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
   
   const handleLogin = async (e) => {
     if (model?.email === "" || model?.password === "") {
@@ -109,17 +109,17 @@ function SignIn() {
               disabled={loading} type="submit" className={loading ? "disabledAccountButton" : "accountButton"}>{loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Login"}</button>
            
            {/* SOCIAL AUTHENTICIATION */}
-            <div class="container">
+            {/* <div class="container mt-4">
               <div className="text-center justify-content-center text-primary gap-4 d-flex">
-                <a href="https://ss-track-xi.vercel.app/api/v1/auth/google" className="btn btn-light border-3" style={{ borderRadius: '50px', border: '5px solid #000000' }}
+                <a href="https://myuniversallanguages.com:9093/api/v1/auth/google" className="btn btn-light border-3" style={{ borderRadius: '50px', border: '5px solid #000000' }}
                 ><span class="fa fa-google"></span> Sign Up with Google</a>
                 <br />
                 <br />
-                <a href="https://ss-track-xi.vercel.app/api/v1/auth/microsoft" className="btn btn-primary border-3" style={{ borderRadius: '40px' }}>
+                <a href="https://myuniversallanguages.com:9093/api/v1/auth/microsoft" className="btn btn-primary border-3" style={{ borderRadius: '40px' }}>
                   <span class="fa fa-windows"></span> Sign Up with Microsoft
                 </a>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
         <p className="loginFont">Don't have an account? <span style={{

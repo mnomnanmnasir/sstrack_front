@@ -19,7 +19,7 @@ function UserSettings() {
     const [loading2, setLoading2] = useState(false)
     const [employess, setEmployess] = useState(null);
     const [id, setId] = useState(null);
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
     let user = JSON.parse(localStorage.getItem('items'));
     let headers = {
@@ -74,8 +74,6 @@ function UserSettings() {
         { id: 7, showSetting: <Notify loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Notify when screeshot is taken", isActive: false, icon: "Yes" },
         { id: 8, showSetting: <WeekStart loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Week starts on", isActive: false, icon: "Sun" },
         { id: 9, showSetting: <CurrencySymbol loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Currency symbol", isActive: false, icon: "$" },
-       
-
     ]);
 
     return (

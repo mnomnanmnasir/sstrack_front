@@ -10,7 +10,7 @@ function ProjectComponent(props) {
         Authorization: "Bearer " + token,
     };
     
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const getData = async ()=>{
      try{
         const response = await fetch(`${apiUrl}/superAdmin/${projectId}`,{

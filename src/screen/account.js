@@ -60,7 +60,7 @@ function Account({ suspended }) {
     const [activeTab, setActiveTab] = useState('invoices');
     let token = localStorage.getItem('token');
     const navigate = useNavigate('');
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const items = JSON.parse(localStorage.getItem('items'));
     let headers = {
         Authorization: 'Bearer ' + token,
@@ -73,7 +73,7 @@ function Account({ suspended }) {
     const storedPlanId = JSON.parse(localStorage.getItem('planId'))
     // const premiumPlan = plans.find((plan) => plan.planType === 'premium');
 
-    const planapiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
     const fetchPlans = async () => {
         try {
@@ -671,7 +671,7 @@ function Account({ suspended }) {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://ss-track-xi.vercel.app/api/v1';
+                const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
                 console.log('Fetched Cards:', fetchedCards);
@@ -774,7 +774,7 @@ function Account({ suspended }) {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
                         // tokenId: paymentMethod.id,
@@ -864,7 +864,7 @@ function Account({ suspended }) {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
@@ -1125,7 +1125,7 @@ function Account({ suspended }) {
     };
 
     // const handleDirectChangePlan = async () => {
-    // const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
     // if (paycard) {
     //     console.log('Pay with this card:', paycard);
     //     // setIsLoading(true);
@@ -1186,7 +1186,7 @@ function Account({ suspended }) {
     //     }
     // };
     const handleDirectChangePlan = async () => {
-        const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
             console.log('Pay with this card:', paycard);
             // setIsLoading(true);

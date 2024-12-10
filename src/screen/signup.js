@@ -16,6 +16,9 @@ import { FerrisWheelSpinner } from "react-spinner-overlay";
 import logo from '../images/inner-icon.svg'
 import showPasswordIcon from '../images/showPassword.svg';
 import hidePasswordIcon from '../images/hidePassword.svg';
+import { Modal, Button } from "react-bootstrap";
+import verifyImge from '../images/verfiyImage.png'
+
 
 function Signup() {
 
@@ -26,14 +29,18 @@ function Signup() {
         name: "",
         company: "",
         email: "",
-        password: "",
+        // password: "",
         timezone: "",
         timezoneOffset: "",
         userType: "owner"
     });
+
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false); // To toggle success message
+
+    const [showModal, setShowModal] = useState(false);
     const [err, setErr] = useState("");
     const [error, setError] = useState("");
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const [timezone, setSelectedTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
     const [currentTimezone, setCurrentTimeZone] = useState('')
 
@@ -66,23 +73,24 @@ function Signup() {
                     company: model?.company,
                     email: model?.email,
                     name: model?.name,
-                    password: model?.password,
+                    // password: model?.password,
                     timezone: model?.timezone,
                     timezoneOffset: model?.timezoneOffset,
                     userType: model?.userType,
                 })
                 if (response.status) {
                     setLoading(false)
-                    enqueueSnackbar(response.data.Message, {
-                        variant: "success",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right"
-                        }
-                    })
-                    setTimeout(() => {
-                        navigate('/signin')
-                    }, 3000);
+                    // enqueueSnackbar(response.data.Message, {
+                    //     variant: "success",
+                    //     anchorOrigin: {
+                    //         vertical: "top",
+                    //         horizontal: "right"
+                    //     }
+                    // })
+                    setShowSuccessMessage(true); // Show success message
+                    // setTimeout(() => {
+                    //     navigate('/signin')
+                    // }, 3000);
                 }
                 console.log("signup from link response =====>", response);
             } catch (error) {
@@ -164,52 +172,73 @@ function Signup() {
             {/* <Header /> */}
             <SnackbarProvider />
             <section>
-                <p className="freePera">Try it Free for 7 days</p>
-                <p className="mainFont">Maintain it Free always on the Free Plan.</p>
-                <div className="maininputdivs"
-                    onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                            console.log(e);
-                            handleCreateAccount()
-                        }
+                {showSuccessMessage ? (
+                    <div style={{
+                        backgroundColor: "white",
+                        boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)",
+                        margin: "0 auto",
+                        position: "fixed",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        display: "flex",
+                        textAlign:'center',
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexDirection: "column",
+                        padding: "30px",
+                        borderRadius: "10px",
+                        width: "100%",
+                        height:"63%",
+                        maxWidth: "900px",
                     }}>
-                    <div className="mainInputDiv">
-                        <p className="account">Create an account</p>
-                        <div className="inputDiv">
-                            <div><img src={user} /></div>
-                            <input value={model?.name} onChange={(e) => fillModel("name", e.target.value)} placeholder="Your full name" />
-                        </div>
-                        <div className="inputDiv">
-                            <div><img src={account} /></div>
-                            <input value={model?.company} onChange={(e) => fillModel("company", e.target.value)} placeholder="Company" />
-                        </div>
-                        <div className="inputDiv">
-                            <div><img src={email} /></div>
-                            <input className="autofill" value={model?.email} onChange={(e) => fillModel("email", e.target.value)} placeholder="Email" />
-                        </div>
-                        {/* <div className="inputDiv">
-                            <div><img src={password} /></div>
-                            <input className="autofill" type={showPassword ? 'text' : 'password'} value={model.password} onChange={(e) => fillModel("password", e.target.value)} placeholder="Password (8 or more characters)" />
-                            {model.password !== "" && <img style={{ cursor: "pointer" }} width={30} src={showPassword ? showPasswordIcon : hidePasswordIcon} alt="Password" onClick={() => setShowPassword(!showPassword)} />}
-                        </div> */}
-                        <div className="inputDiv2">
-                            {/* <div><img src={clock} /></div> */}
-                            {/* <div> */}
-                            <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
-                            {/* </div> */}
-                        </div>
-                        <button disabled={loading} onClick={handleCreateAccount} className={loading ? "disabledAccountButton" : "accountButton"}>{loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Create Account"}</button>
+                        <img width={800} src={verifyImge} alt="" style={{width: '70%', height:'140%'}} />
+
+                        <p style={{ lineHeight: "1.6", fontSize: "20px", marginTop: '10px',text: 'center'}}>
+                            Thank you for signing up! We've sent a verification link to your email address.
+                            Please check your inbox and follow the instructions to verify your account.
+                        </p>
                     </div>
-                </div>
-                <p className="loginFont">Already have an account? <span
-                    style={{
-                        color: "#7ACB59",
-                        textDecoration: "underline",
-                        cursor: "pointer",
-                    }}
-                    onClick={() => navigate('/signin')}>Login</span></p>
+                ) : (
+                    <>
+                        <p className="freePera">Try it Free for 7 days</p>
+                        <p className="mainFont">Maintain it Free always on the Free Plan.</p>
+                        <div className="maininputdivs">
+                            <div className="mainInputDiv">
+                                <p className="account">Create an account</p>
+                                <div className="inputDiv">
+                                    <div><img src={user} alt="User Icon" /></div>
+                                    <input value={model?.name} onChange={(e) => fillModel("name", e.target.value)} placeholder="Your full name" />
+                                </div>
+                                <div className="inputDiv">
+                                    <div><img src={account} alt="Company Icon" /></div>
+                                    <input value={model?.company} onChange={(e) => fillModel("company", e.target.value)} placeholder="Company" />
+                                </div>
+                                <div className="inputDiv">
+                                    <div><img src={email} alt="Email Icon" /></div>
+                                    <input className="autofill" value={model?.email} onChange={(e) => fillModel("email", e.target.value)} placeholder="Email" />
+                                </div>
+                                <div className="inputDiv2">
+                                    <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
+                                </div>
+                                <button disabled={loading} onClick={handleCreateAccount} className={loading ? "disabledAccountButton" : "accountButton"}>
+                                    {loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Create Account"}
+                                </button>
+                            </div>
+                        </div>
+                        <p className="loginFont">Already have an account? <span
+                            style={{
+                                color: "#7ACB59",
+                                textDecoration: "underline",
+                                cursor: "pointer",
+                            }}
+                            onClick={() => navigate('/signin')}>Login</span></p>
+                    </>
+
+                )}
             </section>
             <img className="liness" src={line} />
+
             {/* <Footer /> */}
         </div>
     )

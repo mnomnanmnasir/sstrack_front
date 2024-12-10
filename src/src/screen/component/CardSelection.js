@@ -1,72 +1,24 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
-import PaymentCard from "../paymentCards";
-
-const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetDefaultCard, paycard, onAddCard }) => {
-
-    const [defaultCardId, setDefaultCardId] = useState(() => localStorage.getItem('defaultCardId') || '');
-    const [orderedCards, setOrderedCards] = useState([]); // State to manage ordered cards
-
-    const [card, setCards] = useState([]);
-
-    useEffect(() => {
-        // This effect runs when the defaultCardId changes
-        console.log("Default card ID updated:", defaultCardId);
-    }, [defaultCardId]);
-
-    const [buttonsDisabled, setButtonsDisabled] = useState(false); // State to control button disabling
-
-    useEffect(() => {
-        // Check local storage and set the default card on component mount
-        const storedDefaultCardId = localStorage.getItem('defaultCardId');
-        if (storedDefaultCardId) {
-            setDefaultCardId(storedDefaultCardId);
-        }
-    }, []);
-
-    const [selectedCards, setSelectedCard] = useState(
-        cards.find(card => card.defaultCard)?._id || null
-    );
 
 
-    const handleAddCard = (newCard) => {
-        onAddCard(newCard); // Call the parent function to add the card
-        enqueueSnackbar("Card added successfully", {
-            variant: "success",
-            anchorOrigin: {
-                vertical: "top",
-                horizontal: "right"
-            }
-        });
-    };
-
-    const addNewCard = (newCard) => {
-        setCards((prevCards) => [...prevCards, newCard]);
-        setSelectedCard(newCard);
-        onAddCard(newCard); // Call the parent function to add the card
-    };
+const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete ,onSetDefaultCard}) => {
 
     const handleSetDefaultCard = async (cards) => {
         const token = localStorage.getItem('token');
         const headers = {
             Authorization: "Bearer " + token,
         };
-        // console.log('default card set', cards);
-        const DefaultPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        console.log('default card set', cards);
+        const DefaultPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         try {
-            const response = await axios.post(`${DefaultPayApiUrl}/owner/setDefaultCard`, {
+            const response = await axios.post(`${DefaultPayApiUrl}/owner/setDefaultCard 	`, {
                 cardNumber: cards.cardNumber,
                 cardType: cards.cardType,
             }, { headers });
 
             if (response.data.success) {
-                // setOrderedCards([cards, ...orderedCards.filter(c => c._id !== cards._id)]); 
-                setDefaultCardId(cards._id);  // Update the defaultCardId state here
-                localStorage.setItem('defaultCardId', cards._id); // Update local storage
-                onAddCard = { addNewCard } // Pass the function to add a new card
-                setOrderedCards([cards, ...orderedCards.filter(c => c._id !== cards._id)]);
-                onSelect(cards); // Ensure the selected card is updated
                 console.log('Default card set successfully:', response);
                 enqueueSnackbar("Default card set successfully", {
                     variant: "success",
@@ -75,11 +27,11 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
                         horizontal: "right"
                     }
                 })
-                // setDefaultCardId(cards._id);  // Update the defaultCardId state here\
-                // onSetDefaultCard(cards);
+                onSetDefaultCard(cards);
                 onActionComplete();
             } else {
                 console.error('Failed to set default card:', response.data.error);
+
             }
         } catch (error) {
             console.error('Error:', error);
@@ -101,7 +53,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
         console.log('delete card', card);
         console.log('delete header', headers);
 
-        const DefaultPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        const DefaultPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         try {
             const response = await axios.request({
                 url: `${DefaultPayApiUrl}/owner/deleteCard`,
@@ -112,6 +64,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
                     cardType: card.cardType,
                 }
             });
+
             if (response.data.success) {
                 console.log('Card deleted successfully:', response);
                 enqueueSnackbar("Card deleted successfully", {
@@ -129,105 +82,87 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
             console.error('Error:', error);
         }
     };
+
     return (
 
         <>
             <SnackbarProvider />
+            <div className="container">
+                {/* <h3 className="text-center">Select a Card</h3> */}
+                <div className="row">
 
-            {/* <h3 className="text-center">Select a Card</h3> */}
-            <div className="row">
-                {cards.map((card) => {
-                    // Check if the card number matches the paycard's card number
-                    const isPayCard = paycard && paycard.cardNumber === card.cardNumber;
-                    return (
-                        <div key={card._id} className={`col-md-${cards.length === 1 ? 4 : 4} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
+
+                    {cards.map((card, index) => (
+                        <div
+                            key={card._id}
+                            // className={`col-md-6 col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
+                            // className={`col-md-${cards.length === 1 ? 12 : 4} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
+                            className={`col-md-${cards.length === 1 ? 4 : (cards.length === 2 ? 4 : 4)} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
+                        // className={`col-md-${cards.length === 1 ? 12 : (index % 2 === 0 ? 6 : 6)} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
+                        // className={`col-md-${cards.length === 1 ? 12 : (cards.length === 2 ? 6 : 4)} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
+                        // style={{ flexBasis: 'auto' }}
                         >
-                            <div className="card p-2">
+                            {/* <div className="d-flex justify-content-center"> */}
+                            <div className="card align-item-center justify-content-center p-2">
                                 <input
-                                    id={card._id}
-                                    type="radio"
-                                    name="selectedCard"
-                                    value={card._id}
-                                    checked={selectedCard === card._id}
-                                    onChange={() => onSelect(card)}
-                                    className="form-check-input mt-3"
-                                />
+                                        id={card._id}
+                                        type="radio"
+                                        name="selectedCard"
+                                        value={card._id}
+                                        checked={selectedCard === card._id}
+                                        onChange={() => onSelect(card)}
+                                        className="form-check-input align-items-center mt-3"
+                                    />
                                 <label htmlFor={card._id} className="w-100 align-items-center justify-content-center">
-                                    <div className="card-body gap-2 align-items-center" style={{ minHeight: '164px' }}>
-                                        <div className="d-flex align-items-center mb-2 gap-2">
-                                            <span className="mr-2">{card.cardType}</span>
-                                            **** {card.cardNumber}
-                                            <img
-                                                src={getCardIcon(card.cardType)}
-                                                alt={card.cardType} style={{ maxWidth: '8%' }}
-                                                className="img-fluid"
-                                            />
-                                        </div>
-                                        <div className="gap-2">
-                                            <span className="font-weight-bold">{card.cardHolder}</span>
-                                            <br />
-                                            <span style={{ color: 'grey', fontSize: '15px', marginLeft: '1%' }}>Expires on {card.expMonth}/{card.expYear}</span>
-                                            <br />
-                                            <span className="text-warning">⚠️ Unverified</span>
-                                        </div>
-                                        {selectedCard === card._id && cards.length > 1 && (
-                                            <div className="d-flex justify-content-end gap-1">
-                                                {defaultCardId !== card._id ? (
-                                                    <>
-                                                   
 
-                                                        <button
-                                                            className="btn btn-primary btn-sm mr-2"
-                                                            onClick={() => handleSetDefaultCard(card)}
-                                                            disabled={isPayCard} // Disable if this card matches the paycard
-                                                        >
-                                                            Default
-                                                        </button>
-                                             
-                                                        {!isPayCard && (
-
-                                                            <button
-                                                                className="btn btn-danger btn-sm"
-                                                                onClick={() => handleDeleteCard(card)}
-                                                                disabled={isPayCard} // Disable if this card matches the paycard
-                                                            >
-                                                                Delete
-                                                            </button>
-                                                        )}
-                                                    </>
-                                                ) : (
-                                                    <>
-                                             
-                                                        <button
-                                                            className="btn btn-primary btn-sm"
-                                                            style={{ borderRadius: '10%' }}
-                                                            onClick={() => handleSetDefaultCard(card)}
-                                                            disabled={isPayCard} // Disable if this card matches the paycard
-                                                        >
-                                                            Default
-                                                        </button>
-                                           
-                                                       {!isPayCard && (
-                                                            <button
-                                                                className="btn btn-danger btn-sm"
-                                                                onClick={() => handleDeleteCard(card)}
-                                                                disabled={isPayCard} // Disable if this card matches the paycard
-                                                            >
-                                                                Delete
-                                                            </button>
-                                                        )}
-                                                    </>
-                                                )}
+                                    {/* <div className="card h-100 gap-2 w-100"> */}
+                                        <div className="card-body gap-2 align-items-center" style={{ minHeight: '164px' }}> {/* Add this style */}
+                                         
+                                            <div className="d-flex align-items-center mb-2 gap-2">
+                                                <span className="mr-2">{card.cardType}
+                                                </span>
+                                                **** {card.cardNumber}
+                                                <img
+                                                    src={getCardIcon(card.cardType)}
+                                                    alt={card.cardType} style={{ maxWidth: '8%' }}
+                                                    className="img-fluid"
+                                                />
                                             </div>
-                                        )}
-                                    </div>
+                                            <div className="gap-2">
+                                                <span className="font-weight-bold">{card.cardHolder}</span>
+                                                <br />
+                                                <span style={{ color: 'grey', fontSize: '15px', marginLeft: '1%' }}>Expires on {card.expMonth}/{card.expYear}</span>
+                                                <br />
+                                                <span className="text-warning">⚠️ Unverified</span>
+                                            </div>
+                                            {selectedCard === card._id && (
+                                                <div className="d-flex justify-content-end gap-1"> {/* Add this class */}
+                                                    <button
+                                                        className="btn btn-primary btn-sm mr-2"
+                                                        onClick={() => handleSetDefaultCard(card)}
+                                                    >
+                                                        Default
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() => handleDeleteCard(card)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    {/* </div> */}
+
                                 </label>
-                            </div>
+                  
+
+                            {/* </div> */}
                         </div>
-                    );
-                })}
+                        </div>
+                    ))}
+                </div>
             </div>
-            {/* <PaymentCard onAddCard={handleAddCard} /> */}
         </>
     );
 };
@@ -245,8 +180,6 @@ const getCardIcon = (cardType) => {
             return "";
     }
 };
-
-
 // Inline styles
 const styles = {
     container: {

@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Grid, Card, CardContent, Typography, Button, IconButton, Select, MenuItem, Pagination, CircularProgress } from '@mui/material';
-// import ListAltIcon from '@mui/icons-material/ListAlt';
-import DownloadIcon from '@mui/icons-material/Download';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PersonIcon from '@mui/icons-material/Person';
-import TopBar from '../topBar';
+import { Box, Button, Card, CardContent, CircularProgress, Grid, MenuItem, Select, Typography } from '@mui/material';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import TopBar from '../topBar';
 
-const TotalCompanies = () => {
+function TotalCompanies() {
   const [companies, setCompanies] = useState([]); // State for companies data
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [filteredCompanies, setFilteredCompanies] = useState([]);
@@ -27,7 +24,7 @@ const TotalCompanies = () => {
         return;
       }
 
-      const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/companies', {
+      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/companies', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -39,7 +36,7 @@ const TotalCompanies = () => {
           id: company._id, // Add a unique ID for the company
           accessBlock: company.accessBlock,
           name: company.companyName,
-          phone: company.users[0]?.name || 'no phone', // Company phone with default value
+          phone: company.users[0]?.name || 'no user name found⚠️', // Company phone with default value
           email: company.users[0]?.email || 'No email',
           type: 'suspended', // Indicate that it's a suspended company
           users: company.users.map((user) => ({
@@ -53,7 +50,7 @@ const TotalCompanies = () => {
           id: company._id, // Add a unique ID for the company
           name: company.companyName,
           accessBlock: company.accessBlock,
-          phone: company.users[0]?.name || 'no phone', // Company phone with default value
+          phone: company.users[0]?.name || 'no user name found⚠️', // Company phone with default value
           email: company.users[0]?.email || 'No email',
           type: 'other', // Indicate that it's another company
           users: company.users.map((user) => ({
@@ -95,7 +92,7 @@ const TotalCompanies = () => {
 
     try {
       const response = await axios.post(
-        `https://ss-track-xi.vercel.app/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
+        `https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
         {
           isArchived: true,
           suspended: false,
@@ -146,7 +143,7 @@ const TotalCompanies = () => {
       // Toggle the accessBlock value
       const updatedAccessBlock = !selectedCompany?.accessBlock;
       const response = await axios.post(
-        `https://ss-track-xi.vercel.app/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
+        `https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
         {
           isArchived: false,
           suspended: false,
@@ -164,7 +161,7 @@ const TotalCompanies = () => {
         const isConfirmed = window.confirm('Company updated successfully! Click OK to refresh the list.');
         if (isConfirmed) {
           setSelectedCompany(null);
-          console.log(selectedCompany) // Reset the selected company
+          setSelectedFilter('other') // Reset the selected company
           fetchCompanies(); // Refresh the company list
         }
       } else {
@@ -236,7 +233,7 @@ const TotalCompanies = () => {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                   <Typography variant="h6" fontWeight="bold">
-                    Total Companies
+                    Total Companies 
                   </Typography>
                   {/* <Button startIcon={<ListAltIcon />} variant="text" sx={{ color: '#333' }}>
                     List View
@@ -568,9 +565,9 @@ const TotalCompanies = () => {
                         <Typography variant="body2" sx={{ color: '#555', marginBottom: '4px' }}>
                           📧 {user.email}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#555' }}>
+                        {/* <Typography variant="body2" sx={{ color: '#555' }}>
                           📞 {user.phone}
-                        </Typography>
+                        </Typography> */}
                       </Box>
                       {/* Role Badge */}
                       <Box

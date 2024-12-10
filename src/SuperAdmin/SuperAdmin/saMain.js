@@ -37,7 +37,7 @@ const SaMain = () => {
       }
     } else {
       // If no items are found, redirect to home
-      alert('User type is not valid.');
+      // alert('User type is not valid.');
       navigate('/sALogin');
     }
     setLoading(false); // Data has been loaded

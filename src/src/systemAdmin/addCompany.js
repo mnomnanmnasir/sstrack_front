@@ -15,7 +15,7 @@ const AddCompany = () => {
     const navigate = useNavigate();
     let token = localStorage.getItem('adminToken');
     const [timezone, setSelectedTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const [model, setModel] = useState({
         userType: 'owner',
     });

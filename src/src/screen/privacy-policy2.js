@@ -10,7 +10,7 @@ function PrivacyPolicy() {
           <div className="trialDiv">
           <div className="employeesDiv" style={{marginBottom:100}}>
             <p className='ethical'>Privacy Policy</p>
-            <p className='employees'>This Privacy Policy outlines the manner in which SS Track collects, uses, maintains, and discloses information collected from users.</p>
+            <p className='employees'>This Privacy Policy outlines the manner in which SSTRACK collects, uses, maintains, and discloses information collected from users.</p>
           </div>
 
             <div style={{ display: "flex", alignItems: 'center', justifyContent: "space-between" }} className="how-it-work-container">

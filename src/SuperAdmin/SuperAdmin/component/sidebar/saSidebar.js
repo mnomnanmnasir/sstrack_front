@@ -28,7 +28,7 @@ function SaSidebar({ selectedItem, onSelectItem }) {
   const handleLogout = () => {
     localStorage.removeItem('token_for_sa'); // Clear authentication token
     localStorage.removeItem('items'); // Clear user data
-    navigate('/'); // Redirect to login page
+    navigate('/sAlogin'); // Redirect to login page
   };
 
   const handleDrawerToggle = () => {

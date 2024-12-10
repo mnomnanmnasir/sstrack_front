@@ -80,7 +80,7 @@ const CompanyEmployess = (props) => {
         try {
             // Send API request
             const res = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
                 requestData,
                 { headers }
             );
@@ -143,7 +143,7 @@ const CompanyEmployess = (props) => {
     //     try {
     //         // Send API request
     //         const res = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             { headers }
     //         );
@@ -209,7 +209,7 @@ const CompanyEmployess = (props) => {
     //     try {
     //         // Send the API request
     //         const res = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             { headers }
     //         );
@@ -295,7 +295,7 @@ const CompanyEmployess = (props) => {
 
         try {
             const res = await axios.post(
-                `https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality`,
+                `https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality`,
                 {
                     userId: ssId,
                     settings: settingsToUpdate,
@@ -399,7 +399,7 @@ const CompanyEmployess = (props) => {
     //     try {
     //         // Send the API request
     //         const res = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             { headers }
     //         );
@@ -451,7 +451,7 @@ const CompanyEmployess = (props) => {
         console.log('SSID', ssId)
         try {
             const res = await axios.patch(
-                `https://ss-track-xi.vercel.app/api/v1/owner/settingsE/${data.employee._id}`,
+                `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${data.employee._id}`,
                 {
                     userId: data.employee._id,
                     effectiveSettings: {
@@ -513,7 +513,9 @@ const CompanyEmployess = (props) => {
     console.log(activeTab);
 
     console.log('=============>', employees);
-    const filteredEmployees = employees.filter(employee => employee.name);
+    // const filteredEmployees = employees.filter(employee => employee.name);
+    const filteredEmployees = employees.filter(employee => employee.name && employee.userType !== "owner");
+
     console.log('=##########=>', filteredEmployees);
 
     return (

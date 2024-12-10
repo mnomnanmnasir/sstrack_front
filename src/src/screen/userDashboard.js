@@ -39,63 +39,63 @@ function UserDashboard() {
 
 
 
-    // Define URLs based on user type
-    const userUrl = user?.userType === 'user' ? 'https://ss-track-xi.vercel.app/api/v1/timetrack/hours' : null;
-    const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? 'https://ss-track-xi.vercel.app/api/v1/owner/getCompanyemployee' : null;
-    const managerUrl = user?.userType === 'manager' ? 'https://ss-track-xi.vercel.app/api/v1/manager/dashboard' : null;
-
-    // Use React Query to fetch data
-    const { data: userData, error: userError, isLoading: isUserLoading } = useQuery({
-        queryKey: ['userData', userUrl],
-        queryFn: () => fetcher(userUrl, headers),
-        enabled: !!userUrl // Only fetch if userUrl is defined
-    });
-
-    const { data: ownerData, error: ownerError, isLoading: isOwnerLoading } = useQuery({
-        queryKey: ['ownerData', ownerUrl],
-        queryFn: () => fetcher(ownerUrl, headers),
-        enabled: !!ownerUrl // Only fetch if ownerUrl is defined
-    });
-
-    const { data: managerData, error: managerError, isLoading: isManagerLoading } = useQuery({
-        queryKey: ['managerData', managerUrl],
-        queryFn: () => fetcher(managerUrl, headers),
-        enabled: !!managerUrl // Only fetch if managerUrl is defined
-    });
-
-    // Handle the fetched data
-    const processOwnerData = (data) => {
-        if (data) {
-            const onlineUsers = data?.onlineUsers?.length > 0 ? data.onlineUsers : [];
-            const offlineUsers = data?.offlineUsers?.length > 0 ? data.offlineUsers : [];
-            const allUsers = [...onlineUsers, ...offlineUsers];
-            return allUsers.filter((f) => f.isArchived === false && f.UserStatus === false);
+       // Define URLs based on user type
+       const userUrl = user?.userType === 'user' ? 'https://myuniversallanguages.com:9093/api/v1/timetrack/hours' : null;
+       const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? 'https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee' : null;
+       const managerUrl = user?.userType === 'manager' ? 'https://myuniversallanguages.com:9093/api/v1/manager/dashboard' : null;
+   
+       // Use React Query to fetch data
+       const { data: userData, error: userError, isLoading: isUserLoading } = useQuery({
+           queryKey: ['userData', userUrl],
+           queryFn: () => fetcher(userUrl, headers),
+           enabled: !!userUrl // Only fetch if userUrl is defined
+       });
+       
+       const { data: ownerData, error: ownerError, isLoading: isOwnerLoading } = useQuery({
+           queryKey: ['ownerData', ownerUrl],
+           queryFn: () => fetcher(ownerUrl, headers),
+           enabled: !!ownerUrl // Only fetch if ownerUrl is defined
+       });
+       
+       const { data: managerData, error: managerError, isLoading: isManagerLoading } = useQuery({
+           queryKey: ['managerData', managerUrl],
+           queryFn: () => fetcher(managerUrl, headers),
+           enabled: !!managerUrl // Only fetch if managerUrl is defined
+       });
+    
+        // Handle the fetched data
+        const processOwnerData = (data) => {
+            if (data) {
+                const onlineUsers = data?.onlineUsers?.length > 0 ? data.onlineUsers : [];
+                const offlineUsers = data?.offlineUsers?.length > 0 ? data.offlineUsers : [];
+                const allUsers = [...onlineUsers, ...offlineUsers];
+                return allUsers.filter((f) => f.isArchived === false && f.UserStatus === false);
+            }
+            return [];
+        };
+    
+        const processManagerData = (data) => {
+            if (data) {
+                const onlineUsers = data?.onlineUsers?.length > 0 ? data.onlineUsers : [];
+                const offlineUsers = data?.offlineUsers?.length > 0 ? data.offlineUsers : [];
+                const allUsers = [...onlineUsers, ...offlineUsers];
+                return allUsers.filter((f) => f.isArchived === false && f.UserStatus === false);
+            }
+            return [];
+        };
+    
+        // Determine if loading
+        const isLoading = isUserLoading || isOwnerLoading || isManagerLoading;
+    
+        if (userError || ownerError || managerError) {
+            console.error('Error fetching data:', userError || ownerError || managerError);
+            // return <div>Error loading data</div>;
         }
-        return [];
-    };
-
-    const processManagerData = (data) => {
-        if (data) {
-            const onlineUsers = data?.onlineUsers?.length > 0 ? data.onlineUsers : [];
-            const offlineUsers = data?.offlineUsers?.length > 0 ? data.offlineUsers : [];
-            const allUsers = [...onlineUsers, ...offlineUsers];
-            return allUsers.filter((f) => f.isArchived === false && f.UserStatus === false);
-        }
-        return [];
-    };
-
-    // Determine if loading
-    const isLoading = isUserLoading || isOwnerLoading || isManagerLoading;
-
-    if (userError || ownerError || managerError) {
-        console.error('Error fetching data:', userError || ownerError || managerError);
-        // return <div>Error loading data</div>;
-    }
-
+    
     const getManagerData = async () => {
         setLoading(true)
         try {
-            const response = await axios.get(`https://ss-track-xi.vercel.app/api/v1/manager/dashboard`, {
+            const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/manager/dashboard`, {
                 headers: headers,
             })
             if (response.status) {
@@ -114,7 +114,7 @@ function UserDashboard() {
     const getOwnerData = async () => {
         setLoading(true)
         try {
-            const response = await axios.get(`https://ss-track-xi.vercel.app/api/v1/owner/getCompanyemployee`, {
+            const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee`, {
                 headers: headers,
             })
             if (response.status) {
@@ -218,11 +218,11 @@ function UserDashboard() {
                 return updatedData;
             });
         };
-
+    
         socket.on('new-ss', handleNewSS);
         socket.on('profile_update', handleProfileUpdate);
 
-
+        
         return () => {
             socket.off('new-ss', handleNewSS);
         };
@@ -242,34 +242,34 @@ function UserDashboard() {
     //     }
     // }, [])
 
-    // Handle the fetched data
+   // Handle the fetched data
 
-    useEffect(() => {
-        if (userData) {
-            setData(userData);
-        }
-    }, [userData]);
+   useEffect(() => {
+    if (userData) {
+        setData(userData);
+    }
+}, [userData]);
 
-    useEffect(() => {
-        if (ownerData) {
-            const onlineUsers = ownerData?.onlineUsers?.length > 0 ? ownerData.onlineUsers : [];
-            const offlineUsers = ownerData?.offlineUsers?.length > 0 ? ownerData.offlineUsers : [];
-            const allUsers = [...onlineUsers, ...offlineUsers];
-            setData2(allUsers.filter((f) => f.isArchived === false && f.UserStatus === false));
-        }
-    }, [ownerData]);
+useEffect(() => {
+    if (ownerData) {
+        const onlineUsers = ownerData?.onlineUsers?.length > 0 ? ownerData.onlineUsers : [];
+        const offlineUsers = ownerData?.offlineUsers?.length > 0 ? ownerData.offlineUsers : [];
+        const allUsers = [...onlineUsers, ...offlineUsers];
+        setData2(allUsers.filter((f) => f.isArchived === false && f.UserStatus === false));
+    }
+}, [ownerData]);
 
-    useEffect(() => {
-        if (managerData) {
-            const onlineUsers = managerData?.onlineUsers?.length > 0 ? managerData.onlineUsers : [];
-            const offlineUsers = managerData?.offlineUsers?.length > 0 ? managerData.offlineUsers : [];
-            const allUsers = [...onlineUsers, ...offlineUsers];
-            setData2(allUsers.filter((f) => f.isArchived === false && f.UserStatus === false));
-        }
-    }, [managerData]);
+useEffect(() => {
+    if (managerData) {
+        const onlineUsers = managerData?.onlineUsers?.length > 0 ? managerData.onlineUsers : [];
+        const offlineUsers = managerData?.offlineUsers?.length > 0 ? managerData.offlineUsers : [];
+        const allUsers = [...onlineUsers, ...offlineUsers];
+        setData2(allUsers.filter((f) => f.isArchived === false && f.UserStatus === false));
+    }
+}, [managerData]);
 
 
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
     const fetchData = async () => {
         setLoading(true);
@@ -544,22 +544,19 @@ function UserDashboard() {
 
                                             <div className="nameVerified">
                                                 <p className="dashheadingtop textalign">{user?.totalHours?.daily}</p>
-                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.daily || 0)}
-                                                </p>
+                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${user?.billingAmounts?.daily}</p>
                                             </div>
                                             <div className="nameVerified">
                                                 <p className="dashheadingtop textalign">{user?.totalHours?.yesterday}</p>
-                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.yesterday || 0)}</p>
+                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${user?.billingAmounts?.yesterday}</p>
                                             </div>
                                             <div className="nameVerified">
                                                 <p className="dashheadingtop textalign">{user?.totalHours?.weekly}</p>
-                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.weekly || 0)}
-                                                </p>
+                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${user?.billingAmounts?.weekly}</p>
                                             </div>
                                             <div className="nameVerified">
                                                 <p className="dashheadingtop textalign">{user?.totalHours?.monthly}</p>
-                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.monthly || 0)}
-                                                </p>
+                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${user?.billingAmounts?.monthly}</p>
                                             </div>
                                         </div>
                                     ))
@@ -619,29 +616,29 @@ function UserDashboard() {
 
 
 //        // Define URLs based on user type
-//        const userUrl = user?.userType === 'user' ? 'https://ss-track-xi.vercel.app/api/v1/timetrack/hours' : null;
-//        const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? 'https://ss-track-xi.vercel.app/api/v1/owner/getCompanyemployee' : null;
-//        const managerUrl = user?.userType === 'manager' ? 'https://ss-track-xi.vercel.app/api/v1/manager/dashboard' : null;
-
+//        const userUrl = user?.userType === 'user' ? 'https://myuniversallanguages.com:9093/api/v1/timetrack/hours' : null;
+//        const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? 'https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee' : null;
+//        const managerUrl = user?.userType === 'manager' ? 'https://myuniversallanguages.com:9093/api/v1/manager/dashboard' : null;
+   
 //        // Use React Query to fetch data
 //        const { data: userData, error: userError, isLoading: isUserLoading } = useQuery({
 //            queryKey: ['userData', userUrl],
 //            queryFn: () => fetcher(userUrl, headers),
 //            enabled: !!userUrl // Only fetch if userUrl is defined
 //        });
-
+       
 //        const { data: ownerData, error: ownerError, isLoading: isOwnerLoading } = useQuery({
 //            queryKey: ['ownerData', ownerUrl],
 //            queryFn: () => fetcher(ownerUrl, headers),
 //            enabled: !!ownerUrl // Only fetch if ownerUrl is defined
 //        });
-
+       
 //        const { data: managerData, error: managerError, isLoading: isManagerLoading } = useQuery({
 //            queryKey: ['managerData', managerUrl],
 //            queryFn: () => fetcher(managerUrl, headers),
 //            enabled: !!managerUrl // Only fetch if managerUrl is defined
 //        });
-
+    
 //         // Handle the fetched data
 //         const processOwnerData = (data) => {
 //             if (data) {
@@ -652,7 +649,7 @@ function UserDashboard() {
 //             }
 //             return [];
 //         };
-
+    
 //         const processManagerData = (data) => {
 //             if (data) {
 //                 const onlineUsers = data?.onlineUsers?.length > 0 ? data.onlineUsers : [];
@@ -662,19 +659,19 @@ function UserDashboard() {
 //             }
 //             return [];
 //         };
-
+    
 //         // Determine if loading
 //         const isLoading = isUserLoading || isOwnerLoading || isManagerLoading;
-
+    
 //         if (userError || ownerError || managerError) {
 //             console.error('Error fetching data:', userError || ownerError || managerError);
 //             // return <div>Error loading data</div>;
 //         }
-
+    
 //     const getManagerData = async () => {
 //         setLoading(true)
 //         try {
-//             const response = await axios.get(`https://ss-track-xi.vercel.app/api/v1/manager/dashboard`, {
+//             const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/manager/dashboard`, {
 //                 headers: headers,
 //             })
 //             if (response.status) {
@@ -693,7 +690,7 @@ function UserDashboard() {
 //     const getOwnerData = async () => {
 //         setLoading(true)
 //         try {
-//             const response = await axios.get(`https://ss-track-xi.vercel.app/api/v1/owner/getCompanyemployee`, {
+//             const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee`, {
 //                 headers: headers,
 //             })
 //             if (response.status) {
@@ -829,7 +826,7 @@ function UserDashboard() {
 // }, [managerData]);
 
 
-//     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+//     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 //     const fetchData = async () => {
 //         setLoading(true);

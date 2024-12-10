@@ -77,7 +77,7 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
                             // Retrieve the token from localStorage
                             const token = localStorage.getItem('token');
 
-                            const res = await axios.post("https://ss-track-xi.vercel.app/api/v1/owner/upgradePayPal", requestData, {
+                            const res = await axios.post("https://myuniversallanguages.com:9093/api/v1/owner/upgradePayPal", requestData, {
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${token}` // Send the token in the headers
@@ -814,7 +814,7 @@ const BillingComponent = () => {
     };
     console.log('Selected plan:==============', plans);
 
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
@@ -836,7 +836,7 @@ const BillingComponent = () => {
     //             const headers = {
     //                 Authorization: `Bearer ${token}`,
     //             };
-    //             const apiUrl1 = 'https://ss-track-xi.vercel.app/api/v1';
+    //             const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
     //             const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
     //             const fetchedCards = response?.data.data[0].cardInfo;
     //             console.log('Fetched Cards:', fetchedCards);
@@ -862,7 +862,7 @@ const BillingComponent = () => {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://ss-track-xi.vercel.app/api/v1';
+                const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
     
@@ -963,7 +963,7 @@ const BillingComponent = () => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
                         // tokenId: paymentMethod.id,
@@ -1055,7 +1055,7 @@ const BillingComponent = () => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
@@ -1104,7 +1104,7 @@ const BillingComponent = () => {
 
 
     //this api is for pricing plan who's data is to send to payment page
-    const planapiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 
     const fetchPlans = async () => {
@@ -1451,7 +1451,7 @@ const BillingComponent = () => {
     const [responseMessage, setResponseMessage] = useState(null);
 
     // const handleDirectChangePlan = async () => {
-    // const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
     // if (paycard) {
     //     console.log('Pay with this card:', paycard);
     //     // setIsLoading(true);
@@ -1514,7 +1514,7 @@ const BillingComponent = () => {
 
 
     // const handleDirectChangePlan = async () => {
-    //     const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
     //     if (paycard) {
     //         console.log('Pay with this card:', paycard);
     //         // setIsLoading(true);
@@ -1581,7 +1581,7 @@ const BillingComponent = () => {
     }, [selectedPlan]);
     
     const handleDirectChangePlan = async () => {
-        const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setResponseMessage(null);
@@ -1640,7 +1640,7 @@ const BillingComponent = () => {
         }
     };
     // const handleDirectChangePlan = async () => {
-    //     const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
     //     if (paycard) {
     //         setIsPlanChanging(true); // Start loader
     //         try {
@@ -1683,7 +1683,7 @@ const BillingComponent = () => {
     const [merchantId, setMerchantId] = useState(''); // Or whatever method you are using to get the ID
 
     const handleDirectChangePlan1 = async () => {
-        const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
         if (paycard) {
             console.log('Pay with this card:', paycard);

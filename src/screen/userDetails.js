@@ -71,7 +71,7 @@ function UserDetails() {
         const findUser = employees.find((f) => f.effectiveSettings[data.key] === false)
         try {
             const res = await axios.patch(
-                `https://ss-track-xi.vercel.app/api/v1/owner/settingsE/${data.employee._id}`,
+                `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${data.employee._id}`,
                 {
                     userId: data.employee._id,
                     effectiveSettings: {
@@ -177,7 +177,7 @@ function UserDetails() {
         noteRef.current = event.target.value;
     };
 
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
     let items = JSON.parse(localStorage.getItem('items'));
     let headers = {

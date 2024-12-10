@@ -76,16 +76,33 @@ const adminSlice = createSlice({
         // },
 
         setPunctualitySettings: (state, { payload }) => {
+            // Find the specific user to update
             const findUser = state.employess.find((employee) => employee._id === payload.id);
         
-            if (findUser) {
-                findUser.effectiveSettings = {
-                    ...findUser.effectiveSettings,
-                    [payload.key]: payload.isSelected,
-                };
+            if (!findUser) {
+                console.error("User not found in Redux state!");
+                return state; // Return the state unchanged if no user is found
             }
-        },
         
+            // Update the specific user's settings
+            const updatedEmployees = state.employess.map((employee) => {
+                if (employee._id === payload.id) {
+                    return {
+                        ...employee,
+                        effectiveSettings: {
+                            ...employee?.effectiveSettings,
+                            [payload.key]: payload.isSelected, // Dynamically update the toggle state
+                        },
+                    };
+                }
+                return employee;
+            });
+        
+            return {
+                ...state,
+                employess: updatedEmployees,
+            };
+        },
         
         acceptInvitation: (state, { payload }) => {
             const userId = payload.userId;

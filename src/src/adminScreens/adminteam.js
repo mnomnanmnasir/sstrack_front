@@ -25,7 +25,7 @@
 //     let headers = {
 //         Authorization: 'Bearer ' + token,
 //     }
-//     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+//     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 //     async function createUserGroup() {
 //         try {
@@ -225,7 +225,7 @@ function AdminTeam() {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [isArchived, setIsArchived] = useState(true)
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem('token');
     const headers = {
         Authorization: "Bearer " + token,

@@ -9,21 +9,16 @@ import CardSelection from './component/CardSelection';
 import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
 // import Modal from 'react-bootstrap/Modal';
-
-// const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
-const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
-
-// publishable_key= pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw
-// secret_key= sk_test_51PvKZy04DfRmMVhLpUwgsNqAG7DjWlohkftPfj49gTzGMIBiZKaXh0DHYgdrKPElaAw71X94yF20MvWYyOKWOSHj00P3ayGG2K
+const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
 
 
-const PaymentCard = ({ updatePaymentStatus }) => {
+
+const Payment = ({ updatePaymentStatus }) => {
 
 
     const navigate = useNavigate()
     const location = useLocation();
     const [plans, setPlans] = useState(location.state?.plans || []);
-    // const [cards, setCards] = useState([]);
     const [fetchError] = useState(location.state?.fetchError || null);
     const [loading, setLoading] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState(null);
@@ -93,7 +88,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
     };
     console.log('Selected plan:==============', plans);
 
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
@@ -103,15 +98,13 @@ const PaymentCard = ({ updatePaymentStatus }) => {
             }
             setTotalUsers(response?.data?.count);
         } catch (err) {
-            console.log(err);   
+            console.log(err);
         } finally {
             setLoading(false);
         }
     }, [headers]);
 
-    const addNewCard = (newCard) => {
-        setCards((prevCards) => [...prevCards, newCard]);
-    };
+
 
 
     const fetchTokenAndSuspendedStatus = async () => {
@@ -120,7 +113,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://ss-track-xi.vercel.app/api/v1';
+                const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
                 console.log('Fetched Cards:', fetchedCards);
@@ -141,6 +134,11 @@ const PaymentCard = ({ updatePaymentStatus }) => {
         }
         setLoading(false);
     };
+
+
+
+
+
 
     useEffect(() => {
         getData();
@@ -183,7 +181,6 @@ const PaymentCard = ({ updatePaymentStatus }) => {
             Authorization: "Bearer " + token,
         };
 
-
         const handleSubmit = async (event) => {
             event.preventDefault();
             setLoading(true);
@@ -214,14 +211,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const newCard = {
-                    cardType: paymentMethod.card.brand,
-                    expMonth: paymentMethod.card.exp_month,
-                    expYear: paymentMethod.card.exp_year,
-                    cardNumber: paymentMethod.card.last4,
-                    tokenId: paymentMethod.id,
-                };
-                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
                         // tokenId: paymentMethod.id,
@@ -238,59 +228,30 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                     }, { headers });
 
                     console.log('Payment Response:', response);
+
                     if (response.data.success) {
-                        console.log('me chalaaaaaaa')
                         setSuccess(true);
-                        // window.location.reload(); // Reload the page
-                        setTimeout(() => {
-                            setshowNewCardModal(false);
-                            // addNewCard(newCard); // Call the function to update the state
-                        }, 1000); // Close the modal after 0.5 seconds
                     } else {
                         setError(`Payment failed: ${response.data.message}`);
                     }
                 } catch (error) {
                     setError(`Payment failed: ${error.response ? error.response.data.message : error.message}`);
                 }
-
                 setLoading(false);
             }
         };
 
-        useEffect(() => {
-            if (success) {
-                console.log("paymentv...................")
-                setTimeout(() => {
-                    setShowModal(false);
-                    console.log("paymentv...................")
-                }, 500); // Close the modal after 2 seconds
-            }
-        }, [success, setShowModal]);
-
         return (
-
-            success ? (
-                <div>
-                    <div className="success-message">Card Added successful!</div>
-                    {setShowModal(false)}
-                </div>
-            ) : (
-                <form onSubmit={handleSubmit} className="payment-form">
-                    <CardElement className="card-element" />
-                    {error && <div className="error-message">{error}</div>}
-                    {success && <div className="success-message">Card Added successful!</div>
-                    }
-                    {/* {setShowModal(false)} */}
-                    <button type="submit" disabled={!stripe || loading} className="submit-button">
-                        {loading ? 'Adding...' : 'Add Card'}
-                    </button>
-                </form>
-
-            )
-          
+            <form onSubmit={handleSubmit} className="payment-form">
+                <CardElement className="card-element" />
+                {error && <div className="error-message">{error}</div>}
+                {success && <div className="success-message">Card Added successful!</div>}
+                <button type="submit" disabled={!stripe || loading} className="submit-button">
+                    {loading ? 'Adding...' : 'Add Card'}
+                </button>
+            </form>
         );
     };
-
     const CheckoutForm = () => {
         const stripe = useStripe();
         const elements = useElements();
@@ -333,7 +294,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
@@ -378,7 +339,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
 
 
     //this api is for pricing plan who's data is to send to payment page
-    const planapiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 
     const fetchPlans = async () => {
@@ -432,12 +393,12 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                         {/* <h5 className="owner-name">Owner Name</h5> */}
                         {/* <h5 className="employee-count">Number of employees: 5</h5> */}
 
+
                         {selectedPlan && (
                             <Elements stripe={stripePromise}>
                                 <div className="payment-container mt-4">
                                     <p className="mb-4">Complete Your Payment</p>
                                     <CheckoutForm />
-                                    {setShowModal(false)}
                                 </div>
                             </Elements>
                         )}
@@ -479,45 +440,10 @@ const PaymentCard = ({ updatePaymentStatus }) => {
         };
 
         return (
-            <>
-            <div className="text-left mb-4">
-                    <div style={{ display: 'flex', marginBottom: '1rem', }}>
-                        {/* <button
-                        // style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
-                        // onClick={() => setActiveTab('cardSelection')}
-                    >
-                        Card Selection
-                    </button>
-
-                    <button
-                        // style={activeTab === 'payment' ? activeTabButtonStyle : tabButtonStyle}
-                        // onClick={() => setActiveTab('payment')}
-                    >
-                        Add New Card
-                    </button> */}
-
-                    </div>
-
-                    <CardSelection
-                        cards={cards}
-                        selectedCard={selectedCard}
-                        onSelect={handleSelectCard}
-                        onAddCard={addNewCard} // Pass the function to add a new card
-                        onActionComplete={fetchTokenAndSuspendedStatus}
-                    // setpaycard={setpaycard} // add this prop
-                    />
-                    {/* <Elements stripe={stripePromise}>
-                        <div className="payment-container mt-4">
-                            <p className="mb-4">Complete Your Payment</p>
-                            <CheckoutForm2 />
-                        </div>
-                    </Elements> */}
-
-                </div>
             <CustomModal
                 show={showNewCardModal}
                 onClose={handleClose}
-                title="Enter Your New Card"
+                title="Enter your new Card"
             >
                 <div className="text-left mb-12">
                     <div style={{ display: 'flex', marginBottom: '1rem', }}>
@@ -527,7 +453,11 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                         >
                             Card Selection
                         </button> */}
+
+
                     </div>
+
+
                     {/* <CardSelection
                             cards={cards}
                             selectedCard={selectedCard}
@@ -535,17 +465,18 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                             onActionComplete={fetchTokenAndSuspendedStatus}
 
                         /> */}
+
+
                     {/* {activeTab === 'payment' && ( */}
                     <Elements stripe={stripePromise}>
                         <div className="payment-container mt-4">
                             <p className="mb-4">Complete Your Payment</p>
-                            <CheckoutForm2 addNewCard={addNewCard} />
+                            <CheckoutForm2 />
                         </div>
                     </Elements>
                     {/* )} */}
                 </div>
             </CustomModal>
-            </>
         );
     };
 
@@ -555,13 +486,11 @@ const PaymentCard = ({ updatePaymentStatus }) => {
 
 
 
-    /////////// add card close the modal/////////////
     const handleShowNewModal = () => {
         setshowNewCardModal(true);
 
     };
 
-    /////////// add card close the modal/////////////
     const handleCloseNewModal = () => {
         setshowNewCardModal(false);
     };
@@ -613,7 +542,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
     //             cardNumber: paymentMethod.card.last4,
 
     //         });
-    //         const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    //         const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
     //         try {
     //             const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
     //                 // tokenId: paymentMethod.id,
@@ -643,7 +572,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
     //     }
     // };
     // const handlePayWithCard = async () => {
-    //     const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
     //     if (paycard) {
     //         console.log('Pay with this card:', paycard);
     //         setIsLoading(true);
@@ -686,9 +615,8 @@ const PaymentCard = ({ updatePaymentStatus }) => {
     };
 
 
-
     const handlePayWithThisCard = async () => {
-        const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setIsLoading(true);
@@ -758,13 +686,11 @@ const PaymentCard = ({ updatePaymentStatus }) => {
         }
     }, [selectedPlan]);
 
-    
-    
     return (
         <>
             <div className='container'>
                 <div className='row' style={{ marginLeft: '2px', gap: '50px' }}>
-
+                  
                     <div className="card" style={{ width: '22rem' }}>
                         <div className="card-body text-center">
                             <h3 className='text-center'
@@ -860,7 +786,6 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                 <NewCardModal
                     showNewCardModal={showNewCardModal}
                     handleClose={handleCloseNewModal}
-                    addNewCard={addNewCard} // Pass the function here
                 />
             </div>
         </>
@@ -877,4 +802,4 @@ const PaymentCard = ({ updatePaymentStatus }) => {
 
 
 
-export default PaymentCard;
+export default Payment;

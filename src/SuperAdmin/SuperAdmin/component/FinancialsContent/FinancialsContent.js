@@ -5,7 +5,7 @@ import TopBar from '../topBar';
 import axios from 'axios';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const FinancialsContent = () => {
+function FinancialsContent() {
   const [paymentData, setPaymentData] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [error, setError] = useState('');
@@ -25,7 +25,7 @@ const FinancialsContent = () => {
     }
 
     try {
-      const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/getAllPayments', {
+      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getAllPayments', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -55,7 +55,7 @@ const FinancialsContent = () => {
     }
 
     try {
-      const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/getAllInvoices', {
+      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getAllInvoices', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -281,7 +281,7 @@ const FinancialsContent = () => {
                                 <strong>Billing Amount:</strong>
                               </Typography>
                               <Typography variant="body2" sx={{ color: '#777' }}>
-                                ${invoice.subTotal.toFixed(2)} USD
+                              ${invoice.subTotal.toFixed(2)} USD
                               </Typography>
 
                             </Grid>

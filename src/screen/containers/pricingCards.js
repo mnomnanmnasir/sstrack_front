@@ -1,17 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import olivia from "../../images/olivia.webp";
-import banner from '../../images/ss-track-banner.svg';
-import pheonix from "../../images/pheonix.webp";
-import lana from "../../images/lana.webp";
-import candice from "../../images/candice.webp";
-import natali from "../../images/natali.webp";
-import drew from "../../images/drew.webp";
-import leftArrow from "../../images/Leftarrow.webp";
-import rightArrow from "../../images/Rightarrow.webp";
-import dean from "../../images/manage.svg";
-import { Modal, Form } from 'react-bootstrap';
+import axios from "axios";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
+import React, { useEffect, useRef, useState } from "react";
+import { Form, Modal } from 'react-bootstrap';
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -19,11 +10,15 @@ const Pricing = () => {
     const section1Ref = useRef(null);
     const [showModal, setShowModal] = useState(false);
     const token = localStorage.getItem('token');
-    const [fetchError, setFetchError] = useState(null);
+
+
     const [selectedPackage, setSelectedPackage] = useState();
+    const [isloadning, setisloading] = useState(false);
     const navigate = useNavigate()
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState();
     const [userCount, setUserCount] = useState('');
+    const [ssstoredFor, setssstoredFor] = useState('');
+    const [PaymentPlan, setPaymentPlan] = useState('');
     const [joinTiming, setJoinTiming] = useState(''); // New state for join timing
     const [phoneNo, setPhone] = useState('')
     const [companyName, setCompanyName] = useState('')
@@ -32,42 +27,93 @@ const Pricing = () => {
 
 
     const plans = [
-        { id: 1, name: 'Free' },
+        { id: 1, name: ' Start your free trial' },
         { id: 2, name: 'Standard' },
         { id: 3, name: 'Premium' }
     ];
 
-    const handleApply = () => {
-        // Here you can handle the API call to apply for the plan
-        // For example: await api.applyForPlan({ email, phoneNo, companyName, userCount, joinTiming });
-
+    const handleApply2 = async () => {
+        setisloading(true)
         if (!email || !phoneNo || !companyName || !userCount || !joinTiming) {
             enqueueSnackbar("Please fill in all required fields.", { variant: "error", anchorOrigin: { vertical: "top", horizontal: "right" } });
             return;
         }
-        else if (email && phoneNo && companyName && userCount && joinTiming) {
-            enqueueSnackbar("Your application has been successfully submitted", { variant: "success", anchorOrigin: { vertical: "top", horizontal: "right" } });
 
+        const formData = {
+            userCounts: userCount,
+            paymentPlan: PaymentPlan, // Static value as per the context
+            contactNumber: phoneNo,
+            ssStoredFor: ssstoredFor,
+            Discount: 0, // Assuming a default value for Discount
+            totalAmount: 1000, // Replace with calculated or default value
+            approved: 'pending', // Setting approved status as false by default
+        };
+
+        try {
+            // Make API call with headers
+            const response = await axios.post(
+                "https://myuniversallanguages.com:9093/api/v1/owner/requestEnterprise",
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            // Handle success
+            if (response.status === 200 || response.status === 201) {
+                enqueueSnackbar("Your application has been successfully submitted", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                setisloading(false)
+
+                // Reset form fields
+                // setEmail('');
+                setssstoredFor('');
+                setPhone('');
+                setPaymentPlan('');
+                setUserCount('');
+                setJoinTiming('');
+                handleCloseModal();
+            }
+        } catch (error) {
+            // Handle errors
+
+            setisloading(false)
+            enqueueSnackbar("Failed to submit application. Please try again later.", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+
+            console.error("API Error:", error.response ? error.response.data : error.message);
         }
-        // Show Snackbar message
-        // enqueueSnackbar('Your application has been successfully submitted', { variant: 'success' });
-
-        // Reset form fields
-        setEmail('');
-        setPhone('');
-        setCompanyName('');
-        setUserCount('');
-        setJoinTiming('');
-        handleCloseModal(); // Close the modal after applying
     };
 
-    // const storedPlanId = JSON.parse(localStorage.getItem('planId'));
     // Retrieve the stored plan from localStorage and set the selected package
     useEffect(() => {
+        const items = localStorage.getItem('items');
+        if (items) {
+            try {
+                const parsedItems = JSON.parse(items); // Parse the JSON string
+                if (parsedItems.email) {
+                    setEmail(parsedItems.email); // Set email state
+                }
+                if (parsedItems.company) {
+                    setCompanyName(parsedItems.company); // Set company name state
+                }
+            } catch (error) {
+                console.error('Failed to parse localStorage item "items":', error);
+            }
+
+        }
         const storedPlanId = JSON.parse(localStorage.getItem('planIdforHome'));
         console.log('=====>>>>>>>', selectedPackage)
         // Check the stored plan type to set the selected package
-        if (!storedPlanId?.planType || storedPlanId?.planType === 'free') {
+        if (!storedPlanId?.planType || storedPlanId?.planType === 'Start your free trial') {
             setSelectedPackage(1); // Free plan
         } else if (storedPlanId?.planType === 'standard') {
             setSelectedPackage(2); // Standard plan
@@ -133,251 +179,785 @@ const Pricing = () => {
             <SnackbarProvider />
 
             <div className='container' id="section3">
-                <p className="how-it-works-title text-center">Company Plans & Pricing</p>
-                <p className="text-center">These monthly plans are for Companies to track their employees or for freelancers to track their own time.
-                    If you track your own time for other companies — you do not need a plan and do not have to pay — your company pays for you. Just ask your manager to send you an invitation email to their SSTrack team to start tracking your time and screenshots for them.</p>
+            <p className="how-it-works-title text-center">Company Plans & Pricing.</p>
+                <p className="how-it-works-title text-center" style={{fontSize: '20px'}}>Powerful Features at Every Price Point.</p>
+                <p className="text-center">When you choose ssTrack.io, you’re not just buying software—you’re investing in precision, control, and growth.</p>
 
-                <div className="row justify-content-center align-items-center">
+                    <div className="container my-5">
+                        <div className="row justify-content-center align-items-stretch g-0" > {/* Ensures equal height */}
+                            {/* Free Plan */}
+                            <div className="col-lg-4 col-md-6 mb-4">
+                                <div
+                                    className="card p-4 text-start h-100" // Added h-100 for equal height
 
-                    {/* ------------------------------ pricing card 1 ------------------------- */}
-
-                    <div className="card m-3" style={{ width: "18rem", height: "44.5rem", backgroundColor: '#f2f5f5', border: "8px solid grey", borderRadius: "1rem" }}>
-                        <div className="card-body">
-                            <h5 className="card-title text-center fw-bold fs-2" style={{ color: "grey" }}>Free Trial</h5>
-                            <div class="price-container">
-                                {/* <span class="old-price align-items-center">$50.00</span> */}
-                                <span class="old-price align-items-center" style={{ fontSize: '3rem' }}>
-                                    <small class="small-dollar"></small>
-                                </span>
-                            </div>
-                            <div class="price-container new-price">
-                                {/* <span class="old-price align-items-center">$50.00</span> */}
-                                <span class="free-price align-items-center" style={{ color: "grey", fontSize: '3.5rem', marginTop: "23%" }}>
-                                    <small class="small-dollar text-center">$</small>0
-                                </span>
-                            </div>
-                            <p className="text-center text-red">
-                                Limited Time Offer
-                            </p>
-                            <p className="card-text text-center" style={{ marginTop: "37%" }}>
-                                Time Tracking
-                                SSTrack
-                                up to <b>10</b> screenshots per hour
-                                screenshots stored for <b>15 days</b>
-                            </p>
-                            <p className="activtiyUrl text-center" style={{ marginTop: '18%' }} >Individual settings
-                            </p>
-                            <p className="activtiyUrl text-center" > Activity Level Tracking</p>
-                            <p className="activtiyUrl text-center" >
-                                App & URL Tracking
-                            </p>
-                            <br />
-                            <div className="mt-auto">
-                                <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'white', backgroundColor: getButtonDisabled(1) ? "#ccc" : "#e4eced", marginTop: '20px' }}
-                                    onClick={() => handleUpgradeClicks(1)} disabled={isButtonDisabled(1)}
-                                > {getButtonText(1)}</button>
-                            </div>
-                            {/* <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
-                  Current Plan
-                </button> */}
-                            <br />
-                        </div>
-                    </div>
-
-
-                    {/* ------------------------------ pricing card 2 ------------------------- */}
-
-                    <div className="card m-3" style={{ width: "18rem", height: '44.5rem', border: "8px solid  #0E4772", backgroundColor: "#f2faf6", borderRadius: "1rem" }}>
-                        <div className="card-body px-3">
-                            <h5 className="card-title text-center fw-bold fs-2" style={{ color: " #0E4772" }}>Premium</h5>
-                            <div class="price-container new-price">
-                                {/* <span class="old-price align-items-center">$50.00</span> */}
-                                <span class="old-price align-items-center" style={{ color: "grey", fontSize: '3.5rem' }}>
-                                    <small class="small-dollar">$</small>10
-                                </span>
-                            </div>
-                            <p className="text-center"> per user per month</p>
-                            <div class="price-container new-price">
-                                {/* <span class="new-price">$35.00</span> */}
-                                <span style={{ fontSize: "3rem" }}>
-                                    <small class="small-dollar">$</small>4<sup class="small-number">99</sup>
-                                </span>
-                            </div>
-                            <p className="text-center text-red">
-                                per user per month
-                                if you start now!
-                            </p>
-                            <p className="card-text text-center">
-                                Time Tracking
-                                SSTrack
-                                up to <b>30</b> screenshots per hour
-                                screenshots stored for <b>6 <br /> months</b>
-                            </p>
-                            <p className="activtiyUrl text-center">    Individual settings
-                            </p>
-                            <p className="text-center"> Activity Level Tracking</p>
-                            <p className="activtiyUrl text-center">
-                                App & URL Tracking
-                            </p>
-                            <p className="activtiyUrl text-center">
-                                Mobile Application
-                            </p>
-                            <p className="activtiyUrl text-center">
-                            </p>
-                            <div className="mt-auto">
-                                <button type="button" className="pricingButton1" style={{ color: 'white', width: '150px', backgroundColor: getButtonDisabled(3) ? "#ccc" : "#0E4772", marginTop: '20px' }} disabled={getButtonDisabled(3)}
-                                    onClick={() => handleUpgradeClicks(3)}>{getButtonText(3)}</button>
-                            </div>
-                            <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
-                        </div>
-                    </div>
-
-                    {/* ------------------------------ pricing card 2 ------------------------- */}
-                    <div className="card m-3" style={{ width: "18rem", height: '44.5rem', border: "8px solid #7ACB59", backgroundColor: "#f2faf6", borderRadius: "1rem" }}>
-                        <div className="card-body px-3">
-                            <h5 className="card-title text-center fw-bold fs-2" style={{ color: " #7ACB59" }}>Enterprise</h5>
-                            {/* <div className="price-container new-price">
-                        <span className="old-price align-items-center" style={{ color: "grey", fontSize: '3.5rem' }}>
-                            <small className="small-dollar">$</small>6
-                        </span>
-                    </div> */}
-                            {/* <p className="text-center"> per user per month</p> */}
-                            <div className="price-container new-price mt-4">
-                                <span style={{ fontSize: "2.6rem" }}>
-                                    <small className="small-dollar"></small>Upto 50% Off<sup className="small-number"></sup>
-                                </span>
-                            </div>
-                            <p className="text-center text-red mt-2" style={{ fontSize: "0.9rem" }}>
-                                Ideal for organizations with 50+ users
-                            </p>
-
-                            <p className="text-center" style={{ fontSize: "0.85rem", color: "#555", fontWeight: "500", marginTop: "-5px" }}>
-                                Enhance productivity with enterprise-level support and advanced features.
-                            </p>
-
-                            <p className="card-text text-center" style={{ marginTop: '-10px' }}>
-                                Time Tracking SSTrack up to <b>30</b> screenshots per hour
-                                screenshots stored for <b>1<br /> year</b>
-                            </p>
-                            <p className="activtiyUrl text-center">Individual settings</p>
-                            <p className="text-center">Activity Level Tracking</p>
-                            <p className="activtiyUrl text-center">App & URL Tracking</p>
-                            <p className="activtiyUrl text-center">
-                                Mobile Application
-                            </p>
-                            <br />
-                            <div className="mt-auto">
-                                <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#7ACB59", marginTop: '-20px' }}
-                                    onClick={handleOpenModal}
+                                    style={{
+                                        borderRadius: "20px",
+                                        backgroundColor: "#fff",
+                                        border: "2px solid rgba(0, 0, 0, 0.1)", // Add border
+                                        boxShadow: "0px 12px 24px rgba(0, 0, 0, 0.2)", // Make shadow more prominent
+                                        maxWidth: "300px", // Set max width for smaller cards
+                                        margin: "auto", // Center-align the cards
+                                        // height: '100%'
+                                    }}
                                 >
-                                    Apply
-                                </button>
+                                    <h5
+                                        className="card-title fw-bold"
+                                        style={{
+                                            fontSize: "1.5rem",
+                                            marginBottom: "10px",
+                                        }}
+                                    >
+                                        Basic Plan
+                                    </h5>
+                                    <hr style={{ marginTop: '2%' }} />
+                                    <p
+                                        className="text-muted"
+                                        style={{
+                                            fontSize: "1rem",
+                                            marginBottom: "20px",
+                                            fontWeight: "500",
+                                        }}
+                                    >
+                                        Time & Billing
+                                    </p>
+                                    <h2
+                                        style={{
+                                            color: "#7ACB59",
+                                            fontSize: "2.5rem",
+                                            fontWeight: "700",
+                                            marginBottom: "5px",
+                                        }}
+                                    >
+                                        $10.00{" "}
+                                        <span
+                                            className="text-muted"
+                                            style={{
+                                                textDecoration: "line-through",
+                                                fontSize: "1.2rem",
+                                                fontWeight: "500",
+                                            }}
+                                        >
+                                            $12.00
+                                        </span>
+                                    </h2>
+                                    <p
+                                        className="text-muted"
+                                        style={{
+                                            fontSize: "0.9rem",
+                                            marginBottom: "5px",
+                                        }}
+                                    >
+                                        user/month
+                                    </p>
+                                    <p
+                                        className="text-muted text-center mt-4"
+                                        style={{
+                                            fontSize: "0.9rem",
+                                            marginBottom: "20px",
+                                            // marginTop: '2%'
+
+                                        }}
+                                    >
+                                        Perfect for freelancers and small teams.
+                                    </p>
+                                    {/* <button
+                                        className="btn btn-success w-100 mb-4 mt-2"
+                                        style={{
+                                            backgroundColor: getButtonDisabled(1) ? "#ccc" : "#e4eced",
+                                            borderRadius: "25px",
+                                            padding: "12px",
+                                            fontSize: "1rem",
+                                            border: '1px solid #7ACB59',
+                                            color: getButtonDisabled(1) ? "darkgreen" : "#fff", // Text color changes based on the disabled state
+                                        }}
+                                        onClick={() => handleUpgradeClicks(1)} disabled={isButtonDisabled(1)}
+                                    >
+                                        {getButtonText(1)}
+                                    </button> */}
+                                    <button
+                                        className="btn btn-success w-100 mb-4 mt-3"
+                                        // onClick={() => handleUpgradeClicks(1)} disabled={isButtonDisabled(1)}
+                                        style={{
+                                            backgroundColor: getButtonDisabled(1) ? "#ccc" : "#7ACB59",
+                                            borderRadius: "25px",
+                                            padding: "12px",
+                                            fontSize: "1rem",
+                                            color: getButtonDisabled(1) ? "darkgreen" : "#fff", // Text color changes based on the disabled state
+
+                                            border: '1px solid #7ACB59'
+                                        }}
+                                        onClick={() => handleUpgradeClicks(1)} disabled={isButtonDisabled(1)}
+
+                                    >
+                                        {getButtonText(1)}
+                                    </button>
+                                    <p
+                                        className="fw-bold"
+                                        style={{
+                                            fontSize: "1rem",
+                                            color: "#333",
+                                            marginBottom: "15px",
+                                        }}
+                                    >
+                                        All Free features, plus:
+                                    </p>
+                                    <ul className="list-unstyled" style={{ marginTop: '10%' }}>
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Real-time time tracking
+                                        </li>
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Weekly time limits
+                                        </li>
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Configurable screenshot frequency
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                Configurable screenshot frequency
+                                            </span>
+                                        </li>
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Individual user settings (autopause, activity tracking)
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                Individual user settings (autopause, activity tracking)
+                                            </span>
+                                        </li>
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Project and task management
+                                        </li>
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Basic reporting and analytics
+                                        </li>
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Team size limit: Up to 5 users
+                                        </li>
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                Browser access with Chrome extension
+                                            </span>
+                                        </li>
+
+                                        {/* <hr style={{ marginTop: '19%' }} />
+                                            <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                                <i className="bi bi-x-circle-fill text-danger me-2"></i>
+                                                Screenshots stored for 6 months
+                                            </li>
+                                            <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                                <i className="bi bi-x-circle-fill text-danger me-2"></i>
+                                                Mobile Application
+                                            </li> */}
+                                    </ul>
+                                </div>
                             </div>
-                            <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
+
+
+
+
+                            {/* Premium Plan */}
+                            <div className="col-lg-4 col-md-6 mb-4">
+                                <div
+                                    className="card p-4 text-start h-100" // Added h-100 for equal height
+                                    style={{
+                                        borderRadius: "20px",
+                                        backgroundColor: "#fff",
+                                        border: "2px solid rgba(0, 0, 0, 0.1)", // Add border
+                                        boxShadow: "0px 12px 24px rgba(0, 0, 0, 0.2)", // Make shadow more prominent
+                                        maxWidth: "300px", // Set max width for smaller cards
+                                        margin: "auto", // Center-align the cards
+                                        // height: "100%"
+                                    }}
+                                >
+                                    <h5
+                                        className="card-title fw-bold"
+                                        style={{
+                                            fontSize: "1.5rem",
+                                            marginBottom: "10px",
+                                        }}
+                                    >
+                                        Pro Plan
+                                    </h5>
+                                    <p
+                                        className="text-muted"
+                                        style={{
+                                            fontSize: "1rem",
+                                            marginBottom: "20px",
+                                            fontWeight: "500",
+                                            marginTop: '10%'
+                                        }}
+                                    >
+                                        Profit & Productivity
+                                    </p>
+                                    <h2
+                                        style={{
+                                            color: "#7ACB59",
+                                            fontSize: "2.5rem",
+                                            fontWeight: "700",
+                                            marginBottom: "5px",
+                                        }}
+                                    >
+                                        $20.00{" "}
+                                        <span
+                                            className="text-muted"
+                                            style={{
+                                                textDecoration: "line-through",
+                                                fontSize: "1.2rem",
+                                                fontWeight: "500",
+                                            }}
+                                        >
+                                            $30.00
+                                        </span>
+                                    </h2>
+                                    <p
+                                        className="text-muted"
+                                        style={{
+                                            fontSize: "0.9rem",
+                                            marginBottom: "5px",
+                                            // marginTop: '10%'
+                                        }}
+                                    >
+                                        per user per month billed Monthly
+                                    </p>
+                                    <p
+                                        className="text-muted text-center mt-3"
+                                        style={{
+                                            fontSize: "0.9rem",
+                                            marginBottom: "20px",
+                                            // marginTop: '4%'
+                                        }}
+                                    >
+                                        Ideal for growing teams looking for more control.
+                                    </p>
+                                    <button
+                                        className="btn btn-success w-100 mb-4 mt-3"
+                                        onClick={() => handleUpgradeClicks(3)}
+                                        style={{
+                                            backgroundColor: getButtonDisabled(3) ? "#ccc" : "#7ACB59",
+                                            borderRadius: "25px",
+                                            padding: "12px",
+                                            fontSize: "1rem",
+                                            color: getButtonDisabled(3) ? "darkgreen" : "#fff", // Text color changes based on the disabled state
+
+                                            border: '1px solid #7ACB59'
+                                        }}
+                                        disabled={getButtonDisabled(3)}
+
+                                    >
+                                        {getButtonText(3)}
+                                    </button>
+                                    <p
+                                        className="fw-bold"
+                                        style={{
+                                            fontSize: "1rem",
+                                            color: "#333",
+                                            marginBottom: "15px",
+                                        }}
+                                    >
+                                        Everything in the Basic Plan, plus:
+                                    </p>
+                                    <ul className="list-unstyled">
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Advanced analytics and reporting
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "8px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                Advanced analytics and reporting
+                                            </span>
+                                        </li>
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Team size: Up to 20 users
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Break and leave management
+                                        </li>
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Split, trim, and blur activity data
+                                        </li>
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Mobile app with location tracking and timelines
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                Mobile app with location tracking and timelines
+                                            </span>
+                                        </li>
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Automated email notifications for leave and activity updates
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                Automated email notifications for leave and activity updates
+                                            </span>
+                                        </li>
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                            Automated email notifications for leave and activity updates
+                                            </span>
+                                        </li> */}
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Invoice management: auto-generated and downloadable
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                Invoice management: auto-generated and downloadable
+                                            </span>
+                                        </li>
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "16px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Team size: Up to 20 users
+                                        </li>
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Team size: Up to 20 users
+                                        </li> */}
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Automated email notifications for leave and activity updates
+                                        </li> */}
+                                        {/* <hr style={{ marginTop: '10%' }} /> */}
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-x-circle-fill text-danger me-2"></i>
+                                            Screenshots stored for 6 months
+                                        </li> */}
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-x-circle-fill text-danger me-2"></i>
+                                            Mobile Application
+                                        </li> */}
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                           <b>Team size:</b> Up to 20 users
+                                        </li> */}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {/* Enterprise Plan */}
+                            <div className="col-lg-4 col-md-6 mb-4">
+                                <div
+                                    className="card p-4 text-start"
+                                    style={{
+                                        borderRadius: "20px",
+                                        backgroundColor: "#fff",
+                                        border: "2px solid rgba(0, 0, 0, 0.1)", // Add border
+                                        boxShadow: "0px 12px 24px rgba(0, 0, 0, 0.2)", // Make shadow more prominent
+                                        maxWidth: "300px", // Set max width for smaller cards
+                                        margin: "auto", // Center-align the cards
+                                    }}
+                                >
+                                    <h5
+                                        className="card-title fw-bold"
+                                        style={{
+                                            fontSize: "1.5rem",
+                                            marginBottom: "10px",
+                                        }}
+                                    >
+                                        Enterprise
+                                    </h5>
+                                    <hr />
+                                    <p
+                                        className="text-muted"
+                                        style={{
+                                            fontSize: "1rem",
+                                            marginBottom: "20px",
+                                            fontWeight: "500",
+                                        }}
+                                    >
+                                        Management & Security
+                                    </p>
+                                    <h2
+                                        style={{
+                                            color: "#7ACB59",
+                                            fontSize: "1.8rem",
+                                            fontWeight: "700",
+                                            marginBottom: "5px",
+                                        }}
+                                    >
+                                        $Custom Pricing
+                                        {/* <span
+                                            className="text-muted"
+                                            style={{
+                                                textDecoration: "line-through",
+                                                fontSize: "1.2rem",
+                                                fontWeight: "500",
+                                            }}
+                                        >
+                                            $1.49
+                                        </span> */}
+                                    </h2>
+                                    <p
+                                        className="text-muted"
+                                        style={{
+                                            fontSize: "0.9rem",
+                                            marginBottom: "5px",
+                                        }}
+                                    >
+                                        Custom Pricing
+                                    </p>
+                                    <p
+                                        className="text-muted text-center mt-3"
+                                        style={{
+                                            fontSize: "0.9rem",
+                                            marginBottom: "20px",
+                                        }}
+                                    >
+                                        Built for enterprises with complex needs—let us customize a plan for you.
+                                    </p>
+                                    <button
+                                        className="btn btn-success w-100 mb-4"
+                                        style={{
+                                            backgroundColor: "#7ACB59",
+                                            borderRadius: "25px",
+                                            padding: "12px",
+                                            fontSize: "1rem",
+                                            border: '1px solid #7ACB59'
+                                        }}
+                                        onClick={handleOpenModal}
+
+                                    >
+                                        Contact Us
+                                    </button>
+                                    <p
+                                        className="fw-bold"
+                                        style={{
+                                            fontSize: "1rem",
+                                            color: "#333",
+                                            marginBottom: "15px",
+                                        }}
+                                    >
+                                        Includes all Pro Plan features, plus:
+                                    </p>
+                                    <ul className="list-unstyled">
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Unlimited users and team roles (Admin, Manager, Member)
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "8px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                Unlimited users and team roles (Admin, Manager, Member)
+                                            </span>
+                                        </li>
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Custom API integrations
+                                        </li>
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Dedicated support team
+                                        </li>
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Onboarding assistance for all team members
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "8px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                Onboarding assistance for all team members
+                                            </span>
+                                        </li>
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            White-labeling options (custom branding)
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "8px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                White-labeling options (custom branding)
+                                            </span>
+                                        </li>
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            White-labeling options (custom branding)
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "8px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                Advanced security features (GDPR compliance, role-based permissions)
+                                            </span>
+                                        </li>
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Advanced security features (GDPR compliance, role-based permissions)
+                                        </li> */}
+                                        {/* <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Tailored workflows and feature adjustments
+                                        </li> */}
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "8px", display: "flex", alignItems: "flex-start" }}>
+                                            <i className="bi bi-check-circle-fill text-success" style={{ marginRight: "8px", flexShrink: 0 }}></i>
+                                            <span style={{ lineHeight: "1.5" }}>
+                                                Tailored workflows and feature adjustments
+                                            </span>
+                                        </li>
+                                        <li style={{ fontSize: "0.9rem", marginBottom: "8px" }}>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Priority access to new features
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            {/* <div className="col-lg-4 col-md-6 mb-4">
+                                <div className="card p-4 border-0 shadow-sm" style={{ borderRadius: "10px" }}>
+                                    <h5 className="card-title text-center fw-bold">Enterprise</h5>
+                                    <p className="text-center text-muted">Management & Security</p>
+                                    <h2 className="text-center text-success">$4.99</h2>
+                                    <p className="text-center">per user per month billed Monthly</p>
+                                    <p className="text-center">or $4.99 month-to-month</p>
+                                    <button className="btn btn-success w-100 mb-4">Contact us</button>
+                                    <p className="fw-bold">All Ultimate features, plus:</p>
+                                    <ul className="list-unstyled">
+                                        <li>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Ideal for organizations with 50+ users
+                                        </li>
+                                        <li>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Enhance productivity with enterprise-level support and advanced features
+                                        </li>
+                                        <li>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Time Tracking SSTrack up to 30 screenshots per hour
+                                        </li>
+                                        <li>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Screenshots stored for 1 Year
+                                        </li>
+                                        <li>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Individual settings
+                                        </li>
+                                        <li>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Activity Level Tracking
+                                        </li>
+                                        <li>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            App & URL Tracking
+                                        </li>
+                                        <li>
+                                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                            Mobile Application
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div> */}
                         </div>
                     </div>
                     {/* Modal for applying */}
-
-                    <Modal show={showModal} onHide={handleCloseModal} centered>
+                    <Modal
+                        show={showModal}
+                        onHide={handleCloseModal}
+                        centered
+                        dialogClassName="modal-lg"
+                    >
                         <Modal.Header closeButton>
                             <Modal.Title>Apply for Enterprise Plan</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <p>Are you sure you want to apply for the Enterprise Plan?</p>
-                            <Form>
-                                <Form.Group controlId="formName">
-                                    <Form.Label>Email</Form.Label>
-                                    <Form.Control
-                                        required
-                                        type="email"
-                                        placeholder="Enter your Email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                    />
-                                </Form.Group>
-                                <Form.Group controlId="formName" className="mt-3">
-                                    <Form.Label>Phone Number</Form.Label>
-                                    <Form.Control
-                                        required
-                                        type="number"
-                                        placeholder="Enter your Phone No"
-                                        value={phoneNo}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                    />
-                                </Form.Group>
-                                <Form.Group controlId="formEmail" className="mt-3">
-                                    <Form.Label>Company Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Enter your Company Name"
-                                        value={companyName}
-                                        onChange={(e) => setCompanyName(e.target.value)}
-                                    />
-                                </Form.Group>
-                                <Form.Group controlId="formUser Count" className="mt-3">
-                                    <Form.Label>Number of Employees</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        value={userCount}
-                                        onChange={(e) => setUserCount(e.target.value)}
-                                    >
-                                        <option value="">Select number of employees</option>
-                                        <option value="100">50 - 100</option>
-                                        <option value="200">100 - 200</option>
-                                        <option value="300">250 - 300</option>
-
-                                    </Form.Control>
-                                </Form.Group>
-                                <Form.Group controlId="formJoinTiming" className="mt-3">
-                                    <Form.Label>When would you like to join?</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        value={joinTiming}
-                                        onChange={(e) => setJoinTiming(e.target.value)}
-                                    >
-                                        <option value="">Select joining time</option>
-                                        <option value="immediately">Immediately</option>
-                                        <option value="1 month">In 1 month</option>
-                                        <option value="2 months">In 2 months</option>
-                                    </Form.Control>
-                                </Form.Group>
-                            </Form>
+                            {token ? ( // Check if token is available
+                                <>
+                                    <p className="text-muted">
+                                        Fill out the details below to apply for the Enterprise Plan.
+                                    </p>
+                                    <Form>
+                                        <Form.Group controlId="formEmail">
+                                            <Form.Label>Email</Form.Label>
+                                            <Form.Control
+                                                required
+                                                type="email"
+                                                placeholder="Enter your email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                className="w-100"
+                                                readOnly
+                                            />
+                                        </Form.Group>
+                                        <Form.Group controlId="formPhone" className="mt-3">
+                                            <Form.Label>Phone Number</Form.Label>
+                                            <Form.Control
+                                                required
+                                                type="tel"
+                                                placeholder="Enter your phone number"
+                                                value={phoneNo}
+                                                onChange={(e) => setPhone(e.target.value)}
+                                                className="w-100"
+                                            />
+                                        </Form.Group>
+                                        <Form.Group controlId="formCompanyName" className="mt-3">
+                                            <Form.Label>Company Name</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Enter your company name"
+                                                value={companyName}
+                                                onChange={(e) => setCompanyName(e.target.value)}
+                                                className="w-100"
+                                                readOnly
+                                            />
+                                        </Form.Group>
+                                        <Form.Group controlId="formSSStoredFor" className="mt-3">
+                                            <Form.Label>Sreen Shot Stored For</Form.Label>
+                                            <div className="position-relative">
+                                                <Form.Control
+                                                    as="select"
+                                                    value={ssstoredFor}
+                                                    onChange={(e) => setssstoredFor(e.target.value)}
+                                                    className="w-100 pe-4"
+                                                    style={{ paddingRight: '2.5rem' }}
+                                                >
+                                                    <option value="">select Payment Plan duration</option>
+                                                    <option value="6 months">6 months</option>
+                                                    <option value="1 year">1 year</option>
+                                                    <option value="2 year">2 year</option>
+                                                </Form.Control>
+                                                <span
+                                                    className="position-absolute"
+                                                    style={{
+                                                        top: '50%',
+                                                        right: '1rem',
+                                                        transform: 'translateY(-50%)',
+                                                        pointerEvents: 'none',
+                                                    }}
+                                                >
+                                                    <i className="bi bi-chevron-down"></i>
+                                                </span>
+                                            </div>
+                                        </Form.Group>
+                                        <Form.Group controlId="formPaymentPlan" className="mt-3">
+                                            <Form.Label>Payment Plan</Form.Label>
+                                            <div className="position-relative">
+                                                <Form.Control
+                                                    as="select"
+                                                    value={PaymentPlan}
+                                                    onChange={(e) => setPaymentPlan(e.target.value)}
+                                                    className="w-100 pe-4"
+                                                    style={{ paddingRight: '2.5rem' }}
+                                                >
+                                                    <option value="">select Payment Plan duration</option>
+                                                    <option value="6 months">6 months</option>
+                                                    <option value="1 year">1 year</option>
+                                                    <option value="2 year">2 year</option>
+                                                </Form.Control>
+                                                <span
+                                                    className="position-absolute"
+                                                    style={{
+                                                        top: '50%',
+                                                        right: '1rem',
+                                                        transform: 'translateY(-50%)',
+                                                        pointerEvents: 'none',
+                                                    }}
+                                                >
+                                                    <i className="bi bi-chevron-down"></i>
+                                                </span>
+                                            </div>
+                                        </Form.Group>
+                                        <Form.Group controlId="formUserCount" className="mt-3">
+                                            <Form.Label>Number of Employees</Form.Label>
+                                            <div className="position-relative">
+                                                <Form.Control
+                                                    as="select"
+                                                    value={userCount}
+                                                    onChange={(e) => setUserCount(e.target.value)}
+                                                    className="w-100 pe-4"
+                                                    style={{ paddingRight: '2.5rem' }}
+                                                >
+                                                    <option value="">Select number of employees</option>
+                                                    <option value="50-100">50 - 100</option>
+                                                    <option value="100-200">100 - 200</option>
+                                                    <option value="250-300">200 - 300</option>
+                                                </Form.Control>
+                                                <span
+                                                    className="position-absolute"
+                                                    style={{
+                                                        top: '50%',
+                                                        right: '1rem',
+                                                        transform: 'translateY(-50%)',
+                                                        pointerEvents: 'none',
+                                                    }}
+                                                >
+                                                    <i className="bi bi-chevron-down"></i>
+                                                </span>
+                                            </div>
+                                        </Form.Group>
+                                        <Form.Group controlId="formJoinTiming" className="mt-3">
+                                            <Form.Label>When would you like to join?</Form.Label>
+                                            <div className="position-relative">
+                                                <Form.Control
+                                                    as="select"
+                                                    value={joinTiming}
+                                                    onChange={(e) => setJoinTiming(e.target.value)}
+                                                    className="w-100 pe-4"
+                                                    style={{ paddingRight: '2.5rem' }}
+                                                >
+                                                    <option value="">Select joining time</option>
+                                                    <option value="immediately">Immediately</option>
+                                                    <option value="1 month">In 1 month</option>
+                                                    <option value="2 months">In 2 months</option>
+                                                </Form.Control>
+                                                <span
+                                                    className="position-absolute"
+                                                    style={{
+                                                        top: '50%',
+                                                        right: '1rem',
+                                                        transform: 'translateY(-50%)',
+                                                        pointerEvents: 'none',
+                                                    }}
+                                                >
+                                                    <i className="bi bi-chevron-down"></i>
+                                                </span>
+                                            </div>
+                                        </Form.Group>
+                                    </Form>
+                                </>
+                            ) : (
+                                <p className="text-danger text-center">Please login first to apply for the Enterprise Plan.</p>
+                            )}
                         </Modal.Body>
-                        <Modal.Footer>
-                            <button style={{
-                                alignSelf: "center",
-                                marginLeft: '10px',
-                                padding: '5px 10px',  // Adjusting padding for a smaller size
-                                // backgroundColor: 'green',  // Green background
-                                color: 'green',  // White text
-                                border: 'none',  // Removing default border
-                                borderRadius: '5px',  // Rounded corners
-                                cursor: 'pointer',  // Pointer on hover
-                                fontSize: '0.875rem'
-                            }} onClick={handleCloseModal}>
-                                Cancel
-                            </button>
-                            <button style={{
-                                alignSelf: "center",
-                                marginLeft: '10px',
-                                padding: '5px 10px',  // Adjusting padding for a smaller size
-                                backgroundColor: 'green',  // Green background
-                                color: 'white',  // White text
-                                border: 'none',  // Removing default border
-                                borderRadius: '5px',  // Rounded corners
-                                cursor: 'pointer',  // Pointer on hover
-                                fontSize: '0.875rem'
-                            }} onClick={() => {
-                                // Handle the apply action here
-                                // For example, you could call an API to apply for the plan
-                                handleApply(); // Close the modal after applying
-                            }}>
-                                Apply
-                            </button>
-                        </Modal.Footer>
-                    </Modal>
+                        {token &&
+                            <Modal.Footer className="d-flex justify-content-center">
+                                <button
+                                    className="btn btn-success"
+                                    style={{ width: '70%', height: '45px' }}
+                                    onClick={handleApply2}
+                                    disabled={isloadning} // Disable the button when loading
+                                >
+                                    {isloadning ? (
+                                        <span
+                                            className="spinner-border spinner-border-sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                        ></span>
+                                    ) : (
+                                        'Apply'
+                                    )}
+                                </button>
 
-                </div>
+                            </Modal.Footer>
+                        }
+                    </Modal>
+          
             </div>
         </>
     )
@@ -386,3 +966,149 @@ const Pricing = () => {
 
 
 export default Pricing;
+// import React from "react";
+
+// const PricingCards = () => {
+//   return (
+//     <div className="container my-5">
+//       <div className="row justify-content-center">
+//         {/* Free Plan */}
+//         <div className="col-lg-4 col-md-6 mb-4">
+//           <div className="card p-4 border-0 shadow-sm" style={{ borderRadius: "10px" }}>
+//             <h5 className="card-title text-center fw-bold">Free</h5>
+//             <p className="text-center text-muted">Time & Billing</p>
+//             <h2 className="text-center text-success">
+//               $0.00{" "}
+//               <span className="text-muted" style={{ textDecoration: "line-through", fontSize: "1.2rem" }}>
+//                 $1.49
+//               </span>
+//             </h2>
+//             <p className="text-center">For 1 Month Trial Only</p>
+//             <p className="text-center">Limited Time Offer</p>
+//             <button className="btn btn-success w-100 mb-4">Start your free trial</button>
+//             <p className="fw-bold">All Free features, plus:</p>
+//             <ul className="list-unstyled">
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Time Tracking SSTrack up to 10 screenshots per hour
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Screenshots stored for <b>15 days</b>
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Individual settings
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Activity Level Tracking
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 App & URL Tracking
+//               </li>
+//               <li>
+//                 <i className="bi bi-x-circle-fill text-danger me-2"></i>
+//                 Screenshots stored for 6 months
+//               </li>
+//               <li>
+//                 <i className="bi bi-x-circle-fill text-danger me-2"></i>
+//                 Mobile Application
+//               </li>
+//             </ul>
+//           </div>
+//         </div>
+
+//         {/* Premium Plan */}
+//         <div className="col-lg-4 col-md-6 mb-4">
+//           <div className="card p-4 border-0 shadow-sm" style={{ borderRadius: "10px" }}>
+//             <h5 className="card-title text-center fw-bold">Premium</h5>
+//             <p className="text-center text-muted">Profit & Productivity</p>
+//             <h2 className="text-center text-success">$3.99</h2>
+//             <p className="text-center">per user per month billed Monthly</p>
+//             <p className="text-center">or $3.99 month-to-month</p>
+//             <button className="btn btn-success w-100 mb-4">Start your free trial</button>
+//             <p className="fw-bold">All Free features, plus:</p>
+//             <ul className="list-unstyled">
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Time Tracking SSTrack up to 10 screenshots per hour
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Screenshots stored for <b>15 days</b>
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Individual settings
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Activity Level Tracking
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 App & URL Tracking
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Mobile Application
+//               </li>
+//             </ul>
+//           </div>
+//         </div>
+
+//         {/* Enterprise Plan */}
+//         <div className="col-lg-4 col-md-6 mb-4">
+//           <div className="card p-4 border-0 shadow-sm" style={{ borderRadius: "10px" }}>
+//             <h5 className="card-title text-center fw-bold">Enterprise</h5>
+//             <p className="text-center text-muted">Management & Security</p>
+//             <h2 className="text-center text-success">$4.99</h2>
+//             <p className="text-center">per user per month billed Monthly</p>
+//             <p className="text-center">or $4.99 month-to-month</p>
+//             <button className="btn btn-success w-100 mb-4">Contact us</button>
+//             <p className="fw-bold">All Ultimate features, plus:</p>
+//             <ul className="list-unstyled">
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Ideal for organizations with 50+ users
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Enhance productivity with enterprise-level support and advanced features
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Time Tracking SSTrack up to 30 screenshots per hour
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Screenshots stored for 1 Year
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Individual settings
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Activity Level Tracking
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 App & URL Tracking
+//               </li>
+//               <li>
+//                 <i className="bi bi-check-circle-fill text-success me-2"></i>
+//                 Mobile Application
+//               </li>
+//             </ul>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default PricingCards;
+

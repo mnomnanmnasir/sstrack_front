@@ -15,7 +15,7 @@ const SystemAdminLogin = () => {
         password: ""
     });
     const [loading, setLoading] = useState(false)
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('items'));
 

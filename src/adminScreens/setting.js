@@ -42,7 +42,7 @@ function Setting() {
         // { id: 9, showSetting: <CurrencySymbol />, name: "Currency symbol", isActive: false, icon: "$" },
     ]);
 
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
     let user = JSON.parse(localStorage.getItem('items'));
     let headers = {
@@ -56,7 +56,7 @@ function Setting() {
             const json = await response.json();
             dispatch(getEmployess(json?.convertedEmployees))
             // json?.convertedEmployees.map(async (employee) => {
-            //     const data = await axios.get(`https://ss-track-xi.vercel.app/api/v1/superAdmin/Settings/${employee._id}`)
+            //     const data = await axios.get(`https://myuniversallanguages.com:9093/api/v1/superAdmin/Settings/${employee._id}`)
             //     if (data?.data?.employeeSettings?.userId) {
             //         dispatch(setIds(data?.data?.employeeSettings?.userId))
             //     }

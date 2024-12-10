@@ -118,7 +118,7 @@ function Home() {
         {
           username: "John M.",
           designation: "Expect Best",
-          feedback: "“SS Track has revolutionized how we monitor employee productivity. The detailed timelines and app usage reports are incredibly insightful.”",
+          feedback: "“SSTRACK has revolutionized how we monitor employee productivity. The detailed timelines and app usage reports are incredibly insightful.”",
           img: "https://images.unsplash.com/photo-1636624498155-d87727494812?q=80&w=1931&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
         {
@@ -130,25 +130,25 @@ function Home() {
         {
           username: "David L",
           designation: "Product Manager",
-          feedback: "“While SS Track offers comprehensive monitoring, it sometimes feels invasive. Transparency with employees is key.”",
+          feedback: "“While SSTRACK offers comprehensive monitoring, it sometimes feels invasive. Transparency with employees is key.”",
           img: pheonix,
         },
         {
           username: "Alex P",
           designation: "Backend Developer",
-          feedback: "“SS Track has significantly improved our team's productivity. The detailed reports and real-time monitoring features are excellent. It's easy to use and integrates well with our existing systems.”",
+          feedback: "“SSTRACK has significantly improved our team's productivity. The detailed reports and real-time monitoring features are excellent. It's easy to use and integrates well with our existing systems.”",
           img: lana,
         },
         {
           username: "Sarah K.",
           designation: "Product Designer",
-          feedback: "“The user interface is intuitive, and the screen capture feature ensures our employees stay focused on their tasks. We've seen a notable increase in efficiency since implementing SS Track.”",
+          feedback: "“The user interface is intuitive, and the screen capture feature ensures our employees stay focused on their tasks. We've seen a notable increase in efficiency since implementing SSTRACK.”",
           img: candice,
         },
         {
           username: "Marie M",
           designation: "UX Researcher",
-          feedback: "“SS Track's ability to monitor application usage and website visits has been crucial for identifying areas where we can improve productivity. The real-time alerts help us address issues promptly.”",
+          feedback: "“SSTRACK's ability to monitor application usage and website visits has been crucial for identifying areas where we can improve productivity. The real-time alerts help us address issues promptly.”",
           img: "https://plus.unsplash.com/premium_photo-1689266188052-704d33673e69?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
       ]
@@ -165,7 +165,7 @@ function Home() {
         {
           username: "Michael T.",
           designation: "Engineering Manager",
-          feedback: "“SS Track's employee monitoring capabilities have helped us enhance security and compliance within our organization. The setup was straightforward, and customer support has been responsive and helpful.”",
+          feedback: "“SSTRACK's employee monitoring capabilities have helped us enhance security and compliance within our organization. The setup was straightforward, and customer support has been responsive and helpful.”",
           img: natali,
         },
         {
@@ -183,7 +183,7 @@ function Home() {
         {
           username: "Emily R.",
           designation: "UX Researcher",
-          feedback: "“ SS Track's ability to monitor application usage and website visits has been crucial for identifying areas where we can improve productivity. The real-time alerts help us address issues promptly.”",
+          feedback: "“ SSTRACK's ability to monitor application usage and website visits has been crucial for identifying areas where we can improve productivity. The real-time alerts help us address issues promptly.”",
           img: "https://images.unsplash.com/photo-1664575600850-c4b712e6e2bf?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
         {
@@ -207,7 +207,7 @@ function Home() {
 
 
   console.log(location);
-  console.log("Token Agya",token);
+  console.log(token);
 
   async function signin() {
     const decoded = jwtDecode(token);
@@ -367,7 +367,9 @@ function Home() {
           <div className='secondPart container'>
             <div>
               <p className='trackFont'>Track time, screenshots & productivity</p>
-              <p className='trackPera'>Employee monitoring software for remote, office and freelance teams</p>
+              {/* <p className='trackPera'>Employee monitoring software for remote, office and freelance teams</p> */}
+              <p className="card-text fs-4">Screenshot tracking system designed for governments and corporations to monitor their remote, office, and freelance teams.</p>
+
               <button className="downloadButton" onClick={() => navigate("/download")}>Download</button>
 
             </div>

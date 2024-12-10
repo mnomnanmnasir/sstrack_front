@@ -39,6 +39,9 @@ import { IoMdMail, IoMdLocate } from 'react-icons/io'
 import { FaQuestion } from 'react-icons/fa'
 import { MdLocationOn } from 'react-icons/md';
 import Monitor from './containers/MonitorSection'
+import Image1 from '../images/howItWork-Image1 (1).png'
+import Image2 from '../images/howItWork-Image2 (1).png'
+import Image3 from '../images/howItWork-Image3 (1).png'
 import MonitorScreenshot from './containers/MonitorScreenshots'
 import HowItWork from './containers/HowItWorks'
 import PricingCards from './containers/pricingCards'
@@ -95,7 +98,7 @@ function Home() {
 
 
 
- 
+
   // const totalPages = Math.ceil(feedbacks.length / itemsPerPage);
 
 
@@ -172,17 +175,17 @@ function Home() {
     }
   };
 
-    // const handleClick = (pageNumber) => {
-    //   setCurrentPage(pageNumber);
-    // };
+  // const handleClick = (pageNumber) => {
+  //   setCurrentPage(pageNumber);
+  // };
 
-    // const handlePrevious = () => {
-    //   setCurrentPage((prevPage) => (prevPage > 1 ? prevPage - 1 : prevPage));
-    // };
+  // const handlePrevious = () => {
+  //   setCurrentPage((prevPage) => (prevPage > 1 ? prevPage - 1 : prevPage));
+  // };
 
-    // const handleNext = () => {
-    //   setCurrentPage((prevPage) => (prevPage < totalPages ? prevPage + 1 : prevPage));
-    // };
+  // const handleNext = () => {
+  //   setCurrentPage((prevPage) => (prevPage < totalPages ? prevPage + 1 : prevPage));
+  // };
 
   // const paginatedFeedbacks = feedbacks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -198,32 +201,32 @@ function Home() {
     section2Ref.current.scrollIntoView({ behavior: 'smooth' });
   };
 
-  console.log("localtion",location);
-  console.log("localtion ka path name",location.pathname);
+  console.log("localtion", location);
+  console.log("localtion ka path name", location.pathname);
 
   // console.log("Token agya",token);
 
 
-    const signin = () => {
-      if (token) {
-        try {
-          const decoded = jwtDecode(token);
-          localStorage.setItem("items", JSON.stringify(decoded));
-          localStorage.setItem('token', token); // Ensure the token is stored
-          navigate("/dashboard");
-          window.href.reload();
-          console.log("Dashboard", token)
-        } catch (error) {
-          console.error("Token decoding failed:", error);
-          navigate("/signup");
-        }
+  const signin = () => {
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        localStorage.setItem("items", JSON.stringify(decoded));
+        localStorage.setItem('token', token); // Ensure the token is stored
+        navigate("/dashboard");
+        window.href.reload();
+        console.log("Dashboard", token)
+      } catch (error) {
+        console.error("Token decoding failed:", error);
+        navigate("/signup");
       }
-      else {
-        // If no token, redirect to sign-in or another appropriate page
-        navigate("/signin");
-      }
-    };
-    // signin();
+    }
+    else {
+      // If no token, redirect to sign-in or another appropriate page
+      navigate("/signin");
+    }
+  };
+  // signin();
 
 
   // async function signin() {
@@ -322,7 +325,7 @@ function Home() {
 
 
   //this api is for pricing plan who's data is to send to payment page
-  const planapiUrl = "https://ss-track-xi.vercel.app/api/v1";
+  const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -366,9 +369,9 @@ function Home() {
           <div className="col-md-6 mb-3">
             <div className="text-white" style={{ backgroundColor: '#0E4772', borderRadius: '1rem', height: '100%' }}>
               <div className="card-body">
-                <h5 className="card-title fw-bold fs-1">Track time, screenshots & productivity</h5>
+                <h5 className="card-title fw-bold fs-1">Precision Tracking. Seamless Management. Smarter Teams</h5>
                 <br />
-                <p className="card-text fs-4">Screenshot tracking system designed for governments and corporations to monitor their remote, office, and freelance teams.</p>
+                <p className="card-text fs-4">Only ssTrack.io offers unmatched screenshot control, advanced time tracking, and mobile-powered insights—all in one platform.</p>
                 <button className="downloadButton" onClick={() => navigate("/download")} > Download</button>
               </div>
             </div>
@@ -405,7 +408,7 @@ function Home() {
         <br />
         {/* Call the MonitorScreenshot.js file */}
         <MonitorScreenshot />
-      
+
 
         <section className="fourSection">
           <div className="container">
@@ -433,7 +436,7 @@ function Home() {
         {/* --------------------- pricing section ------------------------------- */}
 
 
-       <PricingCards />
+        <PricingCards />
         <br />
         <br />
 
@@ -571,6 +574,10 @@ function Home() {
               </div>
             </div>
           </div>
+
+
+
+
         </div>
         <section className="eightSection" style={{ marginTop: '4%' }}>
           <div className="container">
@@ -579,7 +586,13 @@ function Home() {
             <p className="creditCancel text-grey">No obligation, no credit card required.</p>
           </div>
         </section>
+
       </div >
+
+
+
+
+
     </>
 
   )

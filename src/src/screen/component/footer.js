@@ -23,8 +23,6 @@ function Footer({ scrollToSection }) {
                             <p className="mx-2 mb-1" onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/")}>About us</p>
                             <p className="mx-2 mb-1" onClick={() => location.pathname === "/" ? scrollToSection('section2') : navigate("/")}>Contact</p>
                             <p className="mx-2 mb-1" onClick={() => location.pathname === "/" ? scrollToSection('section3') : navigate("/")}>Pricing</p>
-                            {/* <p className="mx-2 mb-1" onClick={() => location.pathname === "/" ? scrollToSection('section4') : navigate("/")}>How It Work</p> */}
-
                             <p className="mx-2 mb-1" onClick={() => navigate("/privacy-policy")}>Privacy Policy</p>
                             <p className="mx-2 mb-1" onClick={() => navigate("/download")}>Download</p>
                         </div>
