@@ -1,8 +1,0 @@
-/* Make sure the content doesn't overlap the sidebar */
-.app-bar {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1201;
-  }
-  
