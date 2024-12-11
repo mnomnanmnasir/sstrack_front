@@ -31,7 +31,9 @@ import CardSelection from './component/CardSelection';
 import { useLocation } from 'react-router-dom';
 import CustomModal from './component/CustomModal'
 
-const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
+
+// const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
+const stripePromise = loadStripe(process.env.REACT_AP_KEY);
 
 
 function Account({ suspended }) {

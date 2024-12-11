@@ -72,7 +72,7 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
                         </div>
                         <div className="d-flex flex-column flex-lg-row align-items-start gap-2">
                             <div className="d-lg-block d-none">
-                                <Button style={{ marginRight: token ? 10 : 50 }} onClick={() => navigate('/download')} className="signUpButton" type="button">Download</Button>
+                                {/* <Button style={{ marginRight: token ? 10 : 50 }} onClick={() => navigate('/download')} className="signUpButton" type="button">Download</Button> */}
                                 {!token ? (
                                     <>
                                         <Button onClick={() => navigate('/signin')} className="btn loginButton1" type="button" style={{ marginRight: '10px', fontWeight: 'bold' }}>Log In</Button>
