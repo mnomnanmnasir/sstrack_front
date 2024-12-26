@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Form, Modal } from 'react-bootstrap';
-
+import axios from "axios";
+import { enqueueSnackbar, SnackbarProvider } from 'notistack';
 
 const Pricing = () => {
 

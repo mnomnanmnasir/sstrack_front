@@ -33,7 +33,8 @@ import { CircleSpinnerOverlay, FerrisWheelSpinner } from 'react-spinner-overlay'
 import jwtDecode from "jwt-decode";
 
 
-const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
+// const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
+const stripePromise = loadStripe(process.env.REACT_AP_KEY);
 
 
 const PayPalButton = ({ setMerchantId, selectedPlan }) => {
@@ -42,7 +43,8 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
     useEffect(() => {
         // Load the PayPal SDK script
         const script = document.createElement('script');
-        script.src = `https://www.paypal.com/sdk/js?client-id=AbjWITfwZjHD0s6nwfnGmZFpRKnhKLet_QEaADR6xkZ4LiBjI2niy3U6sHRvYi6zCKgaCA4H4RX3mIPh&currency=USD&disable-funding=credit,card`;
+        // script.src = `https://www.paypal.com/sdk/js?client-id=AbjWITfwZjHD0s6nwfnGmZFpRKnhKLet_QEaADR6xkZ4LiBjI2niy3U6sHRvYi6zCKgaCA4H4RX3mIPh&currency=USD&disable-funding=credit,card`;
+        script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.REACT_APP_PAYPAL_CLIENT_ID}&currency=USD&disable-funding=credit,card`;
         script.async = true;
         document.body.appendChild(script);
 

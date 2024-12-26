@@ -369,9 +369,9 @@ function Home() {
           <div className="col-md-6 mb-3">
             <div className="text-white" style={{ backgroundColor: '#0E4772', borderRadius: '1rem', height: '100%' }}>
               <div className="card-body">
-                <h5 className="card-title fw-bold fs-1">Precision Tracking. Seamless Management. Smarter Teams</h5>
+                <h5 className="card-title fw-bold fs-1">End-to-End Employee Presence Tracking System.</h5>
                 <br />
-                <p className="card-text fs-4">Only ssTrack.io offers unmatched screenshot control, advanced time tracking, and mobile-powered insights—all in one platform.</p>
+                <p className="card-text fs-4">From work from home to office, onsite, in the field, or any specific job site, SS Track.io offers precision tracking, seamless management, and smarter team solutions. Track across Windows, Mac, Android, iOS, and Chrome platforms with unmatched efficiency.</p>
                 <button className="downloadButton" onClick={() => navigate("/download")} > Download</button>
               </div>
             </div>
@@ -418,7 +418,7 @@ function Home() {
 
             <div className="trialDiv">
 
-              <p className="startedFont">Start your 30-day free trial</p>
+              <p className="startedFont">Start your 14-day free trial</p>
               <p className="unitedFont">Join over 4,000+ startups already growing with Untitled.</p>
               {/* <div className="startedButtonDiv">
                 <button className="learnMoreButton">Learn More</button>

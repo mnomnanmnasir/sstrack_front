@@ -115,13 +115,13 @@ function UserDetails() {
 
         } catch (error) {
             console.error("Error updating employee settings:", error);
-            enqueueSnackbar("An error occurred while updating employee settings", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right"
-                }
-            });
+            // enqueueSnackbar("An error occurred while updating employee settings", {
+            //     variant: "error",
+            //     anchorOrigin: {
+            //         vertical: "top",
+            //         horizontal: "right"
+            //     }
+            // });
         }
     }
 

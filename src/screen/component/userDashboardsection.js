@@ -21,7 +21,7 @@ function UserDashboardSection() {
     console.log('Items from localStorage:', items);
     const [remainingBreakTime, setRemainingBreakTime] = useState(''); // State to store remaining break time
 
-    
+
     const [leaveCount, setLeaveCount] = useState(0); // State to store leave request count
 
     // Fetch leave requests and calculate count
@@ -54,7 +54,7 @@ function UserDashboardSection() {
             fetchLeaveRequests();
         }
     }, [items]);
-    
+
     // return (
     //     <div className="cursor-pointer">
     //         <div className="d-flex justify-content-between align-items-center" style={{
@@ -207,7 +207,13 @@ function UserDashboardSection() {
                                 cursor: "pointer",
                             }}
                         >
-                            <p style={{ margin: 0 }}>Leave</p>
+                            <p style={{ margin: 0 }}>
+                                Leave
+                                <span style={{ marginLeft: "5px" }}>
+                                    Management
+                                </span>
+                            </p>
+
                             {/* <span
                                 style={{
                                     backgroundColor: "#28659C",
@@ -222,7 +228,27 @@ function UserDashboardSection() {
                             </span> */}
                         </div>
                     )}
-            
+                    {/* {/ Location Tracking /} */}
+                    {/* {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin") && (
+                        <div
+                            className={location.pathname === "/Locationtracking" ? "active-tab" : "ownerSectionUser"}
+                            onClick={() => navigate("/Locationtracking")}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "5px",
+
+                                cursor: "pointer",
+                            }}
+                        >
+                            <p style={{ margin: 0 }}>Location</p>
+                                <span>
+
+                                    Tracking
+                        </span>
+
+                        </div>
+                    )} */}
 
                     {/* {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
                         <>
@@ -258,7 +284,7 @@ function UserDashboardSection() {
                     {/* <p className="ownerSectionCompany" style={{ margin: "0 20px", fontWeight: "bold" }}>
                         Break Time: {remainingBreakTime}
                     </p> */}
-                    {(items?.userType === "user" || items?.userType === "manager") && (
+                    {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
                         <div className="ownerSectionCompany" style={{ margin: "0 20px", fontWeight: "bold" }}>
                             <p style={{ margin: "0 20px", fontWeight: "bold" }}>
                                 Break Time: {remainingBreakTime || '0h:0m'}
@@ -271,7 +297,7 @@ function UserDashboardSection() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 

@@ -49,7 +49,12 @@ function CreateAccount() {
     };
 
     async function handleCreateAccount() {
-        if (model?.name === "" || model?.company === "" || model?.email === "" || model?.password === "" || model?.timezone === "" || model?.timezoneOffset === "") {
+        if (!model?.name === "" || !model?.company === "" || !model?.email === "" || !model?.password === "" || !model?.timezone === "" || !model?.timezoneOffset === "" || !model.name ||
+            !model.company ||
+            !model.email ||
+            !model.password ||
+            !model.timezone ||
+            !model.timezoneOffset) {
             enqueueSnackbar("Please fill all fields", {
                 variant: "error",
                 anchorOrigin: {
@@ -149,8 +154,8 @@ function CreateAccount() {
                     email: res.data.user.email,
                     company: res.data.user.company,
                     name: res.data.user.name
-                }));                
-                console.log('Accounts Data',res)
+                }));
+                console.log('Accounts Data', res)
                 setUser(res.data.user)
                 setLinkExpired(false)
                 setLinkStatusMessage("")
@@ -167,14 +172,14 @@ function CreateAccount() {
         console.log("Updated Model State:", model);
     }, [model]);
 
-    
+
     // async function getLink() {
     //     try {
     //         const res = await axios.get(`${apiUrl}/superAdmin/checkinvite/${code}/${email}`);
     //         cons
     //         if (res.status === 200) {
     //             console.log("API Response:", res.data);
-    
+
     //             // Update the model with fetched data
     //             setModel((prevModel) => ({
     //                 ...prevModel, // Spread the existing state
@@ -183,14 +188,14 @@ function CreateAccount() {
     //                 company: res.data.user.company || "",
     //                 name: res.data.user.name || ""
     //             }));
-    
+
     //             console.log("Updated Model:", {
     //                 id: res.data.user._id,
     //                 email: res.data.user.email,
     //                 company: res.data.user.company,
     //                 name: res.data.user?.name
     //             });
-    
+
     //             setUser(res.data.user); // Update the `user` state
     //             setLinkExpired(false);
     //             setLinkStatusMessage("");
@@ -202,7 +207,7 @@ function CreateAccount() {
     //         setLinkStatusMessage(error.response?.data?.message || "An error occurred");
     //     }
     // }
-    
+
     useEffect(() => {
         getLink()
     }, [])

@@ -823,7 +823,7 @@ const Pricing = () => {
                                 </Form>
                             </>
                         ) : (
-                            <p className="text-danger text-center">Please login first to apply for the Enterprise Plan.</p>
+                            <p className="fs-5 text-center" style={{color:"#7ACB59"}}>Please login first to apply for the Enterprise Plan.</p>
                         )}
                     </Modal.Body>
                     {token &&

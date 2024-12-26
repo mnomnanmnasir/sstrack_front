@@ -97,11 +97,11 @@ const OwnerTeam = () => {
     // Handle form submission
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        setFormSubmitting(true);    
+        setFormSubmitting(true);
 
         const { leaveType, startDate, endDate, reason } = leaveRequest;
 
-        
+
         if (!leaveType || !startDate || !endDate || !reason.trim()) {
             enqueueSnackbar('Please fill in all fields before submitting', {
                 variant: 'error',
@@ -120,10 +120,12 @@ const OwnerTeam = () => {
             });
 
             if (response.status === 200) {
-                enqueueSnackbar('Leave request submitted successfully', { variant: 'success', anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right"
-                } });
+                enqueueSnackbar('Leave request submitted successfully', {
+                    variant: 'success', anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                });
 
                 // Clear the form fields
                 setLeaveRequest({
@@ -136,11 +138,25 @@ const OwnerTeam = () => {
                 // Fetch updated leave requests
                 fetchLeaveRequests();
             } else {
+                // alert(error.response?.data?.message || "An error occurred.");
                 enqueueSnackbar('Error submitting leave request', { variant: 'error', });
             }
         } catch (error) {
-            enqueueSnackbar('Error submitting leave request:', error, { variant: 'error' });
+            // alert(error.response?.data?.message || "An error occurred.");
+            const fullMessage = error.response?.data?.message || "An error occurred.";
+            const formattedMessage = fullMessage.replace(
+                /Leave already applied for the dates (.*?) \d{2}:\d{2}:\d{2} GMT.* to (.*?) \d{2}:\d{2}:\d{2} GMT.*/,
+                "Leave already applied for the date $1 to $2"
+            );
+            enqueueSnackbar(formattedMessage, {
+                variant: 'error',
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
 
+            // enqueueSnackbar(error.response?.data?.message, { variant: 'error' });
         } finally {
             setFormSubmitting(false);
         }
@@ -166,12 +182,12 @@ const OwnerTeam = () => {
                             <div
                                 style={{
                                     width: "100%",
-                                    
+
                                     padding: "20px",
                                     borderRadius: "10px",
                                 }}
                             >
-                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between",  }}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", }}>
                                     <h3
                                         style={{
                                             color: "#0E4772",
@@ -221,7 +237,7 @@ const OwnerTeam = () => {
                                         </button>
                                     </div>
                                 </div>
-                                <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "20px"}}>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "20px" }}>
                                     {/* Leave Type */}
                                     <div style={{ display: "flex", alignItems: "flex-start", gap: "20px" }}>
                                         <label
@@ -282,7 +298,7 @@ const OwnerTeam = () => {
                                                     padding: "10px",
                                                     border: "1px solid #E0E0E0",
                                                     borderRadius: "8px",
-                                                    fontSize: "14px",
+                                                    fontSize: " 14px",
                                                     color: "#4F4F4F",
                                                 }}
                                             />

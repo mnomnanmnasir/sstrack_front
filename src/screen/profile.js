@@ -10,7 +10,7 @@ import OwnerDashboardHeader from "../companyOwner/ownerComponent/ownerSection";
 import axios from "axios";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { FerrisWheelSpinner } from "react-spinner-overlay";
-import { useNavigate,useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import goBackIcon from '../images/go-back.svg'
 
 function Profile() {
@@ -87,6 +87,8 @@ function Profile() {
                 setLoading(false);
                 enqueueSnackbar("Profile updated successfully", { variant: "success", anchorOrigin: { vertical: "top", horizontal: "right" } });
                 setTimeout(() => navigate("/account"), 1000);
+                localStorage.setItem("token", response.data.token);
+                localStorage.setItem("items", JSON.stringify(response.data.user));
             }
         } catch (error) {
             setLoading(false);
@@ -227,7 +229,7 @@ function Profile() {
     // async function merafunction() {
     //     console.log('Current model:', model);
     //     setLoading(true);
-    
+
     //     try {
     //         const response = await axios.post(
     //             `https://myuniversallanguages.com:9093/api/v1/auth/microsoft/authSignup`,
@@ -241,10 +243,10 @@ function Profile() {
     //             },
     //             { headers: headers }
     //         );
-    
+
     //         // Log the entire response for debugging
     //         console.log('Response from API:', response);
-    
+
     //         if (response.data.success) {
     //             // Save the updated model to localStorage
     //             const updatedItems = {
@@ -255,10 +257,10 @@ function Profile() {
     //                 timezone: model.timezone,
     //                 timezoneOffset: model.timezoneOffset,
     //             };
-    
+
     //             localStorage.setItem('items', JSON.stringify(updatedItems)); // Save to localStorage
     //             enqueueSnackbar("Account Created Successfully", { variant: "success", anchorOrigin: { vertical: "top", horizontal: "right" } });
-    
+
     //             // Navigate to the dashboard after a short delay to allow the snackbar to display
     //             setTimeout(() => {
     //                 navigate("/dashboard");
@@ -294,8 +296,15 @@ function Profile() {
                                 <div>
                                     <label className="countryLabel">Full Name</label>
                                     <div className="countryDropdown">
-                                        <input defaultValue={items?.name} onChange={(e) => fillModel("name", e.target.value)} placeholder="Your full name" />
+                                        {/* <input
+                                            value={model?.name || ""}
+                                            onChange={(e) => fillModel("name", e.target.value)}
+                                            placeholder="Your full name"
+                                        /> */}
+                                        <input onChange={(e) => fillModel("name", e.target.value)} defaultValue={items?.name.charAt(0).toUpperCase() + items.name.slice(1)} />
+                                        {/* <input defaultValue={items?.name} onChange={(e) => fillModel("name", e.target.value)} placeholder="Your full name" /> */}
                                     </div>
+
                                 </div>
                                 <div>
                                     <label className="countryLabel">Email</label>
@@ -345,4 +354,4 @@ function Profile() {
 
 }
 
-export default Profile;
+export default Profile; 

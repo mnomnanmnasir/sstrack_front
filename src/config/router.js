@@ -35,7 +35,7 @@ import SaLogin from '../SuperAdmin/SuperAdmin/saLogin'
 import SaMain from '../SuperAdmin/SuperAdmin/saMain'
 import UserSettings from '../companyOwner/owner-setting-components/userSetting'
 import ApplyForLeave from '../companyOwner/owner-setting-components/ApplyForLeave'
-
+import LocaitonTracking from "../Tracking/Locationtracking";
 
 
 export default function AppRouter() {
@@ -146,8 +146,8 @@ export default function AppRouter() {
             <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} />
             <Route path="/leave-management" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerLeaveManagement />) : <Navigate to="/" />} />
             <Route path="/applyForLeave" element={token ? (suspended ? <Navigate to="/account" /> : <ApplyForLeave />) : <Navigate to="/" />} />
+            {/* <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} /> */}
 
-            
             {/* <Route
               path="/profile"
               element={

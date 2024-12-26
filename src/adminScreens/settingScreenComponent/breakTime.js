@@ -33,7 +33,7 @@ function Screenshot() {
 
   const handleApplySettings = async (employee, type, setting) => {
     const settings = {
-      ...employee.effectiveSettings,
+      ...employee.effectiveSettings,  
       screenshots: {
         ...employee.effectiveSettings.screenshots,
         enabled: setting,
@@ -325,25 +325,23 @@ function Screenshot() {
       const json = await response.json();
       const employeesData = json?.convertedEmployees || [];
   
-      // Transform and set breakTimes
+      // Transform and set breakTimes to show in UTC format
       const transformedBreakTimes =
         employeesData[0]?.punctualityData?.breakTime.map((breakEntry) => {
-          const start = new Date(breakEntry.breakStartTime).toLocaleTimeString(
-            "en-US",
-            { hour: "2-digit", minute: "2-digit", hour12: false }
-          );
-          const end = new Date(breakEntry.breakEndTime).toLocaleTimeString(
-            "en-US",
-            { hour: "2-digit", minute: "2-digit", hour12: false }
-          );
+          const breakStartUTC = new Date(breakEntry.breakStartTime).toISOString(); // Store in UTC
+          const breakEndUTC = new Date(breakEntry.breakEndTime).toISOString(); // Store in UTC
           const duration = breakEntry.TotalHours || "0h:0m";
-          return { start, end, duration };
+  
+          return {
+            start: breakStartUTC.substring(11, 16), // Display as HH:MM in UTC
+            end: breakEndUTC.substring(11, 16), // Display as HH:MM in UTC
+            duration,
+          };
         }) || [];
   
       setBreakTimes(transformedBreakTimes);
-      // console.log("Break Start Time:", transformedBreakTimes);
-      // // console.log("Break End Time:", puncEndTime);
-      // Calculate total duration from all objects
+  
+      // Calculate total duration
       const totalMinutes = transformedBreakTimes.reduce((acc, curr) => {
         const [hours, minutes] = curr.duration
           .split("h:")
@@ -366,6 +364,7 @@ function Screenshot() {
       });
     }
   }
+  
   
 
   //
@@ -758,69 +757,43 @@ function Screenshot() {
       // Validate that all break times have start and end
       breakTimes.forEach((slot, index) => {
         if (!slot.start || !slot.end) {
-          throw new Error(
-            `Please fill both start and end time for Break ${index + 1}.`
-          );
+          throw new Error(`Please fill both start and end time for Break ${index + 1}.`);
         }
       });
-
-        // Format the break times
-        const formattedBreakTimes = breakTimes.map((slot) => {
-          const startTime = new Date(`2024-11-21T${slot.start}:00`);
-          const endTime = new Date(`2024-11-21T${slot.end}:00`);
-          // const specificDate = "2024-11-21"; // Replace with the required date
-
-          // Get today's date in YYYY-MM-DD format
-          const today = new Date();
-          const year = today.getFullYear();
-          const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-          const day = String(today.getDate()).padStart(2, "0");
-          const currentDate = `${year}-${month}-${day}`;
-
-          // Assuming slot.start and slot.end are in 'HH:mm' format
-          const breakStartTime = new Date(
-            `${currentDate}T${slot.start}:00`
-          ).toISOString();
-          const breakEndTime = new Date(
-            `${currentDate}T${slot.end}:00`
-          ).toISOString();
-
-          // Calculate total hours and minutes
-          const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
-          const hours = Math.floor(totalMinutes / 60);
-          const minutes = totalMinutes % 60;
-
-          return {
-            TotalHours: `${hours}h:${minutes}m`,
-            breakStartTime,
-            breakEndTime,
-          };
-        });
-
-      const userIds = employees.map((employee) => employee._id);
-
-      // Prepare the API payload
-      // const requestData = [
-      //     {
-      //         userIds,// Replace with actual user ID
-      //         settings: {
-      //             breakTime: formattedBreakTimes,
-      //             puncStartTime: "2024-11-21T09:00:00.000Z", // Replace with actual punctuality start time
-      //             puncEndTime: "2024-11-21T17:00:00.000Z", // Replace with actual punctuality end time
-      //         },
-      //     },
-      // ];
-      // Prepare the API payload for each user
-      const requestData = userIds.map((userId) => ({
+  
+      // Format the break times in UTC
+      const formattedBreakTimes = breakTimes.map((slot) => {
+        const currentDate = new Date().toISOString().split("T")[0]; // Get today's date
+        const breakStartTime = new Date(`${currentDate}T${slot.start}:00Z`).toISOString();
+        const breakEndTime = new Date(`${currentDate}T${slot.end}:00Z`).toISOString();
+  
+        // Calculate total hours and minutes
+        const durationMinutes =
+          (new Date(breakEndTime) - new Date(breakStartTime)) / (1000 * 60);
+        const hours = Math.floor(durationMinutes / 60);
+        const minutes = durationMinutes % 60;
+  
+        return {
+          TotalHours: `${hours}h:${minutes}m`,
+          breakStartTime,
+          breakEndTime,
+        };
+      });
+  
+      // Prepare only the specific userIds (do not update global allUsers)
+      const specificUserIds = employees.map((employee) => employee._id);
+  
+      // API payload: send only userIds and breakTime settings
+      const requestData = specificUserIds.map((userId) => ({
         userId,
         settings: {
           breakTime: formattedBreakTimes,
-          puncStartTime: "2024-11-21T09:00:00.000Z",
+          puncStartTime: "2024-11-21T09:00:00.000Z", // Example time
           puncEndTime: "2024-11-21T17:00:00.000Z",
         },
       }));
-
-      // Make the API call
+  
+      // API call to update break time for selected userIds
       const response = await axios.post(
         "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
         requestData,
@@ -831,38 +804,25 @@ function Screenshot() {
           },
         }
       );
-
-      // Handle success
+  
       if (response.status === 200) {
         enqueueSnackbar("Break Time rule successfully submitted!", {
           variant: "success",
-          anchorOrigin: {
-            vertical: "top",
-            horizontal: "right",
-          },
+          anchorOrigin: { vertical: "top", horizontal: "right" },
         });
       } else {
-        enqueueSnackbar("Failed to submit punctuality rule.", {
-          variant: "error",
-        });
+        enqueueSnackbar("Failed to submit punctuality rule.", { variant: "error" });
       }
     } catch (error) {
-      // Handle errors
+      // Handle errors without affecting global states
       enqueueSnackbar(
-        error.message ||
-        "Error submitting punctuality rule. Please try again later.",
-        {
-          variant: "error",
-          anchorOrigin: {
-            vertical: "top",
-            horizontal: "right",
-          },
-        }
+        error.message || "Error submitting punctuality rule. Please try again later.",
+        { variant: "error", anchorOrigin: { vertical: "top", horizontal: "right" } }
       );
       console.error("Error submitting punctuality rule:", error);
     }
   };
-
+  
   // const handleRemoveBreakTime = (index) => {
   //     if (breakTimes.length > 0) {
   //         setBreakTimes((prev) => prev.filter((_, i) => i !== index)); // Remove the field at the specified index
@@ -1079,35 +1039,49 @@ function Screenshot() {
 
   const handleBreakTimeChange = (index, field, value) => {
     const updatedBreakTimes = [...breakTimes];
-    updatedBreakTimes[index][field] = value;
-
-    // Validate duration if both start and end times are provided
-    const start = updatedBreakTimes[index].start;
-    const end = updatedBreakTimes[index].end;
-
-    if (start && end) {
-      const startTime = new Date(`1970-01-01T${start}:00`);
-      const endTime = new Date(`1970-01-01T${end}:00`);
-
-      // Calculate duration in minutes
-      const durationMinutes = Math.floor((endTime - startTime) / (1000 * 60));
-
-      // If duration exceeds 60 minutes, show error and reset the end time
+  
+    // Combine current date with input time
+    const currentDate = new Date().toISOString().split("T")[0]; // Current date
+    const utcTime = new Date(`${currentDate}T${value}:00Z`).toISOString(); // Convert to UTC
+  
+    // Update raw input and UTC equivalent
+    updatedBreakTimes[index][field] = value; // Raw input (HH:MM)
+    updatedBreakTimes[index][`${field}UTC`] = utcTime; // Store UTC time
+  
+    const startUTC = updatedBreakTimes[index].startUTC;
+    const endUTC = updatedBreakTimes[index].endUTC;
+  
+    // Validate start and end times
+    if (startUTC && endUTC) {
+      const startTimeUTC = new Date(startUTC);
+      const endTimeUTC = new Date(endUTC);
+  
+      if (endTimeUTC <= startTimeUTC) {
+        enqueueSnackbar("End Time must be after Start Time.", {
+          variant: "error",
+          anchorOrigin: { vertical: "top", horizontal: "right" },
+        });
+        return;
+      }
+  
+      // Calculate duration
+      const durationMinutes = Math.floor((endTimeUTC - startTimeUTC) / (1000 * 60));
       if (durationMinutes > 60) {
-        alert("Duration cannot exceed 1 hour. Please adjust the times.");
-        updatedBreakTimes[index][field] = ""; // Reset the invalid field
+        enqueueSnackbar("Duration cannot exceed 1 hour.", {
+          variant: "warning",
+          anchorOrigin: { vertical: "top", horizontal: "right" },
+        });
+        return;
       }
+  
+      updatedBreakTimes[index].duration = `${Math.floor(durationMinutes / 60)}h:${durationMinutes % 60}m`;
     }
-    const breakTime = updatedBreakTimes[index];
-    if (field === "start" || field === "end") {
-      if (!breakTime.start || !breakTime.end) {
-        // alert("Please fill in both Break Start Time and Break End Time.");
-      }
-    }
+  
     setBreakTimes(updatedBreakTimes);
-
-    calculateTotalDuration(); // Recalculate total duration after any change
+    calculateTotalDuration();
   };
+  
+  
 
   // const [totalDuration, setTotalDuration] = useState("0h:0m");
   // Initialize state with value from localStorage or default value

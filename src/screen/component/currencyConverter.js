@@ -76,6 +76,7 @@ const CurrencyConverter = ({ userId, payrate }) => {
             }, {
                 headers: headers
             })
+            console.log("Curreny", res)
             if (res.status) {
                 setFormData({
                     amount: null,
