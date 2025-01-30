@@ -133,17 +133,18 @@ function NewHome() {
 
           {/* Signup Section */}
           <Row className="justify-content-center">
-            <Col lg={6} md={8} sm={12} className="d-flex flex-column flex-sm-row align-items-center gap-3 mb-4">
+            <Col lg={6} md={8} sm={12} className="d-flex flex-column flex-sm-row align-items-center mb-4">
               <Form.Control
                 type="email"
                 placeholder={currentText.signUpPlaceholder}
-                className="flex-grow-1 mobile-input"
+                className=" mobile-input"
                 style={{
                   padding: '0.86rem 1rem',
                   fontSize: '0.9rem', // Default for desktop
                   fontFamily: "'Sinkin Sans', sans-serif",
                   border: 'none',
                   outline: 'none',
+                  borderRadius: '0' // ✅ Removes border-radius
                 }}
               />
               <Button
@@ -156,6 +157,7 @@ function NewHome() {
                   fontWeight: 'bold',
                   border: 'none',
                   whiteSpace: 'nowrap',
+                  borderRadius: '0' // ✅ Removes border-radius
                 }}
                 className="mobile-button"
                 onClick={() => navigate("/signup")}
