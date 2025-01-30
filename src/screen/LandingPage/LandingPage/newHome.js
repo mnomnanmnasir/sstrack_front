@@ -81,17 +81,21 @@ function NewHome() {
             {language === 'en' ? 'العربية' : 'English'}
           </button> */}
         </div>
-          <div
-            className="background-container"
-            style={{
-              position: 'absolute',
-              width: '150%',
-              height: '190%',
-              top: '-115%',
-              background: 'linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)',
-              borderRadius: '40%',
-              zIndex: 1,
-            }}></div>
+        <div style={{
+          position: 'absolute',
+          width: '150%',
+          height: '190%',
+          top: '-115%',
+          background: 'linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)',
+          borderRadius: '40%',
+          zIndex: 1,
+          '@media (max-width: 768px)': {
+            width: '250%',
+            height: '150%',
+            top: '-70%',
+            borderRadius: '50%',
+          }
+        }}></div>
         <Container
           style={{
             position: 'relative',
@@ -106,10 +110,11 @@ function NewHome() {
             <Col lg={8} md={10} sm={12}>
               <h1
                 style={{
-                  fontSize: '2.2rem', // Default for desktop
+                  fontSize: 'clamp(1.75rem, 4vw, 2.2rem)',// Default for desktop
                   fontWeight: '700',
                   marginBottom: '30px',
-                  marginTop: '10%',
+                  margin: '2rem 0 1.5rem',
+                  lineHeight: '1.3',
                   fontFamily: "'Sinkin Sans', sans-serif",
                 }}
                 className="mobile-heading"
@@ -118,7 +123,7 @@ function NewHome() {
               </h1>
               <p
                 style={{
-                  fontSize: '1rem', // Default for desktop
+                  fontSize: 'clamp(0.875rem, 2vw, 1rem)', // Default for desktop
                   fontWeight: '400',
                   marginBottom: '50px',
                   textAlign: 'center',
@@ -183,18 +188,18 @@ function NewHome() {
           </Row>
 
           {/* Platforms Logos */}
-          <Row className="justify-content-center text-center">
-            <Col xs={6} sm={4} md={3} className="mb-3">
-              <img src={microsoftlogo} alt="Microsoft" className="img-fluid platform-icon" />
+          <Row className="justify-content-center text-center" style={{ width: '100%' }}>
+            <Col xs={6} sm={4} md={3} lg={2} className="mb-3">
+              <img src={microsoftlogo} alt="Microsoft" className="img-fluid" />
             </Col>
-            <Col xs={6} sm={4} md={3} className="mb-3">
-              <img src={apple} alt="Apple" className="img-fluid platform-icon1" />
+            <Col xs={6} sm={4} md={3} lg={2} className="mb-3">
+              <img src={apple} alt="Apple" className="img-fluid" />
             </Col>
-            <Col xs={6} sm={4} md={3} className="mb-3">
-              <img src={playstore} alt="Google Play" className="img-fluid platform-icon" />
+            <Col xs={6} sm={4} md={3} lg={2} className="mb-3">
+              <img src={playstore} alt="Google Play" className="img-fluid" />
             </Col>
-            <Col xs={6} sm={4} md={3} className="mb-3">
-              <img src={chrome} alt="Chrome Web Store" className="img-fluid platform-icon" />
+            <Col xs={6} sm={4} md={3} lg={2} className="mb-3">
+              <img src={chrome} alt="Chrome Web Store" className="img-fluid" />
             </Col>
           </Row>
         </Container>
@@ -205,7 +210,7 @@ function NewHome() {
           alt="Laptop and Mobile Mockup"
           style={{
             position: 'relative',
-            top: '60%',
+            // top: '60%',
             width: '81%',
             zIndex: 2,
           }}
@@ -233,6 +238,5 @@ function NewHome() {
     </>
   );
 }
-
 export default NewHome;
 

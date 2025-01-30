@@ -31,6 +31,7 @@
   align-items: center !important;
   width: 10px !important;
   padding: 5px !important;
+
 }
 
 .fullscreen-screenshot-model {
@@ -351,7 +352,7 @@ nav li a {
 
 
 .navbar-nav {
-  /* padding-right: 80px !important; */
+  padding-right: 80px !important;
 }
 
 .mainFont {
@@ -1092,6 +1093,7 @@ nav li a {
   margin-top: 20px;
   width: 100%;
   overflow: hidden !important;
+  scrollbar-width: none;
 }
 
 .day {
@@ -2236,7 +2238,7 @@ nav li a {
 .dayDiv p {
   margin-bottom: 0px;
   color: #4172AC;
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .dateDiv {
@@ -2249,7 +2251,7 @@ nav li a {
 .dateDiv button {
   background-color: #F5F5F5;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 0px;
   justify-content: space-between;
   border-radius: 5px;
 }
@@ -5706,7 +5708,7 @@ input.checkboxes:checked {
   }
 
   .days-weeks {
-    overflow-x: scroll;
+    overflow-x: scroll !important;
   }
 }
 
@@ -5723,7 +5725,7 @@ input.checkboxes:checked {
   }
 
   .days-weeks {
-    overflow-x: scroll;
+    overflow-x: scroll !important;
   }
 }
 
@@ -6370,109 +6372,73 @@ input[type="number"] {
 }
 
 
-
 @media (max-width: 768px) {
-  .mobile-heading {
-    font-size: 3rem !important;
-    /* Increase only on mobile */
-  }
 
-  .mobile-paragraph {
-    font-size: 1.9rem !important;
-    /* Increase only on mobile */
-  }
-
-  .mobile-input {
-    font-size: 1rem !important;
-    /* Increase only on mobile */
-    padding: 1rem 1.2rem !important;
-  }
-
-  .mobile-button {
-    font-size: 1rem !important;
-    /* Increase only on mobile */
-    padding: 1rem 2.8rem !important;
-  }
-
-  .mobile-available-platforms {
-    font-size: 1.6rem !important;
-    /* Increase only on mobile */
-  }
-
-  .stats-title {
-    font-size: 3.8rem !important;
-    /* Increased on mobile */
-  }
-
-  .stats-value {
-    font-size: 4rem !important;
-    /* Larger font for numbers */
-  }
-
-  .stats-label {
-    font-size: 2rem !important;
-    /* Increased for better readability */
-  }
-
-  .heading-responsive {
-    font-size: 4rem !important;
-    /* Increased font size on mobile */
-  }
-
-  .text-responsive {
-    font-size: 2.5rem !important;
-    /* Increased subtext size on mobile */
-  }
-
-  .card-responsive {
-    width: 90% !important;
-    /* Adjust card width for mobile */
-  }
-
-  .card-title-responsive {
-    font-size: 50px !important;
-    /* Adjust step number font size */
-  }
-
-  .card-subtitle-responsive {
-    font-size: 48px !important;
-    /* Adjust heading inside card */
-  }
-
-  .card-text-responsive {
-    font-size: 40px !important;
-    /* Increase description text */
+  /* Tablets and Mobile */
+  .platform-icon {
+    width: 35px !important;
+    /* Shrinks the icons */
+    height: auto !important;
   }
 }
 
+@media (max-width: 576px) {
 
-/* Responsive Styles */
-@media (max-width: 1024px) {
-  .responsive-card {
-    width: 45% !important;
-    /* 2 cards per row */
+  /* Small Mobile Screens */
+  .platform-icon {
+    width: 140px !important;
+    /* Makes icons even smaller */
   }
+}
+
+/* Media query: Reduce icon size for screens 578px and below */
+@media (max-width: 575px) {
+  .platform-icon {
+    max-width: 85px !important;
+    /* Reduce size for smaller screens */
+  }
+}
+
+/* Default for large screens */
+.background-container {
+  border-radius: 40%;
+
+}
+
+/* For screens 578px and smaller, remove border-radius */
+@media (max-width: 578px) {
+  .background-container {
+    border-radius: 25% !important;
+    width: 150% !important;
+  }
+
+
 }
 
 @media (max-width: 768px) {
-  .responsive-card {
-    width: 90% !important;
-    /* 1 card per row */
+  .platform-icon {
+    /* border-radius: 25% !important; */
+    width: 80% !important;
+  }
+  .platform-icon1{
+    /* border-radius: 25% !important; */
+    width: 20% !important;
   }
 }
 
-.custom-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6);
-  /* Dark semi-transparent overlay */
-  z-index: 1050;
-  /* Below the Offcanvas */
-  backdrop-filter: blur(5px);
-  /* Optional: Adds a subtle blur effect */
-  transition: opacity 0.3s ease-in-out;
+@media (max-width: 575px) {
+  .background-container {
+    border-radius: 25% !important;
+    width: 250% !important;
+  }
+
 }
 
+/* For screens 500px and smaller, increase the height */
+@media (max-width: 500px) {
+  .background-container {
+    height: 200% !important;
+    /* Adjust the height as per your need */
+    border-radius: 50% !important;
+  }
+}

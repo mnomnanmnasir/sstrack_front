@@ -79,7 +79,7 @@ function CardComponent({ image, title, description }) {
             <Card.Img variant="top" src={image} className="p-3 rounded" />
             <Card.Body>
                 <Card.Title className="fw-bold text-dark card-title-responsive">{title}</Card.Title>
-                <Card.Text className="text-muted  card-subtitle-responsive">{description}</Card.Text>
+                <Card.Text className="text-muted  card-title-responsive">{description}</Card.Text>
             </Card.Body>
         </Card>
     );

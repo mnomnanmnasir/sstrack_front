@@ -130,15 +130,26 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
 
             <Offcanvas show={showDrawer} onHide={() => setShowDrawer(false)} placement="start" className="d-lg-none full-screen-drawer" // Add full-screen-drawer class
                 style={{
-                    backgroundColor: '#1A1A1A', color: 'white', zIndex: 1052,  // Above backdrop but below button
+                    background: 'linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)',
+                    color: 'white',
+                    zIndex: 1052,  // Above backdrop but below button
                     // height: '200vh',
                     // maxHeight: '150vh'
                     // Higher than backdrop
                 }} // Lower than Navbar
             >
-                <Offcanvas.Header closeButton>
+                <Offcanvas.Header >
                     <img className="logo" src={logo} alt="Logo" width={150} />
+                    <button
+                        type="button"
+                        className="btn-close"
+                        aria-label="Close"
+                        onClick={() => setShowDrawer(false)}
+                        style={{ color: 'white', filter: 'invert(1)' }} // Makes 'X' white
+                    ></button>
+
                 </Offcanvas.Header>
+
                 <Offcanvas.Body>
                     <Nav className="d-flex flex-column align-items-start">
                         {!show && (
@@ -151,16 +162,58 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                 className="mb-3"
                             />
                         )}
-                        <NewHeaderOptions language={language} />
+                        <NewHeaderOptions language={language} showVertical={true} />
                         {!token ? (
                             <>
-                                <Button onClick={() => navigate('/download')} className="btn btn-success my-2 w-100">{language === "en" ? "Download" : "تحميل"}</Button>
-                                <Button onClick={() => navigate('/signin')} className="btn my-2 w-100 loginButton1">{language === "en" ? "Log In" : "تسجيل الدخول"}</Button>
+                                <Button onClick={() => navigate('/download')}
+                                    style={{
+                                        marginTop: '40px',
+                                        marginRight: '20px',
+                                        fontWeight: '400', // Sinkin Sans weight
+                                        fontSize: '0.8rem',
+                                        fontFamily: "'Sinkin Sans', sans-serif",
+                                        backgroundColor: '#8CCA6B',
+                                        borderWidth: '0px',
+                                    }}
+                                >{language === "en" ? "Download" : "تحميل"}</Button>
+                                <Button onClick={() => navigate('/signin')}
+                                    style={{
+                                        marginTop: '20px',
+                                        backgroundColor: 'transparent',
+                                        marginRight: '10px',
+                                        fontWeight: '400', // Sinkin Sans weight
+                                        fontSize: '0.8rem',  // Text size
+                                        fontFamily: "'Sinkin Sans', sans-serif",
+                                        borderColor: '#8CCA6B', // Border color
+                                        borderWidth: '1px',    // Optional for a visible border
+                                    }}
+                                >{language === "en" ? "Log In" : "تسجيل الدخول"}</Button>
                             </>
                         ) : (
                             <>
-                                <Button onClick={goToDashboard} className="btn btn-primary my-2 w-100">{language === "en" ? "Dashboard" : "لوحة القيادة"}</Button>
-                                <Button onClick={logOut} className="btn btn-outline-danger my-2 w-100">{language === "en" ? "Log Out" : "تسجيل الخروج"}</Button>
+                                <Button onClick={goToDashboard}
+                                    style={{
+                                        marginTop: '40px',
+                                        marginRight: '20px',
+                                        fontWeight: '400', // Sinkin Sans weight
+                                        fontSize: '0.8rem',
+                                        fontFamily: "'Sinkin Sans', sans-serif",
+                                        backgroundColor: '#8CCA6B',
+                                        borderWidth: '0px',
+                                    }}
+                                >{language === "en" ? "Dashboard" : "لوحة القيادة"}</Button>
+                                <Button onClick={logOut}
+                                    style={{
+                                        marginTop: '20px',
+                                        backgroundColor: 'transparent',
+                                        marginRight: '10px',
+                                        fontWeight: '400', // Sinkin Sans weight
+                                        fontSize: '0.8rem',  // Text size
+                                        fontFamily: "'Sinkin Sans', sans-serif",
+                                        borderColor: '#8CCA6B', // Border color
+                                        borderWidth: '1px',    // Optional for a visible border
+                                    }}
+                                >{language === "en" ? "Log Out" : "تسجيل الخروج"}</Button>
                             </>
                         )}
                     </Nav>

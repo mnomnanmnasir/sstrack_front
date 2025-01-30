@@ -5,7 +5,7 @@ import { useSocket } from "../../../../io";
 // Correct import
 
 
-function NewHEaderOpions( {language}) {
+function NewHEaderOpions( {language, showVertical = false}) {
 
     // const navigate = useNavigate();
     const location = useLocation();
@@ -51,11 +51,11 @@ function NewHEaderOpions( {language}) {
                 }}>
                     {/* <HeaderOption /> */}
                     <div className="container-fluid" style={{ position: "relative" }}>
-                        <div>
+                        {/* <div>
                         
-                        </div>
+                        </div> */}
                         <div>
-                            <div className="d-flex amButton justify-content-end" role="search">
+                            <div className={`d-flex amButton ${showVertical ? 'flex-column align-items-start' : 'justify-content-end'}`}role="search">
                                 <div className="ownerSectionUser1 text-white" onClick={() => {
                                     navigate('/')
                                 }} >
