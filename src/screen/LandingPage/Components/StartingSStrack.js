@@ -14,7 +14,7 @@ function StartingSStrack({ language }) {
                     textAlign: "center",
                     borderRadius: "40px",
                     color: "#FFFFFF",
-                    maxWidth: "70%",
+                    maxWidth: "92%",
                     margin: "auto",
                     boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)"
                 }}
@@ -24,14 +24,12 @@ function StartingSStrack({ language }) {
                         ? "Starting with SS Track.io is easy, fast and free"
                         : "البدء مع SS Track.io سهل وسريع ومجاني"
                     }
-
                 </h4>
                 <p style={{ fontSize: "1rem", marginBottom: "2rem" }}>
                     {language === "en"
                         ? "It only takes a few clicks to get started"
                         : "يستغرق الأمر بضع نقرات فقط للبدء"
                     }
-
                 </p>
                 <button
                     style={{

@@ -87,7 +87,7 @@ function NewHome() {
           height: '190%',
           top: '-115%',
           background: 'linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)',
-          borderRadius: '45%',
+          borderRadius: '40%',
           zIndex: 1,
         }}></div>
         <Container
@@ -181,7 +181,7 @@ function NewHome() {
           </Row>
 
           {/* Platforms Logos */}
-          <Row className="justify-content-center text-center">
+          <Row className="justify-content-center text-center" style={{width: '100%'}}>
             <Col xs={6} sm={4} md={3} lg={2} className="mb-3">
               <img src={microsoftlogo} alt="Microsoft" className="img-fluid" />
             </Col>
@@ -208,9 +208,6 @@ function NewHome() {
             zIndex: 2,
           }}
         />
-
-        {/* Mockup */}
-
       </div>
       <StatsSection language={language} />
       <div id="section1">
@@ -234,7 +231,5 @@ function NewHome() {
     </>
   );
 }
-
-
 export default NewHome;
 
