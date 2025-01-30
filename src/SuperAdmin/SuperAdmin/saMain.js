@@ -6,6 +6,7 @@ import RequestContent from './component/RequestsContent/RequestsContent';
 import Financials from './component/FinancialsContent/FinancialsContent';
 import Reports from './component/ReportsContent/ReportsContent';
 import { useNavigate } from 'react-router-dom';
+import jwtDecode from 'jwt-decode';
 
 
 const SaMain = () => {
@@ -13,13 +14,13 @@ const SaMain = () => {
   const [userType, setUserType] = useState(null); // Track the user type
   const [loading, setLoading] = useState(true); // Initial content
   const navigate = useNavigate(); 
-
+  const [token, setToken] = useState(localStorage.getItem('token'));
 
 
 
   // Check userType from localStorage
   useEffect(() => {
-    const storedItems = localStorage.getItem('items'); // Retrieve the stringified object
+    const storedItems = jwtDecode(JSON.stringify(token));// Retrieve the stringified object
     if (storedItems) {
       try {
         const parsedItems = JSON.parse(storedItems); // Parse the JSON string

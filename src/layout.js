@@ -3,9 +3,10 @@ import Header from './screen/component/header';
 import Footer from './screen/component/footer';
 import { Outlet, useLocation } from 'react-router-dom';
 import UserHeader from './screen/component/userHeader';
+import NewHeader from './screen/component/Header/NewHeader';
 
 const Layout = () => {
-
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
   const location = useLocation()
 
   function scrollToSection(sectionId) {
@@ -19,7 +20,7 @@ const Layout = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', justifyContent: 'space-between' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', justifyContent: 'space-between', marginTop: '-10px' }}>
       {
         location.pathname === "/" ||
           location.pathname === "/signin" ||
@@ -33,22 +34,25 @@ const Layout = () => {
           location.pathname === "/privacy-policy" ||
           location.pathname === "/privacy-policy1" ||
           location.pathname === "/privacy-policy2" ||
+          location.pathname === "/aboutUs" ||
+          location.pathname === "/splash" ||
           location.pathname.startsWith("/update-password") ||
           location.pathname.startsWith("/create-account") ||
           location.pathname === "/download" ? (
-          <Header />
+          <></>
         ) : (
-          location.pathname !== "/capture-screen" && <UserHeader />
+          location.pathname !== "/capture-screen" && token && <UserHeader />
+
         )
       }
       <div>
         <Outlet />
       </div>
-      <div style={{ padding: "30px" }}>
+      <div style={{ marginBottom: '0px' }}>
         {location.pathname !== "/capture-screen" && <Footer scrollToSection={scrollToSection} />}
       </div>
     </div>
-  );
+  )
 }
 
 export default Layout;

@@ -91,13 +91,15 @@ function AdminUser() {
     const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString())
     const [current_day, set_current_day] = useState(null)
     const [current_month, set_current_month] = useState(null)
-    const items = JSON.parse(localStorage.getItem('items'));
+    let token = localStorage.getItem('token');
+    const items = jwtDecode(JSON.stringify(token));
+    // const items = JSON.parse(localStorage.getItem('items'));
     const location = useLocation();
     const userId = location?.state;
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",];
     const months = ["January", "Feburary", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
-    let token = localStorage.getItem('token');
+    // let token = localStorage.getItem('token');
     let headers = {
         Authorization: "Bearer " + token,
     }

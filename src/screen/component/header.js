@@ -10,11 +10,10 @@ import HeaderOption from './HeaderOption'
 const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
-    const currentUser = JSON.parse(localStorage.getItem('items'));
     const dispatch = useDispatch();
 
     function logOut() {
-        localStorage.removeItem("items");
+        // localStorage.removeItem("items");
         localStorage.removeItem("token");
         localStorage.removeItem("cachedData");
         dispatch(setLogout());
@@ -26,9 +25,14 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
         navigate('/dashboard');
     }
 
-    console.log(currentUser);
+    // console.log(currentUser);
     const location = useLocation();
 
+    // Conditional styles
+    const navbarBackground =
+        location.pathname === "/"
+            ? "transparent"
+            : "linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)";
     return (
 
         <section>
@@ -51,20 +55,11 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
 
                     <Navbar.Collapse id="navbarSupportedContent">
                         <Nav className="me-auto mb-2 mb-lg-0">
-                            {/* <Nav.Link href="#" className="active" aria-current="page">Home</Nav.Link>
-                            <Nav.Link href="#">Link</Nav.Link>
-                            <NavDropdown title="Dropdown" id="navbarDropdown">
-                                <NavDropdown.Item href="#">Action</NavDropdown.Item>
-                                <NavDropdown.Item href="#">Another action</NavDropdown.Item>
-                                <NavDropdown.Divider />
-                                <NavDropdown.Item href="#">Something else here</NavDropdown.Item>
-                            </NavDropdown>
-                            <Nav.Link href="#" disabled tabIndex="-1" aria-disabled="true">Disabled</Nav.Link> */}
+
 
                         </Nav>
                         <Form className="d-flex">
-                            {/* <FormControl type="search" placeholder="Search" className="me-2" aria-label="Search" />
-                            <Button variant="outline-success" type="submit">Search</Button> */}
+
                         </Form>
 
                         <div className='align-items-center' style={{ marginTop: '-20px' }}>
@@ -75,13 +70,38 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
                                 {/* <Button style={{ marginRight: token ? 10 : 50 }} onClick={() => navigate('/download')} className="signUpButton" type="button">Download</Button> */}
                                 {!token ? (
                                     <>
-                                        <Button onClick={() => navigate('/signin')} className="btn loginButton1" type="button" style={{ marginRight: '10px', fontWeight: 'bold' }}>Log In</Button>
-                                        <Button onClick={() => navigate('/signup')} className="signUpButton" type="button">Sign Up</Button>
+                                        <Button onClick={() => navigate('/download')} className="signUpButton" type="button" style={{
+                                            marginRight: '20px',
+                                            fontWeight: '400', // Sinkin Sans weight
+                                            fontSize: '0.8rem',
+                                            fontFamily: "'Sinkin Sans', sans-serif",
+
+                                        }}>Download</Button>
+                                        <Button onClick={() => navigate('/signin')} className="btn loginButton1" type="button" style={{
+                                            marginRight: '10px',
+                                            fontWeight: '400', // Sinkin Sans weight
+                                            fontSize: '0.8rem',  // Text size
+                                            fontFamily: "'Sinkin Sans', sans-serif",
+                                            borderColor: '#8CCA6B', // Border color
+                                            borderWidth: '1px',    // Optional for a visible border
+                                        }}>Log In</Button>
+
                                     </>
                                 ) : (
                                     <>
-                                        <Button onClick={() => goToDashboard()} className="btn loginButton1" style={{ marginRight: '10px' }} type="button">Dashboard</Button>
-                                        <Button onClick={() => logOut()} className="btn signUpButton" type="button">Log out</Button>
+                                        <Button onClick={() => goToDashboard()} className="btn signUpButton" style={{
+                                            marginRight: '0.8rem',
+                                            fontWeight: '400', // Sinkin Sans weight
+                                            fontSize: '0.8rem',  // Text size
+
+                                        }} type="button">Dashboard</Button>
+                                        <Button onClick={() => logOut()} className="btn loginButton1" style={{
+                                            marginRight: '10px',
+                                            fontWeight: '400', // Sinkin Sans weight
+                                            fontSize: '0.8rem',   // Text size
+                                            borderColor: '#8CCA6B', // Border color
+                                            borderWidth: '1px',    // Optional for a visible border
+                                        }} type="button">Log out</Button>
                                     </>
                                 )}
                             </div>

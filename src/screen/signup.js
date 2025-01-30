@@ -1,23 +1,16 @@
+import axios from "axios";
+import moment from "moment-timezone";
+import { enqueueSnackbar, SnackbarProvider } from 'notistack';
 import React, { useEffect, useState } from "react";
-import line from '../images/line.webp';
-import user from '../images/user.webp';
+import { useNavigate } from "react-router-dom";
+import { FerrisWheelSpinner } from "react-spinner-overlay";
+import TimezoneSelect from 'react-timezone-select';
 import account from '../images/account.webp';
 import email from "../images/emailIcon.webp";
-import password from "../images/passwordIcon.webp";
-import clock from "../images/time.png"
-import Footer from "./component/footer";
-import Header from "./component/header";
-import { useNavigate } from "react-router-dom";
-import TimezoneSelect from 'react-timezone-select';
-import moment from "moment-timezone";
-import { enqueueSnackbar, SnackbarProvider } from 'notistack'
-import axios from "axios";
-import { FerrisWheelSpinner } from "react-spinner-overlay";
-import logo from '../images/inner-icon.svg'
-import showPasswordIcon from '../images/showPassword.svg';
-import hidePasswordIcon from '../images/hidePassword.svg';
-import { Modal, Button } from "react-bootstrap";
-import verifyImge from '../images/verfiyImage.png'
+import line from '../images/line.webp';
+import user from '../images/user.webp';
+import verifyImge from '../images/verfiyImage.png';
+import Header from '../screen/component/header';
 
 
 function Signup() {
@@ -170,6 +163,8 @@ function Signup() {
     return (
         <div>
             {/* <Header /> */}
+            <Header/>
+
             <SnackbarProvider />
             <section>
                 <div className="container"
@@ -189,7 +184,7 @@ function Signup() {
                         </div>
                     ) : (
                         <>
-                            <p className="freePera">Try it Free for 7 days</p>
+                            <p className="freePera">Try it Free for 14 days</p>
                             <p className="mainFont">Maintain it Free always on the Free Plan.</p>
                             <div className="maininputdivs">
                                 <div className="mainInputDiv">

@@ -12,6 +12,7 @@ import OfflineTime from "../owner-setting-components/offlinetime";
 import Notify from "../owner-setting-components/notify";
 import WeekStart from "../owner-setting-components/weekStart";
 import CurrencySymbol from "../owner-setting-components/currencySymbol";
+import jwtDecode from "jwt-decode";
 
 function UserSettings() {
 
@@ -21,7 +22,7 @@ function UserSettings() {
     const [id, setId] = useState(null);
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
-    let user = JSON.parse(localStorage.getItem('items'));
+    let user = jwtDecode(JSON.stringify(token));
     let headers = {
         Authorization: 'Bearer ' + token,
     }

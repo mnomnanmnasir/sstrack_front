@@ -10,16 +10,18 @@ import CustomModal from './component/CustomModal';
 import PaymentCards from './paymentCards1'
 import PaymentPlans from './paymentPlan'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
+import jwtDecode from 'jwt-decode';
 // import PayPalButton from './PayPalButton'
 
 
-// const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
-
-// const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
-const stripePromise = loadStripe(process.env.REACT_AP_KEY);
 
 
-// publishable_key= pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
+
+// const stripePromise = loadStripe(import.meta.env.REACT_APP_STRIPE_KEY);
+
+
 // secret_key= sk_test_51PvKZy04DfRmMVhLpUwgsNqAG7DjWlohkftPfj49gTzGMIBiZKaXh0DHYgdrKPElaAw71X94yF20MvWYyOKWOSHj00P3ayGG2K
 
 // const PayPalButton = ({ setMerchantId, selectedPlan }) => {
@@ -275,10 +277,10 @@ const Payment = ({ updatePaymentStatus }) => {
     const [invoices, setInvoices] = useState([]);
     // const [isLoading, setIsLoading] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
-    // let token = localStorage.getItem('token');
+    let tokenS = localStorage.getItem('token');
     // const navigate = useNavigate('');
     const [error, setErrorMessage] = useState([])
-    const items = JSON.parse(localStorage.getItem('items'));
+    const items = jwtDecode(JSON.stringify(tokenS));
     // let headers = {
     //     Authorization: 'Bearer ' + token,
     // }
@@ -650,7 +652,7 @@ const Payment = ({ updatePaymentStatus }) => {
         const [error, setError] = useState(null);
         const [success, setSuccess] = useState(false);
         const [loading, setLoading] = useState(false);
-        const items = JSON.parse(localStorage.getItem('items'));
+        // const items = JSON.parse(localStorage.getItem('items'));
         const token = localStorage.getItem('token');
         const headers = {
             Authorization: "Bearer " + token,
@@ -762,7 +764,7 @@ const Payment = ({ updatePaymentStatus }) => {
                         <strong>Success!</strong> Card added successfully!
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} style={{ backgroundColor: '#f9f9f9', padding: '20px', width: '110%', orderRadius: '10px', boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)' }}>
+                    <form onSubmit={handleSubmit} style={{ backgroundColor: '#f9f9f9', padding: '5px', width: '110%', orderRadius: '10px', boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)' }}>
                         {/* Card Type */}
                         <div className="mb-4">
                             <label className="form-label" style={{ fontWeight: 'bold' }}>Card Type *</label>
@@ -789,11 +791,13 @@ const Payment = ({ updatePaymentStatus }) => {
                                 options={{
                                     style: {
                                         base: {
+                                            width: '100%',
                                             fontSize: '16px',
-                                            // width: '100%'
-                                            color: '#32325d',
-                                            fontFamily: 'Arial, sans-serif',
-                                            '::placeholder': { color: '#aab7c4' },
+                                            // marginLeft: '-10%',
+                                            // fontWeight: 'bold',
+                                            border: '1px solid #ccc',
+                                            borderRadius: '5px',
+                                            padding: '10px',
                                         },
                                         invalid: { color: '#fa755a', width: '100%' },
                                     },
@@ -813,6 +817,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                 style={{
                                     width: '100%',
                                     fontSize: '16px',
+                                    // marginLeft: '-10%',
                                     fontWeight: 'bold',
                                     border: '1px solid #ccc',
                                     borderRadius: '5px',
@@ -822,26 +827,26 @@ const Payment = ({ updatePaymentStatus }) => {
                         </div>
 
                         {/* <div className="mb-4">
-                            <label className="form-label" style={{ fontWeight: 'bold' }}>Expiration Year *</label>
-                            <select
-                                className="form-select"
-                                style={{
-                                    width: '100%',
-                                    fontSize: '16px',
-                                    fontWeight: 'bold',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '5px',
-                                    padding: '10px',
-                                }}
-                            >
-                                <option value="">Select Year</option>
-                                {Array.from({ length: 20 }, (_, i) => (
-                                    <option key={i} value={new Date().getFullYear() + i}>
-                                        {new Date().getFullYear() + i}
-                                    </option>
-                                ))}
-                            </select>
-                        </div> */}
+                                <label className="form-label" style={{ fontWeight: 'bold' }}>Expiration Year *</label>
+                                <select
+                                    className="form-select"
+                                    style={{
+                                        width: '100%',
+                                        fontSize: '16px',
+                                        fontWeight: 'bold',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '5px',
+                                        padding: '10px',
+                                    }}
+                                >
+                                    <option value="">Select Year</option>
+                                    {Array.from({ length: 20 }, (_, i) => (
+                                        <option key={i} value={new Date().getFullYear() + i}>
+                                            {new Date().getFullYear() + i}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div> */}
 
                         {/* Submit Button */}
                         <div className="d-flex justify-content-end">
@@ -871,7 +876,7 @@ const Payment = ({ updatePaymentStatus }) => {
         const [error, setError] = useState(null);
         const [success, setSuccess] = useState(false);
         const [loading, setLoading] = useState(false);
-        const items = JSON.parse(localStorage.getItem('items'));
+        // const items = JSON.parse(localStorage.getItem('items'));
         const token = localStorage.getItem('token');
         const headers = {
             Authorization: "Bearer " + token,
@@ -891,7 +896,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
             const { error, paymentMethod } = await stripe.createPaymentMethod({
                 type: 'card',
-                card: elements.getElement(CardElement),
+                card: cardElement,
             });
 
             if (error) {
@@ -935,7 +940,7 @@ const Payment = ({ updatePaymentStatus }) => {
             }
         };
         return (
-            <form onSubmit={handleSubmit} className="payment-form">
+            <form onSubmit={handleSubmit} className="payment-form" style={{ width: '120%' }}>
                 <CardElement className="card-element" />
                 {error && <div className="error-message">{error}</div>}
                 {success && <div className="success-message">Payment successful!</div>}
@@ -1135,18 +1140,18 @@ const Payment = ({ updatePaymentStatus }) => {
                 <div className="text-left mb-4">
                     <div style={{ display: 'flex', marginBottom: '1rem', }}>
                         {/* <button
-                            // style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
-                            // onClick={() => setActiveTab('cardSelection')}
-                        >
-                            Card Selection
-                        </button>
+                                // style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
+                                // onClick={() => setActiveTab('cardSelection')}
+                            >
+                                Card Selection
+                            </button>
 
-                        <button
-                            // style={activeTab === 'payment' ? activeTabButtonStyle : tabButtonStyle}
-                            // onClick={() => setActiveTab('payment')}
-                        >
-                            Add New Card
-                        </button> */}
+                            <button
+                                // style={activeTab === 'payment' ? activeTabButtonStyle : tabButtonStyle}
+                                // onClick={() => setActiveTab('payment')}
+                            >
+                                Add New Card
+                            </button> */}
                     </div>
 
                     <CardSelection
@@ -1159,34 +1164,35 @@ const Payment = ({ updatePaymentStatus }) => {
                         paycard={paycard} // Pass the paycard
                     />
                     {/* <Elements stripe={stripePromise}>
-                            <div className="payment-container mt-4">
-                                <p className="mb-4">Complete Your Payment</p>
-                                <CheckoutForm2 />
-                            </div>
-                        </Elements> */}
+                                <div className="payment-container mt-4">
+                                    <p className="mb-4">Complete Your Payment</p>
+                                    <CheckoutForm2 />
+                                </div>
+                            </Elements> */}
 
                 </div>
                 <CustomModal
                     show={showNewCardModal}
                     onClose={handleClose}
                     title="Enter Your New Card"
+                    style={{ maxWidth: '800px', width: '130%' }} // Adjust the width
                 >
 
                     <div style={{ display: 'flex', marginBottom: '1rem', }}>
                         {/* <button
-                            style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
-                            onClick={() => setActiveTab('cardSelection')}
-                        >
-                            Card Selection
-                        </button> */}
+                                style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
+                                onClick={() => setActiveTab('cardSelection')}
+                            >
+                                Card Selection
+                            </button> */}
                     </div>
                     {/* <CardSelection
-                            cards={cards}
-                            selectedCard={selectedCard}
-                            onSelect={handleSelectCard}
-                            onActionComplete={fetchTokenAndSuspendedStatus}
+                                cards={cards}
+                                selectedCard={selectedCard}
+                                onSelect={handleSelectCard}
+                                onActionComplete={fetchTokenAndSuspendedStatus}
 
-                        /> */}
+                            /> */}
                     {/* {activeTab === 'payment' && ( */}
                     <Elements stripe={stripePromise}>
                         <div className="payment-container mt-4">
@@ -1204,7 +1210,6 @@ const Payment = ({ updatePaymentStatus }) => {
 
     const handleShowNewModal = () => {
         setshowNewCardModal(true);
-
     };
 
     const handleCloseNewModal = () => {
@@ -1719,38 +1724,31 @@ const Payment = ({ updatePaymentStatus }) => {
                                 Are you sure you want to chage your plan
                                 <div className='container d-flex'>
                                     {/* <div className="row d-flex" style={{ width: '60rem' }}>
-                                        <div className="col-md-12">
-                                            <div className='card mt-2' style={{ marginLeft: '-12px' }}>
-                                                <div className="card-body" style={{ height: '12rem' }}>
-                                                    <div className='d-flex justify-content-between align-items-center'>
-                                                        {paycard ? paycard.cardType : "Visa"}
-                                                        <img
-                                                            src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
-                                                            alt="Visa logo"
-                                                            style={{ width: '60px', height: 'auto' }}
-                                                        />
-                                                    </div>
-                                                    <span>
-                                                        **** **** **** {paycard ? paycard.cardNumber : ""}
-                                                    </span>
-                                                    <div className='d-flex'>
-                                                        Expires
-                                                    </div>
-                                                    <div>
-                                                        {paycard ? paycard.expMonth : '**'}/{paycard ? paycard.expYear : '**'}
-                                                    </div>
+                                            <div className="col-md-12">
+                                                <div className='card mt-2' style={{ marginLeft: '-12px' }}>
+                                                    <div className="card-body" style={{ height: '12rem' }}>
+                                                        <div className='d-flex justify-content-between align-items-center'>
+                                                            {paycard ? paycard.cardType : "Visa"}
+                                                            <img
+                                                                src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
+                                                                alt="Visa logo"
+                                                                style={{ width: '60px', height: 'auto' }}
+                                                            />
+                                                        </div>
+                                                        <span>
+                                                            **** **** **** {paycard ? paycard.cardNumber : ""}
+                                                        </span>
+                                                        <div className='d-flex'>
+                                                            Expires
+                                                        </div>
+                                                        <div>
+                                                            {paycard ? paycard.expMonth : '**'}/{paycard ? paycard.expYear : '**'}
+                                                        </div>
 
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div> */}
-
-
-
-
-
-
-
+                                        </div> */}
 
                                     {/* testing card */}
                                     <div className="row d-flex mt-3" style={{ width: '60rem' }}>
@@ -1809,7 +1807,6 @@ const Payment = ({ updatePaymentStatus }) => {
                     <div className='d-flex' style={{ justifyContent: 'space-between', width: '100%' }}>
                         <button style={{
                             alignSelf: "center",
-
                             border: 'none',  // Removing default border
                             cursor: 'pointer',  // Pointer on hover
                         }}
@@ -1898,10 +1895,10 @@ const Payment = ({ updatePaymentStatus }) => {
     }
 
 
-    const totalbill = selectedPlan?.costPerUser * TotalUsers
-    console.log('_____________________', paycard?.cardNumber)
+    // const totalbill = selectedPlan?.costPerUser * TotalUsers
+    // console.log('_____________________', paycard?.cardNumber)
     const Cardetail = paycard?.cardNumber
-    localStorage.setItem('billdetail', JSON.stringify(totalbill));
+    // localStorage.setItem('billdetail', JSON.stringify(totalbill));
     localStorage.setItem('carddetail', JSON.stringify(Cardetail));
 
 
@@ -1911,10 +1908,10 @@ const Payment = ({ updatePaymentStatus }) => {
             <SnackbarProvider />
 
             {/* <div className="userHeader">
-                    <div>
-                        <h5>Paid plan</h5>
-                    </div>
-                </div> */}
+                        <div>
+                            <h5>Paid plan</h5>
+                        </div>
+                    </div> */}
             {/* <h3 className="card-title mb-4">Selected Plan</h3> */}
             {/* <PaymentPlans /> */}
 
@@ -1931,23 +1928,23 @@ const Payment = ({ updatePaymentStatus }) => {
             />
             <br />
             {/* <button
-                                onClick={
-                                    handleShowModal
-                                }
-                                style={{
-                                    display: "inline-block",
-                                    padding: "8px 16px", // Reduced padding
-                                    backgroundColor: "#7CCB58",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "5px",
-                                    fontSize: "0.9em", // Reduced font size
-                                    cursor: "pointer",
-                                    transition: "background-color 0.3s ease",
-                                }}
-                            >
-                                Upgrade to Paid Plan
-                            </button> */}
+                                    onClick={
+                                        handleShowModal
+                                    }
+                                    style={{
+                                        display: "inline-block",
+                                        padding: "8px 16px", // Reduced padding
+                                        backgroundColor: "#7CCB58",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        fontSize: "0.9em", // Reduced font size
+                                        cursor: "pointer",
+                                        transition: "background-color 0.3s ease",
+                                    }}
+                                >
+                                    Upgrade to Paid Plan
+                                </button> */}
             {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && paycard && (
                 <div className="row d-flex mt-3">
                     <div className="col-md-6">
@@ -2078,42 +2075,42 @@ const Payment = ({ updatePaymentStatus }) => {
                 />
             )}
             {/* <div className="card" style={{ width: '18rem' }}>
-                                <div className="card-body">
-                                    <h5 className="card-title">Card title</h5>
-                                    <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                                    <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                    {invoice.status === 'unpaid' ? (
-                                        <button
-                                            style={{
-                                                position: 'absolute',
-                                                bottom: '20px',
-                                                right: '20px',
-                                                display: "inline-block",
-                                                padding: "10px 20px",
-                                                backgroundColor: isLoading ? "#ccc" : "#7CCB58",
-                                                color: "white",
-                                                border: "none",
-                                                borderRadius: "5px",
-                                                fontSize: "14px",
-                                                cursor: isLoading ? "not-allowed" : "pointer",
-                                                transition: "background-color 0.3s ease",
-                                            }}
-                                            onClick={selectedPlan ? handlePayWithThisCard : null}
-                                            disabled={isLoading || !selectedPlan}
-                                        >
-                                            {isLoading ? "Processing..." : "Pay with this card"}
-                                        </button>
-                                    ) : (
-                                        <span></span>
-                                    )}
-                                </div>
-                            </div> */}
+                                    <div className="card-body">
+                                        <h5 className="card-title">Card title</h5>
+                                        <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
+                                        <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                                        {invoice.status === 'unpaid' ? (
+                                            <button
+                                                style={{
+                                                    position: 'absolute',
+                                                    bottom: '20px',
+                                                    right: '20px',
+                                                    display: "inline-block",
+                                                    padding: "10px 20px",
+                                                    backgroundColor: isLoading ? "#ccc" : "#7CCB58",
+                                                    color: "white",
+                                                    border: "none",
+                                                    borderRadius: "5px",
+                                                    fontSize: "14px",
+                                                    cursor: isLoading ? "not-allowed" : "pointer",
+                                                    transition: "background-color 0.3s ease",
+                                                }}
+                                                onClick={selectedPlan ? handlePayWithThisCard : null}
+                                                disabled={isLoading || !selectedPlan}
+                                            >
+                                                {isLoading ? "Processing..." : "Pay with this card"}
+                                            </button>
+                                        ) : (
+                                            <span></span>
+                                        )}
+                                    </div>
+                                </div> */}
             {/* <CardSelection
-                                cards={cards}
-                                selectedCard={selectedCard}
-                                onSelect={handleSelectCard}
-                                onActionComplete={fetchTokenAndSuspendedStatus}
-                            /> */}
+                                    cards={cards}
+                                    selectedCard={selectedCard}
+                                    onSelect={handleSelectCard}
+                                    onActionComplete={fetchTokenAndSuspendedStatus}
+                                /> */}
             {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
                 <>
                     <div className='row' style={{ marginLeft: '2px', gap: '50px' }}>
@@ -2194,33 +2191,32 @@ const Payment = ({ updatePaymentStatus }) => {
                                 >
                                     Add Card
                                 </button>
-
                             </div>
                         </div>
                     </div>
                     {/* <PaymentCards /> */}
                     {/* <PaymentModal
-                        showModal={showModal}
-                        handleClose={handleCloseModal}
-                        selectedPlan={selectedPlan}
-                    /> */}
+                            showModal={showModal}
+                            handleClose={handleCloseModal}
+                            selectedPlan={selectedPlan}
+                        /> */}
                     {/* // )} */}
                 </>
 
             )}
             {/* {responseMessage && (
-                                    <div style={{
-                                        marginTop: '50px',
-                                        padding: '10px',
-                                        borderRadius: '5px',
-                                        backgroundColor: responseMessage.includes('successful') ? '#7CCB58' : '#ff4d4d',
-                                        color: 'white',
-                                        fontWeight: 'bold',
-                                        textAlign: 'center',
-                                    }}>
-                                        {responseMessage}
-                                    </div>
-                                )} */}
+                                        <div style={{
+                                            marginTop: '50px',
+                                            padding: '10px',
+                                            borderRadius: '5px',
+                                            backgroundColor: responseMessage.includes('successful') ? '#7CCB58' : '#ff4d4d',
+                                            color: 'white',
+                                            fontWeight: 'bold',
+                                            textAlign: 'center',
+                                        }}>
+                                            {responseMessage}
+                                        </div>
+                                    )} */}
             {/* <br /> */}
             {/* <PaymentCards /> */}
             {/* <PaymentPlans /> */}

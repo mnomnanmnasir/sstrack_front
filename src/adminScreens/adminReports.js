@@ -23,6 +23,7 @@ import ActivityChart from "../adminScreens/component/ActivityChart";
 import SelectBox from "../companyOwner/ownerComponent/selectBox";
 import makeAnimated from 'react-select/animated';
 import axios from "axios";
+import jwtDecode from "jwt-decode";
 
 function AdminReports() {
 
@@ -47,7 +48,8 @@ function AdminReports() {
     let headers = {
         Authorization: 'Bearer ' + token,
     }
-    const items = JSON.parse(localStorage.getItem('items'));
+    const items = jwtDecode(JSON.stringify(token));
+    // const items = JSON.parse(localStorage.getItem('items'));
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
     const getData = async () => {

@@ -1,39 +1,32 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import UserHeader from "./component/userHeader";
-import menu from "../images/menu.webp";
-import loader from "../images/Rectangle.webp";
-import check from "../images/check.webp";
-import circle from "../images/circle.webp";
-import user from "../images/user-account.webp";
-import email from "../images/email.webp";
-import passwords from "../images/passwordIcon.webp";
-import edit from "../images/editIcon.webp";
-import deleteIcon from "../images/deleteIcon.webp";
-import line from "../images/line.webp";
-import Footer from "./component/footer";
-import UserDashboardSection from "./component/userDashboardsection";
-import { json, useNavigate } from "react-router-dom";
-import Modal from 'react-bootstrap/Modal';
-import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import axios from "axios";
-import moment from "moment-timezone";
 import { loadStripe } from '@stripe/stripe-js';
-import html2canvas from 'html2canvas';
+import axios from "axios";
 import jsPDF from 'jspdf';
+import moment from "moment-timezone";
+import { SnackbarProvider, enqueueSnackbar } from "notistack";
+import React, { useCallback, useEffect, useState } from 'react';
+import Modal from 'react-bootstrap/Modal';
+import { useNavigate } from "react-router-dom";
 import logo from '../../src/public/tracking.png';
+import deleteIcon from "../images/deleteIcon.webp";
+import edit from "../images/editIcon.webp";
+import line from "../images/line.webp";
 import paidStamp from '../images/paid.png';
-import { Link } from 'react-router-dom'
+import passwords from "../images/passwordIcon.webp";
+import user from "../images/user-account.webp";
 // import { link}
-import BillingComponent from "./BillingComponent";
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import Payment from './payment'
-import CardSelection from './component/CardSelection';
+import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
+import jwtDecode from 'jwt-decode';
 import { useLocation } from 'react-router-dom';
-import CustomModal from './component/CustomModal'
+import BillingComponent from "./BillingComponent";
+import CardSelection from './component/CardSelection';
+import CustomModal from './component/CustomModal';
+import Payment from './payment';
+import UserHeader from './component/userHeader';
+import Footer from './component/footer';
 
 
-// const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
-const stripePromise = loadStripe(process.env.REACT_AP_KEY);
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
 
 
 function Account({ suspended }) {
@@ -63,7 +56,8 @@ function Account({ suspended }) {
     let token = localStorage.getItem('token');
     const navigate = useNavigate('');
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    const items = JSON.parse(localStorage.getItem('items'));
+    const items = jwtDecode(JSON.stringify(token));
+    // const items = JSON.parse(localStorage.getItem('items'));
     let headers = {
         Authorization: 'Bearer ' + token,
     }
@@ -73,7 +67,7 @@ function Account({ suspended }) {
 
     console.log('usercompany==============', items);
     const storedPlanId = JSON.parse(localStorage.getItem('planId'))
-    // const premiumPlan = plans.find((plan) => plan.planType === 'premium');
+
 
     const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
@@ -480,6 +474,10 @@ function Account({ suspended }) {
                 });
                 if (res.status === 200) {
                     console.log(res);
+                    //  Clear all fields
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setNewPassword2("");
                     setVerify(true);
                     enqueueSnackbar("Password verified successfully", {
                         variant: "success",
@@ -515,6 +513,7 @@ function Account({ suspended }) {
         }
     }
 
+
     // const updateMyPassword = async () => {
     //     if (newPassword === "" || newPassword2 === "") {
     //         console.log("asddas");
@@ -527,16 +526,20 @@ function Account({ suspended }) {
     //                 horizontal: "right"
     //             }
     //         })
-    //     }
-    //     else {
+    //     } else {
     //         setUpdatePassword(false)
-    //         const res = await fetch(`${apiUrl}/signin/users/Update?password=${newPassword}`, {
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`
-    //             },
-    //             method: "PATCH",
-    //         });
     //         try {
+    //             const params = new URLSearchParams();
+    //             params.append('password', newPassword);
+
+    //             const res = await fetch(`${apiUrl}/signin/users/Update`, {
+    //                 method: "PATCH",
+    //                 body: params,
+    //                 headers: {
+    //                     Authorization: `Bearer ${token}`
+    //                 },
+    //             });
+    //             console.log("API Response:", res);
     //             if (res.status === 200) {
     //                 console.log((await res.json()));
     //                 enqueueSnackbar("password updated successfully", {
@@ -546,79 +549,98 @@ function Account({ suspended }) {
     //                         horizontal: "right"
     //                     }
     //                 })
+    //             } else {
+    //                 console.log("Error updating password:", res.status, res.statusText);
+                   
     //             }
-    //         }
-    //         catch (error) {
-    //             console.log(error);
+    //         } catch (error) {
+    //             console.log("Error updating password:", error);
+    //             enqueueSnackbar("Error updating password", {
+    //                 variant: "error",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             })
     //         }
     //     }
     // }
+
     const updateMyPassword = async () => {
         if (newPassword === "" || newPassword2 === "") {
-            console.log("asddas");
+            enqueueSnackbar("Password fields cannot be empty", {
+                variant: "warning",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
+            return;
         }
         if (newPassword === currentPassword || newPassword2 === currentPassword) {
-            enqueueSnackbar("New password should unique", {
+            enqueueSnackbar("New password must be unique", {
                 variant: "error",
                 anchorOrigin: {
                     vertical: "top",
                     horizontal: "right"
                 }
-            })
-        } else {
-            setUpdatePassword(false)
-            try {
-                const params = new URLSearchParams();
-                params.append('password', newPassword);
-
-                const res = await fetch(`${apiUrl}/signin/users/Update`, {
-                    method: "PATCH",
-                    body: params,
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    },
+            });
+            return;
+        }
+    
+        setUpdatePassword(false);
+        try {
+            const params = new URLSearchParams();
+            params.append('password', newPassword);
+    
+            const res = await fetch(`${apiUrl}/signin/users/Update`, {
+                method: "PATCH",
+                body: params,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+            });
+    
+            if (res.status === 200) {
+                const data = await res.json();
+                enqueueSnackbar(data.message || "Password updated successfully", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
                 });
-                console.log("API Response:", res);
-                if (res.status === 200) {
-                    console.log((await res.json()));
-                    enqueueSnackbar("password updated successfully", {
-                        variant: "success",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right"
-                        }
-                    })
-                } else {
-                    console.log("Error updating password:", res.status, res.statusText);
-                    enqueueSnackbar("Failed to update password", {
-                        variant: "error",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right"
-                        }
-                    })
-                }
-            } catch (error) {
-                console.log("Error updating password:", error);
-                enqueueSnackbar("Error updating password", {
+                // Clear the password fields
+                setNewPassword("");
+                setNewPassword2("");
+                setCurrentPassword("");
+            } else {
+                const errorData = await res.json();
+                enqueueSnackbar(errorData.message || "Error updating password", {
                     variant: "error",
                     anchorOrigin: {
                         vertical: "top",
                         horizontal: "right"
                     }
-                })
+                });
             }
+        } catch (error) {
+            console.error("Error updating password:", error);
+            enqueueSnackbar("Error updating password. Please try again later.", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
         }
-    }
-
-
+    };
+    
     const offsetInMinutes = moment.tz(items.timezone).utcOffset();
     const offsetInHours = offsetInMinutes / 60;
     const offsetSign = offsetInHours >= 0 ? '+' : '-';
     const formattedOffset = `${offsetSign}${Math.abs(offsetInHours)}`;
 
-    console.log(items)
-    console.log(verify)
 
 
     useEffect(() => {
@@ -714,7 +736,6 @@ function Account({ suspended }) {
     useEffect(() => {
         getData();
         fetchTokenAndSuspendedStatus();
-        console.log('selectedPlan=========jjjjjjjjjjjj', selectedPlan);
 
     }, []);
 
@@ -740,8 +761,8 @@ function Account({ suspended }) {
         const [error, setError] = useState(null);
         const [success, setSuccess] = useState(false);
         const [loading, setLoading] = useState(false);
-        const items = JSON.parse(localStorage.getItem('items'));
         const token = localStorage.getItem('token');
+        const items = jwtDecode(JSON.stringify(token));
         const headers = {
             Authorization: "Bearer " + token,
         };
@@ -830,8 +851,8 @@ function Account({ suspended }) {
         const [error, setError] = useState(null);
         const [success, setSuccess] = useState(false);
         const [loading, setLoading] = useState(false);
-        const items = JSON.parse(localStorage.getItem('items'));
         const token = localStorage.getItem('token');
+        const items = jwtDecode(JSON.stringify(token));
         const headers = {
             Authorization: "Bearer " + token,
         };
@@ -991,7 +1012,7 @@ function Account({ suspended }) {
 
 
     const [selectedPackage, setSelectedPackage] = useState()
-    // Retrieve the stored plan from localStorage and set the selected package
+
     useEffect(() => {
         const storedPlanId = JSON.parse(localStorage.getItem('planId'));
         if (storedPlanId?.planType === 'free') {
@@ -1050,7 +1071,7 @@ function Account({ suspended }) {
         setShowModal(false);
     };
 
-    /////// enter your card number close the modal///////////
+
     const handleCloseModal2 = () => {
         setShowModalwithoutcard(false);
     };
@@ -1116,7 +1137,7 @@ function Account({ suspended }) {
                         onClick={() => {
                             handleDirectChangePlan();
                             setPlanData(selectedPlan);
-                            localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+                            // localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
                             handleCloseModal2()
                         }}
                     // onClick={handleDirectChangePlan}
@@ -1126,67 +1147,7 @@ function Account({ suspended }) {
         );
     };
 
-    // const handleDirectChangePlan = async () => {
-    // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    // if (paycard) {
-    //     console.log('Pay with this card:', paycard);
-    //     // setIsLoading(true);
-    //     setResponseMessage(null);
-    //         try {
-    //             const response = await axios.post(`${DirectPayApiUrl}/owner/upgrade`,
-    //                 {
-    //                     // tokenId: paymentMethod.id,
-    //                     // TotalAmount: selectedPlan.costPerUser,
-    //                     // planId: selectedPlan._id,
 
-    //                     planId: selectedPlan._id,
-    //                 }, { headers });
-    //             if (response.status === 200) {
-    //                 console.log('Payment successfully upgraded:', response.data.success);
-    //                 enqueueSnackbar(response.data.success, {
-    //                     variant: "success",
-    //                     anchorOrigin: {
-    //                         vertical: "top",
-    //                         horizontal: "right"
-    //                     }
-    //                 })
-    //                 // setResponseMessage('Payment successful!');
-    //                 // handleUpdatePaymentStatus('paid'); 
-    //                 // setInvoice({ status: 'paid' });
-    //                 // setHasUnpaidInvoices(false) 
-    //             } else {
-    //                 console.error('Payment failed:', response.data.error);
-    //                 enqueueSnackbar(response.data.success, {
-    //                     variant: "error",
-    //                     anchorOrigin: {
-    //                         vertical: "top",
-    //                         horizontal: "right"
-    //                     }
-    //                 })
-    //                 // setResponseMessage('Payment failed: ' + response.data.error);
-    //             }
-    // handleCloseModal2()
-    //         } catch (error) {
-    //             console.error('Error:', error.response.data.message);
-    //             if (error.response && error.response.data) {
-    //                 if (error.response.status === 403 && error.response.data.success === false) {
-    //                     alert(error.response.data.message)
-    //                     enqueueSnackbar(error.response.data.message, {
-    //                         variant: "error",
-    //                         anchorOrigin: {
-    //                             vertical: "top",
-    //                             horizontal: "right"
-    //                         }
-    //                     })
-    //                 }
-    //             }
-    //             // setResponseMessage('Error: ' + error.response.data.message);
-    // } finally {
-    //     // setIsLoading(false);
-    //     setShowModalwithoutcard(false);
-    // }
-    //     }
-    // };
     const handleDirectChangePlan = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
@@ -1263,15 +1224,13 @@ function Account({ suspended }) {
 
     const [isOpen, setIsOpen] = useState(false);
 
-    const totalbill = selectedPlan?.costPerUser * TotalUsers
-    console.log('_____________________', paycard?.cardNumber)
+
     const Cardetail = paycard?.cardNumber
-    localStorage.setItem('billdetail', JSON.stringify(totalbill));
+
     localStorage.setItem('carddetail', JSON.stringify(Cardetail));
-    // const planData = JSON.parse(localStorage.getItem('planIdforHome'));
+
     const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
-    // const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
-    // const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
+
 
 
     const handleOpenModal = () => {
@@ -1280,107 +1239,14 @@ function Account({ suspended }) {
 
 
 
-    // const BillingComponent = () => {
 
-    //     const [billing, setBilling] = useState(''); // Default billing balance
-    //     const [Cardetail, setCardetail] = useState(''); // Default card details
-    //     const [storedPlanId, setStoredPlanId] = useState(null); // Plan details
-
-    // useEffect(() => {
-    //     // Retrieve and parse the stored card details
-    //     const storedCardDetails = localStorage.getItem('carddetail');
-    //     console.log("=============>>>>>>>>>>>>>", storedCardDetails)
-    //     if (storedCardDetails) {
-    //         try {
-    //             const cardDetails = JSON.parse(storedCardDetails);
-    //             if (cardDetails) {
-    //                 setCardetail(cardDetails); // Get last 4 digits of the card
-    //             }
-    //         } catch (error) {
-    //             console.error('Error parsing card details:', error);
-    //         }
-    //     } else {
-    //         console.log('No card details found in localStorage.');
-    //     }
-
-    //     // Optionally, retrieve plan details if necessary
-    //     const storedPlan = localStorage.getItem('planId');
-
-    //     if (storedPlan) {
-    //         try {
-    //             const planDetails = JSON.parse(storedPlan);
-    //             setStoredPlanId(planDetails);
-    //         } catch (error) {
-    //             console.error('Error parsing plan details:', error);
-    //         }
-    //     }
-
-    //     // Optionally, retrieve billing balance if necessary
-    //     const storedBilling = localStorage.getItem('billdetail');
-    //     let price = 0;
-
-    //     if (storedBilling === 'Standard') {
-    //         price = 3.99;
-    //     } else if (storedBilling === 'Premium') {
-    //         price = 4.99;
-    //     } else {
-    //         price = 0; // default to 0 if no plan is selected
-    //     }
-
-    //     if (storedBilling) {
-    //         try {
-    //             const billingDetails = JSON.parse(storedBilling);
-    //             setBilling(billingDetails); // Assuming the stored data has a `balance` field
-    //         } catch (error) {
-    //             console.error('Error parsing billing details:', error);
-    //         }
-    //     }
-    // }, []);
-    //     return (
-    //         <>
-    //             {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
-    //                 <div style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}>
-    //                     <div style={{ marginBottom: '20px' }}>
-    //                         <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>{storedPlanId?.planType ? `${storedPlanId?.planType[0].toUpperCase()}${storedPlanId?.planType.slice(1)}` : 'Free'} Plan</h2>
-    //                         <p style={{ margin: '5px 0' }}>
-    //                             Price: <strong>${storedPlanId ? storedPlanId?.costPerUser : 0}/employee/mo</strong>
-    //                         </p>
-    //                         {/* <Link to='/payment' style={{ color: '#007bff', textDecoration: 'none' }}>Change plan</Link> */}
-    //                         <div>
-    //                             <Link to='/team' style={{ color: '#007bff', textDecoration: 'none', marginTop: '10px', display: 'inline-block' }}>
-    //                                 <span role="img" aria-label="employee icon">👥</span> Add or remove employees
-    //                             </Link>
-    //                         </div>
-    //                     </div>
-    //                     <div style={{ paddingTop: '10px' }}>
-    //                         <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>Billing</h2>
-    //                         <p style={{ margin: '5px 0' }}>
-    //                             Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing && storedPlanId ? Math.floor(billing * 100) / 100 : 0}</span>
-    //                             {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${0}</span> */}
-
-    //                             {/* <a href="#add-credit" style={{ color: '#007bff', textDecoration: 'none', marginLeft: '5px' }}>Add credit</a> */}
-    //                         </p>
-    //                         {/* <p style={{ margin: '5px 0' }}>
-    //                     Next payment due: 09/24/2024 (for 08/25/2024 – 09/24/2024)
-    //                 </p> */}
-    //                         <p style={{ margin: '5px 0' }}>
-    //                             Billing method: <span style={{ marginRight: '5px' }}>💳•••• {Cardetail && storedPlanId ? Cardetail : '****'}</span>
-    //                             {/* <a href="#edit-billing" style={{ color: '#007bff', textDecoration: 'none' }}>Edit</a> */}
-    //                         </p>
-    //                     </div>
-    //                 </div>
-    //             )}
-    //         </>
-    //     );
-    // };
 
 
 
 
     return (
         <>
-
-
+            {/* <UserHeader /> */}
             <SnackbarProvider />
             {show ? <Modal show={show} onHide={() => setShow(false)} animation={false} centered>
                 <Modal.Body>
@@ -1531,7 +1397,7 @@ function Account({ suspended }) {
                 </div>
             </div>
             <img className="accountLine" src={line} />
-
+            {/* <Footer /> */}
             {/* <Payment /> */}
         </>
     )

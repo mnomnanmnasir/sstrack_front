@@ -1,34 +1,221 @@
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+
+import { SnackbarProvider } from 'notistack';
 import React, { useEffect, useState } from "react";
-import { enqueueSnackbar, SnackbarProvider } from 'notistack';
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { GoogleMap, LoadScript, Polyline } from "@react-google-maps/api";
+import DatePicker from "react-datepicker";
+import { FaCalendarAlt } from "react-icons/fa";
+import Footer from '../screen/component/footer';
+import UserHeader from '../screen/component/userHeader';
+
 
 
 const LocaitonTracking = () => {
-    // Hardcoded data
-    const overviewData = {
-        totalDistance: "60.13 KM",
-        totalTime: "225h : 25m",
+    const [totalDistance, setTotalDistance] = useState(0); // Total distance in KM
+    const [totalTime, setTotalTime] = useState("0h 0m");
+
+    const [overviewData, setOverviewData] = useState({
+        totalDistance: "0 KM",
+        totalTime: "0h : 0m",
+    });
+
+    const [latestSession, setLatestSession] = useState({
+        timeRange: "N/A",
+        totalTime: "0h : 0m",
+        totalDistance: "0 KM",
+    });
+
+    const [activeSummary, setActiveSummary] = useState([]);
+
+    // State to hold map polyline data
+    const [polylinePath, setPolylinePath] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(new Date());
+
+    const handleDateChange = (date) => {
+        setSelectedDate(date); // Update selected date as a Date object
     };
 
-    const latestSession = {
-        timeRange: "1:23 PM Till 3:35 PM",
-        totalTime: "5.15 KM",
-        totalDistance: "5.15 KM",
+    const fetchData = async (date) => {
+        try {
+            const formattedDate = date.toISOString().split("T")[0]; // Format to YYYY-MM-DD
+            const token = localStorage.getItem("token");
+
+            const response = await fetch(
+                `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerData?date=${formattedDate}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                console.log("API Response:", data.data);
+
+                const groupedLocations = data.data.groupedLocations;
+
+                let totalDistance = 0;
+                let totalTimeMinutes = 0;
+                let activeSummary = [];
+                let polylines = []; // Array to hold multiple polyline paths
+
+                groupedLocations.forEach((group) => {
+                    group.locations.forEach((location) => {
+                        totalDistance += location.distance;
+
+                        // Parse and sum up the times
+                        const timeParts = location.totalTime.split(" ");
+                        const hours = parseInt(timeParts[0].replace("h", "")) || 0;
+                        const minutes = parseInt(timeParts[1].replace("m", "")) || 0;
+
+                        totalTimeMinutes += hours * 60 + minutes;
+
+                        // Extract location data for the active summary
+                        location.location.forEach((loc) => {
+                            activeSummary.push(`${loc.location} at ${loc.time}`);
+                        });
+
+                        // Add coordinates for the polyline
+                        const polyline = location.coordinates.map((coord) => [
+                            parseFloat(coord.latitude),
+                            parseFloat(coord.longitude),
+                        ]);
+                        polylines.push(polyline);
+                    });
+                });
+
+                // Convert total minutes back to hours and minutes format
+                const totalHours = Math.floor(totalTimeMinutes / 60);
+                const totalMinutes = totalTimeMinutes % 60;
+
+                // Update the states
+                setTotalDistance(totalDistance.toFixed(2)); // Update total distance
+                setTotalTime(`${totalHours}h ${totalMinutes}m`); // Update total time
+                setActiveSummary(activeSummary); // Update active summary
+                setPolylinePath(polylines); // Update polylines
+            } else {
+                console.error("API call was not successful.");
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
     };
 
-    const activeSummary = [
-        "Rowntree Mills 1pm - 2pm",
-        "Rowntree Mills 1:30pm - 2pm",
-        "Jane And Finch 3pm - 5pm",
-        "Rowntree Mills 5pm - 6pm",
-        "Plaza Latina 7pm - 8pm",
-        "Holiday Inn Express Toronto North York 8pm - 10pm",
-    ];
+    // Fetch data whenever the selected date changes
+    useEffect(() => {
+        fetchData(selectedDate);
+    }, [selectedDate]);
 
+    useEffect(() => {
+        // Determine the initial center of the map
+        const initialCenter = polylinePath.length > 0 && polylinePath[0].length > 0
+            ? polylinePath[0][0] // Use the first coordinate of the first polyline
+            : [37.7749, -122.4194]; // Default to San Francisco if no polylines are available
+
+        const map = L.map("map").setView(initialCenter, 13); // Set the initial view
+
+        // Add OpenStreetMap tiles
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "© OpenStreetMap contributors",
+        }).addTo(map);
+
+        // Add polylines to the map
+        polylinePath.forEach((polyline) => {
+            L.polyline(polyline, {
+                color: "blue",
+                weight: 4,
+            }).addTo(map);
+        });
+
+        // Cleanup map instance on unmount
+        return () => {
+            map.remove();
+        };
+    }, [polylinePath]);
+
+    // // Default to San Francisco if no polylines are available
+    // const defaultCenter = { lat: 37.7749, lng: -122.4194 };
+
+    // // Extract the initial center based on the polyline path
+    // const initialCenter =
+    //     polylinePath.length > 0 && polylinePath[0].length > 0
+    //         ? { lat: polylinePath[0][0][0], lng: polylinePath[0][0][1] }
+    //         : defaultCenter;
+
+    // // Polyline data conversion (Leaflet uses [lat, lng], Google Maps uses { lat, lng })
+    // const convertedPolylines = polylinePath.map((polyline) =>
+    //     polyline.map(([lat, lng]) => ({ lat, lng }))
+    // );
+    // const mapContainerStyle = {
+    //     width: "100%",
+    //     height: "500px",
+    // };
+
+
+
+
+
+
+    //google map
+    // useEffect(() => {
+    //     const loadGoogleMapsScript = (callback) => {
+    //         const existingScript = document.getElementById("googleMaps");
+
+    //         if (!existingScript) {
+    //             const script = document.createElement("script");
+    //             script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY`;
+    //             script.id = "googleMaps";
+    //             script.async = true;
+    //             script.defer = true;
+    //             script.onload = () => callback();
+    //             document.body.appendChild(script);
+    //         } else {
+    //             existingScript.onload = () => callback();
+    //         }
+    //     };
+
+    //     const initMap = () => {
+    //         const mapCenter =
+    //             polylinePath.length > 0 && polylinePath[0].length > 0
+    //                 ? { lat: polylinePath[0][0][0], lng: polylinePath[0][0][1] }
+    //                 : { lat: 37.7749, lng: -122.4194 }; // Default to San Francisco
+
+    //         const map = new window.google.maps.Map(document.getElementById("map"), {
+    //             center: mapCenter,
+    //             zoom: 19,
+    //         });
+
+    //         // Add polylines
+    //         polylinePath.forEach((polyline) => {
+    //             const googlePolyline = new window.google.maps.Polyline({
+    //                 path: polyline.map(([lat, lng]) => ({ lat, lng })),
+    //                 geodesic: true,
+    //                 strokeColor: "#0000FF",
+    //                 strokeOpacity: 1.0,
+    //                 strokeWeight: 4,
+    //             });
+    //             googlePolyline.setMap(map);
+    //         });
+    //     };
+
+    //     loadGoogleMapsScript(() => {
+    //         initMap();
+    //     });
+    // }, [polylinePath]);
+    //google map
 
     return (
         <>
+            {/* <UserHeader /> */}
             <SnackbarProvider />
             <div className="container">
                 <div className="userHeader">
@@ -89,7 +276,7 @@ const LocaitonTracking = () => {
                                             </h4>
                                         </div>
                                         <p style={{ fontSize: "24px", fontWeight: "bold", color: "#2C5282", margin: "0" }}>
-                                            {overviewData.totalDistance}
+                                            {totalDistance}
                                         </p>
                                     </div>
 
@@ -125,7 +312,7 @@ const LocaitonTracking = () => {
                                             </h4>
                                         </div>
                                         <p style={{ fontSize: "24px", fontWeight: "bold", color: "#2C5282", margin: "0" }}>
-                                            {overviewData.totalTime}
+                                            {totalTime}
                                         </p>
                                     </div>
                                 </div>
@@ -133,7 +320,7 @@ const LocaitonTracking = () => {
                             </div>
 
                             {/* Latest Tracking Session */}
-                            <div
+                            {/* <div
                                 style={{
                                     flex: "1",
                                     marginLeft: "10px",
@@ -166,7 +353,6 @@ const LocaitonTracking = () => {
                                                 style={{
                                                     width: "50px",
                                                     height: "50px",
-                                                    // margin: "0 auto",
                                                     marginRight: "10px",
                                                     display: "flex",
                                                     alignItems: "center",
@@ -231,21 +417,120 @@ const LocaitonTracking = () => {
                                         </span>
                                     </div>
                                 </div>
-                            </div>
-
-
+                            </div> */}
                         </div>
 
+                        {/* Calendar Picker */}
+                        <div style={{ marginBottom: "20px" }}>
+                            {/* Section Title */}
+                            <h3 style={{ fontSize: "20px", color: "#28659C", fontWeight: "600" }}>
+                                Select Date
+                            </h3>
+
+                            {/* Date Picker Wrapper */}
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "8px",
+                                    padding: "10px 12px",
+                                    width: "fit-content",
+                                    cursor: "pointer",
+                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                                    backgroundColor: "#fff",
+                                    position: "relative", // Added for proper stacking context
+                                    zIndex: 10,
+                                }}
+                            >
+                                {/* Calendar Icon */}
+                                <FaCalendarAlt
+                                    style={{
+                                        color: "#64C47C",
+                                        fontSize: "20px",
+                                        marginRight: "10px",
+                                    }}
+                                />
+
+                                {/* DatePicker Input */}
+                                <DatePicker
+                                    selected={selectedDate}
+                                    onChange={handleDateChange}
+                                    dateFormat="MMM d, yyyy EEEE" // Example: Dec 9, 2024 Monday
+                                    popperPlacement="bottom-start"
+                                    popperModifiers={[
+                                        {
+                                            name: "preventOverflow",
+                                            options: {
+                                                boundary: "viewport", // Prevents hiding in limited spaces
+                                            },
+                                        },
+                                    ]}
+                                    customInput={
+                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                            <span
+                                                style={{
+                                                    fontSize: "16px",
+                                                    fontWeight: "600",
+                                                    color: "#000",
+                                                    marginRight: "5px",
+                                                }}
+                                            >
+                                                {selectedDate.toLocaleDateString("en-US", {
+                                                    year: "numeric",
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    weekday: "long",
+                                                })}
+                                            </span>
+                                            <span
+                                                style={{
+                                                    fontSize: "14px",
+                                                    color: "#666",
+                                                }}
+                                            >
+                                                ▼
+                                            </span>
+                                        </div>
+                                    }
+                                />
+                            </div>
+                        </div>
 
                         {/* Map View */}
                         <div style={{ marginBottom: "20px" }}>
-                            <h3 style={{ fontSize: "23px", color: "#28659C", fontWeight: "600", }}> Map View</h3>
-                            <div style={{ border: "1px solid #ccc", height: "300px" }}>
-                                {/* Replace with an actual map integration or placeholder */}
-                                <p style={{ textAlign: "center", paddingTop: "140px" }}>Map Placeholder</p>
-                            </div>
+                            <h3 style={{ fontSize: "23px", color: "#28659C", fontWeight: "600" }}>
+                                Map View
+                            </h3>
+                            <div
+                                id="map"
+                                style={{
+                                    zIndex: 0, // Correct camelCase syntax
+                                    border: "1px solid #ccc",
+                                    height: "300px",
+                                    width: "100%",
+                                    position: "relative", // Add position for z-index to take effect
+                                }}
+                            ></div>
                         </div>
-
+                        {/* <LoadScript googleMapsApiKey="AIzaSyAkuGHrq6iEysHhbYV7hchbKAs7nvMHc1g">
+                            <GoogleMap
+                                mapContainerStyle={mapContainerStyle}
+                                center={initialCenter}
+                                zoom={13}
+                            >
+                                {convertedPolylines.map((path, index) => (
+                                    <Polyline
+                                        key={index}
+                                        path={path}
+                                        options={{
+                                            strokeColor: "blue",
+                                            strokeWeight: 4,
+                                        }}
+                                    />
+                                ))}
+                            </GoogleMap>
+                        </LoadScript> */}
                         {/* Active Summary */}
                         <div>
                             <h3 style={{ fontSize: "23px", color: "#28659C", fontWeight: "600", }}> Active Summary</h3>
@@ -304,9 +589,11 @@ const LocaitonTracking = () => {
                     </div>
                 </div>
             </div >
-
+            {/* <Footer /> */}
         </>
     );
 };
 
 export default LocaitonTracking;
+
+

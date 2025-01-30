@@ -2,6 +2,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: #0E4772 !important;
+  /* font-family: 'Sinkin Sans', sans-serif ; */
 }
 
 .rotate-infinite-slow {
@@ -23,7 +24,7 @@ body {
 }
 
 .current-value {
-  font-weight: 500 !important;
+  font-weight: 500 ;
   font-size: 20px !important;
   fill: #28659C !important;
 }

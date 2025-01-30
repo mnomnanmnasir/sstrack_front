@@ -10,11 +10,9 @@ import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
 // import Modal from 'react-bootstrap/Modal';
 
-// const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
-// const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
 const stripePromise = loadStripe(process.env.REACT_AP_KEY);
-// publishable_key= pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw
-// secret_key= sk_test_51PvKZy04DfRmMVhLpUwgsNqAG7DjWlohkftPfj49gTzGMIBiZKaXh0DHYgdrKPElaAw71X94yF20MvWYyOKWOSHj00P3ayGG2K
+
+
 
 
 const PaymentCard = ({ updatePaymentStatus }) => {
@@ -177,7 +175,8 @@ const PaymentCard = ({ updatePaymentStatus }) => {
         const [error, setError] = useState(null);
         const [success, setSuccess] = useState(false);
         const [loading, setLoading] = useState(false);
-        const items = JSON.parse(localStorage.getItem('items'));
+        
+        // const items = JSON.parse(localStorage.getItem('items'));
         const token = localStorage.getItem('token');
         const headers = {
             Authorization: "Bearer " + token,
@@ -297,7 +296,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
         const [error, setError] = useState(null);
         const [success, setSuccess] = useState(false);
         const [loading, setLoading] = useState(false);
-        const items = JSON.parse(localStorage.getItem('items'));
+        // const items = JSON.parse(localStorage.getItem('items'));
         const token = localStorage.getItem('token');
         const headers = {
             Authorization: "Bearer " + token,
@@ -722,10 +721,10 @@ const PaymentCard = ({ updatePaymentStatus }) => {
     };
 
 
-    const totalbill = selectedPlan?.costPerUser * TotalUsers
+    // const totalbill = selectedPlan?.costPerUser * TotalUsers
     console.log('_____________________', paycard?.cardNumber)
     const Cardetail = paycard?.cardNumber
-    localStorage.setItem('billdetail', JSON.stringify(totalbill));
+    // localStorage.setItem('billdetail', JSON.stringify(totalbill));
     localStorage.setItem('carddetail', JSON.stringify(Cardetail));
 
     const handleUpgradeClick = (defaultPlanIndex) => {

@@ -336,17 +336,18 @@ import circle from "../../images/circle.webp"
 import Header from './header'
 import HeaderOption from './HeaderOption'
 import SettingsIcon from '@mui/icons-material/Settings';
+import jwtDecode from "jwt-decode";
 
 
 function UserHeader() {
-
-    const user = JSON.parse(localStorage.getItem('items'));
+    const token = localStorage.getItem("token");
+    const user = jwtDecode(JSON.stringify(token));
     const [showContent, setShowContent] = useState(false);
     const [userType, setUserType] = useState(user?.userType);
     const navigate = useNavigate("");
     const dispatch = useDispatch()
     const socket = useSocket()
-    let token = localStorage.getItem('token');
+    // let token = localStorage.getItem('token');
     let headers = {
         Authorization: 'Bearer ' + token,
         'Content-Type': 'application/json'
@@ -382,8 +383,8 @@ function UserHeader() {
             document.removeEventListener("click", handleClickOutside);
         };
     }, []);
-
-    const [items, setItem] = useState(JSON.parse(localStorage.getItem('items')));
+    const getitems = jwtDecode(JSON.stringify(token));
+    const [items, setItem] = useState(getitems);
 
     const [leaveCount, setLeaveCount] = useState(0); // State to store leave request count
 
@@ -467,7 +468,7 @@ function UserHeader() {
     function logOut() {
         localStorage.removeItem("items");
         localStorage.removeItem("token");
-        console.log('localStorage cleared:', localStorage.getItem('items'), localStorage.getItem('token'));
+        // console.log('localStorage cleared:', localStorage.getItem('items'), localStorage.getItem('token'));
         dispatch(setLogout())
         // window.location.reload()
         navigate("/")

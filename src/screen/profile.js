@@ -12,6 +12,7 @@ import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { FerrisWheelSpinner } from "react-spinner-overlay";
 import { useNavigate, useLocation } from "react-router-dom";
 import goBackIcon from '../images/go-back.svg'
+import jwtDecode from "jwt-decode";
 
 function Profile() {
 
@@ -35,7 +36,7 @@ function Profile() {
     const [timezone, setSelectedTimezone] = useState(
         Intl.DateTimeFormat().resolvedOptions().timeZone
     );
-    const items = JSON.parse(localStorage.getItem('items'));  // Fallback to empty object if items is null
+    const items = jwtDecode(JSON.stringify(token)); // Fallback to empty object if items is null
 
     let headers = {
         Authorization: 'Bearer ' + token,
@@ -198,7 +199,7 @@ function Profile() {
 
                 // Save the updated model to localStorage
                 const updatedItems = {
-                    ...JSON.parse(localStorage.getItem('items')),
+                    ...jwtDecode(JSON.stringify(token)),
                     name: model.name,
                     email: model.email,
                     company: model.company,

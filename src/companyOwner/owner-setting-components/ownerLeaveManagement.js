@@ -4,6 +4,9 @@ import { enqueueSnackbar, SnackbarProvider } from 'notistack';
 import { Modal, Button, Form } from "react-bootstrap";
 // import { FaUser } from "react-icons/fa";
 import PersonIcon from "@mui/icons-material/Person";
+import jwtDecode from "jwt-decode";
+import UserHeader from "../../screen/component/userHeader";
+import Footer from "../../screen/component/footer";
 
 const OwnerTeam = () => {
     const [leaveData, setLeaveData] = useState({
@@ -25,7 +28,8 @@ const OwnerTeam = () => {
     const headers = {
         Authorization: `Bearer ${token}`,
     };
-    const [items, setItems] = useState(() => JSON.parse(localStorage.getItem('items')) || {});
+    const items = jwtDecode(JSON.stringify(token));
+    // const [items, setItems] = useState(() => JSON.parse(localStorage.getItem('items')) || {});
     const [pendingCount, setPendingCount] = useState(0); // New state for pending request count
     const [isSubmitting, setIsSubmitting] = useState(false); // For loading state during submission
 
@@ -41,6 +45,9 @@ const OwnerTeam = () => {
         endDate: "",
         reason: "",
     });
+
+
+
     const [modalContent, setModalContent] = useState(""); // Content for the modal
 
     const handleInputChange = (e) => {
@@ -187,34 +194,34 @@ const OwnerTeam = () => {
         }
     };
 
-  const fetchLeaveRequests = async () => {
-    try {
-        const response = await axios.get(
-            `${apiUrl}/superAdmin/getAllLeaveRequests`,
-            { headers }
-        );
+    const fetchLeaveRequests = async () => {
+        try {
+            const response = await axios.get(
+                `${apiUrl}/superAdmin/getAllLeaveRequests`,
+                { headers }
+            );
 
-        const { requestedLeaves = [], approvedLeaves = [], rejectedLeaves = [] } =
-            response.data || {};
+            const { requestedLeaves = [], approvedLeaves = [], rejectedLeaves = [] } =
+                response.data || {};
 
-        // Extract and log leave details for each object
-        approvedLeaves.forEach((leave) => {
-            console.log("User Name:", leave.userName);
-            console.log("Sick Leaves:", leave.sickLeaves);
-            console.log("Casual Leaves:", leave.casualLeaves);
-            console.log("Annual Leaves:", leave.annualLeaves);
-            console.log("Bereavement Leaves:", leave.bereavementLeaves);
-        });
+            // Extract and log leave details for each object
+            approvedLeaves.forEach((leave) => {
+                console.log("User Name:", leave.userName);
+                console.log("Sick Leaves:", leave.sickLeaves);
+                console.log("Casual Leaves:", leave.casualLeaves);
+                console.log("Annual Leaves:", leave.annualLeaves);
+                console.log("Bereavement Leaves:", leave.bereavementLeaves);
+            });
 
-        // Update state
-        setLeaveData({ requestedLeaves, approvedLeaves, rejectedLeaves });
-        setPendingCount(requestedLeaves.length);
-    } catch (error) {
-        console.error("Error fetching leave requests:", error);
-    } finally {
-        setLoading(false);
-    }
-};
+            // Update state
+            setLeaveData({ requestedLeaves, approvedLeaves, rejectedLeaves });
+            setPendingCount(requestedLeaves.length);
+        } catch (error) {
+            console.error("Error fetching leave requests:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     useEffect(() => {
@@ -394,7 +401,7 @@ const OwnerTeam = () => {
         const userLeaveData = leaveData.approvedLeaves.find(
             (leave) => leave.userId === selectedLeave.userId
         );
-    
+
         console.log("Casual Leaves Count:", userLeaveData);
 
         return (
@@ -538,7 +545,7 @@ const OwnerTeam = () => {
                                     <strong>Reason:</strong> {selectedLeave.reason}
                                 </p>
                                 <p>
-                                    <strong>Approved By:</strong>{" "}
+                                    <strong>{activeTab === "rejectedLeaves" ? "Rejected By:" : "Approved By:"}</strong>{" "}
                                     {selectedLeave.approvedBy ? (
                                         <>
                                             {selectedLeave.approvedBy.name}
@@ -573,7 +580,7 @@ const OwnerTeam = () => {
                                     User Leave Count
                                 </h4>
                                 <p>
-                                {/* {userLeaveData.sickLeaves || 0} */}
+                                    {/* {userLeaveData.sickLeaves || 0} */}
                                     <strong>Annual Leaves:</strong> {userLeaveData.annualLeaves || 0}
                                 </p>
                                 <p>
@@ -909,6 +916,7 @@ const OwnerTeam = () => {
     // main component
     return (
         <>
+        <UserHeader />
             <SnackbarProvider />
             <div className="container">
                 <div
@@ -1048,7 +1056,7 @@ const OwnerTeam = () => {
                         gap: '20px',
                     }}
                 >
-                    <div style={{ fontWeight: '400', color: "#28659C", fontSize: '33px' }}>
+                    <div style={{ fontWeight: '500', color: "#28659C", fontSize: '17px', }}>
                         Total Leave Requests
                     </div>
                     <input
@@ -1085,13 +1093,14 @@ const OwnerTeam = () => {
                         <button
                             onClick={() => setModalOpen(true)} // Opens the modal
                             style={{
-                                padding: "10px 20px",
+                                padding: "5px 10px",
                                 backgroundColor: "#7FC45B",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "5px",
                                 cursor: "pointer",
                                 fontWeight: "600",
+                                // fontSize: '17px'
                             }}
                         >
                             Set Leave Allowances
@@ -1107,12 +1116,14 @@ const OwnerTeam = () => {
                                     borderRadius: "5px",
                                     cursor: "pointer",
                                     fontWeight: "600",
+                                    // fontSize: '17px'
                                 }}
                             >
                                 Apply Leave
                             </button>
                         )}
                     </div>
+                    
                 </div>
 
                 {/* Apply Leave Modal */}
@@ -1131,6 +1142,9 @@ const OwnerTeam = () => {
                                     value={leaveFormData.leaveType}
                                     onChange={handleLeaveInputChange}
                                 >
+                                    <option value="" disabled>
+                                        Select Type of Leave
+                                    </option>
                                     <option value="casualLeaves">Casual Leave</option>
                                     <option value="sickLeaves">Sick Leave</option>
                                     <option value="annualLeaves">Annual Leave</option>
@@ -1225,9 +1239,11 @@ const OwnerTeam = () => {
                                         "End Date",
                                         "Request Date",
                                         "Leave Type ↕",
+                                        // activeTab === "rejectedLeaves" ? "Rejection By" : "Approval Date",
                                         "Approval Date",
                                         "Reason",
-                                        "Approved By",
+                                        activeTab === "rejectedLeaves" ? "Rejected By" : "Approved By",
+                                        // "Approved By",
                                         "Status",
                                     ].map((header, index) => (
                                         <th
@@ -1385,6 +1401,7 @@ const OwnerTeam = () => {
                 {/* {modalOpen && renderOpenModal()} */}
 
             </div >
+            <Footer />
         </>
     );
 };

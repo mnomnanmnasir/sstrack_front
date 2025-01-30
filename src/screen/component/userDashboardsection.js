@@ -5,16 +5,18 @@ import check from "../../images/check.webp";
 import circle from "../../images/circle.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import jwtDecode from "jwt-decode";
 
 
 function UserDashboardSection() {
-
+    const token = localStorage.getItem("token");
+    const getitems = jwtDecode(JSON.stringify(token));
     const navigate = useNavigate();
     const location = useLocation();
-    const [items, setItems] = useState(() => JSON.parse(localStorage.getItem('items')) || {});
+    const [items, setItems] = useState(getitems);
 
     useEffect(() => {
-        const updatedItems = JSON.parse(localStorage.getItem('items'));
+        const updatedItems = getitems
         setItems(updatedItems);
     }, []);
 
@@ -175,7 +177,7 @@ function UserDashboardSection() {
                         )
                     ))} */}
 
-                    {items?.userType === "user" && <div className={location.pathname.includes("/timeline") ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
+                    {items?.userType === "user" || items?.userType === "manager" && <div className={location.pathname.includes("/timeline") ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
                         <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate(`/timeline/${items?._id}`)}>My timeline</p>
                     </div>}
                     {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
@@ -229,7 +231,7 @@ function UserDashboardSection() {
                         </div>
                     )}
                     {/* {/ Location Tracking /} */}
-                    {/* {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin") && (
+                    {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin" || items?.userType === "user") && (
                         <div
                             className={location.pathname === "/Locationtracking" ? "active-tab" : "ownerSectionUser"}
                             onClick={() => navigate("/Locationtracking")}
@@ -242,13 +244,13 @@ function UserDashboardSection() {
                             }}
                         >
                             <p style={{ margin: 0 }}>Location</p>
-                                <span>
+                            <span>
 
-                                    Tracking
-                        </span>
+                                Tracking
+                            </span>
 
                         </div>
-                    )} */}
+                    )}
 
                     {/* {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
                         <>
@@ -285,9 +287,9 @@ function UserDashboardSection() {
                         Break Time: {remainingBreakTime}
                     </p> */}
                     {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
-                        <div className="ownerSectionCompany" style={{ margin: "0 20px", fontWeight: "bold" }}>
-                            <p style={{ margin: "0 20px", fontWeight: "bold" }}>
-                                Break Time: {remainingBreakTime || '0h:0m'}
+                        <div className="ownerSectionCompany" style={{ margin: "0 10px", fontWeight: "bold", display:'flex', alignItems:'center' }}>
+                            <p style={{ margin: "0px", fontWeight: "bold", fontSize:'14px' }}>
+                                Break Time: <span>{remainingBreakTime || '0h:0m'}</span>
                             </p>
                         </div>
                     )}

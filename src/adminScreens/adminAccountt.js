@@ -21,7 +21,8 @@ function AccountAdmin() {
     let token = localStorage.getItem('token');
     const navigate = useNavigate('');
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    const items = JSON.parse(localStorage.getItem('items'));
+    
+    const items = jwtDecode(JSON.stringify(token));
 
     let headers = {
         Authorization: 'Bearer ' + token,

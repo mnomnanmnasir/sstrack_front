@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Form, Modal } from 'react-bootstrap';
 import axios from "axios";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
+import jwtDecode from "jwt-decode";
 
 const Pricing = () => {
 
@@ -94,7 +95,7 @@ const Pricing = () => {
 
     // Retrieve the stored plan from localStorage and set the selected package
     useEffect(() => {
-        const items = localStorage.getItem('items');
+        const items = jwtDecode(JSON.stringify(token));
         if (items) {
             try {
                 const parsedItems = JSON.parse(items); // Parse the JSON string

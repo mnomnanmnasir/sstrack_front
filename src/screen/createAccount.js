@@ -98,7 +98,7 @@ function CreateAccount() {
                         }
                     })
                     setTimeout(() => {
-                        navigate('/dashboard')
+                        navigate('/signin')
                     }, 3000);
                 }
                 console.log("signup from link response =====>", response);

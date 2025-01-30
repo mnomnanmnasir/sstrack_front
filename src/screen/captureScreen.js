@@ -228,3 +228,5 @@ function CaptureScreen() {
 }
 
 export default CaptureScreen;
+
+

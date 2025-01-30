@@ -5,6 +5,7 @@ import Timer from "./component/timer";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
 import optVerification from '../images/opt-verifcation.svg';
+import Header from '../screen/component/header';
 
 function VerificationCode() {
 
@@ -100,6 +101,7 @@ function VerificationCode() {
 
     return (
         <>
+        <Header/>
             <SnackbarProvider />
             <div className="maininputdivs">
                 <div className="mainInputDiv" style={{ textAlign: "center" }}>

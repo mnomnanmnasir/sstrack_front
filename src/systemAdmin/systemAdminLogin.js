@@ -17,7 +17,7 @@ const SystemAdminLogin = () => {
     const [loading, setLoading] = useState(false)
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem('items'));
+    // const user = JSON.parse(localStorage.getItem('items'));
 
     const loginUser = async () => {
         if (model?.email === "" || model?.password === "") {

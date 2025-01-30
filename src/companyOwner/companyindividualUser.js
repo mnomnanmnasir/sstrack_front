@@ -96,7 +96,8 @@ function CompanyIndividualUser() {
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
-    let items = JSON.parse(localStorage.getItem('items'));
+    const getitems = jwtDecode(JSON.stringify(token));
+    let items = JSON.parse(getitems);
     let headers = {
         Authorization: "Bearer " + token,
     }

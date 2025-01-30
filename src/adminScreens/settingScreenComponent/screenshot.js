@@ -9,6 +9,7 @@ import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { getEmployess, setAllUserSetting, setAllUserSetting2, setAllUserSetting3, setEmployess, setEmployessSetting, setEmployessSetting2, setEmployessSetting4 } from "../../store/adminSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import ErrorPopup from "../../screen/component/popupmodals/ErrorPopup";
 
 function Screenshot() {
 
@@ -17,6 +18,8 @@ function Screenshot() {
         Authorization: 'Bearer ' + token,
     }
     const dispatch = useDispatch()
+    const [openErrorDialog, setOpenErrorDialog] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const [number, setNumber] = useState(null)
     const ids = useSelector((state) => state.adminSlice.ids)
     const employees = useSelector((state) => state.adminSlice.employess)
@@ -49,7 +52,7 @@ function Screenshot() {
                     userId: employee._id,
                     effectiveSettings: type === "setting1" ? settings : type === "setting2" ? settings2 : settings3
                 }, { headers })
-            console.log('Response owner', res);
+            // console.log('Response owner', res);
 
             if (res.status === 200) {
                 enqueueSnackbar("Employee settings updated", {
@@ -139,7 +142,7 @@ function Screenshot() {
                     >
                         <option value="Blur">Allow Blur</option>
                         <option value="Do Not Blur">Disallow Blur</option>
-                        <option value="Blur All">Blur all</option>
+                        {/* <option value="Blur All">Blur all</option> */}
                     </select>
 
                 </div>
@@ -194,7 +197,7 @@ function Screenshot() {
                     }
                 })
             }
-            console.log(res);
+            // console.log('ye phir dikh raha he tm',res);
         } catch (error) {
             if (error.response && error.response.data) {
                 if (error.response.status === 404 && error.response.data.success === false) {
@@ -251,8 +254,10 @@ function Screenshot() {
         getData()
     }, [])
 
-    console.log("screenshot employess =====>", employees);
-    debugger
+    // console.log("screenshot employess =====>", employees);
+    const handleCloseDialog = () => {
+        setOpenErrorDialog(false);
+    };
     return (
         <div>
             <SnackbarProvider />
@@ -315,19 +320,14 @@ function Screenshot() {
                                         }
                                     })
                                 }
-                                console.log(res);
+                                // console.log('kon he bhai tm or yaha kiya kr rahe',res);
                             } catch (error) {
                                 if (error.response && error.response.data) {
-                                    if (error.response.status === 404 && error.response.data.success === false) {
+                                    if (error.response.status === 403 && error.response.data.success === false) {
                                         // alert(error.response.data.message)
-                                        console.log('setting response screenshots', error.response.data.message)
-                                        enqueueSnackbar(error.response.data.message, {
-                                            variant: "error",
-                                            anchorOrigin: {
-                                                vertical: "top",
-                                                horizontal: "right"
-                                            }
-                                        })
+                                        setErrorMessage(error.response.data.message);
+                                        setOpenErrorDialog(true); 
+                                       
                                     }
                                 }
                             }
@@ -350,7 +350,7 @@ function Screenshot() {
                         value={employees?.find(f => f?.effectiveSettings?.individualss === false)?.effectiveSettings?.screenshots?.allowBlur === true ? "Allow Blur" : "Disallow Blur"}
                         className="myselect"
                         onChange={async (e) => {
-                            console.log(e.target.value);
+                            // console.log(e.target.value);
                             dispatch(setAllUserSetting3({ value: e.target.value === "Allow Blur" ? true : false }))
                             try {
                                 const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
@@ -376,14 +376,14 @@ function Screenshot() {
                                         }
                                     })
                                 }
-                                console.log('Reponse agyaa', res);
+                                // console.log('Reponse agyaa', res);
                             } catch (error) {
-                                console.log(error);
+                                // console.log('responce aagya wala hn me',error);
                             }
                         }}>
                         <option value="Allow Blur">Allow Blur</option>
                         <option value="Disallow Blur">Disallow Blur</option>
-                        <option value="Blur all">Blur all</option>
+                        {/* <option value="Blur all">Blur all</option> */}
                     </select>
                 </div>
                 <div>
@@ -411,6 +411,11 @@ function Screenshot() {
                 <CompanyEmployess Setting={Setting} />
                 {/* )} */}
             </div>
+            <ErrorPopup 
+                open={openErrorDialog}
+                message={errorMessage}
+                onClose={handleCloseDialog}
+            />
         </div>
     )
 }

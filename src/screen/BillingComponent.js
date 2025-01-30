@@ -1,40 +1,21 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import UserHeader from "./component/userHeader";
-import menu from "../images/menu.webp";
-import loader from "../images/Rectangle.webp";
-import check from "../images/check.webp";
-import circle from "../images/circle.webp";
-import user from "../images/user-account.webp";
-import email from "../images/email.webp";
-import passwords from "../images/passwordIcon.webp";
-import edit from "../images/editIcon.webp";
-import deleteIcon from "../images/deleteIcon.webp";
-import line from "../images/line.webp";
-import Footer from "./component/footer";
-import UserDashboardSection from "./component/userDashboardsection";
-import { json, useNavigate, useLocation } from "react-router-dom";
+import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import Modal from 'react-bootstrap/Modal';
-import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import axios from "axios";
-import moment from "moment-timezone";
-import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { enqueueSnackbar } from "notistack";
+import React, { useCallback, useEffect, useState } from 'react';
+import Modal from 'react-bootstrap/Modal';
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from '../../src/public/tracking.png';
 import paidStamp from '../images/paid.png';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Link } from 'react-router-dom'
 // import { link}
 // import BillingComponent from "./BillingComponent";
-import CustomModal from './component/CustomModal'
-import CardSelection from './component/CardSelection';
-import Payment from './payment'
-import { CircleSpinnerOverlay, FerrisWheelSpinner } from 'react-spinner-overlay'
 import jwtDecode from "jwt-decode";
+import { FerrisWheelSpinner } from 'react-spinner-overlay';
 
 
-// const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
-const stripePromise = loadStripe(process.env.REACT_AP_KEY);
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
 
 
 const PayPalButton = ({ setMerchantId, selectedPlan }) => {
@@ -145,8 +126,8 @@ const BillingComponent = () => {
     const [paymentStatus, setPaymentStatus] = useState('');
     const [cards, setCards] = useState([]);
     const [isPlanChanging, setIsPlanChanging] = useState(false); // Add this new state
-
-    const items = JSON.parse(localStorage.getItem('items'));
+    const jwdtoken = localStorage.getItem('token');
+    const items = jwtDecode(JSON.stringify(jwdtoken));
     const [invoice, setInvoice] = useState({ status: 'unpaid' }); // or retrieve it from your API or storage
 
     const fetchInvoices = async () => {
@@ -210,29 +191,7 @@ const BillingComponent = () => {
                 };
             });
 
-            // const transformedInvoice = data.data.paymentInfo.map((payment) => {
-            //     // Log the status of each invoice
-            //     console.log('Invoice status:', invoice.status);
-
-            //     return {
-            //         id: payment.invoiceNumber,
-            //         date: new Date(payment.invoiceDate).toLocaleDateString(),
-            //         description: `For ${new Date(invoice.employee[0].periodStart).toLocaleDateString()}–${new Date(
-            //             payment.employee[0].periodEnd
-            //         ).toLocaleDateString()}`,
-            //         amount: parseFloat(payment.subTotal).toFixed(2),
-            //         balance: parseFloat(payment.balance).toFixed(2),
-            //         status: (payment.status),
-            //         details: payment.employee.map(emp => ({
-            //             name: emp.name,
-            //             periodStart: new Date(emp.periodStart).toLocaleDateString(),
-            //             periodEnd: new Date(emp.periodEnd).toLocaleDateString(),
-            //             amount: emp.amount,
-            //         })),
-            //     };
-            // });
-
-            // Sort invoices so that today's invoices appear first
+            
 
             transformedInvoices.sort((a, b) => {
                 // Compare dates
@@ -242,12 +201,9 @@ const BillingComponent = () => {
             });
 
             setInvoices(transformedInvoices);
-            // setInvoices(transformedInvoice);
 
-            // Check if there is any unpaid invoice
             const hasUnpaidInvoice = transformedInvoices.some(invoice => invoice.status === 'unpaid');
-            // const hasUnpaidInvoices = transformedInvoice.some(invoice => invoice.status === 'unpaid');
-            // setShowWarning(hasUnpaidInvoices);
+
 
             setShowWarning(hasUnpaidInvoice);
         } catch (error) {
@@ -266,7 +222,7 @@ const BillingComponent = () => {
         fetchInvoices();
     }, []);
 
-    //pdf generation
+  
     const generatePDF = (invoice) => {
         getBase64Image(logo, (logoBase64, logoWidth, logoHeight) => {
             getBase64Image(paidStamp, (paidStampBase64, paidStampWidth, paidStampHeight) => {
@@ -582,109 +538,8 @@ const BillingComponent = () => {
             });
         });
     };
-    // const [billing, setBilling] = useState(JSON.parse(localStorage.getItem('billdetail')) || ''); // Default billing balance
-    // const [Cardetail, setCardetail] = useState(JSON.parse(localStorage.getItem('carddetail')) || ''); // Default card details
-    // const [storedPlanId, setStoredPlanId] = useState(JSON.parse(localStorage.getItem('planId')) || null); // Plan details
 
-    // useEffect(() => {
-    //     const storedCardDetails = localStorage.getItem('carddetail');
 
-    //     // Retrieve and parse the stored card details
-    //     console.log("=============>>>>>>>>>>>>>", storedCardDetails)
-    //     if (storedCardDetails) {
-    //         try {
-    //             const cardDetails = JSON.parse(storedCardDetails);
-    //             if (cardDetails) {
-    //                 setCardetail(cardDetails); // Get last 4 digits of the card
-    //             }
-    //         } catch (error) {
-    //             console.error('Error parsing card details:', error);
-    //         }
-    //     } else {
-    //         console.log('No card details found in localStorage.');
-    //     }
-
-    //     // Optionally, retrieve plan details if necessary
-    //     const storedPlan = localStorage.getItem('planId');
-
-    //     if (storedPlan) {
-    //         try {
-    //             const planDetails = JSON.parse(storedPlan);
-    //             setStoredPlanId(planDetails);
-    //         } catch (error) {
-    //             console.error('Error parsing plan details:', error);
-    //         }
-    //     }
-
-    //     // Optionally, retrieve billing balance if necessary
-    //     const storedBilling = localStorage.getItem('billdetail');
-    //     // const [billing, setBilling] = useState(JSON.parse(localStorage.getItem('billdetail')) || ''); // Default billing balance
-
-    //     let price = 0;
-
-    //     if (storedBilling === 'Standard') {
-    //         price = 3.99;
-    //     } else if (storedBilling === 'Premium') {
-    //         price = 4.99;
-    //     } else {
-    //         price = 0; // default to 0 if no plan is selected
-    //     }
-
-    //     if (storedBilling) {
-    //         try {
-    //             const billingDetails = JSON.parse(storedBilling);
-    //             setBilling(billingDetails); // Assuming the stored data has a `balance` field
-    //         } catch (error) {
-    //             console.error('Error parsing billing details:', error);
-    //         }
-    //     }
-    //     // const storedCardDetails = localStorage.getItem('carddetail');
-    //     console.log("=============>>>>>>>>>>>>>", storedCardDetails)
-    //     if (storedCardDetails) {
-    //         try {
-    //             const cardDetails = JSON.parse(storedCardDetails);
-    //             if (cardDetails) {
-    //                 setCardetail(cardDetails); // Get last 4 digits of the card
-    //             }
-    //         } catch (error) {
-    //             console.error('Error parsing card details:', error);
-    //         }
-    //     } else {
-    //         console.log('No card details found in localStorage.');
-    //     }
-
-    //     // Optionally, retrieve plan details if necessary
-    //     // const storedPlan = localStorage.getItem('planId');
-
-    //     if (storedPlan) {
-    //         try {
-    //             const planDetails = JSON.parse(storedPlan);
-    //             setStoredPlanId(planDetails);
-    //         } catch (error) {
-    //             console.error('Error parsing plan details:', error);
-    //         }
-    //     }
-
-    //     // Optionally, retrieve billing balance if necessary
-    //     // const storedBilling = localStorage.getItem('billdetail');
-    //     // let price = 0;
-
-    //     if (storedBilling === 'Standard') {
-    //         price = 3.99;
-    //     } else if (storedBilling === 'Premium') {
-    //         price = 4.99;
-    //     } else {
-    //         price = 0; // default to 0 if no plan is selected
-    //     }
-    //     if (storedBilling) {
-    //         try {
-    //             const billingDetails = JSON.parse(storedBilling);
-    //             setBilling(billingDetails); // Assuming the stored data has a `balance` field
-    //         } catch (error) {
-    //             console.error('Error parsing billing details:', error);
-    //         }
-    //     }
-    // }, []);
 
 
     const [billing, setBilling] = useState(''); // Default billing balance
@@ -694,7 +549,7 @@ const BillingComponent = () => {
     useEffect(() => {
         // Retrieve and parse the stored card details
         const storedCardDetails = localStorage.getItem('carddetail');
-        console.log("=============>>>>>>>>>>>>>", storedCardDetails)
+
         if (storedCardDetails) {
             try {
                 const cardDetails = JSON.parse(storedCardDetails);
@@ -741,8 +596,10 @@ const BillingComponent = () => {
             }
         }
     }, []);
-    // useEffect(() => {
-    // }, [])
+ 
+
+
+
     useEffect(() => {
         if (cardDetail) {
             localStorage.setItem('carddetail', JSON.stringify(cardDetail));
@@ -806,15 +663,13 @@ const BillingComponent = () => {
         }
     }, [plans, defaultPlanIndex]);
 
-    // const handlePlanSelect = (plan) => {
-    //     setSelectedPlan(plan);
-    // };
+  
 
 
     const getPlanDescription = (plan) => {
         return `$${plan.costPerUser} per month per user, up to ${plan.screenshotsPerHr} screenshots per hour, screenshots kept ${plan.ssStored} days, individual settings, activity level tracking, ${plan.mobileApp ? 'mobile app included' : 'no mobile app'}, app & URL tracking`;
     };
-    console.log('Selected plan:==============', plans);
+
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const getData = useCallback(async () => {
@@ -832,32 +687,7 @@ const BillingComponent = () => {
         }
     }, [headers]);
 
-    // const fetchTokenAndSuspendedStatus = async () => {
-    //     if (token) {
-    //         try {
-    //             const headers = {
-    //                 Authorization: `Bearer ${token}`,
-    //             };
-    //             const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
-    //             const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
-    //             const fetchedCards = response?.data.data[0].cardInfo;
-    //             console.log('Fetched Cards:', fetchedCards);
 
-    //             // Set the cards
-    //             setCards(fetchedCards);
-
-    //             // Set the default card as the selected card
-    //             const defaultCard = fetchedCards.find(card => card.defaultCard);
-    //             if (defaultCard) {
-    //                 setSelectedCard(defaultCard._id);
-    //                 setpaycard(defaultCard);
-    //             }
-    //         } catch (err) {
-    //             console.error('Error fetching data', err);
-    //         }
-    //     }
-    //     setLoading(false);
-    // };
     const fetchTokenAndSuspendedStatus = async () => {
         if (token) {
             try {
@@ -923,97 +753,9 @@ const BillingComponent = () => {
 
 
 
-    const CheckoutForm2 = ({ fetchTokenAndSuspendedStatus, setpaycard }) => {
-        const stripe = useStripe();
-        const elements = useElements();
-        const [error, setError] = useState(null);
-        const [success, setSuccess] = useState(false);
-        const [loading, setLoading] = useState(false);
-        const items = JSON.parse(localStorage.getItem('items'));
-        const token = localStorage.getItem('token');
-        const headers = {
-            Authorization: "Bearer " + token,
-        };
+  
 
-        const handleSubmit = async (event) => {
-            event.preventDefault();
-            setLoading(true);
 
-            if (!stripe || !elements) {
-                setError('Stripe has not loaded correctly.');
-                setLoading(false);
-                return;
-            }
-
-            const cardElement = elements.getElement(CardElement);
-
-            const { error, paymentMethod } = await stripe.createPaymentMethod({
-                type: 'card',
-                card: elements.getElement(CardElement),
-            });
-
-            if (error) {
-                setError(error.message);
-                setLoading(false);
-            } else {
-
-                console.log('Card Info:', {
-
-                    cardType: paymentMethod.card.brand,
-                    expMonth: paymentMethod.card.exp_month,
-                    expYear: paymentMethod.card.exp_year,
-                    cardNumber: paymentMethod.card.last4,
-
-                });
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
-                try {
-                    const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
-                        // tokenId: paymentMethod.id,
-                        // TotalAmount: selectedPlan.costPerUser,
-                        // planId: selectedPlan._id,
-                        cardType: paymentMethod.card.brand,
-                        expMonth: paymentMethod.card.exp_month,
-                        expYear: paymentMethod.card.exp_year,
-                        cardNumber: paymentMethod.card.last4,
-                        tokenId: paymentMethod.id,
-                        // TotalAmount: '58.88',
-                        // dueDate: '2024-07-30',
-                        // planId: selectedPlan._id,
-                    }, { headers });
-
-                    console.log('Payment Response:', response);
-
-                    if (response.data.success) {
-
-                        await fetchTokenAndSuspendedStatus();
-                        setpaycard();
-                        setSuccess(true);
-                        setTimeout(() => {
-                            setshowNewCardModal(false);
-                        }, 1000); // Close the modal after 0.5 seconds
-                    } else {
-                        setError(`Payment failed: ${response.data.message}`);
-                    }
-                } catch (error) {
-                    setError(`Payment failed: ${error.response ? error.response.data.message : error.message}`);
-                }
-                setLoading(false);
-            }
-        };
-
-        return (
-            <form onSubmit={handleSubmit} className="payment-form">
-                <CardElement className="card-element" />
-                {error && <div className="error-message">{error}</div>}
-                {success && <div className="success-message">Card Added successful!</div>}
-                <button type="submit" disabled={!stripe || loading} className="submit-button">
-                    {loading ? 'Adding...' : 'Add Card'}
-                </button>
-            </form>
-        );
-    };
-
-    const [modalData, setModalData] = useState({});
 
     const CheckoutForm = () => {
         const stripe = useStripe();
@@ -1021,7 +763,7 @@ const BillingComponent = () => {
         const [error, setError] = useState(null);
         const [success, setSuccess] = useState(false);
         const [loading, setLoading] = useState(false);
-        const items = JSON.parse(localStorage.getItem('items'));
+        // const items = JSON.parse(localStorage.getItem('items'));
         const token = localStorage.getItem('token');
         const headers = {
             Authorization: "Bearer " + token,
@@ -1116,8 +858,6 @@ const BillingComponent = () => {
             console.log('plansssss====>', plans)
             setPlans(plans)
             setSelectedPlan(plans[1]);
-            // Store plans in localStorage
-            // localStorage.setItem('plans', JSON.stringify(plans));
             setLoading(false);
         } catch (error) {
             console.error('Error fetching plans:', error);
@@ -1126,21 +866,11 @@ const BillingComponent = () => {
         }
     };
 
-    // const handlePayPalClick = () => {
-    //     const amount = selectedPlan.costPerUser * TotalUsers;
-    //     const paypalUrl = `https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount=${amount}&currency_code=USD`;
-    //     window.open(paypalUrl, '_blank');
-    // };
+
     const [showPayPal, setShowPayPal] = useState(false);
     const amount = 10.00; // Set your amount here
 
-    const handlePayPalClick = () => {
-        handleDirectChangePlan(); // Pass the captureId directly
-        setPlanData(selectedPlan);
-        localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
-        handleCloseModal2();
-        setShowPayPal(true); // Show the PayPal button
-    };
+
 
     useEffect(() => {
         if (plans.length > 0) {
@@ -1155,7 +885,7 @@ const BillingComponent = () => {
 
     const handlePlanSelect = (plan) => {
         setSelectedPlan(plan);
-        console.log('planssssssssss', plan)
+
 
     };
 
@@ -1186,78 +916,6 @@ const BillingComponent = () => {
 
 
 
-    //     const token = localStorage.getItem('token');
-
-    //     const [activeTab, setActiveTab] = useState('cardSelection');
-    //     const tabButtonStyle = {
-    //         flex: 1,
-    //         padding: '0.5rem',
-    //         border: '1px solid #6ABB47',
-    //         backgroundColor: 'white',
-    //         color: '#6ABB47',
-    //         textAlign: 'center',
-    //         cursor: 'pointer',
-    //         transition: 'background-color 0.3s, color 0.3s'
-    //     };
-
-    //     const activeTabButtonStyle = {
-    //         ...tabButtonStyle,
-    //         backgroundColor: '#6ABB47',
-    //         color: 'white'
-    //     };
-
-    //     const handleSelectCard = (card) => {
-    //         setSelectedCard(card._id);
-    //         // console.log('Selected Card Full Info:', card);
-    //     };
-
-    //     return (
-    //         <CustomModal
-    //             show={showNewCardModal}
-    //             onClose={handleClose}
-    //             title="Select Card for Payment"
-    //         >
-    //             <div className="text-left mb-4">
-    //                 <div style={{ display: 'flex', marginBottom: '1rem', }}>
-    //                     <button
-    //                         style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
-    //                         onClick={() => setActiveTab('cardSelection')}
-    //                     >
-    //                         Card Selection
-    //                     </button>
-    //                     <button
-    //                         style={activeTab === 'payment' ? activeTabButtonStyle : tabButtonStyle}
-    //                         onClick={() => setActiveTab('payment')}
-    //                     >
-    //                         Add New Card
-    //                     </button>
-
-    //                 </div>
-
-    //                 {activeTab === 'cardSelection' && (
-    //                     <CardSelection
-    //                         cards={cards}
-    //                         selectedCard={selectedCard}
-    //                         onSelect={handleSelectCard}
-    //                         onActionComplete={fetchTokenAndSuspendedStatus}
-
-    //                     />
-    //                 )}
-    //                 {activeTab === 'payment' && (
-    //                     <Elements stripe={stripePromise}>
-    //                         <div className="payment-container mt-4">
-    //                             <p className="mb-4">Complete Your Payment</p>
-    //                             <CheckoutForm2
-    //                                 fetchTokenAndSuspendedStatus={fetchTokenAndSuspendedStatus}
-    //                                 setpaycard={setpaycard}
-    //                             />
-    //                         </div>
-    //                     </Elements>
-    //                 )}
-    //             </div>
-    //         </CustomModal>
-    //     );
-    // };
 
 
     const [selectedPackage, setSelectedPackage] = useState();
@@ -1321,7 +979,7 @@ const BillingComponent = () => {
         setShowModal(false);
     };
 
-    /////// enter your card number close the modal///////////
+    
     const handleCloseModal2 = () => {
         setShowModalwithoutcard(false);
     };
@@ -1452,130 +1110,7 @@ const BillingComponent = () => {
 
     const [responseMessage, setResponseMessage] = useState(null);
 
-    // const handleDirectChangePlan = async () => {
-    // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    // if (paycard) {
-    //     console.log('Pay with this card:', paycard);
-    //     // setIsLoading(true);
-    //     setResponseMessage(null);
-    //         try {
-    //             const response = await axios.post(`${DirectPayApiUrl}/owner/upgrade`,
-    //                 {
-    //                     // tokenId: paymentMethod.id,
-    //                     // TotalAmount: selectedPlan.costPerUser,
-    //                     // planId: selectedPlan._id,
-
-    //                     planId: selectedPlan._id,
-    //                 }, { headers });
-    //             if (response.status === 200) {
-    //                 console.log('Payment successfully upgraded:', response.data.success);
-    //                 enqueueSnackbar(response.data.success, {
-    //                     variant: "success",
-    //                     anchorOrigin: {
-    //                         vertical: "top",
-    //                         horizontal: "right"
-    //                     }
-    //                 })
-    //                 // setResponseMessage('Payment successful!');
-    //                 // handleUpdatePaymentStatus('paid'); 
-    //                 // setInvoice({ status: 'paid' });
-    //                 // setHasUnpaidInvoices(false) 
-    //             } else {
-    //                 console.error('Payment failed:', response.data.error);
-    //                 enqueueSnackbar(response.data.success, {
-    //                     variant: "error",
-    //                     anchorOrigin: {
-    //                         vertical: "top",
-    //                         horizontal: "right"
-    //                     }
-    //                 })
-    //                 // setResponseMessage('Payment failed: ' + response.data.error);
-    //             }
-    // handleCloseModal2()
-    //         } catch (error) {
-    //             console.error('Error:', error.response.data.message);
-    //             if (error.response && error.response.data) {
-    //                 if (error.response.status === 403 && error.response.data.success === false) {
-    //                     alert(error.response.data.message)
-    //                     enqueueSnackbar(error.response.data.message, {
-    //                         variant: "error",
-    //                         anchorOrigin: {
-    //                             vertical: "top",
-    //                             horizontal: "right"
-    //                         }
-    //                     })
-    //                 }
-    //             }
-    //             // setResponseMessage('Error: ' + error.response.data.message);
-    // } finally {
-    //     // setIsLoading(false);
-    //     setShowModalwithoutcard(false);
-    // }
-    //     }
-    // };
-
-
-    // const handleDirectChangePlan = async () => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    //     if (paycard) {
-    //         console.log('Pay with this card:', paycard);
-    //         // setIsLoading(true);
-    //         setResponseMessage(null);
-    //         try {
-    //             const res = await axios.post(`${DirectPayApiUrl}/owner/upgrade`,
-    //                 {
-    //                     planId: selectedPlan._id,
-    //                 }, { headers })
-    //             console.log('Response owner', res);
-    //             const receiptUrl = res.data.data.receiptUrl; // Add this line
-    //             console.log('Receipt URL:', receiptUrl); // Add this line
-    //             window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
-
-
-
-    //             if (res.status === 200) {
-    //                 console.log('Response', res.data.success)
-    //                 enqueueSnackbar("Plan Changed Successfully", {
-    //                     variant: "success",
-    //                     anchorOrigin: {
-    //                         vertical: "top",
-    //                         horizontal: "right"
-    //                     }
-
-    //                 })
-    //                 // window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
-    //             }
-
-    //             else {
-    //                 if (res.status === 403) {
-    //                     alert("Access denied. Please check your permissions.")
-    //                 } else if (res.data.success === false) {
-    //                     alert(res.data.message)
-    //                 }
-    //             }
-    //             handleCloseModal2()
-    //             // console.log('Employee setting ka message', response?.data?.message);
-    //         } catch (error) {
-    //             console.error('Error:', error.response.data.message);
-    //             if (error.response && error.response.data) {
-    //                 if (error.response.status === 403 || error.response.status === 500 && error.response.data.success === false) {
-    //                     // alert(error.response.data.message)
-    //                     enqueueSnackbar("Sorry, upgrade unavailable due to uncleared invoices", {
-    //                         variant: "error",
-    //                         anchorOrigin: {
-    //                             vertical: "top",
-    //                             horizontal: "right"
-    //                         }
-    //                     })
-    //                 }
-    //             }
-    //         }
-    //         finally {
-    //             // setIsLoading(false);
-    //             setShowModalwithoutcard(false);
-    //         }
-    //     }
-    // }
+   
     useEffect(() => {
         if (selectedPlan) {
             localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
@@ -1641,46 +1176,7 @@ const BillingComponent = () => {
             alert("No payment card available.");
         }
     };
-    // const handleDirectChangePlan = async () => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    //     if (paycard) {
-    //         setIsPlanChanging(true); // Start loader
-    //         try {
-    //             const res = await axios.post(`${DirectPayApiUrl}/owner/upgrade`, {
-    //                 planId: selectedPlan._id,
-    //             }, { headers });
-
-    //             if (res.data.success) {
-    //                 const receiptUrl = res.data.data.receiptUrl;
-    //                 window.open(receiptUrl, '_blank');
-    //                 enqueueSnackbar("Plan Changed Successfully", { variant: "success" });
-    //                 setPlanData(selectedPlan); // Update selected plan only if API call was successful
-    //                 localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
-    //             } else {
-    //                 alert(res.data.message || "An error occurred while changing the plan.");
-    //             }
-    //         } catch (error) {
-    //             console.error('Error:', error.response?.data?.message);
-    //             enqueueSnackbar("Sorry, upgrade unavailable due to uncleared invoices", { variant: "error" });
-    //         } finally {
-    //             setIsPlanChanging(false); // Stop loader
-    //             setShowModalwithoutcard(false);
-    //         }
-    //     } else {
-    //         alert("No payment card available.");
-    //     }
-    // };
-
-    // Example function to fetch or set merchantId
-    // const fetchMerchantId = async () => {
-    //     // Logic to fetch or set merchantId from API or context
-    //     const fetchedMerchantId = await getMerchantIdFromApi(); // Replace with your actual fetching logic
-    //     setMerchantId(fetchedMerchantId);
-    // };
-
-    // useEffect(() => {
-    //     fetchMerchantId(); // Fetch merchantId when component mounts
-    // }, []);
+  
 
     const [merchantId, setMerchantId] = useState(''); // Or whatever method you are using to get the ID
 
@@ -1776,33 +1272,7 @@ const BillingComponent = () => {
 
     const plandetail = `${costPerUser}/employee/mo`;
 
-    // const planchange = () => {
-    //     if (paycard) {
-    //         setShowModalwithoutcard(true);  // For when the paycard is not available
-    //         console.log('card is available', showModalwithoutcard);
-    //         setSelectedPlan(selectedPlan)
-    //     } else {
-    //         console.log('card is not available');
-    //         // handleShowModal();
-    //     }
-    //     // setPlanData(plan)
-    // }
-    // const planchange = () => {
-    //     if (paycard?.cardNumber) {
-    //         console.log('Card is available, setting modal state to true...');
-    //         setShowModalwithoutcard(true);  // Open the modal
-    //         setSelectedPlan(selectedPlan); // Set the selected plan
-    //     } else {
-    //         enqueueSnackbar("Please add your card", {
-    //             variant: "error",
-    //             anchorOrigin: {
-    //                 vertical: "top",
-    //                 horizontal: "right"
-    //             }
-    //         });
-    //         console.log('No card available.');
-    //     }
-    // };
+   
     const planchange = () => {
         console.log('Paycard:', paycard); // Debugging log
         if (paycard?.cardNumber) {
@@ -1815,44 +1285,21 @@ const BillingComponent = () => {
             });
         }
     };
-    // const planchange = () => {
-    //     if (paycard?.cardNumber) {
-    //         // Proceed with upgrade if card exists
-    //         setShowModalwithoutcard(true);  // For when the paycard is not available
-    //         console.log('Card is available, upgrading...');
-    //         setSelectedPlan(selectedPlan)
-    //         // Insert logic here to handle the upgrade, e.g., call the upgrade API
-    //     } else {
-    //         enqueueSnackbar("Please add your card ", {
-    //             variant: "error",
-    //             anchorOrigin: {
-    //                 vertical: "top",
-    //                 horizontal: "right"
-    //             }
-    //         });
-    //         // Show Snackbar if no card is available
-    //         console.log('Card is not available.');
-    //         // Optional: Open modal to add a new card
-    //     }
-    // };
+
 
     const [isOpen, setIsOpen] = useState(false);
 
-    const totalbill = selectedPlan?.costPerUser * TotalUsers
-    console.log('_____________________', paycard?.cardNumber)
+
     const Cardetail = paycard?.cardNumber
-    localStorage.setItem('billdetail', JSON.stringify(totalbill));
+
     localStorage.setItem('carddetail', JSON.stringify(Cardetail));
-    // const planData = JSON.parse(localStorage.getItem('planIdforHome'));
+
     const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
-    // const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
-    // const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
 
-    const premiumPlan = plans.find((plan) => plan.planType === 'premium');
 
-    const handleOpenModal = () => {
-        setIsOpen(true);
-    };
+
+
+
 
     return (
         <>
@@ -2019,7 +1466,7 @@ const BillingComponent = () => {
                             </div>
                         )}
                     </div>
-                    <div className="row mt-4">
+                    {/* <div className="row mt-4">
                         {loading ? (
                             <p className="col-12">Loading plans...</p>
                         ) : fetchError ? (
@@ -2114,24 +1561,7 @@ const BillingComponent = () => {
                                                                                 selectedPlan?.planType?.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'
                                                                             )}
                                                                         </button>
-                                                                        {/* <a
-                                                                        href={receiptUrl}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        style={{
-                                                                            marginLeft: '10px',
-                                                                            padding: '5px 5px',  // Adjusting padding for a smaller size
-                                                                            backgroundColor: 'green',  // Green background
-                                                                            color: 'white',  // White text
-                                                                            border: 'none',  // Removing default border
-                                                                            borderRadius: '5px',  // Rounded corners
-                                                                            cursor: 'pointer',  // Pointer on hover
-                                                                            fontSize: '0.875rem',
-                                                                            textDecoration: 'none'  // Remove underline
-                                                                        }}
-                                                                    >
-                                                                        {plan.planType.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'}
-                                                                    </a> */}
+                                                                      
                                                                     </>
                                                                 ) : (
                                                                     <span></span>
@@ -2168,7 +1598,7 @@ const BillingComponent = () => {
                                     </div>
                                 ))
                         )}
-                    </div>
+                    </div> */}
                     <div className='card mt-4'>
                         <div className='card-body'>
                             <h3 className="card-title mt-4">Estimated payments</h3>
@@ -2179,13 +1609,13 @@ const BillingComponent = () => {
                                         <p><strong>First billing period:</strong> {firstBillingPeriodStart && firstBillingPeriodEnd ? `${formatDate(firstBillingPeriodStart)}–${formatDate(firstBillingPeriodEnd)}` : 'N/A'}</p>
                                         <p><strong>First charge date:</strong> {billingDate ? formatDate(billingDate) : 'N/A'}</p>
                                         <p><strong>Current employees:</strong> {TotalUsers} — you won't be charged for yourself unless you track your own time</p>
-                                        {selectedPlan && (
+                                        {/* {selectedPlan && (
                                             <>
                                                 <p><strong>Price per user:</strong> ${selectedPlan.costPerUser}/month</p>
-                                                {/* <p className="font-weight-bold"><strong>Estimated total:</strong> <span>${selectedPlan.costPerUser * TotalUsers}/month</span></p> */}
+
                                                 <p className="font-weight-bold"><strong>Estimated total:</strong>  <span>${Math.floor(selectedPlan.costPerUser * TotalUsers * 100) / 100}/month</span></p>
                                             </>
-                                        )}
+                                        )} */}
                                     </div>
                                 </div>
                             </div>
@@ -2220,38 +1650,7 @@ const BillingComponent = () => {
     );
 };
 
-const payments = [
-    {
-        id: 'PAY-001',
-        date: '2024-10-01',
-        description: 'For 04/06/2024–03/07/2024',
-        amount: 150.00,
-    },
-    {
-        id: 'PAY-002',
-        date: '2024-09-15',
-        description: 'For 04/06/2024–03/07/2024',
-        amount: 200.00,
-    },
-    {
-        id: 'PAY-003',
-        date: '2024-08-30',
-        description: 'For 04/06/2024–03/07/2024',
-        amount: 350.00,
-    },
-    {
-        id: 'PAY-004',
-        date: '2024-08-05',
-        description: 'For 04/06/2024–03/07/2024',
-        amount: 450.00,
-    },
-    {
-        id: 'PAY-005',
-        date: '2024-07-22',
-        description: 'For 04/06/2024–03/07/2024',
-        amount: 500.00,
-    },
-];
+
 
 
 

@@ -33,6 +33,7 @@ import { useSocket } from '../io'; // Correct import
 import { useSelector, useDispatch } from 'react-redux';
 import { setEmployessSetting } from "../store/adminSlice"; // Adjust the import based on your file structure
 import Payment from "./paymentPlan";
+import jwtDecode from "jwt-decode";
 
 
 function UserDetails() {
@@ -64,6 +65,23 @@ function UserDetails() {
             setIsLoggedIn(false); // User is not logged in
         }
     }, []);
+
+    // Handle Arrow Key Press
+    // const handleKeyPress = (event) => {
+    //     if (event.key === "ArrowRight") {
+    //         setCurrentMonth((prevMonth) => (prevMonth + 1) % 12); // Move to next month
+    //     } else if (event.key === "ArrowLeft") {
+    //         setCurrentMonth((prevMonth) => (prevMonth - 1 + 12) % 12); // Move to previous month
+    //     }
+    // };
+
+    // // Add Event Listener for Key Press
+    // useEffect(() => {
+    //     window.addEventListener("keydown", handleKeyPress);
+    //     return () => {
+    //         window.removeEventListener("keydown", handleKeyPress);
+    //     };
+    // }, []);
 
     async function handleApplySetting(data) {
 
@@ -179,7 +197,7 @@ function UserDetails() {
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
-    let items = JSON.parse(localStorage.getItem('items'));
+    let items = jwtDecode(token);
     let headers = {
         Authorization: "Bearer " + token,
     }
@@ -187,6 +205,154 @@ function UserDetails() {
     const apiUrl2 = "https://ss-track.vercel.app/api/v1/owner";
     const userId = params.id;
 
+    // const handleStartTimeChange = (e) => {
+    //     let value = e.target.value;
+
+    //     // Allow only valid characters (digits, colon, space, AM/PM)
+    //     if (/^[0-9: ]*(AM|PM)?$/i.test(value) || value === "") {
+    //         // Update state
+    //         setOfflineTime((prev) => ({
+    //             ...prev,
+    //             startTime: value,
+    //         }));
+    //     } else {
+    //         enqueueSnackbar("Only numeric values and 'AM/PM' are allowed", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+    //     }
+
+    //     // Validate full input format
+    //     if (value && !/^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)?$/i.test(value)) {
+    //         enqueueSnackbar("Invalid start time format. Please use 'HH:mm AM/PM'", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+    //     }
+    // };
+
+    // const handleEndTimeChange = (e) => {
+    //     let value = e.target.value;
+
+    //     // Allow only valid characters (digits, colon, space, AM/PM)
+    //     if (/^[0-9: ]*(AM|PM)?$/i.test(value) || value === "") {
+    //         // Update state
+    //         setOfflineTime((prev) => ({
+    //             ...prev,
+    //             endTime: value,
+    //         }));
+    //     } else {
+    //         enqueueSnackbar("Only numeric values and 'AM/PM' are allowed", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+    //     }
+
+    //     // Validate full input format
+    //     if (value && !/^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)?$/i.test(value)) {
+    //         enqueueSnackbar("Invalid end time format. Please use 'HH:mm AM/PM'", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+    //     }
+    // };
+    const handleStartTimeChange = (e) => {
+        let value = e.target.value;
+        const isValidFormat = !!parseTime(value); // Check if the time is valid
+
+        setOfflineTime((prev) => ({
+            ...prev,
+            startTime: value,
+            startTimeError: value && !isValidFormat, // Show error if invalid
+            rangeError: value && prev.endTime && !isValidRange(value, prev.endTime),
+        }));
+    };
+
+    const handleEndTimeChange = (e) => {
+        let value = e.target.value;
+        const isValidFormat = !!parseTime(value); // Check if the time is valid
+
+        setOfflineTime((prev) => ({
+            ...prev,
+            endTime: value,
+            endTimeError: value && !isValidFormat, // Show error if invalid
+            rangeError: value && prev.startTime && !isValidRange(prev.startTime, value),
+        }));
+    };
+
+
+    const parseTime = (time) => {
+        if (!time) return null; // Return null if time is empty or undefined
+
+        const matches = time.match(/(\d+):(\d+)\s?(AM|PM)/i); // Match time format
+        if (!matches) return null; // Return null if the format is invalid
+
+        const [hours, minutes, meridian] = matches.slice(1); // Extract matched groups
+        let hours24 = parseInt(hours, 10);
+        if (meridian.toUpperCase() === "PM" && hours24 !== 12) hours24 += 12;
+        if (meridian.toUpperCase() === "AM" && hours24 === 12) hours24 = 0;
+
+        return { hours: hours24, minutes: parseInt(minutes, 10) };
+    };
+
+    // Helper function to validate time range
+    const isValidRange = (start, end) => {
+        const startParsed = parseTime(start);
+        const endParsed = parseTime(end);
+
+        // If either time is invalid, range cannot be valid
+        if (!startParsed || !endParsed) return false;
+
+        const startMinutes = startParsed.hours * 60 + startParsed.minutes;
+        const endMinutes = endParsed.hours * 60 + endParsed.minutes;
+
+        return endMinutes > startMinutes; // Valid if end is greater than start
+    };
+
+    // const fetchData = async () => {
+    //     setLoading(true);
+    //     try {
+    //         if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
+    //             const [screenshotsResponse, activitiesResponse, hoursResponse] = await Promise.all([
+    //                 axios.get(`${apiUrl}/owner/sorted-screenshots/${userId}?date=${formattedDate}`, { headers }),
+    //                 axios.get(`${apiUrl}/owner/sorted-activities/${userId}?date=${formattedDate}`, { headers }),
+    //                 axios.get(`${apiUrl}/owner/sorted-hours/${userId}?date=${formattedDate}`, { headers })
+    //             ]);
+    //             const screenshotsData = screenshotsResponse.data;
+    //             const activitiesData = activitiesResponse.data;
+    //             const hoursData = hoursResponse.data;
+    //             setData(hoursData.data);
+    //             setTotalActivityByDay(activitiesData.data);
+    //             setTimeEntryId(hoursData.data.TimeTrackingId);
+    //             setTimeTrackingId(hoursData.data.TimeTrackingId);
+    //             setTimeEntries(screenshotsData.data.groupedScreenshots || []);
+    //             setTrimActivity({ ...trimActivity, totalHours: hoursData.data.totalHours.daily });
+    //             // Clear data if no screenshots are available
+    //             if (!screenshotsData.data?.groupedScreenshots?.length) {
+    //                 setTimeEntries([]);
+    //             }
+    //         } else {
+    //             const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
+    //             if (response.data) {
+
+    //                 console.log(response);
+    //                 setData(response.data.data);
+    //                 setTimeEntryId(response.data.data.TimeTrackingId);
+    //                 setTimeTrackingId(response.data.data.TimeTrackingId);
+    //                 setTimeEntries(response?.data?.data?.groupedScreenshots || []);
+    //                 setTrimActivity({ ...trimActivity, totalHours: response?.data?.data?.totalHours.daily });
+    //             }
+    //             // Clear data if no screenshots are available
+    //             if (!response.data?.data?.groupedScreenshots?.length) {
+    //                 setTimeEntries([]);
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -199,31 +365,37 @@ function UserDetails() {
                 const screenshotsData = screenshotsResponse.data;
                 const activitiesData = activitiesResponse.data;
                 const hoursData = hoursResponse.data;
-                setData(hoursData.data);
-                setTotalActivityByDay(activitiesData.data);
-                setTimeEntryId(hoursData.data.TimeTrackingId);
-                setTimeTrackingId(hoursData.data.TimeTrackingId);
-                setTimeEntries(screenshotsData.data.groupedScreenshots || []);
-                setTrimActivity({ ...trimActivity, totalHours: hoursData.data.totalHours.daily });
+
+                setData(hoursData.data || []);
+                setTotalActivityByDay(activitiesData.data || []);
+                setTimeEntryId(hoursData.data?.TimeTrackingId || null);
+                setTimeTrackingId(hoursData.data?.TimeTrackingId || null);
+                setTimeEntries(screenshotsData.data?.groupedScreenshots || []);
+
+                // Clear data if no screenshots are available
+                if (!screenshotsData.data?.groupedScreenshots?.length) {
+                    setTimeEntries([]);
+                }
             } else {
                 const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
-                if (response.data) {
+                setData(response.data?.data || []);
+                setTimeEntryId(response.data?.data?.TimeTrackingId || null);
+                setTimeTrackingId(response.data?.data?.TimeTrackingId || null);
+                setTimeEntries(response.data?.data?.groupedScreenshots || []);
 
-                    console.log(response);
-                    setData(response.data.data);
-                    setTimeEntryId(response.data.data.TimeTrackingId);
-                    setTimeTrackingId(response.data.data.TimeTrackingId);
-                    setTimeEntries(response?.data?.data?.groupedScreenshots || []);
-                    setTrimActivity({ ...trimActivity, totalHours: response?.data?.data?.totalHours.daily });
+                // Clear data if no screenshots are available
+                if (!response.data?.data?.groupedScreenshots?.length) {
+                    setTimeEntries([]);
                 }
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
+            setTimeEntries([]); // Clear screenshots in case of error
         } finally {
             setLoading(false);
         }
     };
-    
+
     // const fetchData = async () => {
     //     if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
     //         try {
@@ -308,25 +480,59 @@ function UserDetails() {
         return timeRegex.test(timeString);
     }
 
+    // const prevMonth = () => {
+    //     setDate((prevDate) => {
+    //         const prevMonthDate = new Date(prevDate.getFullYear(), prevDate.getMonth() - 1, 1);
+    //         setActiveMonth(prevMonthDate.toLocaleDateString())
+    //         setTotalPercentageByDay(null)
+    //         // setTotalHoursByDay(null);
+    //         return prevMonthDate;
+    //     });
+    // };
+
+    // const nextMonth = () => {
+    //     setDate((prevDate) => {
+    //         const nextMonthDate = new Date(prevDate.getFullYear(), prevDate.getMonth() + 1, 1);
+    //         setActiveMonth(nextMonthDate.toLocaleDateString())
+    //         setTotalPercentageByDay(null)
+    //         // setTotalHoursByDay(null);
+    //         return nextMonthDate;
+    //     });
+    // };
     const prevMonth = () => {
         setDate((prevDate) => {
-            const prevMonthDate = new Date(prevDate.getFullYear(), prevDate.getMonth() - 1);
-            setActiveMonth(prevMonthDate.toLocaleDateString())
-            setTotalPercentageByDay(null)
-            // setTotalHoursByDay(null);
+            const prevMonthDate = new Date(prevDate.getFullYear(), prevDate.getMonth() - 1, 1);
+            const clickDay = prevMonthDate.getDate().toString().padStart(2, "0");
+            const clickMonth = (prevMonthDate.getMonth() + 1).toString().padStart(2, "0");
+            const formattedDate = `${prevMonthDate.getFullYear()}-${clickMonth}-${clickDay}`;
+            // setFormattedDate(formattedDate);
+            setFormattedDate(`${prevMonthDate.getFullYear()}-${(prevMonthDate.getMonth() + 1).toString().padStart(2, "0")}-01`);
+            setMonth(prevMonthDate.getMonth());
+            setActiveMonth(prevMonthDate.toLocaleDateString());
+            setTotalPercentageByDay(null);
             return prevMonthDate;
         });
     };
 
     const nextMonth = () => {
         setDate((prevDate) => {
-            const nextMonthDate = new Date(prevDate.getFullYear(), prevDate.getMonth() + 1);
-            setActiveMonth(nextMonthDate.toLocaleDateString())
-            setTotalPercentageByDay(null)
-            // setTotalHoursByDay(null);
+            const nextMonthDate = new Date(prevDate.getFullYear(), prevDate.getMonth() + 1, 1);
+            const clickDay = nextMonthDate.getDate().toString().padStart(2, "0");
+            const clickMonth = (nextMonthDate.getMonth() + 1).toString().padStart(2, "0");
+            const formattedDate = `${nextMonthDate.getFullYear()}-${clickMonth}-${clickDay}`;
+            // setFormattedDate(formattedDate);
+            setFormattedDate(`${nextMonthDate.getFullYear()}-${(nextMonthDate.getMonth() + 1).toString().padStart(2, "0")}-01`);
+            setMonth(nextMonthDate.getMonth());
+            setActiveMonth(nextMonthDate.toLocaleDateString());
+            setTotalPercentageByDay(null);
             return nextMonthDate;
         });
     };
+
+    // Get formatted values for display
+    // const currentMonth = date.getMonth();
+    const currentYear = date.getFullYear();
+    // const formattedDate = `${currentYear}-${currentMonth + 1 < 10 ? "0" : ""}${currentMonth + 1}-01`;
 
     const goBackToPreviousImage = () => {
         if (selectedImageIndex >= 0) {
@@ -356,19 +562,85 @@ function UserDetails() {
         setSSData(element)
     };
 
+    // const renderCalendar = () => {
+    //     const month = date.getMonth();
+    //     // const [totalHoursByDay, setTotalHoursByDay] = useState([]); // State for total hours by day
+    //     const year = date.getFullYear();
+    //     const firstDayOfMonth = new Date(year, month, 1);
+    //     const lastDayOfMonth = new Date(year, month + 1, 0);
+    //     const daysInMonth = lastDayOfMonth.getDate();
+    //     const weeks = [];
+    //     let days = [];
+    //     let currentDay = new Date(firstDayOfMonth);
+    //     // const [totalHoursByDay, setTotalHoursByDay] = useState({}); // State for total hours by day
+
+
+
+    //     const handleClick = (key) => {
+    //         setSelectedDate(key);
+    //         const clickDay = new Date(key).getFullYear();
+    //         const clickMonth = (new Date(key).getMonth() + 1).toString().padStart(2, '0');
+    //         const clickDate = new Date(key).getDate().toString().padStart(2, '0');
+    //         const clickDa = new Date(key).getDay();
+    //         const clickMon = new Date(key).getMonth();
+    //         setClickDay(clickDa);
+    //         setMonth(clickMon);
+    //         const formattedDate = `${clickDay}-${clickMonth}-${clickDate}`;
+    //         setFormattedDate(formattedDate);
+    //         setActiveButton(key);
+    //     };
+
+    //     for (let i = 0; i < daysInMonth; i++) {
+    //         const isWeekend = currentDay.getDay() === 0 || currentDay.getDay() === 6;
+    //         const dayKey = currentDay.toString();
+    //         const isCurrentDate = currentDay.getDate() === new Date().getDate() && currentDay.getMonth() === new Date().getMonth();
+
+    //         const dayFormatted = `${currentDay.getFullYear()}-${(currentDay.getMonth() + 1).toString().padStart(2, '0')}-${currentDay.getDate().toString().padStart(2, '0')}`;
+
+    //         // Check if data.totalHours.daily is an array and find the total hours for the specific date
+    //         const totalHoursForDate = Array.isArray(data?.totalHours?.daily)
+    //             ? data?.totalHours?.daily.find(item => item.date === dayFormatted)?.data?.totalHours?.daily
+    //             : 0; // Default to 0 if not an array or if no match is found
+    //         days.push(
+    //             // <OverlayTrigger
+    //             //     key={dayKey}
+    //             //     placement="top"
+    //             //     overlay={
+    //             //         <Tooltip>
+    //             //             {totalHoursForDate}
+    //             //         </Tooltip>
+    //             //     }
+    //             // >
+    //             <div
+    //                 style={{ cursor: "pointer", border: "1px solid #ebeaea" }}
+    //                 className={`col cell ${isWeekend ? "week day week first" : "day"} ${dayKey === activeButton ? "active" : isCurrentDate ? "active2" : ""}`}
+    //                 onClick={() => handleClick(dayKey)}
+    //             >
+    //                 <p className="weekName">{currentDay.toLocaleString("en-US", { weekday: "short" })}</p>
+    //                 <p className="Weekdate">{currentDay.getDate()}</p>
+    //                 <div style={{ padding: "2px" }}>
+    //                     <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
+    //                 </div>
+    //             </div>
+    //             // </OverlayTrigger>
+    //         );
+
+    //         currentDay.setDate(currentDay.getDate() + 1);
+    //     }
+
+    //     weeks.push(<div className="days" key={currentDay}>{days}</div>);
+    //     return weeks;
+    // };
     const renderCalendar = () => {
         const month = date.getMonth();
-        // const [totalHoursByDay, setTotalHoursByDay] = useState([]); // State for total hours by day
         const year = date.getFullYear();
         const firstDayOfMonth = new Date(year, month, 1);
         const lastDayOfMonth = new Date(year, month + 1, 0);
         const daysInMonth = lastDayOfMonth.getDate();
+        const currentDate = new Date(); // Get the current date
         const weeks = [];
         let days = [];
         let currentDay = new Date(firstDayOfMonth);
-        // const [totalHoursByDay, setTotalHoursByDay] = useState({}); // State for total hours by day
-
-
 
         const handleClick = (key) => {
             setSelectedDate(key);
@@ -387,7 +659,16 @@ function UserDetails() {
         for (let i = 0; i < daysInMonth; i++) {
             const isWeekend = currentDay.getDay() === 0 || currentDay.getDay() === 6;
             const dayKey = currentDay.toString();
-            const isCurrentDate = currentDay.getDate() === new Date().getDate() && currentDay.getMonth() === new Date().getMonth();
+            const isCurrentDate =
+                currentDay.getDate() === currentDate.getDate() &&
+                currentDay.getMonth() === currentDate.getMonth() &&
+                currentDay.getFullYear() === currentDate.getFullYear();
+
+            // Determine if the current day is in the current month or earlier
+            const isCurrentOrPastMonth =
+                currentDay.getFullYear() < currentDate.getFullYear() ||
+                (currentDay.getFullYear() === currentDate.getFullYear() &&
+                    currentDay.getMonth() <= currentDate.getMonth());
 
             const dayFormatted = `${currentDay.getFullYear()}-${(currentDay.getMonth() + 1).toString().padStart(2, '0')}-${currentDay.getDate().toString().padStart(2, '0')}`;
 
@@ -395,28 +676,31 @@ function UserDetails() {
             const totalHoursForDate = Array.isArray(data?.totalHours?.daily)
                 ? data?.totalHours?.daily.find(item => item.date === dayFormatted)?.data?.totalHours?.daily
                 : 0; // Default to 0 if not an array or if no match is found
+
             days.push(
-                // <OverlayTrigger
-                //     key={dayKey}
-                //     placement="top"
-                //     overlay={
-                //         <Tooltip>
-                //             {totalHoursForDate}
-                //         </Tooltip>
-                //     }
-                // >
                 <div
-                    style={{ cursor: "pointer", border: "1px solid #ebeaea" }}
+                    style={{
+                        cursor: "pointer",
+                        border: "1px solid #ebeaea",
+                    }}
                     className={`col cell ${isWeekend ? "week day week first" : "day"} ${dayKey === activeButton ? "active" : isCurrentDate ? "active2" : ""}`}
                     onClick={() => handleClick(dayKey)}
                 >
                     <p className="weekName">{currentDay.toLocaleString("en-US", { weekday: "short" })}</p>
                     <p className="Weekdate">{currentDay.getDate()}</p>
                     <div style={{ padding: "2px" }}>
-                        <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
+                        {/* Show green line only for current and past months */}
+                        <div
+                            style={{
+                                width: `${isCurrentOrPastMonth && totalPercentageByDay ? totalPercentageByDay[i]?.percentage : 0}%`,
+                                background: isCurrentOrPastMonth
+                                    ? "linear-gradient(180deg,#cdeb8e 0,#a5c956)"
+                                    : "transparent",
+                                height: "10px",
+                            }}
+                        ></div>
                     </div>
                 </div>
-                // </OverlayTrigger>
             );
 
             currentDay.setDate(currentDay.getDate() + 1);
@@ -469,8 +753,10 @@ function UserDetails() {
             const formattedHour = hour <= 12 ? hour : hour - 12;
 
             intervals.push(
-                <div key={hour} className="time-slot">
-                    <div className="hour-color">
+                <div key={hour} className="time-slot" >
+                    <div className="hour-color"
+                    // style={{width:'12px'}}
+                    >
                         {formattedHour === 0 ? 12 : formattedHour} {isPM ? 'pm' : 'am'}
                         <div className="minute-container">
                             {Array.from({ length: 60 }, (_, minute) => {
@@ -581,6 +867,55 @@ function UserDetails() {
         setShowDeleteModal(true)
         setScreenshotId(elements._id)
     }
+
+    useEffect(() => {
+        if (offlineTime?.startTime && offlineTime?.endTime) {
+            const parseTime = (time) => {
+                if (!time) return null; // Handle null or undefined input
+                const match = time.match(/(\d+):(\d+)\s?(AM|PM)/i); // Match the time format
+                if (!match) return null; // Handle invalid formats
+    
+                const [hours, minutes, meridian] = match.slice(1); // Safely extract matched groups
+                let hours24 = parseInt(hours, 10);
+                if (meridian.toUpperCase() === "PM" && hours24 !== 12) hours24 += 12;
+                if (meridian.toUpperCase() === "AM" && hours24 === 12) hours24 = 0;
+                return { hours: hours24, minutes: parseInt(minutes, 10) };
+            };
+    
+            const start = parseTime(offlineTime.startTime);
+            const end = parseTime(offlineTime.endTime);
+    
+            if (start && end) {
+                const startMinutes = start.hours * 60 + start.minutes;
+                const endMinutes = end.hours * 60 + end.minutes;
+    
+                if (endMinutes > startMinutes) {
+                    const totalMinutes = endMinutes - startMinutes;
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    setOfflineTime((prev) => ({
+                        ...prev,
+                        totalHours: `${hours}h ${minutes}m`,
+                    }));
+                } else {
+                    setOfflineTime((prev) => ({
+                        ...prev,
+                        totalHours: "Invalid range",
+                    }));
+                }
+            } else {
+                setOfflineTime((prev) => ({
+                    ...prev,
+                    totalHours: "Invalid time format",
+                }));
+            }
+        } else {
+            setOfflineTime((prev) => ({
+                ...prev,
+                totalHours: "0h 0m",
+            }));
+        }
+    }, [offlineTime?.startTime, offlineTime?.endTime]);    
 
     const handleDeleteSS = async () => {
         setShowDeleteModal(false)
@@ -884,6 +1219,14 @@ function UserDetails() {
 
     console.log('', timeEntries);
 
+    // Get the current month and year
+    // const currentMonth = date.getMonth();
+    // const currentYear = date.getFullYear();
+
+    // // Get the first day of the new month for display
+    // const formattedDate = `${currentYear}-${currentMonth + 1 < 10 ? "0" : ""}${currentMonth + 1}-01`;
+    const currentWeekDay = date.getDay();
+
     return (
         <>
             <div>
@@ -1011,27 +1354,48 @@ function UserDetails() {
                         <p style={{ marginBottom: "20px", fontWeight: "700", fontSize: "20px" }}>Add Offline Time</p>
                         <div className="editBoxLowerDiv">
                             <p>Offline time range will appear on your timeline <br />
-                                You will able to edit or delete from there
+                                You will be able to edit or delete it from there.
                             </p>
+                            {offlineTime?.startTimeError && (
+                                <p style={{ color: "red", fontWeight: "bold" }}>Invalid start time format. Please use 'HH:mm AM/PM'.</p>
+                            )}
+                            {offlineTime?.endTimeError && (
+                                <p style={{ color: "red", fontWeight: "bold" }}>Invalid end time format. Please use 'HH:mm AM/PM'.</p>
+                            )}
+                            {offlineTime?.rangeError && (
+                                <p style={{ color: "red", fontWeight: "bold" }}>End time must be greater than start time.</p>
+                            )}
                             <div className="editboxinputdiv">
-                                <input onChange={(e) => setOfflineTime({ ...offlineTime, startTime: e.target.value })} value={offlineTime?.startTime} />
+                                <input
+                                    onChange={handleStartTimeChange}
+                                    value={offlineTime?.startTime}
+                                    placeholder="Start Time (e.g., 7:00 AM)"
+                                    style={{
+                                        borderColor: offlineTime?.startTimeError ? "red" : "",
+                                    }}
+                                />
                                 -
-                                <input onChange={(e) => setOfflineTime({ ...offlineTime, endTime: e.target.value })} value={offlineTime?.endTime} />
+                                <input
+                                    onChange={handleEndTimeChange}
+                                    value={offlineTime?.endTime}
+                                    placeholder="End Time (e.g., 9:00 PM)"
+                                    style={{
+                                        borderColor: offlineTime?.endTimeError ? "red" : "",
+                                    }}
+                                />
                                 <p>-{offlineTime?.totalHours ? offlineTime?.totalHours : "0h 0m"}</p>
                             </div>
-                            <p className="sevenAm">eg 7am to 9:10am or 17:30 to 22:00</p>
+
+                            <p className="sevenAm">e.g., 7am to 9:10am or 17:30 to 22:00</p>
                             <div>
                                 <select className="projectOption">
                                     <option>I8IS</option>
-                                    {/* <option>Y8HR</option>
-                                    <option>Peel HR</option>
-                                    <option>Geox HR</option>
-                                    <option>Click HR</option> */}
                                 </select>
                             </div>
-                            <textarea placeholder="Note (optional)" rows="5" ></textarea>
+                            <textarea placeholder="Note (optional)" rows="5"></textarea>
                         </div>
                     </Modal.Body>
+
 
                     <Modal.Footer>
                         <button className="teamActionButton" onClick={handleAddOfflineTime}>
@@ -1166,9 +1530,28 @@ function UserDetails() {
                                         <img width={120} src={logo} alt="" />
                                     </div>
                                     <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
-                                        <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]} </p>
+                                        {/* Weekday */}
+                                        <p className="weekDayTimer">
+                                            {/* Show the current day of the week */}
+                                            {days[currentWeekDay]}
+                                        </p>
+                                        {/* <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]}  </p> */}
+
+                                        {/* Current Day of the month */}
                                         <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
-                                        <p className="weekDateTimer">{formattedDate == todayDate ? months[currentMonth] : months[month]}</p>
+                                        {/* Current Month */}
+                                        <p className="weekDateTimer">
+                                            {/* Display the current month */}
+                                            {/* {months[currentMonth]} */}
+                                        </p>
+                                        <p className="weekDateTimer">
+                                            {months[month || currentMonth]}
+                                        </p>
+
+                                        {/* Current Year */}
+                                        <p className="weekDateTimer">
+                                            {currentYear} {/* Display the current year */}
+                                        </p>
                                         <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
                                             <div className="circular-progress" style={{
                                                 cursor: "pointer"
@@ -1176,7 +1559,12 @@ function UserDetails() {
                                                 <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
                                             </div>
                                         </OverlayTrigger>
-                                        <p className="timerClock">{data?.totalHours?.daily}</p>
+                                        {/* <p className="timerClock">
+                                            {data?.totalHours?.daily === "0h 0m" ? days[currentWeekDay] : data?.totalHours?.daily}
+                                        </p> */}
+                                        <p className="timerClock">        {data?.totalHours?.daily ? data.totalHours.daily : "0h 0m"}
+                                        </p>
+                                        {/* <p className="timerClock">{totalHours.daily}</p> */}
                                         <p className="weekTimer">Week</p>
                                         <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
                                         <img src={circleDot} alt="CircleDot.png" />

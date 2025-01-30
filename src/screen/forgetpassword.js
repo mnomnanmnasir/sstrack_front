@@ -5,6 +5,7 @@ import axios from "axios";
 import { FerrisWheelSpinner } from "react-spinner-overlay";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
+import Header from '../screen/component/header';
 
 function ForgetPassword() {
 
@@ -62,6 +63,7 @@ function ForgetPassword() {
 
     return (
         <div>
+            <Header/>
             <SnackbarProvider />
             <div className="maininputdivs"
                 onKeyPress={(e) => {

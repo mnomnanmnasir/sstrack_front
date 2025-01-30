@@ -211,7 +211,7 @@ function Home() {
 
   async function signin() {
     const decoded = jwtDecode(token);
-    localStorage.setItem("items", JSON.stringify(decoded));
+    // localStorage.setItem("items", JSON.stringify(decoded));
     localStorage.setItem("token", token);
     navigate("/dashboard")
   }

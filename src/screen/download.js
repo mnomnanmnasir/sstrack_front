@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DownloadProduct from '../images/ss-track-banner.svg';
 import { BsWindows, BsApple, BsGoogle } from 'react-icons/bs'
 import axios from 'axios'
+import Header from '../screen/component/header';
 
 const Download = () => {
 
@@ -55,6 +56,7 @@ const Download = () => {
 
     return (
         <>
+        <Header/>
             <div className="container" style={{ borderRadius: '5%', marginTop: '5%', marginBottom: '5%' }}>
                 <div className="card justify-content-between" style={{ width: '100%' }}>
                     <div className='download-card-header'>

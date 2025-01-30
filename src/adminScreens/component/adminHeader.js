@@ -1,10 +1,12 @@
 import React from "react";
 import logo from '../../images/popHeadLogo.png'
 import line from '../../images/line.webp'
+import jwtDecode from "jwt-decode";
 
 
 function AdminHeader(){
-    const items = JSON.parse(localStorage.getItem('items'));
+    const token = JSON.parse(localStorage.getItem('token'));
+    const items = jwtDecode(JSON.stringify(token));
     return(
         <section>
         <nav className="container navbar navbar-expand-lg navbar-dark">

@@ -14,6 +14,9 @@ import moment from 'moment-timezone';
 import { io } from 'socket.io-client'; // Correct import
 import { useSocket } from '../io'; // Correct import
 import { useQuery } from 'react-query';
+import jwtDecode from "jwt-decode";
+import UserHeader from "./component/userHeader";
+import Footer from "./component/footer";
 const fetcher = (url, headers) => axios.get(url, { headers }).then((res) => res.data);
 
 
@@ -32,7 +35,7 @@ function UserDashboard() {
     const navigate = useNavigate();
     const socket = useSocket()
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('items'));
+    const user = jwtDecode(JSON.stringify(token));
     const headers = {
         Authorization: 'Bearer ' + token,
     };
@@ -160,9 +163,9 @@ function UserDashboard() {
         const monthsAgo = Math.floor(daysAgo / 30); // Calculate months
 
         if (minutesAgo < 60) {
-            return minutesAgo !== 1 && minutesAgo >= 0
+            return minutesAgo !== 1 && minutesAgo > 0
                 ? `${minutesAgo} minutes ago`
-                : `a minute ago`;
+                : `just now`;
         } else if (hoursAgo < 24) {
             return hoursAgo > 1 ? `${hoursAgo} hours ago` : `${hoursAgo} hour ago`;
         } else if (daysAgo < 30) {
@@ -324,7 +327,7 @@ function UserDashboard() {
     //     }
     // }, [user?.userType]);
 
-    const items = JSON.parse(localStorage.getItem('items'));
+    const items = jwtDecode(JSON.stringify(token));
     const offsetInMinutes = moment.tz(items?.timezone).utcOffset();
     const offsetInHours = offsetInMinutes / 60;
     const offsetSign = offsetInHours >= 0 ? '+' : '-';
@@ -407,126 +410,128 @@ function UserDashboard() {
     };
 
     return (
-        <div className="mobhayat">
-            <div className="container">
-                <div className="userHeader">
-                    <div>
-                        <h5>Employee Dashboard</h5>
-                    </div>
-                    <div className="headerTop">
-                        <h6>All times are UTC {formattedOffset}</h6>
-                        <img src={setting} alt="setting.png" style={{ cursor: "pointer" }} onClick={() => navigate("/account")} />
-                    </div>
-                </div>
-                <div className="mainwrapper">
-                    <div className="userDashboardContainer">
-                        <div className="dashheadings">
-                            <p
-                                style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                className="dashheadingtop"
-                                onClick={handleSort}
-                            >
-                                Employee {sortOrder === 'asc' ? '↑' : '↓'}
-                            </p>
-                            <p
-                                style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                className="dashheadingtop textalign"
-                                onClick={handleLastActiveSort}
-                            >
-                                Last active {lastActiveSortOrder === 'asc' ? '↑' : '↓'}
-                            </p>
-                            <p
-                                style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                className="dashheadingtop textalign"
-                                onClick={handleTodaySort}
-                            >
-                                Today {todaySortOrder === 'asc' ? '↑' : '↓'}
-                            </p>
-                            <p
-                                style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                className="dashheadingtop textalign"
-                                onClick={handleYesterdaySort}
-                            >
-                                Yesterday {yesterdaySortOrder === 'asc' ? '↑' : '↓'}
-                            </p>
-                            <p
-                                style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                className="dashheadingtop textalign"
-                                onClick={handleThisWeekSort}
-                            >
-                                This week {thisWeekSortOrder === 'asc' ? '↑' : '↓'}
-                            </p>
-                            <p
-                                style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                className="dashheadingtop textalign"
-                                onClick={handleThisMonthSort}
-                            >
-                                This month {thisMonthSortOrder === 'asc' ? '↑' : '↓'}
-                            </p>
+        <>
+            {/* <UserHeader /> */}
+            <div className="mobhayat">
+                <div className="container">
+                    <div className="userHeader">
+                        <div>
+                            <h5>Employee Dashboard</h5>
                         </div>
-                        {isLoading ? (
-                            <>
-                                <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
-                                <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
-                                <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
-                                <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
-                                <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
-                                <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
-                            </>
-                        ) : (
-                            <>
-                                {user?.userType === "user" ? (
-                                    <div onClick={() => navigate(`/timeline`)} className={`dashsheadings ${data?.isActive === true ? "activeColorChange" : "bgColorChange"}`} key={data?.userId}>
-                                        <div className="companyNameverified">
-                                            <img src={activeUser?.isActive ? check : data?.data?.isActive ? check : offline} alt="Verified" />
-                                            <h5 className="dashCompanyName">{data?.data?.name}</h5>
-                                        </div>
-                                        <div className="companyNameverified lastActive" style={{ width: "100%" }}>
-                                            <img
-                                                className="screenShotPreview"
-                                                src={data?.data?.lastScreenshot?.key ? data?.data?.lastScreenshot?.key : screenshot}
-                                                alt="Screenshot"
-                                            />
-                                            <p className="dashheadingtop">
-                                                ({data?.data?.lastActiveTime === "0 minutes ago" ? "a minute ago" : data?.data?.lastActiveTime})
-                                            </p>
-                                        </div>
-                                        <div className="nameVerified">
-                                            <p className="dashheadingtop textalign">{data?.data?.totalHours?.daily}</p>
-                                            <p className="screenShotAmount" style={{ color: data?.isActive === false && "#28659C" }}>${data?.data?.billingAmounts?.daily}</p>
-                                        </div>
-                                        <div className="nameVerified">
-                                            <p className="dashheadingtop textalign">{data?.data?.totalHours?.yesterday}</p>
-                                            <p className="screenShotAmount" style={{ color: data?.isActive === false && "#28659C" }}>${data?.data?.billingAmounts?.yesterday}</p>
-                                        </div>
-                                        <div className="nameVerified">
-                                            <p className="dashheadingtop textalign">{data?.data?.totalHours?.weekly}</p>
-                                            <p className="screenShotAmount" style={{ color: data?.isActive === false && "#28659C" }}>${data?.data?.billingAmounts?.weekly}</p>
-                                        </div>
-                                        <div className="nameVerified">
-                                            <p className="dashheadingtop textalign">{data?.data?.totalHours?.monthly}</p>
-                                            <p className="screenShotAmount" style={{ color: data?.isActive === false && "#28659C" }}>${data?.data?.billingAmounts?.monthly}</p>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    data2.map((user, index) => (
-                                        <div className="dashsheadings" key={user?.userId} onClick={() => navigate(`/timeline/${user?.userId}`)}>
+                        <div className="headerTop">
+                            <h6>All times are UTC {formattedOffset}</h6>
+                            <img src={setting} alt="setting.png" style={{ cursor: "pointer" }} onClick={() => navigate("/account")} />
+                        </div>
+                    </div>
+                    <div className="mainwrapper">
+                        <div className="userDashboardContainer">
+                            <div className="dashheadings">
+                                <p
+                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
+                                    className="dashheadingtop"
+                                    onClick={handleSort}
+                                >
+                                    Employee {sortOrder === 'asc' ? '↑' : '↓'}
+                                </p>
+                                <p
+                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
+                                    className="dashheadingtop textalign"
+                                    onClick={handleLastActiveSort}
+                                >
+                                    Last active {lastActiveSortOrder === 'asc' ? '↑' : '↓'}
+                                </p>
+                                <p
+                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
+                                    className="dashheadingtop textalign"
+                                    onClick={handleTodaySort}
+                                >
+                                    Today {todaySortOrder === 'asc' ? '↑' : '↓'}
+                                </p>
+                                <p
+                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
+                                    className="dashheadingtop textalign"
+                                    onClick={handleYesterdaySort}
+                                >
+                                    Yesterday {yesterdaySortOrder === 'asc' ? '↑' : '↓'}
+                                </p>
+                                <p
+                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
+                                    className="dashheadingtop textalign"
+                                    onClick={handleThisWeekSort}
+                                >
+                                    This week {thisWeekSortOrder === 'asc' ? '↑' : '↓'}
+                                </p>
+                                <p
+                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
+                                    className="dashheadingtop textalign"
+                                    onClick={handleThisMonthSort}
+                                >
+                                    This month {thisMonthSortOrder === 'asc' ? '↑' : '↓'}
+                                </p>
+                            </div>
+                            {isLoading ? (
+                                <>
+                                    <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
+                                    <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
+                                    <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
+                                    <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
+                                    <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
+                                    <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
+                                </>
+                            ) : (
+                                <>
+                                    {user?.userType === "user" ? (
+                                        <div onClick={() => navigate(`/timeline`)} className={`dashsheadings ${data?.isActive === true ? "activeColorChange" : "bgColorChange"}`} key={data?.userId}>
                                             <div className="companyNameverified">
-                                                <img src={user?.userId === activeUser?._id && activeUser?.isActive === true ? check : user?.isActive === true ? check : offline} alt="Verified" />
-                                                <h5 className="dashCompanyName">{user?.userName}</h5>
+                                                <img src={activeUser?.isActive ? check : data?.data?.isActive ? check : offline} alt="Verified" />
+                                                <h5 className="dashCompanyName">{data?.data?.name}</h5>
                                             </div>
-                                            <div key={user.userId} className="companyNameverified lastActive" style={{ width: "100%" }}>
+                                            <div className="companyNameverified lastActive" style={{ width: "100%" }}>
                                                 <img
                                                     className="screenShotPreview"
-                                                    src={user?.recentScreenshot && user?.recentScreenshot.key ? user.recentScreenshot.key : screenshot}
+                                                    src={data?.data?.lastScreenshot?.key ? data?.data?.lastScreenshot?.key : screenshot}
                                                     alt="Screenshot"
                                                 />
                                                 <p className="dashheadingtop">
-                                                    ({user.minutesAgo === "0 minutes ago" ? "a minute ago" : user.minutesAgo})
+                                                    ({data?.data?.lastActiveTime === "0 minutes ago" ? "just now" : data?.data?.lastActiveTime})
                                                 </p>
                                             </div>
+                                            <div className="nameVerified">
+                                                <p className="dashheadingtop textalign">{data?.data?.totalHours?.daily}</p>
+                                                <p className="screenShotAmount" style={{ color: data?.isActive === false && "#28659C" }}>${data?.data?.billingAmounts?.daily}</p>
+                                            </div>
+                                            <div className="nameVerified">
+                                                <p className="dashheadingtop textalign">{data?.data?.totalHours?.yesterday}</p>
+                                                <p className="screenShotAmount" style={{ color: data?.isActive === false && "#28659C" }}>${data?.data?.billingAmounts?.yesterday}</p>
+                                            </div>
+                                            <div className="nameVerified">
+                                                <p className="dashheadingtop textalign">{data?.data?.totalHours?.weekly}</p>
+                                                <p className="screenShotAmount" style={{ color: data?.isActive === false && "#28659C" }}>${data?.data?.billingAmounts?.weekly}</p>
+                                            </div>
+                                            <div className="nameVerified">
+                                                <p className="dashheadingtop textalign">{data?.data?.totalHours?.monthly}</p>
+                                                <p className="screenShotAmount" style={{ color: data?.isActive === false && "#28659C" }}>${data?.data?.billingAmounts?.monthly}</p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        data2.map((user, index) => (
+                                            <div className="dashsheadings" key={user?.userId} onClick={() => navigate(`/timeline/${user?.userId}`)}>
+                                                <div className="companyNameverified">
+                                                    <img src={user?.userId === activeUser?._id && activeUser?.isActive === true ? check : user?.isActive === true ? check : offline} alt="Verified" />
+                                                    <h5 className="dashCompanyName">{user?.userName}</h5>
+                                                </div>
+                                                <div key={user.userId} className="companyNameverified lastActive" style={{ width: "100%" }}>
+                                                    <img
+                                                        className="screenShotPreview"
+                                                        src={user?.recentScreenshot && user?.recentScreenshot.key ? user.recentScreenshot.key : screenshot}
+                                                        alt="Screenshot"
+                                                    />
+                                                    <p className="dashheadingtop">
+                                                        ({user.minutesAgo === "0 minutes ago" ? "just now" : user.minutesAgo})
+                                                    </p>
+                                                </div>
 
-                                            {/* <div className="companyNameverified lastActive" style={{ width: "100%" }}>
+                                                {/* <div className="companyNameverified lastActive" style={{ width: "100%" }}>
                                                 {socketData && socketData.recentScreenshot && socketData.recentScreenshot.key ? (
                                                     <img src={socketData.recentScreenshot.key} alt="Screenshot" style={{ width: '100px' }} />
                                                 ) : (
@@ -536,42 +541,45 @@ function UserDashboard() {
                                                 <p className="dashheadingtop">
                                                     {socketData && socketData.data && (
 
-                                                        socketData.data.lastActiveTime === "0 minutes ago" ? "a minute ago" : socketData.data.lastActiveTime
+                                                        socketData.data.lastActiveTime === "0 minutes ago" ? "just now" : socketData.data.lastActiveTime
                                                     )}
                                                 </p>
                                             </div> */}
 
 
-                                            <div className="nameVerified">
-                                                <p className="dashheadingtop textalign">{user?.totalHours?.daily}</p>
-                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.daily || 0)}
-                                                </p>
+                                                <div className="nameVerified">
+                                                    <p className="dashheadingtop textalign">{user?.totalHours?.daily}</p>
+                                                    <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.daily || 0)}
+                                                    </p>
+                                                </div>
+                                                <div className="nameVerified">
+                                                    <p className="dashheadingtop textalign">{user?.totalHours?.yesterday}</p>
+                                                    <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.yesterday || 0)}</p>
+                                                </div>
+                                                <div className="nameVerified">
+                                                    <p className="dashheadingtop textalign">{user?.totalHours?.weekly}</p>
+                                                    <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.weekly || 0)}
+                                                    </p>
+                                                </div>
+                                                <div className="nameVerified">
+                                                    <p className="dashheadingtop textalign">{user?.totalHours?.monthly}</p>
+                                                    <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.monthly || 0)}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="nameVerified">
-                                                <p className="dashheadingtop textalign">{user?.totalHours?.yesterday}</p>
-                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.yesterday || 0)}</p>
-                                            </div>
-                                            <div className="nameVerified">
-                                                <p className="dashheadingtop textalign">{user?.totalHours?.weekly}</p>
-                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.weekly || 0)}
-                                                </p>
-                                            </div>
-                                            <div className="nameVerified">
-                                                <p className="dashheadingtop textalign">{user?.totalHours?.monthly}</p>
-                                                <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.monthly || 0)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </>
-                        )}
+                                        ))
+                                    )}
+                                </>
+                            )}
 
+                        </div>
                     </div>
                 </div>
+                <img className="userDasboardLine" src={line} alt="line" />
             </div>
-            <img className="userDasboardLine" src={line} alt="line" />
-        </div>
+            {/* <Footer /> */}
+        </>
+
     );
 }
 
@@ -739,9 +747,9 @@ function UserDashboard() {
 //         const monthsAgo = Math.floor(daysAgo / 30); // Calculate months
 
 //         if (minutesAgo < 60) {
-//             return minutesAgo !== 1 && minutesAgo >= 0
+//             return minutesAgo !== 1 && minutesAgo > 0
 //                 ? `${minutesAgo} minutes ago`
-//                 : `a minute ago`;
+//                 : `just now`;
 //         } else if (hoursAgo < 24) {
 //             return hoursAgo > 1 ? `${hoursAgo} hours ago` : `${hoursAgo} hour ago`;
 //         } else if (daysAgo < 30) {
@@ -1048,7 +1056,7 @@ function UserDashboard() {
 //                                                 alt="Screenshot"
 //                                             />
 //                                             <p className="dashheadingtop">
-//                                                 ({data?.data?.lastActiveTime === "0 minutes ago" ? "a minute ago" : data?.data?.lastActiveTime})
+//                                                 ({data?.data?.lastActiveTime === "0 minutes ago" ? "just now" : data?.data?.lastActiveTime})
 //                                             </p>
 //                                         </div>
 //                                         <div className="nameVerified">
@@ -1082,7 +1090,7 @@ function UserDashboard() {
 //                                                     alt="Screenshot"
 //                                                 />
 //                                                 <p className="dashheadingtop">
-//                                                     ({user.minutesAgo === "0 minutes ago" ? "a minute ago" : user.minutesAgo})
+//                                                     ({user.minutesAgo === "0 minutes ago" ? "just now" : user.minutesAgo})
 //                                                 </p>
 //                                             </div>
 
@@ -1096,7 +1104,7 @@ function UserDashboard() {
 //                                                 <p className="dashheadingtop">
 //                                                     {socketData && socketData.data && (
 
-//                                                         socketData.data.lastActiveTime === "0 minutes ago" ? "a minute ago" : socketData.data.lastActiveTime
+//                                                         socketData.data.lastActiveTime === "0 minutes ago" ? "just now" : socketData.data.lastActiveTime
 //                                                     )}
 //                                                 </p>
 //                                             </div> */}

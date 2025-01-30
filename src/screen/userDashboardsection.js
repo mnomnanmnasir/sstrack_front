@@ -72,12 +72,12 @@ import circle from "../../images/circle.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function UserDashboardSection(params) {
-
+    const token = localStorage.getItem("token");
     const navigate = useNavigate();
     const location = useLocation();
-    const items = JSON.parse(localStorage.getItem('items'));
+    // const items = JSON.parse(localStorage.getItem('items'));
 
-    console.log(items);
+    // console.log(items);
 
     // return (
     //     <div className="cursor-pointer">

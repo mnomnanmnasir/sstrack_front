@@ -192,6 +192,7 @@
 }
 
 @import url('https://fonts.cdnfonts.com/css/euclid-circular-a');
+@import url('https://fonts.cdnfonts.com/css/sinkin-sans-400-regular');
 
 .CircularProgressbar {
   width: 30px !important;
@@ -201,7 +202,8 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: 'Euclid Circular A', sans-serif;
+  /* font-family: 'Euclid Circular A', sans-serif; */
+  font-family: 'Sinkin Sans', sans-serif;
 
 }
 
@@ -349,7 +351,7 @@ nav li a {
 
 
 .navbar-nav {
-  padding-right: 80px !important;
+  /* padding-right: 80px !important; */
 }
 
 .mainFont {
@@ -6308,6 +6310,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   }
 
 }
+
 /* @media (max-width: 1000px) and (min-width: 300px) {
 
 
@@ -6329,18 +6332,19 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 /* Remove arrows in Chrome, Safari, Edge, and Opera */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 /* Remove arrows in Firefox */
 input[type="number"] {
-    -moz-appearance: textfield;
+  -moz-appearance: textfield;
 }
 
 
 .custom-modal-width .modal-dialog {
-  max-width: 700px; /* Adjust the width as needed */
+  max-width: 700px;
+  /* Adjust the width as needed */
   width: 100%;
 }
 
@@ -6350,6 +6354,7 @@ input[type="number"] {
     display: none;
   }
 }
+
 /* Hide the dotted line on medium and smaller screens */
 @media (max-width: 992px) {
   .dotted-line {
@@ -6362,4 +6367,111 @@ input[type="number"] {
   .dotted-line {
     display: none;
   }
+}
+
+
+
+@media (max-width: 768px) {
+  .mobile-heading {
+    font-size: 3rem !important;
+    /* Increase only on mobile */
+  }
+
+  .mobile-paragraph {
+    font-size: 1.9rem !important;
+    /* Increase only on mobile */
+  }
+
+  .mobile-input {
+    font-size: 1rem !important;
+    /* Increase only on mobile */
+    padding: 1rem 1.2rem !important;
+  }
+
+  .mobile-button {
+    font-size: 1rem !important;
+    /* Increase only on mobile */
+    padding: 1rem 2.8rem !important;
+  }
+
+  .mobile-available-platforms {
+    font-size: 1.6rem !important;
+    /* Increase only on mobile */
+  }
+
+  .stats-title {
+    font-size: 3.8rem !important;
+    /* Increased on mobile */
+  }
+
+  .stats-value {
+    font-size: 4rem !important;
+    /* Larger font for numbers */
+  }
+
+  .stats-label {
+    font-size: 2rem !important;
+    /* Increased for better readability */
+  }
+
+  .heading-responsive {
+    font-size: 4rem !important;
+    /* Increased font size on mobile */
+  }
+
+  .text-responsive {
+    font-size: 2.5rem !important;
+    /* Increased subtext size on mobile */
+  }
+
+  .card-responsive {
+    width: 90% !important;
+    /* Adjust card width for mobile */
+  }
+
+  .card-title-responsive {
+    font-size: 50px !important;
+    /* Adjust step number font size */
+  }
+
+  .card-subtitle-responsive {
+    font-size: 48px !important;
+    /* Adjust heading inside card */
+  }
+
+  .card-text-responsive {
+    font-size: 40px !important;
+    /* Increase description text */
+  }
+}
+
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .responsive-card {
+    width: 45% !important;
+    /* 2 cards per row */
+  }
+}
+
+@media (max-width: 768px) {
+  .responsive-card {
+    width: 90% !important;
+    /* 1 card per row */
+  }
+}
+
+.custom-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Dark semi-transparent overlay */
+  z-index: 1050;
+  /* Below the Offcanvas */
+  backdrop-filter: blur(5px);
+  /* Optional: Adds a subtle blur effect */
+  transition: opacity 0.3s ease-in-out;
 }

@@ -20,6 +20,7 @@ import UserDashboardSection from "./component/userDashboardsection";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import blueBackground from "../images/bluebackground.png";
+import jwtDecode from "jwt-decode";
 
 
 function UserSummary() {
@@ -45,7 +46,7 @@ function UserSummary() {
     let headers = {
         Authorization: 'Bearer ' + token,
     }
-    const items = JSON.parse(localStorage.getItem('items'));
+    const items = jwtDecode(JSON.stringify(token));
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     async function getSummaryData() {
         try {

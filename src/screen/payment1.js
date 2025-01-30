@@ -12,7 +12,7 @@ import Account from './account';
 
 const stripePromise = loadStripe(process.env.REACT_AP_KEY);
 
-// const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
+
 
 
 
@@ -49,7 +49,8 @@ const Payment = () => {
         const [error, setError] = useState(null);
         const [success, setSuccess] = useState(false);
         const [loading, setLoading] = useState(false);
-        const items = JSON.parse(localStorage.getItem('items'));
+        
+        // const items = JSON.parse(localStorage.getItem('items'));
         const token = localStorage.getItem('token');
         const headers = {
             Authorization: "Bearer " + token,

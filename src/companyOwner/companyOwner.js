@@ -25,7 +25,8 @@ function CompanyOwner() {
     const navigate = useNavigate()
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem('token');
-    const user = JSON.stringify(localStorage.getItem('items'));
+    const getitems = jwtDecode(JSON.stringify(token));
+    const user = JSON.stringify(getitems);
     const [data, setData] = useState(null)
     const [searchResults, setSearchResults] = useState(null)
     const headers = {
@@ -156,7 +157,7 @@ function CompanyOwner() {
                                                             alt="Screenshot"
                                                         />
                                                         <p className="dashheadingtop">
-                                                            ({user?.minutesAgo === "0 minutes ago" ? "a minute ago" : user?.minutesAgo})
+                                                            ({user?.minutesAgo === "0 minutes ago" ? "just now" : user?.minutesAgo})
                                                         </p>
                                                     </div>
                                                     <div className="nameVerified">

@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 const SystemAdminHeader = () => {
 
     let token = localStorage.getItem('token');
-    const items = JSON.parse(localStorage.getItem('items'));
+    // const items = JSON.parse(localStorage.getItem('items'));
     const navigate = useNavigate()
     const location = useLocation()
 

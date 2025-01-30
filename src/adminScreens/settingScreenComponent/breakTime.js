@@ -267,55 +267,11 @@ function Screenshot() {
     setNumber(matches?.length > 0 && parseInt(matches[0]));
   }, [employees]);
 
-  //
-  //
-  //
-  //
-  // Helper function to parse "Xh:Ym" into total minutes
-
-  // async function getData() {
-  //   try {
-  //     const response = await fetch(
-  //       `https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`,
-  //       { headers }
-  //     );
-  //     const json = await response.json();
-  //     const employeesData = json?.convertedEmployees || [];
+ 
 
 
-  //     setTotalDuration(
-  //       employeesData[0]?.punctualityData?.breakTime[0]?.TotalHours
-  //     );
-  //     // Transform and set breakTime
-  //     const transformedBreakTime =
-  //       employeesData[0]?.punctualityData?.breakTime.map((breakEntry) => {
-  //         const start = new Date(breakEntry.breakStartTime).toLocaleTimeString(
-  //           "en-US",
-  //           { hour: "2-digit", minute: "2-digit", hour12: false }
-  //         );
-  //         const end = new Date(breakEntry.breakEndTime).toLocaleTimeString(
-  //           "en-US",
-  //           { hour: "2-digit", minute: "2-digit", hour12: false }
-  //         );
-  //         return {
-  //           start,
-  //           end,
-  //           duration: breakEntry.TotalHours || "",
-  //         };
-  //       }) || [];
+ 
 
-  //     setBreakTime(transformedBreakTime);
-  //   } catch (error) {
-  //     console.error("Error fetching employees:", error);
-  //     enqueueSnackbar("Failed to fetch employees.", {
-  //       variant: "error",
-  //       anchorOrigin: {
-  //         vertical: "top",
-  //         horizontal: "right",
-  //       },
-  //     });
-  //   }
-  // }
   async function getData() {
     try {
       const response = await fetch(
@@ -378,10 +334,7 @@ function Screenshot() {
   console.log("screenshot employess =====>", employees);
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
 
-  // const handleCheckboxChange = () => {
-  //     setIsCheckboxChecked(!isCheckboxChecked);
-  // };
-  // const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
+
 
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -521,23 +474,7 @@ function Screenshot() {
     setEndTime(newEndTime);
     calculateDuration(startTime, newEndTime);
   };
-  // const handleEndTimeChange = (index, value) => {
-  //     const startTime = new Date(breakTime[index].breakStartTime);
-  //     const endTime = new Date(value);
 
-  //     if (endTime <= startTime) {
-  //         enqueueSnackbar("End time must be later than start time.", {
-  //             variant: "error",
-  //             anchorOrigin: {
-  //                 vertical: "top",
-  //                 horizontal: "right",
-  //             },
-  //         });
-  //         return;
-  //     }
-
-  //     handleInputChange(index, "breakEndTime", value); // Update state if valid
-  // };
 
   const [isAddButtonDisabled, setIsAddButtonDisabled] = useState(false); // Track if the Add Break Time button is disabled
 
@@ -611,13 +548,7 @@ function Screenshot() {
     }
   };
 
-  // const [breakTime, setBreakTime] = useState(() => {
-  //     const savedBreakTime = localStorage.getItem('breakTime');
-  //     return savedBreakTime ? JSON.parse(savedBreakTime) : [{ TotalHours: "", breakStartTime: "", breakEndTime: "" }];
-  // });
-  // const [breakTime, setBreakTime] = useState([
-  //     { TotalHours: "", breakStartTime: "", breakEndTime: "" },
-  // ]);
+
   const [breakTime, setBreakTime] = useState(() => {
     // Load break times from localStorage when the component mounts
     const savedBreakTimes = localStorage.getItem("breakTimes");
@@ -633,27 +564,9 @@ function Screenshot() {
     setBreakTime(updatedBreakTime);
   };
 
-  // const addBreakTimeField = () => {
-  //     setBreakTime([
-  //         ...breakTime,
-  //         { TotalHours: "", breakStartTime: "", breakEndTime: "" },
-  //     ]);
-  // };
 
   const [clickCount, setClickCount] = useState(0); // Counter to track clicks
 
-  // Load break time data from local storage when the component mounts
-  //   useEffect(() => {
-  //     const savedBreakTime = localStorage.getItem('breakTime');
-  //     if (savedBreakTime) {
-  //         setBreakTime(JSON.parse(savedBreakTime));
-  //     }
-  // }, []);
-
-  // Save break time data to local storage whenever it changes
-  // useEffect(() => {
-  //     localStorage.setItem('breakTime', JSON.stringify(breakTime));
-  // }, [breakTime]);
 
   const [breakCount, setBreakCount] = useState(0); // Track the number of breaks added
 
@@ -678,80 +591,11 @@ function Screenshot() {
     }
   };
 
-  // const handleSubmit = async () => {
-  //     // Validate inputs
-  //     for (const breakField of breakTime) {
-  //         if (!breakField.start || !breakField.breakEndTime) {
-  //             enqueueSnackbar("Break Time Added Successfully", {
-  //                 variant: "success",
-  //                 anchorOrigin: {
-  //                     vertical: "top",
-  //                     horizontal: "right"
-  //                 }
-  //             });
-  //             return; // Stop the function if validation fails
-  //         }
-  //     }
 
-  //     // Format the data for API
-  //     const requestData = [
-  //         {
-  //             userId: "65570c6f35e0cf001ca86c3c", // Replace with actual userId
-  //             settings: {
-  //                 breakTime: breakTime.map((slot) => {
-  //                     const startTime = new Date(slot.breakStartTime);
-  //                     const endTime = new Date(slot.breakEndTime);
 
-  //                     // Calculate total hours
-  //                     const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60)); // Ensure correct calculation
-  //                     const hours = Math.floor(totalMinutes / 60); // Extract hours
 
-  //                     return {
-  //                         TotalHours: `${hours}h`, // Only include hours
-  //                         breakStartTime: startTime.toISOString(),
-  //                         breakEndTime: endTime.toISOString(),
-  //                     };
-  //                 }),
-  //                 puncStartTime: "2024-11-21T09:00:00.000Z", // Replace with the actual punctuality start time
-  //                 puncEndTime: "2024-11-21T17:00:00.000Z", // Replace with the actual punctuality end time
-  //             },
-  //         },
-  //     ];
-
-  //     try {
-  //         const response = await axios.post(
-  //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityzRule",
-  //             requestData,
-  //             {
-  //                 headers: {
-  //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //                     "Content-Type": "application/json",
-  //                 },
-  //             }
-  //         );
-
-  //         if (response.status === 200) {
-  //             enqueueSnackbar("Data successfully submitted!", {
-  //                 variant: "success",
-  //                 anchorOrigin: {
-  //                     vertical: "top",
-  //                     horizontal: "right"
-  //                 }
-  //             });
-  //         } else {
-  //             enqueueSnackbar("Failed to submit data.", { variant: "error" });
-  //         }
-  //     } catch (error) {
-  //         enqueueSnackbar("Error submitting data. Please try again later.", {
-  //             variant: "error",
-  //             anchorOrigin: {
-  //                 vertical: "top",
-  //                 horizontal: "right"
-  //             }
-  //         });
-  //         console.error("Error submitting data:", error);
-  //     }
-  // };
+  
+ 
   const handleSubmit = async () => {
     try {
       // Validate that all break times have start and end
@@ -823,26 +667,7 @@ function Screenshot() {
     }
   };
   
-  // const handleRemoveBreakTime = (index) => {
-  //     if (breakTimes.length > 0) {
-  //         setBreakTimes((prev) => prev.filter((_, i) => i !== index)); // Remove the field at the specified index
-  //         enqueueSnackbar("Break time removed!", {
-  //             variant: "info",
-  //             anchorOrigin: {
-  //                 vertical: "top",
-  //                 horizontal: "right",
-  //             },
-  //         });
-  //     } else {
-  //         enqueueSnackbar("No break times to remove.", {
-  //             variant: "warning",
-  //             anchorOrigin: {
-  //                 vertical: "top",
-  //                 horizontal: "right",
-  //             },
-  //         });
-  //     }
-  // };
+
 
   const handleRemoveBreakTime = (index) => {
     if (breakTimes.length > 0) {
@@ -1083,7 +908,7 @@ function Screenshot() {
   
   
 
-  // const [totalDuration, setTotalDuration] = useState("0h:0m");
+
   // Initialize state with value from localStorage or default value
   const [totalDuration, setTotalDuration] = useState(
     localStorage.getItem("totalDuration") || "0h:0m"
@@ -1094,31 +919,7 @@ function Screenshot() {
     localStorage.setItem("totalDuration", totalDuration);
   }, [totalDuration]);
 
-  // const calculateTotalDuration = () => {
-  //     let totalMinutes = 0;
-
-  //     breakTimes.forEach(({ start, end }) => {
-  //         if (start && end) {
-  //             const startTime = new Date(`1970-01-01T${start}:00`);
-  //             const endTime = new Date(`1970-01-01T${end}:00`);
-
-  //             if (endTime < startTime) {
-  //                 endTime.setDate(endTime.getDate() + 1);
-  //             }
-
-  //             totalMinutes += Math.floor((endTime - startTime) / (1000 * 60));
-  //         }
-  //     });
-
-  //     // Cap total minutes at 60 (1 hour)
-  //     totalMinutes = Math.min(totalMinutes, 60);
-
-  //     const hours = Math.floor(totalMinutes / 60);
-  //     const minutes = totalMinutes % 60;
-  //     setTotalDuration(`${hours}h:${minutes}m`);
-  // };
-
-  // const [isAddButtonDisabled, setIsAddButtonDisabled] = useState(false); // Track if the Add Break Time button is disabled
+ 
 
   const calculateTotalDuration = () => {
     let totalMinutes = 0;

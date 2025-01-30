@@ -1,0 +1,6 @@
+hello Nim
+splash screen
+done
+signin issue
+timeline issue
+test fixies

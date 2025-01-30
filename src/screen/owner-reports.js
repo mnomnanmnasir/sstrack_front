@@ -27,14 +27,16 @@ import axios from "axios";
 // import { useQuery } from 'react-query';
 import crossButton from "../images/cross.webp";
 import { FaPlus, FaMinus } from 'react-icons/fa';
-
+import jwtDecode from "jwt-decode";
+// import Footer from '../screen/component/footer'
 
 
 function OwnerReport() {
-  const items = JSON.parse(localStorage.getItem('items'));
+  let token = localStorage.getItem('token');
+  const items = jwtDecode(JSON.stringify(token));
 
   const year = new Date().getFullYear()
-  let token = localStorage.getItem('token');
+  // let token = localStorage.getItem('token');
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [employeeId, setEmployeeId] = useState(null);
@@ -133,29 +135,8 @@ function OwnerReport() {
     });
     console.log('Set Report Data', setReportData)
   }
-  //   const filteredUsers = reportData?.allUsers?.filter((user) =>
-  //   user.employee.toLowerCase().includes(searchText.toLowerCase())
-  // );
-  // const handleSelectUsers = (selectedOptions) => {
-  //   const selectedUserIds = selectedOptions.map(option => option.id);
-  //   setSelectedUsers(selectedUserIds);
 
-  //   // Calculate total hours of selected users
-  //   const totalHours = reportData?.allUsers?.reduce((acc, user) => {
-  //     if (selectedUserIds.includes(user.id)) {
-  //       return acc + user.totalHours;
-  //     } else {
-  //       return acc;
-  //     }
-  //   }, 0);
 
-  // Update reportData state with total hours of selected users
-
-  //   setReportData({
-  // //     ...reportData,
-  // //     totalHours: totalHours,
-  // //   });
-  // // }
 
   const [dateFilter, setDateFilter] = useState({
     today: false,
@@ -214,7 +195,7 @@ function OwnerReport() {
   const getData = async () => {
     setLoading(true);
     try {
-      const url = employeeId 
+      const url = employeeId
         ? `${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`
         : `${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`;
 
@@ -238,7 +219,7 @@ function OwnerReport() {
     if (startDate && endDate) {
       getData();
     }
-  }, [startDate, endDate,employeeId]);
+  }, [startDate, endDate, employeeId]);
 
   const animatedComponents = makeAnimated();
 
@@ -458,7 +439,7 @@ function OwnerReport() {
       throw new Error('Failed to fetch reports');
     }
   };
-  
+
   const getWeeklyReports = async (type) => {
 
     let response;
@@ -794,188 +775,191 @@ function OwnerReport() {
 
 
   return (
-    <div>
-      <div className="container">
-        <div className="userHeader">
-          <div className="headerTop">
-            <img src={saveReport} />
-            <h5>Summary Report </h5>
+    <>
+      {/* <UserHeader /> */}
+
+      <div>
+        <div className="container">
+          <div className="userHeader">
+            <div className="headerTop">
+              <img src={saveReport} />
+              <h5>Summary Report </h5>
+            </div>
           </div>
-        </div>
-        <div className="mainwrapper">
-          <div className="summaryContainer">
-            <div className="calenderDiv">
+          <div className="mainwrapper">
+            <div className="summaryContainer">
+              <div className="calenderDiv">
 
-              <div className="calenderInnerDiv">
-                <div className="dateDiv">
-                  <div> <button> <DatePicker placeholderText={new Date().toLocaleDateString()} className="bg-transparent border-0 text-center " selected={startDate}
-                    onChange={date => setStartDate(date)}
-                  /></button>
+                <div className="calenderInnerDiv">
+                  <div className="dateDiv">
+                    <div> <button> <DatePicker placeholderText={new Date().toLocaleDateString()} className="bg-transparent border-0 text-center " selected={startDate}
+                      onChange={date => setStartDate(date)}
+                    /></button>
+                    </div>
+                    <div>  ►  </div>
+                    <div>
+                      <button>  <DatePicker placeholderText={new Date().toLocaleDateString()} className="bg-transparent border-0 text-center " selected={endDate} onChange={date => setEndDate(date)} /></button>
+                    </div>
                   </div>
-                  <div>  ►  </div>
-                  <div>
-                    <button>  <DatePicker placeholderText={new Date().toLocaleDateString()} className="bg-transparent border-0 text-center " selected={endDate} onChange={date => setEndDate(date)} /></button>
+                  <div className="dayDiv">
+                    <div className="summaryTodayDiv">
+                      <p
+                        onClick={() => {
+                          fetchDailyReports("this")
+                          setDateFilter({
+                            today: true,
+                            yesterday: false,
+                            thisWeek: false,
+                            lastWeek: false,
+                            thisMonth: false,
+                            lastMonth: false,
+                            thisYear: false,
+                            lastYear: false,
+                          })
+                        }}
+                        style={{ color: dateFilter.today === true && "#28659C", fontWeight: dateFilter.today === true && "600" }}>Today</p>
+                      <p
+                        onClick={() => {
+                          fetchDailyReports("previous")
+                          setDateFilter({
+                            today: false,
+                            yesterday: true,
+                            thisWeek: false,
+                            lastWeek: false,
+                            thisMonth: false,
+                            lastMonth: false,
+                            thisYear: false,
+                            lastYear: false,
+                          })
+                        }}
+                        style={{ color: dateFilter.yesterday === true && "#28659C", fontWeight: dateFilter.yesterday === true && "600" }}>Yesterday</p>
+                    </div>
+                    <div className="summaryTodayDiv">
+                      <p
+                        onClick={() => {
+                          getWeeklyReports("this")
+                          setDateFilter({
+                            today: false,
+                            yesterday: false,
+                            thisWeek: true,
+                            lastWeek: false,
+                            thisMonth: false,
+                            lastMonth: false,
+                            thisYear: false,
+                            lastYear: false,
+                          })
+                        }}
+                        style={{ color: dateFilter.thisWeek === true && "#28659C", fontWeight: dateFilter.thisWeek === true && "600" }}>This Week</p>
+                      <p
+                        onClick={() => {
+                          getWeeklyReports("previous")
+                          setDateFilter({
+                            today: false,
+                            yesterday: false,
+                            thisWeek: false,
+                            lastWeek: true,
+                            thisMonth: false,
+                            lastMonth: false,
+                            thisYear: false,
+                            lastYear: false,
+                          })
+                        }}
+                        style={{ color: dateFilter.lastWeek === true && "#28659C", fontWeight: dateFilter.lastWeek === true && "600" }}>Last Week</p>
+                    </div>
+                    <div className="summaryTodayDiv">
+                      <p
+                        onClick={() => {
+                          getMonthlyReports("this")
+                          setDateFilter({
+                            today: false,
+                            yesterday: false,
+                            thisWeek: false,
+                            lastWeek: false,
+                            thisMonth: true,
+                            lastMonth: false,
+                            thisYear: false,
+                            lastYear: false,
+                          })
+                        }}
+                        style={{ color: dateFilter.thisMonth === true && "#28659C", fontWeight: dateFilter.thisMonth === true && "600" }}>This Month</p>
+                      <p
+                        onClick={() => {
+                          getMonthlyReports("previous")
+                          setDateFilter({
+                            today: false,
+                            yesterday: false,
+                            thisWeek: false,
+                            lastWeek: false,
+                            thisMonth: false,
+                            lastMonth: true,
+                            thisYear: false,
+                            lastYear: false,
+                          })
+                        }}
+                        style={{ color: dateFilter.lastMonth === true && "#28659C", fontWeight: dateFilter.lastMonth === true && "600" }}>Last Month</p>
+                    </div>
+                    <div className="summaryTodayDiv">
+                      <p
+                        onClick={() => {
+                          fetchYearlyReports("this")
+                          setDateFilter({
+                            today: false,
+                            yesterday: false,
+                            thisWeek: false,
+                            lastWeek: false,
+                            thisMonth: false,
+                            lastMonth: false,
+                            thisYear: true,
+                            lastYear: false,
+                          })
+                        }}
+                        style={{ color: dateFilter.thisYear === true && "#28659C", fontWeight: dateFilter.thisYear === true && "600" }}>This Year</p>
+                      <p
+                        onClick={() => {
+                          fetchYearlyReports("previous")
+                          setDateFilter({
+                            today: false,
+                            yesterday: false,
+                            thisWeek: false,
+                            lastWeek: false,
+                            thisMonth: false,
+                            lastMonth: false,
+                            thisYear: false,
+                            lastYear: true,
+                          })
+                        }}
+                        style={{ color: dateFilter.lastYear === true && "#28659C", fontWeight: dateFilter.lastYear === true && "600" }}>Last Year</p>
+                    </div>
+
                   </div>
                 </div>
-                <div className="dayDiv">
-                  <div className="summaryTodayDiv">
-                    <p
-                      onClick={() => {
-                        fetchDailyReports("this")
-                        setDateFilter({
-                          today: true,
-                          yesterday: false,
-                          thisWeek: false,
-                          lastWeek: false,
-                          thisMonth: false,
-                          lastMonth: false,
-                          thisYear: false,
-                          lastYear: false,
-                        })
-                      }}
-                      style={{ color: dateFilter.today === true && "#28659C", fontWeight: dateFilter.today === true && "600" }}>Today</p>
-                    <p
-                      onClick={() => {
-                        fetchDailyReports("previous")
-                        setDateFilter({
-                          today: false,
-                          yesterday: true,
-                          thisWeek: false,
-                          lastWeek: false,
-                          thisMonth: false,
-                          lastMonth: false,
-                          thisYear: false,
-                          lastYear: false,
-                        })
-                      }}
-                      style={{ color: dateFilter.yesterday === true && "#28659C", fontWeight: dateFilter.yesterday === true && "600" }}>Yesterday</p>
+                <div>
+                  <div className="dropdown">
+                    <button className="btn m-0 utc5" type="button" aria-expanded="false">
+                      {items?.timezone}
+                    </button>
                   </div>
-                  <div className="summaryTodayDiv">
-                    <p
-                      onClick={() => {
-                        getWeeklyReports("this")
-                        setDateFilter({
-                          today: false,
-                          yesterday: false,
-                          thisWeek: true,
-                          lastWeek: false,
-                          thisMonth: false,
-                          lastMonth: false,
-                          thisYear: false,
-                          lastYear: false,
-                        })
-                      }}
-                      style={{ color: dateFilter.thisWeek === true && "#28659C", fontWeight: dateFilter.thisWeek === true && "600" }}>This Week</p>
-                    <p
-                      onClick={() => {
-                        getWeeklyReports("previous")
-                        setDateFilter({
-                          today: false,
-                          yesterday: false,
-                          thisWeek: false,
-                          lastWeek: true,
-                          thisMonth: false,
-                          lastMonth: false,
-                          thisYear: false,
-                          lastYear: false,
-                        })
-                      }}
-                      style={{ color: dateFilter.lastWeek === true && "#28659C", fontWeight: dateFilter.lastWeek === true && "600" }}>Last Week</p>
-                  </div>
-                  <div className="summaryTodayDiv">
-                    <p
-                      onClick={() => {
-                        getMonthlyReports("this")
-                        setDateFilter({
-                          today: false,
-                          yesterday: false,
-                          thisWeek: false,
-                          lastWeek: false,
-                          thisMonth: true,
-                          lastMonth: false,
-                          thisYear: false,
-                          lastYear: false,
-                        })
-                      }}
-                      style={{ color: dateFilter.thisMonth === true && "#28659C", fontWeight: dateFilter.thisMonth === true && "600" }}>This Month</p>
-                    <p
-                      onClick={() => {
-                        getMonthlyReports("previous")
-                        setDateFilter({
-                          today: false,
-                          yesterday: false,
-                          thisWeek: false,
-                          lastWeek: false,
-                          thisMonth: false,
-                          lastMonth: true,
-                          thisYear: false,
-                          lastYear: false,
-                        })
-                      }}
-                      style={{ color: dateFilter.lastMonth === true && "#28659C", fontWeight: dateFilter.lastMonth === true && "600" }}>Last Month</p>
-                  </div>
-                  <div className="summaryTodayDiv">
-                    <p
-                      onClick={() => {
-                        fetchYearlyReports("this")
-                        setDateFilter({
-                          today: false,
-                          yesterday: false,
-                          thisWeek: false,
-                          lastWeek: false,
-                          thisMonth: false,
-                          lastMonth: false,
-                          thisYear: true,
-                          lastYear: false,
-                        })
-                      }}
-                      style={{ color: dateFilter.thisYear === true && "#28659C", fontWeight: dateFilter.thisYear === true && "600" }}>This Year</p>
-                    <p
-                      onClick={() => {
-                        fetchYearlyReports("previous")
-                        setDateFilter({
-                          today: false,
-                          yesterday: false,
-                          thisWeek: false,
-                          lastWeek: false,
-                          thisMonth: false,
-                          lastMonth: false,
-                          thisYear: false,
-                          lastYear: true,
-                        })
-                      }}
-                      style={{ color: dateFilter.lastYear === true && "#28659C", fontWeight: dateFilter.lastYear === true && "600" }}>Last Year</p>
-                  </div>
-
                 </div>
+              </div>
+              <div className="crossButtonDiv">
+                <SelectBox
+                  onChange={(e) =>
+                    handleSelectUsers(e)
+                  }
+                  options={allUsers.filter(user => user.label)}
+                  closeMenuOnSelect={true}
+                  components={animatedComponents}
+                  defaultValue={defaultValue}
+                  isMulti={true}
+                // maxValues={1} // Limit the number of selections to 1
+                // isClearable={true} // Allow the user to clear the selection
+                // value={selectedUsers.length > 0 ? selectedUsers[0] : null} // Set the value to the first selected user
+                />
+                {console.log("User Detials", user)}
               </div>
               <div>
-                <div className="dropdown">
-                  <button className="btn m-0 utc5" type="button" aria-expanded="false">
-                    {items?.timezone}
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="crossButtonDiv">
-              <SelectBox
-                onChange={(e) =>
-                  handleSelectUsers(e)
-                }
-                options={allUsers.filter(user => user.label)}
-                closeMenuOnSelect={true}
-                components={animatedComponents}
-                defaultValue={defaultValue}
-                isMulti={true}
-              // maxValues={1} // Limit the number of selections to 1
-              // isClearable={true} // Allow the user to clear the selection
-              // value={selectedUsers.length > 0 ? selectedUsers[0] : null} // Set the value to the first selected user
-              />
-              {console.log("User Detials", user)}
-            </div>
-            <div>
-              {/* <img className="reportButton" src={reportButton} /> */}
-              {/* <SelectBox
+                {/* <img className="reportButton" src={reportButton} /> */}
+                {/* <SelectBox
                   classNamePrefix="Select projects"
                   defaultValue="Select projects"
                   isDisabled={isDisabled}
@@ -986,165 +970,165 @@ function OwnerReport() {
                   optionHeight={40}
                   optionPadding={10}
                 /> */}
-              {/* <SelectBox
+                {/* <SelectBox
                   defaultValue="Select projects"
                   isSearchable={true}
                   optionHeight={40}
                   optionPadding={10}
                 /> */}
-            </div>
-            <div className="summaryButton">
-              <button className="activeButton">Show Reports</button>
-            </div>
-            <div className="adminReport4" style={{ height: '300px', backgroundColor: '#F5F5F5' }}>
-              {loading ? (
-                <div className="loader"></div>
-              ) : reportData ? (
-                <>
-                  <div>
-                    <p className="sixtyhour">{reportData?.totalHours ? reportData?.totalHours : "0h 0m"}</p>
-                    <p className="report-percentage">{`${reportData?.totalActivity ? Math.floor(reportData?.totalActivity) : 0} %`}</p>
-                  </div>
-                  <div className="summaryDiv">
-                    <ActivityChart reportData={reportData} />
-                  </div>
-                </>
-              )
-                : (
-                  // <div>No Data Available</div>
-                  <div className="loader"></div>
-                )}
-            </div>
-            <div className="employeeDiv">
-              <p>{"± Employees / ± Projects"}</p>
-              <div className="durationDiv">
-                <p>Duration</p>
-                <p>Activity</p>
               </div>
-            </div>
-            {/* Debugging: Output user type and report data to console */}
-            {console.log("userType:", userType)}
-            {console.log("reportData:", reportData)}
-            {console.log("reportData.allUsers:", reportData && reportData.allUsers)}
+              {/* <div className="summaryButton">
+              <button className="activeButton">Show Reports</button>
+            </div> */}
+              <div className="adminReport4" style={{ height: '300px', backgroundColor: '#F5F5F5' }}>
+                {loading ? (
+                  <div className="loader"></div>
+                ) : reportData ? (
+                  <>
+                    <div>
+                      <p className="sixtyhour">{reportData?.totalHours ? reportData?.totalHours : "0h 0m"}</p>
+                      <p className="report-percentage">{`${reportData?.totalActivity ? Math.floor(reportData?.totalActivity) : 0} %`}</p>
+                    </div>
+                    <div className="summaryDiv">
+                      <ActivityChart reportData={reportData} />
+                    </div>
+                  </>
+                )
+                  : (
+                    // <div>No Data Available</div>
+                    <div className="loader"></div>
+                  )}
+              </div>
+              <div className="employeeDiv">
+                <p>{"± Employees / ± Projects"}</p>
+                <div className="durationDiv">
+                  <p>Duration</p>
+                  <p>Activity</p>
+                </div>
+              </div>
+              {/* Debugging: Output user type and report data to console */}
+              {console.log("userType:", userType)}
+              {console.log("reportData:", reportData)}
+              {console.log("reportData.allUsers:", reportData && reportData.allUsers)}
 
-            {(userType === "admin" || userType === "owner" || userType === 'user' || userType === 'manager') && reportData && reportData.allUsers ? (
-              reportData.allUsers.map((data, index) => (
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <div className="asadMehmoodDiv" key={index}>
-                    <div onClick={() => handleExpand(data?.employee)}>
-                      <p>
-                        {/* <FaPlus /> Add */}
-                        <p>{expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />}
-                          {/* <img src={expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />} alt="Toggle" /> */}
-                          {/* <img src={expandedEmployee === data?.employee ? crossButton : addButton} alt="Toggle" /> */}
-                          <span>{data?.employee}</span>
+              {(userType === "admin" || userType === "owner" || userType === 'user' || userType === 'manager') && reportData && reportData.allUsers ? (
+                reportData.allUsers.map((data, index) => (
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div className="asadMehmoodDiv" key={index}>
+                      <div onClick={() => handleExpand(data?.employee)}>
+                        <p>
+                          {/* <FaPlus /> Add */}
+                          <p>{expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />}
+                            {/* <img src={expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />} alt="Toggle" /> */}
+                            {/* <img src={expandedEmployee === data?.employee ? crossButton : addButton} alt="Toggle" /> */}
+                            <span>{data?.employee}</span>
+                          </p>
                         </p>
-                      </p>
+                      </div>
+                      {console.log('Report Data selectUsers', reportData)}
+                      <div className="durationDiv">
+                        <p>{data?.Duration}</p>
+                        <p>{Math.floor(data?.Activity)} %</p>
+                      </div>
                     </div>
-                    {console.log('Report Data selectUsers', reportData)}
-                    <div className="durationDiv">
-                      <p>{data?.Duration}</p>
-                      <p>{Math.floor(data?.Activity)} %</p>
-                    </div>
-                  </div>
-                  {expandedEmployee === data?.employee && (
-                    <div className="expandedDetails">
-                      {data?.projects
-                        ?.filter((project, index, projectsArray) => {
+                    {expandedEmployee === data?.employee && (
+                      <div className="expandedDetails">
+                        {data?.projects
+                          ?.filter((project, index, projectsArray) => {
 
-                          if (projectsArray.length > 1) {
-                            return project.projectname !== null;
-                          }
-                          return true;
-                        })
-                        ?.map((project, projectIndex) => (
-                          <div key={projectIndex} className="asadMehmoodkabhaiDiv">
+                            if (projectsArray.length > 1) {
+                              return project.projectname !== null;
+                            }
+                            return true;
+                          })
+                          ?.map((project, projectIndex) => (
+                            <div key={projectIndex} className="asadMehmoodkabhaiDiv">
 
-                            <p >{project?.projectname || 'No project name'}</p>
-                            <div className="durationDiv">
-                              <p>{project.hours || 'No duration'}</p>
-                              <p>{project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+                              <p >{project?.projectname || 'No project name'}</p>
+                              <div className="durationDiv">
+                                <p>{project.hours || 'No duration'}</p>
+                                <p>{project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+                              </div>
                             </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                userType === "owner" && reportData ? (
+                  <div className="asadMehmoodDiv">
+                    <div onClick={() => handleExpand(reportData?.employee)}>
+                      <p>
+                        <img
+                          src={expandedEmployee === reportData?.employee ? crossButton : ""}
+                          alt="Toggle"
+                        />
+                        <span>{reportData?.employee}</span></p>
+                    </div>
+                    <div className="durationDiv">
+                      <p>{reportData?.Duration}</p>
+                      <p>{Math.floor(reportData?.Activity)} %</p>
+                    </div>
+                    {expandedEmployee === reportData?.employee && (
+                      <div className="expandedDetails">
+                        {reportData?.projects?.map((project, projectIndex) => (
+                          <div key={projectIndex} className="projectDetails">
+                            <p>Project Name: {project.projectname || 'No project name'}</p>
+                            <p>Duration: {project.hours || 'No duration'}</p>
+                            {console.log("Report Total Hours", project.hours)}
+                            <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
                           </div>
                         ))}
-                    </div>
-                  )}
-                </div>
-              ))
-            ) : (
-              userType === "owner" && reportData ? (
-                <div className="asadMehmoodDiv">
-                  <div onClick={() => handleExpand(reportData?.employee)}>
-                    <p>
-                      <img
-                        src={expandedEmployee === reportData?.employee ? crossButton : ""}
-                        alt="Toggle"
-                      />
-                      <span>{reportData?.employee}</span></p>
-                  </div>
-                  <div className="durationDiv">
-                    <p>{reportData?.Duration}</p>
-                    <p>{Math.floor(reportData?.Activity)} %</p>
-                  </div>
-                  {expandedEmployee === reportData?.employee && (
-                    <div className="expandedDetails">
-                      {reportData?.projects?.map((project, projectIndex) => (
-                        <div key={projectIndex} className="projectDetails">
-                          <p>Project Name: {project.projectname || 'No project name'}</p>
-                          <p>Duration: {project.hours || 'No duration'}</p>
-                          {console.log("Report Total Hours", project.hours)}
-                          <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                userType === 'manager' && reportData ? (
-                  <>
-                    {reportData ? (
-                      reportData.allUsers.map((data, index) => (
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <div className="asadMehmoodDiv" key={index}>
-                            <div onClick={() => handleExpand(data?.employee)}>
-                              <p><img src={expandedEmployee === reportData?.employee ? crossButton : ""} alt="Toggle" /><span>{data?.employee}</span></p>
-                            </div>
-                            <div className="durationDiv">
-                              <p>{data?.Duration}</p>
-                              <p>{Math.floor(data?.Activity)} %</p>
-                            </div>
-                          </div>
-                          {expandedEmployee === data?.employee && (
-                            <div className="expandedDetails">
-                              {data?.projects?.map((project, projectIndex) => (
-                                <div key={projectIndex} className="projectDetails">
-                                  <p>Project Name: {project.projectname || 'No project name'}</p>
-                                  <p>Duration: {project.hours || 'No duration'}</p>
-                                  <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <div>No data available for the manager</div>
+                      </div>
                     )}
-                  </>
+                  </div>
                 ) : (
-                  <>
-                    {/* <div className="container">
+                  userType === 'manager' && reportData ? (
+                    <>
+                      {reportData ? (
+                        reportData.allUsers.map((data, index) => (
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <div className="asadMehmoodDiv" key={index}>
+                              <div onClick={() => handleExpand(data?.employee)}>
+                                <p><img src={expandedEmployee === reportData?.employee ? crossButton : ""} alt="Toggle" /><span>{data?.employee}</span></p>
+                              </div>
+                              <div className="durationDiv">
+                                <p>{data?.Duration}</p>
+                                <p>{Math.floor(data?.Activity)} %</p>
+                              </div>
+                            </div>
+                            {expandedEmployee === data?.employee && (
+                              <div className="expandedDetails">
+                                {data?.projects?.map((project, projectIndex) => (
+                                  <div key={projectIndex} className="projectDetails">
+                                    <p>Project Name: {project.projectname || 'No project name'}</p>
+                                    <p>Duration: {project.hours || 'No duration'}</p>
+                                    <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div>No data available for the manager</div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {/* <div className="container">
                         {reportData && reportData.allUsers ? (
                           reportData.allUsers.map(renderEmployeeData)
                         ) : (
                           <div>No data available</div>
                         )}
                       </div> */}
-                  </>
+                    </>
+                  )
                 )
-              )
-            )}
-            {/* {reportData?.allUsers?.map((data, index) => {
+              )}
+              {/* {reportData?.allUsers?.map((data, index) => {
               return (
                 <div className="asadMehmoodDiv">
                   <div>
@@ -1160,7 +1144,7 @@ function OwnerReport() {
                 </div>
               );
             })} */}
-            {/* {filteredData.length > 0 ? (
+              {/* {filteredData.length > 0 ? (
               filteredData.map((data, index) => {
                 return (
                   <div className="asadMehmoodDiv">
@@ -1195,7 +1179,7 @@ function OwnerReport() {
                 );
               })
             )} */}
-            {/* {filteredData.map((data, index) => {
+              {/* {filteredData.map((data, index) => {
               return (
                 <div className="asadMehmoodDiv">
                   <div>
@@ -1211,7 +1195,7 @@ function OwnerReport() {
                 </div>
               );
             })} */}
-            {/* {reportData?.allUsers?.map((data, index) => {
+              {/* {reportData?.allUsers?.map((data, index) => {
               return (
                 <div className="asadMehmoodDiv">
                   <div>
@@ -1226,11 +1210,13 @@ function OwnerReport() {
                 </div>
               )
             })} */}
+            </div>
           </div>
         </div>
-      </div>
-      <img className="admin1Line" src={line} />
-    </div >
+        <img className="admin1Line" src={line} />
+      </div >
+      {/* <Footer /> */}
+    </>
   )
 }
 
