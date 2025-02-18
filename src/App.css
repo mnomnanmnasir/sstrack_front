@@ -4986,7 +4986,7 @@ input.checkboxes:checked {
   cursor: pointer;
 }
 
-.active-tab,
+
 .active-tab-2 {
   background-color: #7FC45B !important;
   /* padding: 2px 2px 0px 2px !important; */
@@ -4998,6 +4998,16 @@ input.checkboxes:checked {
   cursor: pointer;
 }
 
+.active-tab{
+  background-color: #7FC45B !important;
+  /* padding: 2px 2px 0px 2px !important; */
+  padding: 5px !important;
+  border-radius: 6px !important;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
 .active-tab1 {
   background-color: #FFF !important;
   /* padding: 2px 2px 0px 2px !important; */
