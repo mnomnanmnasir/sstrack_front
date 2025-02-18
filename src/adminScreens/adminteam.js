@@ -206,6 +206,7 @@ import { useNavigate } from "react-router-dom";
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { AiFillStar } from "react-icons/ai";
+import jwtDecode from "jwt-decode";
 
 function AdminTeam() {
 
@@ -230,7 +231,7 @@ function AdminTeam() {
     const headers = {
         Authorization: "Bearer " + token,
     };
-    const user = JSON.parse(localStorage.getItem("items"))
+    const user = jwtDecode(JSON.stringify(token));
 
     const navigate = useNavigate()
 

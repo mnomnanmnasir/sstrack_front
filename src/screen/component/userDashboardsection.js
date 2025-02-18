@@ -57,47 +57,7 @@ function UserDashboardSection() {
         }
     }, [items]);
 
-    // return (
-    //     <div className="cursor-pointer">
-    //         <div className="d-flex justify-content-between align-items-center" style={{
-    //             backgroundColor: "white",
-    //             padding: "10px 20px",
-    //             borderBottomLeftRadius: "10px",
-    //             borderBottomRightRadius: "10px",
-    //             margin: "0 30px 0 30px",
-    //         }}>
-    //             <div className="d-flex gap-1 align-items-center">
-    //                 <div className={location.pathname === "/dashboard" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
-    //                     <p style={{ margin: 0 }} onClick={() => {
-    //                         navigate('/dashboard')
-    //                     }}>Dashboard</p>
-    //                 </div>
-    //                 {items?.userType === "user" && <div className={location.pathname.includes("/timeline") ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
-
-    //                     <p style={{ margin: 0 }} onClick={() => navigate(`/timeline/${items?._id}`)}>My timeline</p>
-    //                 </div>}
-    //                 {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
-    //                     <>
-    //                         <div className={location.pathname === "/team" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/team')}>
-    //                             <p style={{ margin: 0 }} onClick={() => navigate('/team')}>Team</p>
-    //                         </div>
-    //                     </>
-    //                 )}
-    //                 <div className={location.pathname === "/reports" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/reports')}>
-    //                     <p style={{ margin: 0 }} onClick={() => navigate('/reports')}>Reports</p>
-    //                 </div>
-    //             </div>
-    //             <div>
-    //                 <div className="ownerSectionCompany d-flex align-items-center cursor-none">
-    //                     <div><img src={circle} /></div>
-    //                     <p className="m-0">{items?.company}</p>
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     </div>
-    // )    
-
-
+ 
     useEffect(() => {
         if (!items?.company) {
             navigate('/profile');
@@ -147,24 +107,22 @@ function UserDashboardSection() {
 
         fetchRemainingBreakTime();
     }, [items]);
-
-
-
+    
     return (
         <div className="cursor-pointer">
             <div className="d-flex justify-content-between align-items-center" style={{
                 backgroundColor: "white",
-                padding: "10px 20px",
+                padding: "10px 20px",  
                 borderBottomLeftRadius: "10px",
                 borderBottomRightRadius: "10px",
                 margin: "0px 30px 0 30px",
             }}>
-                <div className="d-flex gap-1 align-items-center">
+                <div className="d-flex gap-1 align-items-center w-80">
                     <div className={location.pathname === "/dashboard" ? "active-tab" : "ownerSectionUser"} onClick={() => {
                         navigate('/dashboard')
                     }} >
                         <p style={{ margin: 0 }} onClick={() => {
-                            navigate('/dashboard')
+                            navigate('/dashboard')  
                         }}>Dashboard</p>
                     </div>
                     {/* {Object.entries(toggleData).map(([employeeId, data]) => (
@@ -183,20 +141,20 @@ function UserDashboardSection() {
                     {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
                         <>
                             <div className={location.pathname === "/team" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/team')}>
-                                <p style={{ margin: 0 }} onClick={() => navigate('/team')}>Team</p>
+                                <p style={{ margin: 0 ,whiteSpace: 'nowrap'}} onClick={() => navigate('/team')}>Team</p>
                             </div>
                         </>
                     )}
                     <div className={location.pathname === "/reports" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/reports')}>
                         <p style={{ margin: 0 }} onClick={() => navigate('/reports')}>Reports</p>
                     </div>
-                    {(items?.userType !== "manager") && (items?.userType !== "user") && (
+                 
                         <>
                             <div className={location.pathname === "/Projects" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/Projects')}>
                                 <p style={{ margin: 0 }} onClick={() => navigate('/Projects')}>Projects</p>
                             </div>
                         </>
-                    )}
+                
                     {/* Leave Tab with Count */}
                     {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin") && (
                         <div
@@ -251,51 +209,48 @@ function UserDashboardSection() {
 
                         </div>
                     )}
+                    {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin") && (
+                        <div
+                            className={location.pathname === "/attendence-management" ? "active-tab" : "ownerSectionUser"}
+                            onClick={() => navigate("/attendence-management")}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "5px",
+                                cursor: "pointer",
+                            }}
+                        >
+                            <p style={{ margin: 0 }}>
+                                Attendence
+                                <span style={{ marginLeft: "5px" }}>
+                                    Management
+                                </span>
+                            </p>
 
-                    {/* {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
-                        <>
-                            <div className={location.pathname === "/leave-management" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/leave-management')}>
-                                <p style={{ margin: 0 }} onClick={() => navigate('/leave-management')}>Leave Management</p>
-                            </div>
-                        </>
-                    )} */}
-                    {/* <div className={location.pathname === "/download" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/download')}>
-                        <p style={{ margin: 0 }} onClick={() => navigate('/download')}>Download</p>
-                    </div>
-                    <div className={location.pathname === "/workCards" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/workCards')}>
-                        <p className="d-flex" style={{ margin: 0 , whiteSpace: 'nowrap'}} onClick={() => navigate('/workCards')}>How It Work</p>
-                    </div>
-                    <div className={location.pathname === "/pricing" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/pricing')}>
-                        <p style={{ margin: 0 }} onClick={() => navigate('/pricing')}>Pricing</p>
-                    </div> */}
+                        </div>
+                    )}
+              
                     <div className="d-flex container">
-                        {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
-                        <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p>
-                        <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/workCards")}>How It Work</p> */}
+                 
                     </div>
                 </div>
-                {/* {items?.userType === "user" && (
-                    <div className="flex-end">
-                        <p style={{ margin: "0 20px", fontWeight: "bold" }}>
-                            Break Time: {remainingBreakTime}
-                        </p>
-                    </div>
-                )} */}
-
+       
                 <div className="d-flex">
                     {/* <p className="ownerSectionCompany" style={{ margin: "0 20px", fontWeight: "bold" }}>
                         Break Time: {remainingBreakTime}
                     </p> */}
                     {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
-                        <div className="ownerSectionCompany" style={{ margin: "0 10px", fontWeight: "bold", display:'flex', alignItems:'center' }}>
-                            <p style={{ margin: "0px", fontWeight: "bold", fontSize:'14px' }}>
+                        <div className="ownerSectionCompany company-container" style={{ margin: "0 10px", fontWeight: "bold", display: 'flex', alignItems: 'center' }}>
+                            <p style={{ margin: "0px", fontWeight: "bold", fontSize: '14px' }}>
                                 Break Time: <span>{remainingBreakTime || '0h:0m'}</span>
                             </p>
                         </div>
                     )}
-                    <div className="ownerSectionCompany d-flex align-items-center cursor-none">
-                        <div><img src={circle} /></div>
-                        <p className="m-0">{items?.company}</p>
+                    <div className="ownerSectionCompany d-flex align-items-center cursor-none company-container">
+                        <div><img src={circle} className="company-logo" alt="Company Logo" />
+                        </div>
+                        <p className="m-0 text-truncate fw-bold company-text">
+                        {items?.company}</p>
                     </div>
                 </div>
             </div>

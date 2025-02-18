@@ -52,19 +52,19 @@ const CurrencyConverter = ({ userId, payrate }) => {
             }
         })
 
-        // if (inputValue) {
-        //     const [selectedCurrency, selectedAmount, selectedRateType] = inputValue;
-        //     if (selectedCurrency === 'usd') {
-        //         setConvertedAmount(selectedRateType === 'hourly' ? selectedAmount * 294.12 : selectedAmount * 160)
-        //     } else {
-        //         setConvertedAmount(selectedRateType === 'hourly' ? selectedAmount / 294.12 : selectedAmount / 160)
-        //     }
-        //     setFormData({
-        //         amount: selectedAmount,
-        //         currency: selectedCurrency,
-        //         rateType: selectedRateType
-        //     });
-        // }
+        if (inputValue) {
+            const [selectedCurrency, selectedAmount, selectedRateType] = inputValue;
+            if (selectedCurrency === 'usd') {
+                setConvertedAmount(selectedRateType === 'hourly' ? selectedAmount * 294.12 : selectedAmount * 160)
+            } else {
+                setConvertedAmount(selectedRateType === 'hourly' ? selectedAmount / 294.12 : selectedAmount / 160)
+            }
+            setFormData({
+                amount: selectedAmount,
+                currency: selectedCurrency,
+                rateType: selectedRateType
+            });
+        }
     }
 
     async function setPayrate() {

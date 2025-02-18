@@ -16,7 +16,9 @@ import CustomModal from './component/CustomModal';
 // import Modal from 'react-bootstrap/Modal';
 import PayPalButton from './PayPalButton'
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
+const stripePromise = loadStripe(process.env.REACT_AP_KEY);
+
+
 
 
 // const PayPalButton = ({ amount }) => {

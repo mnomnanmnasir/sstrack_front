@@ -19,7 +19,7 @@ const CompanyEmployess = (props) => {
     const [setting, setSetting] = useState([])
     const { Setting, loading } = props
     const [allowBlur, setAllowBlur] = useState(false);
-    const employees = useSelector((state) => state?.adminSlice?.employess)
+    const employees = useSelector((state) => state?.adminSlice?.employess) || []
     console.log('Employees', employees)
     // const employees = useSelector((state) => state.adminSlice.employess)
     // .filter((employee) => employee.invitationStatus === 'accepted');

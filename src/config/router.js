@@ -3,10 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate, } from "
 import Signup from "../screen/signup";
 import SignIn from "../screen/signin";
 import UserDashboard from "../screen/userDashboard";
-import Home from "../screen/home";
 import UserDetails from "../screen/userDetails";
-import UserDetails1 from "../screen/userDetails1";
-
 import Account from "../screen/account";
 import Profile from "../screen/profile";
 import ForgetPassword from "../screen/forgetpassword";
@@ -25,7 +22,7 @@ import OwnerUserTimeline from "../companyOwner/ownerUsersTimeline";
 import PrivacyPolicy from "../screen/privacy-policy";
 import PrivacyPolicy1 from '../screen/privacy-policy1'
 import PrivacyPolicy2 from '../screen/privacy-policy2'
-
+import Attendence from "../screen/AttendenceManagement/Attendence";
 import Payment from "../screen/payment";
 import axios from "axios";
 import Pricing from '../screen/pricing'
@@ -44,17 +41,19 @@ import { useSelector } from "react-redux";
 import jwtDecode from "jwt-decode";
 import DashboardSplash from "../screen/spalsh/dashboardSplash";
 import Project from "../screen/Project/Project";
+import Home from "../screen/home";
+import Product from '../screen/Product/Product'
 
 
 export default function AppRouter() {
-  
-  // const tokenfromRedux = useSelector((state) => state.auth.token);
+
+  // const token = useSelector((state) => state.auth.token);
   // console.log("Token from Redux:", tokenfromRedux); 
   const [suspended, setSuspended] = useState(false);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [loading, setLoading] = useState(true);
   // const items = jwtDecode(JSON.stringify(token));
-  // console.log('decoded data', items)
+  console.log('decoded data', token)
 
   useEffect(() => {
     const fetchTokenAndSuspendedStatus = async () => {
@@ -67,10 +66,10 @@ export default function AppRouter() {
           const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
           const response = await axios.get(`${apiUrl}/owner/getCompanyInfo`, { headers });
           // For objects or arrays:
-          const planindex = response?.data.data[0].planId.length - 1;
-          const planId = response?.data.data[0].planId?.slice(-1)[0]?.id || null;
+          // const planindex = response?.data.data[0].planId.length - 1;
+          // const planId = response?.data.data[0].planId?.slice(-1)[0]?.id || null;
           // const planId = response?.data.data[0].planId[planindex].id;
-    
+
 
           // Save to localStorage after converting to a string
           // localStorage.setItem('planId', JSON.stringify(planId));
@@ -83,7 +82,7 @@ export default function AppRouter() {
         } catch (err) {
           console.error('Error fetching data%%%%%%%%%%%%%%%%%%%%%%%', err);
           let planId = null;
-          localStorage.setItem('planId', JSON.stringify(planId));
+          // localStorage.setItem('planId', JSON.stringify(planId));
           // localStorage.setItem('planIdforHome', JSON.stringify(planId));
         }
       }
@@ -91,9 +90,9 @@ export default function AppRouter() {
     };
 
     fetchTokenAndSuspendedStatus();
-    console.log('suspended=========', suspended);
 
   }, [token]);
+  // console.log('suspended=========', token);
 
 
 
@@ -103,31 +102,27 @@ export default function AppRouter() {
     }
   }, [token]);
 
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
 
   return (
     <>
       <Router>
         <Routes>
           <Route path="/" element={<Layout />}>
-
             {/* Public Routes */}
-            
+
             <Route path="/download" element={<Download />} />
-            <Route path="/aboutUs" element={<AboutUs/>} />
+            <Route path="/aboutUs" element={<AboutUs />} />
+            <Route path="/product" element={<Product />} />
+            <Route path="/splash" element={<DashboardSplash />} />
             <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
             <Route path="/account" element={token ? <Account suspended={suspended} /> : <Navigate to="/signup" />} />
-            <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/splash" />} />
-            {/* <Route path="/" element={!token ? <NewHome /> : <Navigate to="/signp" />} /> */}
-
+            <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/dashboard" />} />
             <Route path="/systemAdminLogin" element={<SystemAdminLogin />} />
             {/* <Route path="/" element={<Home />} /> */}
             <Route path="/" element={<NewHome />} />
             <Route path="/capture-screen" element={<CaptureScreen />} />
+            {/* <Route path="/:token" element={<NewHome />} /> */}
             <Route path="/:token" element={<Home />} />
-            {/* <Route path="//:token" element={<Home />} /> */}
 
             <Route path="/create-account/:code/:email" element={<CreateAccount />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
@@ -137,21 +132,16 @@ export default function AppRouter() {
             <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
             <Route path="/profile" element={<Profile />} />
-       
-            {/* <Route path="/dashboard" element={token ? (suspended ? <Navigate to="/" /> : <UserDashboard />) : <Navigate to="/" />} /> */}
+
             <Route path="/dashboard" element={token ? (suspended ? <Navigate to="/account" /> : <UserDashboard />) : <Navigate to="/" />} />
-            <Route path="/splash" element={token ? (suspended ? <Navigate to="/account" /> : <DashboardSplash/>) : <Navigate to="/" />} />
+            {/* <Route path="/splash" element={token ? (suspended ? <Navigate to="/account" /> : <DashboardSplash/>) : <Navigate to="/" />} /> */}
             <Route path="/timeline" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
-            <Route path="/timeline1" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails1 />) : <Navigate to="/" />} />
-
             <Route path="/timeline/:id" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
-            <Route path="/timeline1/:id" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails1 />) : <Navigate to="/" />} />
-
             <Route path="/account" element={token ? <Account /> : <Navigate to="/" />} />
             <Route path="/effective-settings" element={token ? (suspended ? <Navigate to="/account" /> : <Setting />) : <Navigate to="/" />} />
-            
+
             <Route path="/user-setting" element={token ? (suspended ? <Navigate to="/account" /> : <UserSettings />) : <Navigate to="/" />} />
-            
+
             <Route path="/team" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerTeam />) : <Navigate to="/" />} />
             <Route path="/reports" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerReport />) : <Navigate to="/" />} />
             <Route path="/Projects" element={token ? (suspended ? <Navigate to="/account" /> : <Project />) : <Navigate to="/" />} />
@@ -161,6 +151,8 @@ export default function AppRouter() {
             <Route path="/leave-management" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerLeaveManagement />) : <Navigate to="/" />} />
             <Route path="/applyForLeave" element={token ? (suspended ? <Navigate to="/account" /> : <ApplyForLeave />) : <Navigate to="/" />} />
             <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} />
+            <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} />
+            <Route path="/attendence-management" element={token ? (suspended ? <Navigate to="/account" /> : <Attendence />) : <Navigate to="/" />} />
 
             {/* <Route
               path="/profile"
@@ -172,7 +164,7 @@ export default function AppRouter() {
                 )
               }
             /> */}
-            
+
             {/* <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} /> */}
             <Route path="/pricing" element={token ? (suspended ? <Navigate to="/account" /> : <Pricing />) : <Navigate to="/" />} />
             <Route path="/workCards" element={token ? (suspended ? <Navigate to="/account" /> : <WorkCards />) : <Navigate to="/" />} />
@@ -181,8 +173,8 @@ export default function AppRouter() {
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} /> */}
           </Route>
           <Route path="*" element={<Navigate to="/signin" />} />
-          <Route path="/sALogin" element={<SaLogin/>} />
-          <Route path="/sADashboard" element={<SaMain/>} />
+          <Route path="/sALogin" element={<SaLogin />} />
+          <Route path="/sADashboard" element={<SaMain />} />
         </Routes>
       </Router>
     </>

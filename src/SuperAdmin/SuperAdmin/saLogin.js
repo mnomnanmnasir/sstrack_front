@@ -45,7 +45,7 @@ function SaLogin() {
         })
         const token = response.data.token;
         const decoded = jwtDecode(token);
-        localStorage.setItem("items", JSON.stringify(decoded));
+        // localStorage.setItem("items", JSON.stringify(decoded));
         localStorage.setItem("token_for_sa", response.data.token);
         enqueueSnackbar("Login successsfull", {
           variant: "success",

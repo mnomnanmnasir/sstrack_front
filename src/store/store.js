@@ -7,6 +7,6 @@ export const store = configureStore({
     reducer: {
         timelineSlice,
         adminSlice,
-        // auth: authReducer,
+        auth: authReducer,
     },
 })

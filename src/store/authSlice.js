@@ -1,8 +1,7 @@
-// authSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  token: null, // Start with no token
+  token: localStorage.getItem('authToken') || null, // Store token only
 };
 
 const authSlice = createSlice({
@@ -10,14 +9,15 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setToken(state, action) {
-      state.token = action.payload; // Update token in Redux state
+      state.token = action.payload;
+      localStorage.setItem('token', action.payload); // Save token in localStorage
     },
-    clearAuth(state) {
-      state.token = null; // Clear token on logout
+    clearToken(state) {
+      state.token = null;
+      localStorage.removeItem('token'); // Remove token on logout
     },
   },
 });
 
-export const { setToken, clearAuth } = authSlice.actions;
-
+export const { setToken, clearToken } = authSlice.actions;
 export default authSlice.reducer;

@@ -14,8 +14,6 @@ import { useSocket } from '../../io';
 import { useQuery, useQueryClient } from 'react-query';
 import Projectcomponent from '../Project/Component/projectcomponent';
 import jwtDecode from 'jwt-decode';
-import UserHeader from '../component/userHeader';
-import Footer from '../component/footer';
 
 
 
@@ -114,13 +112,23 @@ const Project = () => {
         },
         onError: (error) => {
             console.log(error);
-            enqueueSnackbar("Error fetching data", {
-                variant: "error",
-                anchorOrigin: { vertical: "top", horizontal: "right" }
-            });
+
+            // enqueueSnackbar(error.response?.data?.message , {
+            //     variant: "error",
+            //     anchorOrigin: { vertical: "top", horizontal: "right" }
+            // });
         }
     });
-
+    //only for last project 
+    const handleSetProjectConditionally = () => {
+        if (project.length === 1) {
+            setproject([]); // Clear the project array if it has exactly one project
+        } else {
+          console.log("Project array has more than one project, no changes made.");
+        }
+      };
+      
+          //only for last project 
     useEffect(() => {
         if (project1) {
             setproject(project1);
@@ -175,174 +183,170 @@ const Project = () => {
     };
 
     return (
-        <>
-            {/* <UserHeader /> */}
-            <div>
-                <SnackbarProvider />
-                <div className="container">
-                    <div className="userHeader">
-                        <div>
-                            <h5>Projects</h5>
-                        </div>
+        <div>
+            <SnackbarProvider />
+            <div className="container">
+                <div className="userHeader">
+                    <div>
+                        <h5>Projects</h5>
                     </div>
-                    <div className="mainwrapper">
-                        <div className="ownerTeamContainer">
-                            <div className="d-flex gap-3">
-                                <div style={{ width: "350px" }}>
-                                    <>
-                                        <div style={{
-                                            marginTop: "20px",
-                                            display: "flex",
-                                            width: '350px',
-                                            justifyContent: "space-between"
-                                        }}>
-                                            <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" placeholder="New Project Name..." style={{
-                                                fontSize: "18px",
-                                                padding: "6px 10px",
-                                                width: "100%",
-                                                border: "1px solid #cacaca",
-                                                outline: "none",
-                                                borderTopLeftRadius: '5px',
-                                                borderBottomLeftRadius: '5px',
+                </div>
+                <div className="mainwrapper">
+                    <div className="ownerTeamContainer">
+                        <div className="d-flex gap-3">
+                            <div style={{ width: "350px" }}>
+                                <>
+                                    <div style={{
+                                        marginTop: "20px",
+                                        display: "flex",
+                                        width: '350px',
+                                        justifyContent: "space-between"
+                                    }}>
+                                        <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" placeholder="New Project Name..." style={{
+                                            fontSize: "18px",
+                                            padding: "6px 10px",
+                                            width: "100%",
+                                            border: "1px solid #cacaca",
+                                            outline: "none",
+                                            borderTopLeftRadius: '5px',
+                                            borderBottomLeftRadius: '5px',
+                                        }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    handleSendInvitation();
+                                                }
                                             }}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') {
-                                                        handleSendInvitation();
-                                                    }
-                                                }}
-                                            />
-                                            <button style={{
-                                                backgroundColor: "#7acb59",
-                                                borderTopRightRadius: "4px",
-                                                borderBottomRightRadius: "4px",
-                                                padding: "10px 25px",
-                                                color: "white",
-                                                border: "none",
-                                            }} onClick={handleSendInvitation}>
-                                                Create
-                                            </button>
-                                        </div>
-                                    </>
-
-                                    <div className="companyFont">
-                                        <p style={{
-                                            margin: 0,
-                                            padding: 0,
-                                            fontSize: "20px",
-                                            color: "#0E4772",
-                                            fontWeight: "600",
-                                        }}>Total</p>
-                                        <div style={{
-                                            backgroundColor: "#28659C",
+                                        />
+                                        <button style={{
+                                            backgroundColor: "#7acb59",
+                                            borderTopRightRadius: "4px",
+                                            borderBottomRightRadius: "4px",
+                                            padding: "10px 25px",
                                             color: "white",
-                                            fontSize: "600",
-                                            width: "30px",
-                                            height: "30px",
-                                            borderRadius: "100%",
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center"
-                                        }}>
-                                            {project?.length}
-                                        </div>
+                                            border: "none",
+                                        }} onClick={handleSendInvitation}>
+                                            Create
+                                        </button>
                                     </div>
-                                    <div>
-                                        {project?.map((e, i) => {
-                                            return (
-                                                <div className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center`} onClick={() => {
-                                                    setMainId(e._id);
-                                                    setActiveId(e._id);
-                                                    setIsArchived(e.isArchived)
-                                                    setIsUserArchive(e?.isArchived ? false : true);
-                                                    setInviteStatus(false);
-                                                    setPayrate(e);
-                                                    setSelectedUser(e);
-                                                    setAllowemp(e?.allowedEmployees);
-                                                    setProjectName(e?.name);
-                                                }}>
-                                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: '100%' }}>
-                                                        <div style={{ display: "flex", alignItems: "center" }}>
-                                                            <div className="groupContentMainImg">
-                                                                <p>{i + 1}</p>
-                                                            </div>
-                                                            <p className="groupContent" style={{ color: e?.isArchived ? 'grey' : 'inherit' }}>{e?.name}</p>
-                                                        </div>
-                                                        {e?.inviteStatus === true ? (
-                                                            <div style={{
-                                                                marginRight: "3px",
-                                                                padding: "3px 10px",
-                                                                borderRadius: "3px",
-                                                                color: "#fff",
-                                                                fontSize: "12px",
-                                                                lineHeight: 1.4,
-                                                            }}>
-                                                                <img width={30} src={inviteIcon} />
-                                                            </div>
-                                                        ) : e?.isArchived === true ? (
-                                                            <div style={{
-                                                                marginRight: "3px",
-                                                                padding: "3px 10px",
-                                                                borderRadius: "3px",
-                                                                color: "#fff",
-                                                                fontSize: "12px",
-                                                                lineHeight: 1.4,
-                                                            }}>
-                                                                <img width={30} src={archiveIcon}
-                                                                    style={{ filter: "grayscale(100%) brightness(100%) contrast(100%)" }}
-                                                                />
-                                                            </div>
-                                                        ) : null}
-                                                    </div>
-                                                    {e?.userType === "owner" ? (
-                                                        <div>
-                                                            <AiFillStar color="#e7c741" size={20} />
-                                                        </div>
-                                                    ) : e?.userType === "admin" ? (
-                                                        <div>
-                                                            <AiFillStar color="#28659C" size={20} />
-                                                        </div>
-                                                    ) : e?.userType === "manager" && (
-                                                        <div style={{ backgroundColor: "#5CB85C", width: 80, padding: "5px 10px", borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                                            <AiOutlineUser color="white" size={20} />
-                                                            <p style={{ margin: 0, fontWeight: "600", color: "white" }}>{e?.assignedUsers?.filter(f => f !== user._id)?.length}</p>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
+                                </>
+
+                                <div className="companyFont">
+                                    <p style={{
+                                        margin: 0,
+                                        padding: 0,
+                                        fontSize: "20px",
+                                        color: "#0E4772",
+                                        fontWeight: "600",
+                                    }}>Total</p>
+                                    <div style={{
+                                        backgroundColor: "#28659C",
+                                        color: "white",
+                                        fontSize: "600",
+                                        width: "30px",
+                                        height: "30px",
+                                        borderRadius: "100%",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center"
+                                    }}>
+                                        {project?.length}
                                     </div>
                                 </div>
                                 <div>
-                                    <img src={line} style={{ height: '100%' }} />
+                                    {project?.map((e, i) => {
+                                        return (
+                                            <div className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center`} onClick={() => {
+                                                setMainId(e._id);
+                                                setActiveId(e._id);
+                                                setIsArchived(e.isArchived)
+                                                setIsUserArchive(e?.isArchived ? false : true);
+                                                setInviteStatus(false);
+                                                setPayrate(e);
+                                                setSelectedUser(e);
+                                                setAllowemp(e?.allowedEmployees);
+                                                setProjectName(e?.name);
+                                            }}>
+                                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: '100%' }}>
+                                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                                        <div className="groupContentMainImg">
+                                                            <p>{i + 1}</p>
+                                                        </div>
+                                                        <p className="groupContent" style={{ color: e?.isArchived ? 'grey' : 'inherit' }}>{e?.name}</p>
+                                                    </div>
+                                                    {e?.inviteStatus === true ? (
+                                                        <div style={{
+                                                            marginRight: "3px",
+                                                            padding: "3px 10px",
+                                                            borderRadius: "3px",
+                                                            color: "#fff",
+                                                            fontSize: "12px",
+                                                            lineHeight: 1.4,
+                                                        }}>
+                                                            <img width={30} src={inviteIcon} />
+                                                        </div>
+                                                    ) : e?.isArchived === true ? (
+                                                        <div style={{
+                                                            marginRight: "3px",
+                                                            padding: "3px 10px",
+                                                            borderRadius: "3px",
+                                                            color: "#fff",
+                                                            fontSize: "12px",
+                                                            lineHeight: 1.4,
+                                                        }}>
+                                                            <img width={30} src={archiveIcon}
+                                                                style={{ filter: "grayscale(100%) brightness(100%) contrast(100%)" }}
+                                                            />
+                                                        </div>
+                                                    ) : null}
+                                                </div>
+                                                {e?.userType === "owner" ? (
+                                                    <div>
+                                                        <AiFillStar color="#e7c741" size={20} />
+                                                    </div>
+                                                ) : e?.userType === "admin" ? (
+                                                    <div>
+                                                        <AiFillStar color="#28659C" size={20} />
+                                                    </div>
+                                                ) : e?.userType === "manager" && (
+                                                    <div style={{ backgroundColor: "#5CB85C", width: 80, padding: "5px 10px", borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                                        <AiOutlineUser color="white" size={20} />
+                                                        <p style={{ margin: 0, fontWeight: "600", color: "white" }}>{e?.assignedUsers?.filter(f => f !== user._id)?.length}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                                <div style={{ width: "100%", display: mainId === null ? "flex" : "", justifyContent: mainId === null ? "" : "", alignItems: mainId === null ? "" : "" }}>
-                                    <Projectcomponent
-                                        fixId={mainId}
-                                        archived_unarchived_users={() => setShow2(true)}
-                                        deleteUser={() => setShow(true)}
-                                        isArchived={isArchived}
-                                        setIsUserArchive={setIsUserArchive}
-                                        isUserArchive={isUserArchive}
-                                        inviteStatus={inviteStatus}
-                                        handleSendInvitation={handleSendInvitation}
-                                        payrate={payrate}
-                                        users={users}
-                                        setUsers={setUsers}
-                                        selectedUser={selectedUser}
-                                        allowEmp={allowemp}
-                                        setAllowemp={setAllowemp}
-                                        projectName={projectName}
-                                        getData={refetch}
-                                        fetchProject={null}
-                                    />
-                                </div>
+                            </div>
+                            <div>
+                                <img src={line} style={{ height: '100%' }} />
+                            </div>
+                            <div style={{ width: "100%", display: mainId === null ? "flex" : "", justifyContent: mainId === null ? "" : "", alignItems: mainId === null ? "" : "" }}>
+                                <Projectcomponent
+                                    fixId={mainId}
+                                    archived_unarchived_users={() => setShow2(true)}
+                                    deleteUser={() => setShow(true)}
+                                    isArchived={isArchived}
+                                    setIsUserArchive={setIsUserArchive}
+                                    isUserArchive={isUserArchive}
+                                    inviteStatus={inviteStatus}
+                                    handleSendInvitation={handleSendInvitation}
+                                    payrate={payrate}
+                                    users={users}
+                                    setUsers={setUsers}
+                                    selectedUser={selectedUser}
+                                    allowEmp={allowemp}
+                                    setAllowemp={setAllowemp}
+                                    projectName={projectName}
+                                    getData={refetch}
+                                    handleSetProjectConditionally={handleSetProjectConditionally}
+                                />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {/* <Footer /> */}
-        </>
+        </div>
     );
 };
 

@@ -621,6 +621,25 @@ function PricingSection({ language }) {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
+    const translations = {
+        en: [
+            "Unlimited users and team roles",
+            "Custom API integrations",
+            "Dedicated support team",
+            "Onboarding assistance",
+            "Priority access to new features"
+        ],
+        ar: [
+            "عدد غير محدود من المستخدمين وأدوار الفريق",
+            "تكاملات API مخصصة",
+            "فريق دعم مخصص",
+            "المساعدة في الإعداد",
+            "الوصول الأولوي إلى الميزات الجديدة"
+        ]
+    };
+
+     const isArabic = language === "ar";
+
     // Form State
     const [email, setEmail] = useState("");
     const [phoneNo, setPhone] = useState("");
@@ -714,6 +733,18 @@ function PricingSection({ language }) {
                             : "When you choose ssTrack.io, you’re not just buying software—you’re investing in precision, control, and growth."}
                     </p>
                 </Col>
+            
+
+                {/* <Col>
+    <ul className="list-unstyled card-subtitle-responsive">
+        {translations[language].map((feature, index) => (
+            <li key={index} className="d-flex align-items-center justify-content-center justify-content-md-start mb-2">
+                <span className="text-success me-2">✓</span> {feature}
+            </li>
+        ))}
+    </ul>
+</Col> */}
+
             </Row>
 
             {/* Pricing Card Section */}
@@ -725,7 +756,7 @@ function PricingSection({ language }) {
                             <Col xs={12} md={5} className="text-md-start text-center mb-4 mb-md-0">
                                 <h3 className="fw-bold border-bottom pb-2 card-title-responsive">{language === "ar" ? "المؤسسة" : "Enterprise"}</h3>
                                 <p className="text-muted card-subtitle-responsive">{language === "ar" ? "الإدارة والأمان" : "Management & Security"}</p>
-                                <h4 className="text-success fw-bold card-title-responsive">
+                                <h4 style={{ color: '#7ACB59' }} className="fw-bold card-title-responsive">
                                     ${language === "ar" ? "تسعير مخصص" : "Custom Pricing"}
                                 </h4>
                                 <p className="text-muted card-subtitle-responsive">
@@ -740,15 +771,9 @@ function PricingSection({ language }) {
                                 <p className="text-muted card-subtitle-responsive">{language === "ar" ? "يتضمن جميع ميزات خطة Pro، بالإضافة إلى:" : "Includes all Pro Plan features, plus:"}</p>
                                 <Row >
                                     <Col xs={12} md={6} className="d-flex justify-content-center justify-content-md-start text-center text-md-start">
-                                        <ul className="list-unstyled card-subtitle-responsive">
-                                            {[
-                                                "Unlimited users and team roles",
-                                                "Custom API integrations",
-                                                "Dedicated support team",
-                                                "Onboarding assistance",
-                                                "Priority access to new features",
-                                            ].map((feature, index) => (
-                                                <li key={index} className="d-flex align-items-center justify-content-center justify-content-md-start mb-2">
+                                    <ul className="list-unstyled card-subtitle-responsive">
+                                            {translations[language].map((feature, index) => (
+                                                <li key={index} className="d-flex align-items-center mb-2">
                                                     <span className="text-success me-2">✓</span> {feature}
                                                 </li>
                                             ))}
@@ -756,11 +781,11 @@ function PricingSection({ language }) {
                                     </Col>
                                     <Col xs={12} md={6} className="d-flex justify-content-center justify-content-md-start text-center text-md-start">
                                         <ul className="list-unstyled card-subtitle-responsive">
-                                            {[
-                                                "White-labeling options",
-                                                "Advanced security features",
-                                                "Tailored workflows",
-                                            ].map((feature, index) => (
+                                        {[
+        isArabic ? "خيارات العلامة البيضاء" : "White-labeling options",
+        isArabic ? "ميزات الأمان المتقدمة" : "Advanced security features",
+        isArabic ? "سير عمل مخصص" : "Tailored workflows"
+    ].map((feature, index) => (
                                                 <li key={index} className="d-flex align-items-center mb-2">
                                                     <span className="text-success me-2">✓</span> {feature}
                                                 </li>

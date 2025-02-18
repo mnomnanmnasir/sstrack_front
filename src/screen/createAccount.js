@@ -16,6 +16,7 @@ import axios from "axios";
 import { FerrisWheelSpinner } from "react-spinner-overlay";
 import showPasswordIcon from '../images/showPassword.svg';
 import hidePasswordIcon from '../images/hidePassword.svg';
+import jwtDecode from "jwt-decode";
 
 function CreateAccount() {
 
@@ -42,8 +43,8 @@ function CreateAccount() {
         Intl.DateTimeFormat().resolvedOptions().timeZone
     )
     const [currentTimezone, setCurrentTimeZone] = useState('')
-    const currentUser = JSON.parse(localStorage.getItem("items"))
     const token = localStorage.getItem('token');
+    // const currentUser = jwtDecode(JSON.stringify(token));
     const headers = {
         Authorization: "Bearer " + token,
     };

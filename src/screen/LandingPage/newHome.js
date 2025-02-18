@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apple from '../../images/apple.svg';
+import apple from '../../images/apple-Screenshot.png';
 import chrome from '../../images/chrome.svg';
 import laptopandmob from '../../images/laptopand mob.svg';
 import microsoftlogo from '../../images/microsoft.svg';
@@ -81,17 +81,17 @@ function NewHome() {
             {language === 'en' ? 'العربية' : 'English'}
           </button> */}
         </div>
-          <div
-            className="background-container"
-            style={{
-              position: 'absolute',
-              width: '150%',
-              height: '190%',
-              top: '-115%',
-              background: 'linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)',
-              borderRadius: '40%',
-              zIndex: 1,
-            }}></div>
+        <div
+          className="background-container"
+          style={{
+            position: 'absolute',
+            width: '150%',
+            height: '190%',
+            top: '-115%',
+            background: 'linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)',
+            borderRadius: '40%',
+            zIndex: 1,
+          }}></div>
         <Container
           style={{
             position: 'relative',
@@ -190,7 +190,14 @@ function NewHome() {
               <img src={microsoftlogo} alt="Microsoft" className="img-fluid platform-icon" />
             </Col>
             <Col xs={6} sm={4} md={3} className="mb-3">
-              <img src={apple} alt="Apple" className="img-fluid platform-icon1" />
+              {/* <div className=""> */}
+                <img
+                  src={apple}
+                  alt="Apple"
+                  className="img-fluid platform-icon"
+                />
+                {/* <span className="ms-2">Mac OS</span> */}
+              {/* </div> */}
             </Col>
             <Col xs={6} sm={4} md={3} className="mb-3">
               <img src={playstore} alt="Google Play" className="img-fluid platform-icon" />
@@ -200,8 +207,6 @@ function NewHome() {
             </Col>
           </Row>
         </Container>
-
-
         <img
           src={laptopandmob}
           alt="Laptop and Mobile Mockup"
@@ -231,7 +236,7 @@ function NewHome() {
         <ContactSection language={language} />
       </div>
       <StartingSStrack language={language} />
-      {/* <Footer /> */}
+      {/* <Footer language={language} /> */}
     </>
   );
 }

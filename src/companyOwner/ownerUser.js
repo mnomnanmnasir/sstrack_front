@@ -16,11 +16,12 @@ import { FerrisWheelSpinner } from "react-spinner-overlay";
 import showPasswordIcon from '../images/showPassword.svg';
 import hidePasswordIcon from '../images/hidePassword.svg';
 import moment from 'moment-timezone';
+import jwtDecode from "jwt-decode";
 
 function OwnerUserSignup() {
-
+    const token = localStorage.getItem('token');
     const [showPassword, setShowPassword] = useState(false);
-    const currentUser = JSON.parse(localStorage.getItem("items"))
+    const currentUser = jwtDecode(JSON.stringify(token));
     const [loading, setLoading] = useState(false)
     const { code, email } = useParams()
     const [user, setUser] = useState(null);
@@ -42,7 +43,7 @@ function OwnerUserSignup() {
     )
     const [currentTimezone, setCurrentTimeZone] = useState('')
 
-    const token = localStorage.getItem('token');
+    // const token = localStorage.getItem('token');
     const headers = {
         Authorization: "Bearer " + token,
     };

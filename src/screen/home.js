@@ -204,37 +204,60 @@ function Home() {
   console.log("localtion", location);
   console.log("localtion ka path name", location.pathname);
 
-  // console.log("Token agya",token);
+  console.log("Token agya",token);
+
+
+  // const signin = () => {
+  //   if (token && token.startsWith("auth=")) {
+  //     try {
+  //       const extractedToken = token.substring(5); // Extract text after "auth="
+  //       console.log('Valid token detected, proceeding to authentication');
+
+  //       localStorage.removeItem('token');
+  //       localStorage.setItem('token', extractedToken); // Store the new token
+
+  //       navigate("/dashboard");
+  //       window.location.reload(); // Reload the page to apply changes
+  //       console.log("Dashboard", extractedToken);
+  //     } catch (error) {
+  //       console.error("Token processing failed:", error);
+  //       navigate("/dashboard");
+  //       window.location.reload();
+  //     }
+  //   } else {
+  //     // If no valid token, redirect to sign-in
+  //     console.log('Invalid or missing token, redirecting to sign-in');
+  //     navigate("/dashboard");
+  //     window.location.reload();
+  //   }
+  // };
 
 
   const signin = () => {
     if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        localStorage.setItem("items", JSON.stringify(decoded));
-        localStorage.setItem('token', token); // Ensure the token is stored
-        navigate("/dashboard");
-        window.href.reload();
-        console.log("Dashboard", token)
-      } catch (error) {
-        console.error("Token decoding failed:", error);
-        navigate("/signup");
-      }
+        try {
+            // Remove the previous token from localStorage
+            console.log('tryto go check token')
+            localStorage.removeItem('token');
+            // const decoded = jwtDecode(token);
+            // localStorage.setItem("items", JSON.stringify(decoded));
+            localStorage.setItem('token', token); // Store the new token
+            
+            navigate("/dashboard");
+            window.location.reload(); // Reload the page to apply changes
+            console.log("Dashboard", token);
+        } catch (error) {
+            console.error("Token decoding failed:", error);
+            navigate("/signup");
+        }
+    } else {
+        // If no token, redirect to sign-in or another appropriate page
+        console.log('tryto go to sign in')
+        navigate("/signin");
     }
-    else {
-      // If no token, redirect to sign-in or another appropriate page
-      navigate("/signin");
-    }
-  };
-  // signin();
+};
 
 
-  // async function signin() {
-  //   const decoded = jwtDecode(token);
-  //   localStorage.setItem("items", JSON.stringify(decoded));
-  //   localStorage.setItem("token", token);
-  //   navigate("/dashboard")
-  // }
 
   useEffect(() => {
     if (token) {

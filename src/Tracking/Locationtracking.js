@@ -6,8 +6,6 @@ import "leaflet/dist/leaflet.css";
 import { GoogleMap, LoadScript, Polyline } from "@react-google-maps/api";
 import DatePicker from "react-datepicker";
 import { FaCalendarAlt } from "react-icons/fa";
-import Footer from '../screen/component/footer';
-import UserHeader from '../screen/component/userHeader';
 
 
 
@@ -215,7 +213,6 @@ const LocaitonTracking = () => {
 
     return (
         <>
-            {/* <UserHeader /> */}
             <SnackbarProvider />
             <div className="container">
                 <div className="userHeader">
@@ -589,7 +586,7 @@ const LocaitonTracking = () => {
                     </div>
                 </div>
             </div >
-            {/* <Footer /> */}
+
         </>
     );
 };

@@ -2,6 +2,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
+import jwtDecode from "jwt-decode";
 
 
 const OwnerTeam = () => {
@@ -16,11 +17,11 @@ const OwnerTeam = () => {
     const [formSubmitting, setFormSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const currentUser = JSON.parse(localStorage.getItem("items"));
+    const token = localStorage.getItem("token");
+    const currentUser = jwtDecode(JSON.stringify(token));
     const userId = currentUser?.id || "";
     const userType = currentUser?.userType || "";
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    const token = localStorage.getItem("token");
     const headers = {
         Authorization: `Bearer ${token}`,
     };
@@ -40,7 +41,7 @@ const OwnerTeam = () => {
             // Debug localStorage data
             // console.log("LocalStorage items:", localStorage.getItem("items"));   
 
-            const currentUser = JSON.parse(localStorage.getItem("items")) || {};
+            const currentUser = jwtDecode(JSON.stringify(token)) || {};
             const userId = currentUser?.id || currentUser?._id || "";
 
             if (!userId) {

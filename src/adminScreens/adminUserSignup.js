@@ -14,11 +14,12 @@ import { FerrisWheelSpinner } from "react-spinner-overlay";
 import AdminHead from "../screen/component/adminHeadSection";
 import showPasswordIcon from '../images/showPassword.svg';
 import hidePasswordIcon from '../images/hidePassword.svg';
+import jwtDecode from "jwt-decode";
 
 function AdminUserSignup() {
 
     const [showPassword, setShowPassword] = useState(false);
-    const currentUser = JSON.parse(localStorage.getItem("items"))
+    const currentUser = jwtDecode(JSON.stringify(token));
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
     const [model, setModel] = useState({

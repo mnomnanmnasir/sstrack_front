@@ -2,7 +2,7 @@ import axios from "axios";
 import moment from "moment-timezone";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FerrisWheelSpinner } from "react-spinner-overlay";
 import TimezoneSelect from 'react-timezone-select';
 import account from '../images/account.webp';
@@ -14,7 +14,9 @@ import Header from '../screen/component/header';
 
 
 function Signup() {
-
+    const location = useLocation();
+    const emailfromlink = location.state?.email;
+    console.log('new email',emailfromlink)
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
@@ -100,33 +102,7 @@ function Signup() {
         }
     }
 
-    // async function handleCreateAccount() {
-    //     console.log(model);
-    //     if (model?.name === "" || model?.company === "" || model?.email === "" || model?.password === "" || model?.timezone === "" || model?.timezoneOffset === "") {
-    //         enqueueSnackbar("Please fill all fields", {
-    //             variant: "error",
-    //             anchorOrigin: {
-    //                 vertical: "top",
-    //                 horizontal: "right"
-    //             }
-    //         })
-    //         return null
-    //     }
-    //     if (!model.email.includes("@") || !model.email.includes(".")) {
-    //         enqueueSnackbar("Invalid email please enter valid email", {
-    //             variant: "error",
-    //             anchorOrigin: {
-    //                 vertical: "top",
-    //                 horizontal: "right"
-    //             }
-    //         })
-    //         return null
-    //     }
-    //     else {
-    //         setLoading(true)
-    //         navigate('/payment');
-    //     }
-    // }
+
 
 
     const handleStartDateChange = (selectedtimezone) => {
@@ -147,6 +123,9 @@ function Signup() {
     }
 
     useEffect(() => {
+        if (emailfromlink) {
+            fillModel("email", emailfromlink);
+        }
         const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const offsetInMinutes = moment.tz(defaultTimezone).utcOffset();
         const offsetInHours = offsetInMinutes / 60;
@@ -154,16 +133,17 @@ function Signup() {
         setCurrentTimeZone(defaultTimezone);
         fillModel("timezoneOffset", offsetInHours);
         fillModel("timezone", defaultTimezone);
-        fillModel("email", "");
+        // fillModel("email", "");
         fillModel("password", "");
-    }, []);
 
-    console.log(model);
+    }, [location]);
+
+    console.log('sdssdsdds',model);
 
     return (
         <div>
             {/* <Header /> */}
-            <Header/>
+            <Header />
 
             <SnackbarProvider />
             <section>
@@ -222,7 +202,7 @@ function Signup() {
             </section>
             <img className="liness" src={line} />
 
-            {/* <Footer /> */}
+
         </div>
     )
 }

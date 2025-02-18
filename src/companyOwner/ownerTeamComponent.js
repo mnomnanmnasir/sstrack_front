@@ -374,16 +374,18 @@ function OwnerTeamComponent(props) {
                     </div>
                     <div>
                         {data && Object.keys(data).length > 0 ? (
-                            <p>
-                                <p className="employeeDetailName1">{data.name}</p>
-                                <p className="employeeDetailName2">{data.email}</p>
-                            </p>
+                            <div className="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <p className="employeeDetailName1">{data.name}</p>
+                                    <p className="employeeDetailName2">{data.email}</p>
+                                </div>
+                                <div>
+                                    <CurrencyConverter userId={fixId} payrate={payrate} />
+                                </div>
+                            </div>
                         ) : (
                             <p></p>
                         )}
-                        {/* <div>
-                            <CurrencyConverter userId={fixId} payrate={payrate} />
-                        </div> */}
                     </div>
                     {user?._id === fixId && (user?.userType === "owner" || user?.userType === "admin") ? (
                         <>
@@ -568,10 +570,10 @@ function OwnerTeamComponent(props) {
                             )}
 
 
-                       
+
                         </>
                     )}
-                   
+
                 </>
             ) : (
                 <img width={500} src={settingIcon} alt="" style={{ display: "block", margin: "auto" }} />

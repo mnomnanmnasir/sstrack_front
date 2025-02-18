@@ -5,14 +5,24 @@ import { Modal, Button, Form } from "react-bootstrap";
 // import { FaUser } from "react-icons/fa";
 import PersonIcon from "@mui/icons-material/Person";
 import jwtDecode from "jwt-decode";
-import UserHeader from "../../screen/component/userHeader";
-import Footer from "../../screen/component/footer";
 
 const OwnerTeam = () => {
     const [leaveData, setLeaveData] = useState({
         requestedLeaves: [],
         approvedLeaves: [],
         rejectedLeaves: [],
+    });
+    const [leaveCounts, setLeaveCounts] = useState({
+        annualLeaves: 0,
+        sickLeaves: 0,
+        casualLeaves: 0,
+        bereavementLeaves: 0
+    });
+    const [leavemodalCounts, setLeavemodalCounts] = useState({
+        annualLeaves: 0,
+        sickLeaves: 0,
+        casualLeaves: 0,
+        bereavementLeaves: 0
     });
     const [openApplyModal, setOpenApplyModal] = useState(false); // State for Apply Leave modal
     const [currentUser, setCurrentUser] = useState(null); // Store current user info
@@ -52,7 +62,7 @@ const OwnerTeam = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setLeaveData({ ...leaveData, [name]: value });
+        setLeavemodalCounts({ ...leavemodalCounts, [name]: value });
     };
 
     // Handle input changes in the form
@@ -96,7 +106,7 @@ const OwnerTeam = () => {
                 },
             });
 
-            console.log("API Response:", response.data);
+
 
             // Show success notification
             enqueueSnackbar("Leave application submitted successfully!", {
@@ -138,10 +148,10 @@ const OwnerTeam = () => {
     const handleApply = async () => {
         // Check if all fields are filled
         if (
-            !leaveData.sickLeaves ||
-            !leaveData.casualLeaves ||
-            !leaveData.bereavementLeaves ||
-            !leaveData.annualLeaves
+            !leavemodalCounts.sickLeaves ||
+            !leavemodalCounts.casualLeaves ||
+            !leavemodalCounts.bereavementLeaves ||
+            !leavemodalCounts.annualLeaves
         ) {
             enqueueSnackbar("Please fill in all fields before applying.", {
                 variant: "error",
@@ -163,14 +173,15 @@ const OwnerTeam = () => {
             // Send POST request
             const response = await axios.post(
                 `${apiUrl}/superAdmin/addLeaves`,
-                leaveData,
+                leavemodalCounts,
                 { headers }
             );
 
-            console.log("API Response:", response.data);
+
 
             // Handle success
             // alert("Leave allowance set successfully!");
+            fetchLeaveData();
             enqueueSnackbar('Leave allowance set successfully!', {
                 variant: 'success', anchorOrigin: {
                     vertical: "top",
@@ -178,8 +189,8 @@ const OwnerTeam = () => {
                 }
             });
             // Reset the leaveData state to its initial values
-            // setLeaveData({
-            //     ...leaveData, // Preserve the original structure
+            // setLeavemodalCounts({
+            //     ...leavemodalCounts, // Preserve the original structure
             //     sickLeaves: "",
             //     casualLeaves: "",
             //     bereavementLeaves: "",
@@ -187,19 +198,22 @@ const OwnerTeam = () => {
             // });
             setModalOpen(false); // Close the modal
         } catch (error) {
-            console.error("Error setting leave allowance:", error);
+            // console.error("Error setting leave allowance:", error);
             alert("Failed to set leave allowance. Please try again.");
         } finally {
             setIsSubmitting(false); // Stop loading
         }
     };
-
+ console.log('userType',items?.userType)
+ 
     const fetchLeaveRequests = async () => {
         try {
-            const response = await axios.get(
-                `${apiUrl}/superAdmin/getAllLeaveRequests`,
-                { headers }
-            );
+            const userType = items?.userType; 
+            const endpoint = userType === 'manager' 
+                ? `${apiUrl}/manager/getAllLeaveRequests` 
+                : `${apiUrl}/superAdmin/getAllLeaveRequests`;
+    
+            const response = await axios.get(endpoint, { headers });
 
             const { requestedLeaves = [], approvedLeaves = [], rejectedLeaves = [] } =
                 response.data || {};
@@ -222,10 +236,63 @@ const OwnerTeam = () => {
             setLoading(false);
         }
     };
+    const apiUrlforleaves = "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAllUserLeaves"
+    // Fetch leave data from API
+    const fetchLeaveData = async () => {
+        try {
+            const userType = items?.userType;
+            const apiUrlForLeaves = userType === 'manager'
+                ? "https://myuniversallanguages.com:9093/api/v1/manager/getAllUserLeaves"
+                : "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAllUserLeaves";
+    
+            const response = await axios.get(apiUrlForLeaves, { headers });
+            const usersData = response.data?.data || [];
 
+            // Assuming the API returns data for multiple users, filter for the current user
+            const currentUser = jwtDecode(JSON.stringify(token)); // Current user data from localStorage
+            const userId = currentUser?.id || currentUser?._id;
+
+            // Find the current user's leave data
+            const userData = usersData.find((user) => user.userId?._id === userId);
+
+
+            if (userData) {
+                const { allottedLeaves } = userData;
+              
+                // Extract leave counts
+                const {
+                  sickLeaves = 0,
+                  casualLeaves = 0,
+                  annualLeaves = 0,
+                  bereavementLeaves = 0,
+                } = allottedLeaves[0] || {};
+              
+                // Set leave counts to state or display directly in the UI
+                setLeaveCounts({
+                  annualLeaves,
+                  sickLeaves,
+                  casualLeaves,
+                  bereavementLeaves,
+                });
+                setLeavemodalCounts({
+                  annualLeaves,
+                  sickLeaves,
+                  casualLeaves,
+                  bereavementLeaves,
+                });
+              } else {
+                console.warn("No data found for the current user.");
+            }
+        } catch (error) {
+            console.error("Error fetching leave data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchLeaveRequests();
+        fetchLeaveData();
     }, []);
 
     const getFilteredLeaves = (leaves, query, currentUser) => {
@@ -398,7 +465,7 @@ const OwnerTeam = () => {
     const renderModal = () => {
         if (!selectedLeave) return null;
 
-        const userLeaveData = leaveData.approvedLeaves.find(
+        const userLeaveData = leaveData?.approvedLeaves?.find(
             (leave) => leave.userId === selectedLeave.userId
         );
 
@@ -432,7 +499,7 @@ const OwnerTeam = () => {
                         padding: "30px",
                         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
                         borderRadius: "12px",
-                        width: "570px",
+                        width: "auto",
                         border: "1px solid #E0E0E0",
                     }}
                 >
@@ -581,17 +648,17 @@ const OwnerTeam = () => {
                                 </h4>
                                 <p>
                                     {/* {userLeaveData.sickLeaves || 0} */}
-                                    <strong>Annual Leaves:</strong> {userLeaveData.annualLeaves || 0}
+                                    <strong>Annual Leaves:</strong> {userLeaveData?.annualLeaves || 0}
                                 </p>
                                 <p>
 
-                                    <strong>Casual Leaves:</strong> {userLeaveData.casualLeaves || 0}
+                                    <strong>Casual Leaves:</strong> {userLeaveData?.casualLeaves || 0}
                                 </p>
                                 <p>
-                                    <strong>Sick Leaves:</strong> {userLeaveData.sickLeaves || 0}
+                                    <strong>Sick Leaves:</strong> {userLeaveData?.sickLeaves || 0}
                                 </p>
                                 <p>
-                                    <strong>Bereavement Leaves:</strong> {userLeaveData.bereavementLeaves || 0}
+                                    <strong>Bereavement Leaves:</strong> {userLeaveData?.bereavementLeaves || 0}
                                 </p>
                             </div>
                         </div>
@@ -912,11 +979,10 @@ const OwnerTeam = () => {
             setCurrentPage(currentPage - 1);
         }
     };
-
+    console.log("API Response:", leaveCounts);
     // main component
     return (
         <>
-        <UserHeader />
             <SnackbarProvider />
             <div className="container">
                 <div
@@ -1123,7 +1189,43 @@ const OwnerTeam = () => {
                             </button>
                         )}
                     </div>
-                    
+
+                </div>
+                <div 
+                style={{
+                    // padding: "10px 0px",
+                    backgroundColor: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center", // Added space between elements for buttons
+                    // gap: '20px',
+                    // border: '1px solid #ddd', // Light border color
+                    // borderRadius: '10px', // Rounded corners
+                }}
+                >
+                    <div
+                        style={{
+                            padding: "20px 30px",
+                            backgroundColor: "#fff",
+                            width:'99%',
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "flex-start", // Added space between elements for buttons
+                            gap: '20px',
+                            border: '1px solid #ddd', // Light border color
+                            borderRadius: '10px', // Rounded corners
+                        }}
+                    >
+                        <div style={{ fontWeight: '500', color: "#28659C", fontSize: '17px', }}>
+                            Total Alloted leaves:
+                        </div>
+                        <div>Sick leaves: {leaveCounts.sickLeaves}</div>
+                        <div>Annual leaves: {leaveCounts.annualLeaves}</div>
+                        <div>Casual leaves: {leaveCounts.casualLeaves}</div>
+                        <div>Bereavement leaves: {leaveCounts.bereavementLeaves}</div>
+
+                    </div>
+
                 </div>
 
                 {/* Apply Leave Modal */}
@@ -1223,7 +1325,8 @@ const OwnerTeam = () => {
                                 width: "100%",
                                 borderCollapse: "collapse",
                                 alignItems: 'center',
-                                textAlign: 'center'
+                                textAlign: 'center',
+                                fontSize:'12px'
                             }}
                         >
                             <thead style={{
@@ -1330,7 +1433,7 @@ const OwnerTeam = () => {
                                 <Form.Control
                                     type="number"
                                     name="sickLeaves"
-                                    value={leaveData.sickLeaves || 0} // Show existing value or 0
+                                    value={leavemodalCounts.sickLeaves || ""} // Show existing value or 0
                                     onChange={handleInputChange}
                                     placeholder="Enter Sick Leaves"
                                 />
@@ -1344,7 +1447,7 @@ const OwnerTeam = () => {
                                 <Form.Control
                                     type="number"
                                     name="casualLeaves"
-                                    value={leaveData.casualLeaves || 0} // Show existing value or 0
+                                    value={leavemodalCounts.casualLeaves || ""} // Show existing value or 0
                                     onChange={handleInputChange}
                                     placeholder="Enter Casual Leaves"
                                 />
@@ -1358,7 +1461,7 @@ const OwnerTeam = () => {
                                 <Form.Control
                                     type="number"
                                     name="bereavementLeaves"
-                                    value={leaveData.bereavementLeaves || 0} // Show existing value or 0
+                                    value={leavemodalCounts.bereavementLeaves || ""} // Show existing value or 0
                                     onChange={handleInputChange}
                                     placeholder="Enter Bereavement Leaves"
                                 />
@@ -1372,7 +1475,7 @@ const OwnerTeam = () => {
                                 <Form.Control
                                     type="number"
                                     name="annualLeaves"
-                                    value={leaveData.annualLeaves || 0} // Show existing value or 0
+                                    value={leavemodalCounts.annualLeaves || ""} // Show existing value or 0
                                     onChange={handleInputChange}
                                     placeholder="Enter Annual Leaves"
                                 />
@@ -1401,7 +1504,6 @@ const OwnerTeam = () => {
                 {/* {modalOpen && renderOpenModal()} */}
 
             </div >
-            <Footer />
         </>
     );
 };

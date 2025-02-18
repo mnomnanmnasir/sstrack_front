@@ -15,7 +15,7 @@ import { FerrisWheelSpinner } from 'react-spinner-overlay';
 
 
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
+const stripePromise = loadStripe(process.env.REACT_AP_KEY);
 
 
 const PayPalButton = ({ setMerchantId, selectedPlan }) => {
@@ -1206,7 +1206,7 @@ const BillingComponent = () => {
                 const newToken = res.data.token;
                 if (newToken) {
                     const decoded = jwtDecode(newToken);
-                    localStorage.setItem("items", JSON.stringify(decoded));
+                    // localStorage.setItem("items", JSON.stringify(decoded));
                     localStorage.setItem("token", newToken); // Update the token if needed
                 }
                 console.log('Response owner', res);
@@ -1306,8 +1306,8 @@ const BillingComponent = () => {
             {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
                 <div style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}>
                     <div style={{ marginBottom: '20px' }}>
-                        <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>{planData?.planType ? `${planData?.planType[0].toUpperCase()}${planData?.planType.slice(1)}` : 'Free'} Plan</h2>
-                        <p style={{ margin: '5px 0' }}>
+                        {/* <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>{planData?.planType ? `${planData?.planType[0].toUpperCase()}${planData?.planType.slice(1)}` : 'Free'} Plan</h2> */}
+                        <p style={{ marginTop: '50px' }}>
                             Price: <strong>${planData ? planData?.costPerUser : 0}/employee/mo</strong>
                         </p>
                         <Link to='/team' style={{ color: '#007bff', textDecoration: 'none', marginTop: '10px', display: 'inline-block' }}>

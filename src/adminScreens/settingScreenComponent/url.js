@@ -106,7 +106,7 @@ function UrlTracking(props) {
 
     async function getData() {
         try {
-            const response = await fetch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`, { headers })
+            const response = await fetch(`https://myuniversallanguages.com:9093/api/v1/manager/employees`, { headers })
             const json = await response.json();
             dispatch(getEmployess(json?.convertedEmployees))
             // json?.convertedEmployees.map(async (employee) => {

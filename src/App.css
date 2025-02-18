@@ -352,7 +352,7 @@ nav li a {
 
 
 .navbar-nav {
-  padding-right: 80px !important;
+  padding-right: -8px !important;
 }
 
 .mainFont {
@@ -2375,7 +2375,7 @@ nav li a {
   font-size: 21px;
   font-weight: 500;
   color: #0E4772;
-  margin: -20px 0 0 0;
+  margin: -6px 0 0 0;
   text-align: center;
 }
 
@@ -4949,7 +4949,7 @@ input.checkboxes:checked {
 }
 
 .ownerSectionUser {
-  padding: 10px 20px !important;
+  padding: 2px 12px !important;
   border-radius: 6px !important;
   color: #7ACB59;
   font-size: 17px;
@@ -4990,10 +4990,10 @@ input.checkboxes:checked {
 .active-tab-2 {
   background-color: #7FC45B !important;
   /* padding: 2px 2px 0px 2px !important; */
-  padding: 10px 20px !important;
+  padding: 8px 5px !important;
   border-radius: 6px !important;
   color: white;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
 }
@@ -5011,13 +5011,13 @@ input.checkboxes:checked {
 
 .ownerSectionCompany {
   background-color: #28659C !important;
-  padding: 10px 20px !important;
+  padding: 9px 10px !important;
   border-radius: 6px !important;
   color: #7ACB59;
   /* width: 200px; */
   justify-content: center;
   font-size: 17px;
-  gap: 23px;
+  gap: 5px;
   /* cursor: none; */
 
 }
@@ -6420,7 +6420,8 @@ input[type="number"] {
     /* border-radius: 25% !important; */
     width: 80% !important;
   }
-  .platform-icon1{
+
+  .platform-icon1 {
     /* border-radius: 25% !important; */
     width: 20% !important;
   }
@@ -6442,3 +6443,157 @@ input[type="number"] {
     border-radius: 50% !important;
   }
 }
+
+@media (max-width: 768px) {
+  .hero-section {
+    height: 400px;
+    /* Reduce height for tablets */
+    background-size: contain;
+    /* Prevent cropping */
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    height: 300px;
+    /* Reduce height further for mobile */
+    background-size: contain;
+    /* Ensure full image visibility */
+    background-position: center center;
+  }
+}
+
+@media (max-width: 768px) {
+  .responsive-section h2 {
+    font-size: 22px;
+    /* Adjust text size for smaller devices */
+  }
+
+  .responsive-section img {
+    width: 20%;
+    /* Smaller image for mobile */
+  }
+}
+
+.responsive-image {
+  display: block;
+  /* Default to display the image */
+}
+
+@media (max-width: 1024px) {
+  .responsive-image {
+    display: none;
+    /* Hide image on all mobile screen sizes */
+  }
+
+}
+
+/* Default width for overlay-content */
+.overlay-content {
+  width: 70%;
+}
+
+/* Remove width on screens smaller than 768px */
+@media (max-width: 768px) {
+  .overlay-content {
+    width: 100%;
+    /* Set width to full or remove it completely */
+  }
+}
+
+
+
+
+@media (max-width: 1300px) and (min-width: 1200px) {
+  .company-container {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .company-text {
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+  }
+
+  .ownerSectionUser {
+    padding: 5px !important;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .company-container {
+    /* flex-direction: column; */
+    align-items: center;
+    text-align: center;
+  }
+
+  .company-logo {
+    width: 30px;
+    height: 30px;
+  }
+
+  .company-text {
+    max-width: 150px;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .company-container {
+    /* flex-direction: column; */
+    align-items: center;
+    text-align: center;
+  }
+
+  .company-logo {
+    width: 30px;
+    height: 30px;
+  }
+
+  .company-text {
+    max-width: 150px;
+    font-size: 20px;
+  }
+
+  .ownerSectionUser {
+    padding: 3px !important;
+    font-size: 14px;
+  }
+}
+
+
+/* Responsive for 1101px to 1270px */
+@media (max-width: 1270px) and (min-width: 1101px) {
+  .company-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    max-width: 220px;
+  }
+
+  .company-logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .company-text {
+    max-width: 180px;
+    font-size: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ownerSectionUser {
+    padding: 5px !important;
+    font-size: 15px;
+  }
+}
+

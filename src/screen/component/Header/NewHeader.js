@@ -6,6 +6,7 @@ import logo from '../../../images/ss-track-logo.svg';
 import { setLogout } from "../../../store/timelineSlice";
 import NewHeaderOptions from './components/NewHeaderOptions';
 
+
 const NewHeader = ({ language, handleToggleLanguage, show }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -22,11 +23,24 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
     }
 
     function goToDashboard() {
-        navigate('/dashboard');
+        if (show === true) {
+            navigate("/dashboard");
+            window.location.reload();
+        } else {
+            navigate('/dashboard');
+        }
+ 
     }
 
+
     const redirectToDashboard = () => {
-        navigate('/dashboard'); // Redirect to the /dashboard route
+        if (show === true) {
+            navigate("/dashboard");
+            window.location.reload();
+        } else {
+            navigate('/dashboard');
+        }
+ 
     };
 
     const navbarBackground = location.pathname === "/" ? "transparent" : "linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)";
@@ -65,7 +79,7 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                 />
                             )}
                             {/* <NewHeaderOptions language={language} /> */}
-                            <div className='align-items-center' style={{ marginTop: '-20px' }}>
+                            <div className='align-items-center ownerSectionUser1'style={{ marginTop: '-20px' }}>
                                 <NewHeaderOptions language={language} />
                             </div>
                             <div className="d-lg-block d-none">

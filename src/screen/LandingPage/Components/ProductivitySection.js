@@ -282,7 +282,7 @@ function ProductivitySection({ language }) {
                             {language === "en" ? "Achieve more Productivity" : "حقق المزيد من الإنتاجية"}{" "}
                             <br />
                             {language === "en" ? "with" : "مع"}{" "}
-                            <span className="text-success">SS Track.io</span>
+                            <span style={{color:'#7ACB59'}}>SS Track.io</span>
                         </h1>
 
                         {/* Description */}

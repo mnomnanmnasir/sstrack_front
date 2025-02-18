@@ -4,3 +4,11 @@ done
 signin issue
 timeline issue
 test fixies
+some changes
+double header
+report fixed
+date issue fixed on timeline
+token issue
+user reports
+team section remove create user
+useraleaves for manager

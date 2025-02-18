@@ -1,23 +1,14 @@
-import React, { useEffect, useState } from "react";
-import Switch from "../../screen/component/switch";
-import user from "../../images/groupImg.svg";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import CompanyEmployess from "../../screen/component/breakTimeEmployess";
-import SaveChanges from "../../screen/component/button";
+import axios from "axios";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
+import React, { useEffect, useState } from "react";
+import "react-loading-skeleton/dist/skeleton.css";
+import { useDispatch, useSelector } from "react-redux";
+import CompanyEmployess from "../../screen/component/breakTimeEmployess";
 import {
-  getEmployess,
-  setAllUserSetting,
-  setAllUserSetting2,
-  setAllUserSetting3,
-  setEmployess,
   setEmployessSetting,
   setEmployessSetting2,
-  setEmployessSetting4,
+  setEmployessSetting4
 } from "../../store/adminSlice";
-import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 
 function Screenshot() {
   let token = localStorage.getItem("token");
@@ -275,7 +266,7 @@ function Screenshot() {
   async function getData() {
     try {
       const response = await fetch(
-        `https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`,
+        `https://myuniversallanguages.com:9093/api/v1/manager/employees`,
         { headers }
       );
       const json = await response.json();

@@ -9,7 +9,7 @@ function StartingSStrack({ language }) {
 
             <div
                 style={{
-                    padding: "8rem",
+                    padding: "3rem",
                     background: "linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)",
                     textAlign: "center",
                     borderRadius: "40px",

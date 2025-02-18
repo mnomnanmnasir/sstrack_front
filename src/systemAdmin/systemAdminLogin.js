@@ -44,7 +44,7 @@ const SystemAdminLogin = () => {
                 console.log(response);
                 const token = response.data.token;
                 const decoded = jwtDecode(token);
-                localStorage.setItem("items", JSON.stringify(decoded));
+                // localStorage.setItem("items", JSON.stringify(decoded));
                 localStorage.setItem("adminToken", response.data.token);
                 navigate("/systemAdminDashboard")
             }

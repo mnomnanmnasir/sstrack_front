@@ -18,7 +18,9 @@ const CompanyEmployess = (props) => {
     const [setting, setSetting] = useState([])
     const { Setting, loading } = props
     const [allowBlur, setAllowBlur] = useState(false);
-    const employees = useSelector((state) => state?.adminSlice?.employess)
+    // const employees = useSelector((state) => state?.adminSlice?.employess)
+    const employees = useSelector((state) => state?.adminSlice?.employess) || [];
+
     console.log('Employees', employees)
     // const employees = useSelector((state) => state.adminSlice.employess)
     // .filter((employee) => employee.invitationStatus === 'accepted');
@@ -112,143 +114,6 @@ const CompanyEmployess = (props) => {
         }
     }
 
-    // async function handleApplySetting(data) {
-    //     const employeeId = data.employee._id;
-
-    //     // Define dynamic punctuality settings for the employee
-    //     const settingsToUpdate = {
-    //         breakTime: [
-    //             {
-    //                 TotalHours: "1h:0m",
-    //                 breakStartTime: new Date().toISOString(),
-    //                 breakEndTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour later
-    //             },
-    //             {
-    //                 TotalHours: "1h:30m",
-    //                 breakStartTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours later
-    //                 breakEndTime: new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString(), // 2.5 hours later
-    //             },
-    //         ],
-    //         puncStartTime: new Date().toISOString(),
-    //         puncEndTime: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // 8 hours later
-    //         individualBreakTime: data.isSelected, // Pass the toggle value
-    //     };
-
-    //     // Prepare the request payload
-    //     const requestData = {
-    //         userId: employeeId,
-    //         settings: settingsToUpdate,
-    //     };
-
-    //     try {
-    //         // Send API request
-    //         const res = await axios.post(
-    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
-    //             requestData,
-    //             { headers }
-    //         );
-    //         // console.log("")
-    //         if (res.status === 200) {
-    //             enqueueSnackbar("Employee punctuality settings updated successfully!", {
-    //                 variant: "success",
-    //                 anchorOrigin: { vertical: "top", horizontal: "right" },
-    //             });
-
-    //             // Dispatch Redux action to update the state
-    //             dispatch(setEmployess({
-    //                 id: employeeId,
-    //                 isSelected: data.isSelected,
-    //                 key: "individualBreakTime",
-    //             }));
-    //         } else {
-    //             enqueueSnackbar("Failed to update employee punctuality settings.", {
-    //                 variant: "error",
-    //                 anchorOrigin: { vertical: "top", horizontal: "right" },
-    //             });
-    //         }
-    //     } catch (error) {
-    //         console.error("Error updating employee punctuality settings:", error);
-    //         enqueueSnackbar("An error occurred while updating employee punctuality settings.", {
-    //             variant: "error",
-    //             anchorOrigin: { vertical: "top", horizontal: "right" },
-    //         });
-    //     }
-    // }
-    // async function handlePunctualitySetting(data) {
-    //     console.log("Punctuality Data:", data);
-
-    //     const employeeId = data.employee._id; // Assuming the employee ID is in the employee object
-
-    //     // Define the settings to be updated
-    //     const settingsToUpdate = {
-    //         breakTime: [
-    //             {
-    //                 TotalHours: "1h:0m",
-    //                 breakStartTime: new Date().toISOString(),
-    //                 breakEndTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour later
-    //             },
-    //             {
-    //                 TotalHours: "1h:30m",
-    //                 breakStartTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours later
-    //                 breakEndTime: new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString(), // 2.5 hours later
-    //             },
-    //         ],
-    //         puncStartTime: new Date().toISOString(),
-    //         puncEndTime: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // 8 hours later
-    //         individualBreakTime: data.isSelected, // Toggle value from input
-    //     };
-
-    //     // Prepare the request payload
-    //     const requestData = {
-    //         userId: employeeId,
-    //         settings: settingsToUpdate,
-    //     };
-
-    //     console.log("Payload to be sent:", requestData);
-
-    //     try {
-    //         // Send the API request
-    //         const res = await axios.post(
-    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
-    //             requestData,
-    //             { headers }
-    //         );
-
-    //         if (res.status === 200) {
-    //             enqueueSnackbar("Punctuality settings updated successfully!", {
-    //                 variant: "success",
-    //                 anchorOrigin: {
-    //                     vertical: "top",
-    //                     horizontal: "right",
-    //                 },
-    //             });
-
-    //             // Optionally dispatch a Redux action to update state
-    //             dispatch(setPunctualitySettings({
-    //                 id: employeeId,
-    //                 isSelected: data.isSelected,
-    //                 key: "individualBreakTime",
-    //             }));
-    //         } else {
-    //             enqueueSnackbar("Failed to update punctuality settings.", {
-    //                 variant: "error",
-    //                 anchorOrigin: {
-    //                     vertical: "top",
-    //                     horizontal: "right",
-    //                 },
-    //             });
-    //         }
-    //     } catch (error) {
-    //         console.error("Error updating punctuality settings:", error);
-    //         enqueueSnackbar("An error occurred while updating punctuality settings.", {
-    //             variant: "error",
-    //             anchorOrigin: {
-    //                 vertical: "top",
-    //                 horizontal: "right",
-    //             },
-    //         });
-    //     }
-    // }
 
     async function handlePunctualitySetting(data) {
         console.log("Punctuality Data:", data);

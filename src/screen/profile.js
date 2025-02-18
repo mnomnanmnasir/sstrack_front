@@ -89,11 +89,11 @@ function Profile() {
                 enqueueSnackbar("Profile updated successfully", { variant: "success", anchorOrigin: { vertical: "top", horizontal: "right" } });
                 setTimeout(() => navigate("/account"), 1000);
                 localStorage.setItem("token", response.data.token);
-                localStorage.setItem("items", JSON.stringify(response.data.user));
+                // localStorage.setItem("items", JSON.stringify(response.data.user));
             }
         } catch (error) {
             setLoading(false);
-            enqueueSnackbar("Network error", { variant: "error", anchorOrigin: { vertical: "top", horizontal: "right" } });
+            enqueueSnackbar(error.response?.data?.message, { variant: "error", anchorOrigin: { vertical: "top", horizontal: "right" } });
             console.error(error);
         }
     }

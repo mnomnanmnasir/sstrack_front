@@ -8,6 +8,7 @@ import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import useLoading from '../../../hooks/useLoading';
 import { useQuery } from 'react-query';
 import ConfirmationDialog from '../../component/popupmodals/ConfirmationDialog';
+import jwtDecode from 'jwt-decode';
 
 
 const Projectcomponent = (props) => {
@@ -39,12 +40,13 @@ const Projectcomponent = (props) => {
     const [openDialog, setOpenDialog] = useState(false);
     const [users, setUsers] = useState(null);
 
-    const { fixId, archived_unarchived_users, isUserArchive, inviteStatus, handleSendInvitation, projectName, getData, allowEmp, setAllowemp,fetchProject } = props
+    const { fixId, archived_unarchived_users, isUserArchive, inviteStatus, handleSendInvitation, projectName, getData, allowEmp, setAllowemp, handleSetProjectConditionally } = props
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem('token');
     const headers = {
         Authorization: "Bearer " + token,
     };
+
 
 
     const fetchOwnerCompanies = async () => {
@@ -234,7 +236,10 @@ const Projectcomponent = (props) => {
                 });
             });
 
-            enqueueSnackbar("Failed to save settings", {
+            // Get the error message from the response if available
+            const errorMessage = err.response?.data?.message || "Failed to save settings";
+
+            enqueueSnackbar(errorMessage, {
                 variant: "error",
                 anchorOrigin: {
                     vertical: "top",
@@ -248,7 +253,7 @@ const Projectcomponent = (props) => {
         getDatas(fixId);
     }, [fixId])
 
-    const user = JSON.parse(localStorage.getItem("items"))
+    const user = jwtDecode(JSON.stringify(token));
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -394,7 +399,8 @@ const Projectcomponent = (props) => {
                     }
                 });
                 getData();
-                // fetchProject(); // Implement any additional logic for deleting the project
+                handleSetProjectConditionally();
+
             }
         } catch (err) {
             console.error("Error deleting project:", err);
@@ -406,7 +412,7 @@ const Projectcomponent = (props) => {
                 }
             });
             getData();
-            // fetchProject(); 
+
         }
         setOpenDialog(false); // Close the confirmation dialog after the action
     };
@@ -435,59 +441,26 @@ const Projectcomponent = (props) => {
                 </div>
             </div>
             {/* Assign Project to Client */}
-            <div className=" mb-3" style={{ cursor: 'pointer', fontSize: '18px', color: 'black' }}>Assign Project to Client</div>
+            {/* <div className=" mb-3" style={{ cursor: 'pointer', fontSize: '18px', color: 'black' }}>Assign Project to Client</div> */}
             {/* Project Member */}
-            <div className="employeeDetailName1" style={{ fontSize: '24px' }}>Project Member</div>
-            <div className="d-flex gap-2">
-                <div className=" mt-3" style={{ fontSize: '18px', cursor: 'pointer', color: 'black' }} onClick={addAll}>Add All</div>
-                <div className=" mt-3" style={{ fontSize: '18px', cursor: 'pointer', color: 'black' }} onClick={removeAll}>Remove All</div>
-            </div>
-            {/* toogle buttons */}
-            {/* <div style={{ marginTop: 10 }}>
-                {users?.filter(f => f?.isArchived === false).map((f) => (
-                    <div key={f._id} style={{ display: "flex", marginBottom: 10 }}>
-                        <input
-                            onChange={() => {
-                                setUsers((prevUsers) => {
-                                    return prevUsers.map((user) => {
-                                        if (user._id === f._id) {
-                                            const newIsAssign = !user.isAssign;
-                                            if (newIsAssign) {
-                                                handleAssignUser([...user.managerId, f._id]); // Pass the updated userIds array
-                                            } else {
-                                                handleRemoveAssignUser(user._id); // Pass user ID to removal function
-                                            }
-                                            return {
-                                                ...user,
-                                                isAssign: newIsAssign,
-                                                managerId: newIsAssign ? [...user.managerId, fixId] : user.managerId.filter(id => id !== fixId)
-                                            };
-                                        }
-                                        return user;
-                                    });
-                                });
-                            }}
-                            className="react-switch-checkbox"
-                            id={`react-switch-${f._id}`}
-                            type="checkbox"
-                            checked={allowEmp.includes(f._id)} // Check if f._id is in allowEmp array
-                        />
-                        {user?.userType !== "manager" && (
-                            <label
-                                style={{
-                                    background: allowEmp.includes(f._id) ? "#5CB85C" : "grey" // Set background based on allowEmp array
-                                }}
-                                className="react-switch-label"
-                                htmlFor={`react-switch-${f._id}`}
-                            >
-                                <span className={`react-switch-button`} />
-                            </label>
-                        )}
-                        <p style={{ margin: "0 0 0 10px", color: "#aaa", fontWeight: "500" }}>{f.name}</p>
+
+            { isUserArchive ? (
+                <>
+                    <div className="employeeDetailName1" style={{ fontSize: '24px' }}>Project Member</div>
+                    <div className="d-flex gap-2">
+                        <div className=" mt-3" style={{ fontSize: '18px', cursor: 'pointer', color: 'black' }} onClick={addAll}>Add All</div>
+                        <div className=" mt-3" style={{ fontSize: '18px', cursor: 'pointer', color: 'black' }} onClick={removeAll}>Remove All</div>
                     </div>
-                ))}
-            </div> */}
-            {users ? (
+                </>
+            ) : (
+                <div>
+                    {/* <p>The project is Archived </p> */}
+                    {/* <p>Total Users: 0</p> */}
+                </div>
+            )}
+
+
+            {users && isUserArchive ? (
                 <div style={{ marginTop: 10 }}>
                     {users.filter(f => !f.isArchived && f.name).length > 0 ? (
                         users.filter(f => !f.isArchived && f.name).map((f) => (
@@ -512,7 +485,7 @@ const Projectcomponent = (props) => {
                             </div>
                         ))
                     ) : (
-                        <p>No users with a name available...</p>
+                        <p>No project with a name available...</p>
                     )}
                     {/* <p style={{ fontSize: 18, fontWeight: 500 }}>
                         Total Users: {users.filter(f => !f.isArchived && f.name).length}
@@ -520,7 +493,7 @@ const Projectcomponent = (props) => {
                 </div>
             ) : (
                 <div>
-                    {/* <p>No users available or data is being fetched...</p>
+                    {/* <p>No project available </p>
                     <p>Total Users: 0</p> */}
                 </div>
             )}

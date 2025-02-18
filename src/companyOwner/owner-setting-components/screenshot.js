@@ -18,7 +18,7 @@ function Screenshot() {
 
     async function getData() {
         try {
-            const response = await fetch(`${apiUrl}/superAdmin/employees`, { headers })
+            const response = await fetch(`${apiUrl}/manager/employees`, { headers })
 
             const json = await response.json();
             // console.log(json);

@@ -14,7 +14,7 @@ const SaMain = () => {
   const [userType, setUserType] = useState(null); // Track the user type
   const [loading, setLoading] = useState(true); // Initial content
   const navigate = useNavigate(); 
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(localStorage.getItem('token_for_sa'));
 
 
 
@@ -23,9 +23,10 @@ const SaMain = () => {
     const storedItems = jwtDecode(JSON.stringify(token));// Retrieve the stringified object
     if (storedItems) {
       try {
-        const parsedItems = JSON.parse(storedItems); // Parse the JSON string
+        // const parsedItems = JSON.parse(storedItems); // Parse the JSON string
+        const parsedItems = storedItems;// Parse the JSON string
         setUserType(parsedItems.userType); // Set the userType in state
-
+          
         if (parsedItems.userType !== 'system Admin') {
           // Redirect if userType is not 'system Admin'
           alert('Access denied. Redirecting to home.');

@@ -3,7 +3,7 @@
 // import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 // import axios from "axios";
 // function ContactSection({ language }) {
-    // const apiUrl = process.env.REACT_APP_API_URL;
+// const apiUrl = process.env.REACT_APP_API_URL;
 
 //     const [loading, setLoading] = useState(false);
 //     const [fullName, setFullName] = useState('');
@@ -374,6 +374,7 @@ import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import backgroundImage from "../../../images/contactImage-cropped.svg"; // Local background image
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import axios from "axios";
+import { CircularProgress } from "@mui/material";
 
 function ContactSection({ language }) {
     const [loading, setLoading] = useState(false);
@@ -383,7 +384,7 @@ function ContactSection({ language }) {
     const [companyName, setCompanyName] = useState('');
     const [message, setMessage] = useState('');
 
-    const apiUrl = process.env.REACT_APP_API_URL;
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
     const handleSubmit = async (e) => {
         e.preventDefault();  // Prevent page refresh on form submit
@@ -467,7 +468,7 @@ function ContactSection({ language }) {
         <Container fluid className="py-5" style={{ backgroundColor: "#F8F9FA" }}>
             <Row className="justify-content-center">
                 {/* Left Section */}
-
+                <SnackbarProvider />
 
 
 
@@ -641,7 +642,7 @@ function ContactSection({ language }) {
                             </Col>
                         </Row>
 
-                        <Form.Group controlId="message" className="mb-3">
+                        {/* <Form.Group controlId="message" className="mb-3">
                             <Form.Label>Message</Form.Label>
                             <Form.Control
                                 placeholder={language === "en" ? "Message" : "الرسالة"}
@@ -650,7 +651,7 @@ function ContactSection({ language }) {
 
                                 style={{
                                     flex: 1,
-                                    padding: "1rem",
+                                    padding: "0.5rem",
                                     fontSize: "0.875rem",
                                     border: "0px  solid #E0E0E0",
                                     borderRadius: "5px",
@@ -659,13 +660,32 @@ function ContactSection({ language }) {
                                     minHeight: '200px'
                                 }}
                             />
-                        </Form.Group>
+                        </Form.Group> */}
+<Form.Group controlId="message" className="mb-3">
+    <Form.Label>Message</Form.Label>
+    <Form.Control
+        as="textarea"
+        placeholder={language === "en" ? "Message" : "الرسالة"}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        style={{
+            flex: 1,
+            padding: "0.5rem",  // Reduced padding
+            fontSize: "0.875rem",
+            border: "0px solid #E0E0E0",
+            borderRadius: "5px",
+            boxShadow: "0px 4px 4px rgba(171, 171, 171, 0.2)",
+            borderLeft: "1px solid #4CAF50",
+            minHeight: "150px" // Adjust height if necessary
+        }}
+    />
+</Form.Group>
 
                         <button
                             onClick={handleSubmit}
 
                             style={{
-                                alignSelf: "flex-start",
+                                alignSelf: "flex-end",
                                 padding: "0.5rem 2rem",
                                 backgroundColor: "#7ACB59",
                                 color: "#FFFFFF",
@@ -676,7 +696,14 @@ function ContactSection({ language }) {
                                 fontSize: '13px'
                             }}
                         >
-                            {language === "en" ? "Send Message" : "إرسال الرسالة"}
+                            {loading ? (
+                                <>
+                                    <CircularProgress size={18} style={{ color: "white" }} />
+                                    {/* <span>Loading...</span> */}
+                                </>
+                            ) : (
+                                language === "en" ? "Send Message" : "إرسال الرسالة"
+                            )}
                         </button>
                     </Form>
                 </Col>

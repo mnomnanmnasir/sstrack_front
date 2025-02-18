@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import jwtDecode from "jwt-decode";
 
 const MyLeavesApplication = () => {
     // State for leave counts and requests
@@ -13,7 +14,7 @@ const MyLeavesApplication = () => {
     const [leaveRequests, setLeaveRequests] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAllUserLeaves";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1/timetrack/getAllLeaves";
     const token = localStorage.getItem("token"); // Assuming token is stored in localStorage
     const headers = {
         Authorization: `Bearer ${token}`,
@@ -29,28 +30,30 @@ const MyLeavesApplication = () => {
     const fetchLeaveData = async () => {
         try {
             const response = await axios.get(apiUrl, { headers });
-            const usersData = response.data?.data || [];
-
-            // Assuming the API returns data for multiple users, filter for the current user
-            const currentUser = JSON.parse(localStorage.getItem("items")); // Current user data from localStorage
-            const userId = currentUser?.id || currentUser?._id;
-
-            // Find the current user's leave data
-            const userData = usersData.find((user) => user.userId?._id === userId);
-
-            if (userData) {
-                const { sickLeaves, casualLeaves, annualLeaves, leaveHistory, bereavementLeaves } = userData;
-
-                // Set leave counts and requests
+            const responseData = response?.data;
+    
+            console.log('Leave Data:', responseData);
+    
+            if (responseData?.success) {
+                // Extract remaining leaves (assuming it's an array and taking the first item)
+                const remainingLeaves = responseData?.remainingLeaves?.[0] || {};
+    
                 setLeaveCounts({
-                    annualLeaves: annualLeaves || 0,
-                    sickLeaves: sickLeaves || 0,
-                    casualLeaves: casualLeaves || 0,
-                    bereavementLeaves: bereavementLeaves || 0,
+                    annualLeaves: remainingLeaves.annualLeaves || 0,
+                    sickLeaves: remainingLeaves.sickLeaves || 0,
+                    casualLeaves: remainingLeaves.casualLeaves || 0,
+                    bereavementLeaves: remainingLeaves.bereavementLeaves || 0,
                 });
-                setLeaveRequests(leaveHistory || []);
+    
+                // Set leave requests based on different statuses
+                setLeaveRequests([
+                    ...(responseData?.requestedLeaves || []),
+                    ...(responseData?.approvedLeaves || []),
+                    ...(responseData?.rejectedLeaves || [])
+                ]);
+             
             } else {
-                console.warn("No data found for the current user.");
+                console.warn("No leave data found.");
             }
         } catch (error) {
             console.error("Error fetching leave data:", error);
@@ -58,6 +61,7 @@ const MyLeavesApplication = () => {
             setLoading(false);
         }
     };
+    
 
     useEffect(() => {
         fetchLeaveData();

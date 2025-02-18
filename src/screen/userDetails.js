@@ -46,14 +46,23 @@ function UserDetails() {
     const [allowBlur, setAllowBlur] = useState(true);
     // const allowBlur = employees.some(employee => employee.effectiveSettings.screenshots?.allowBlur);
     // console.log("Allow Blur agyaaa", allowBlur)
-    // const { employee, allowBlur } = props;
+    // const { employee,    allowBlur } = props;
 
+    // useEffect(() => {
+    //     // Set allowBlur based on the Redux store
+    //     const employeeWithBlur = employees.find(employee => employee.effectiveSettings.screenshots?.allowBlur);
+    //     setAllowBlur(!!employeeWithBlur); // Use double negation to convert to boolean
+    // }, [employees]);
     useEffect(() => {
-        // Set allowBlur based on the Redux store
-        const employeeWithBlur = employees.find(employee => employee.effectiveSettings.screenshots?.allowBlur);
-        setAllowBlur(!!employeeWithBlur); // Use double negation to convert to boolean
+        if (!Array.isArray(employees)) return; // Ensure employees is an array before calling find()
+        
+        const employeeWithBlur = employees.find(employee => 
+            employee?.effectiveSettings?.screenshots?.allowBlur
+        );
+    
+        setAllowBlur(!!employeeWithBlur);
     }, [employees]);
-
+    
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     // Mock authentication check (replace with your actual logic)
@@ -173,7 +182,9 @@ function UserDetails() {
     const [timeEntries, setTimeEntries] = useState([]);
 
     const [totalPercentageByDay, setTotalPercentageByDay] = useState(null)
-    const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString())
+    // const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString())
+    const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString('en-CA')); 
+
     const [timeTrackingId, setTimeTrackingId] = useState(null)
 
     const currentMonths = (new Date().getMonth() + 1).toString().padStart(2, '0');
@@ -508,8 +519,11 @@ function UserDetails() {
             // setFormattedDate(formattedDate);
             setFormattedDate(`${prevMonthDate.getFullYear()}-${(prevMonthDate.getMonth() + 1).toString().padStart(2, "0")}-01`);
             setMonth(prevMonthDate.getMonth());
-            setActiveMonth(prevMonthDate.toLocaleDateString());
+            // setActiveMonth(prevMonthDate.toLocaleDateString());
+            setActiveMonth(prevMonthDate.toLocaleDateString('en-CA')); // yyyy-MM-dd format
+
             setTotalPercentageByDay(null);
+
             return prevMonthDate;
         });
     };
@@ -523,7 +537,9 @@ function UserDetails() {
             // setFormattedDate(formattedDate);
             setFormattedDate(`${nextMonthDate.getFullYear()}-${(nextMonthDate.getMonth() + 1).toString().padStart(2, "0")}-01`);
             setMonth(nextMonthDate.getMonth());
-            setActiveMonth(nextMonthDate.toLocaleDateString());
+            // setActiveMonth(nextMonthDate.toLocaleDateString());
+            setActiveMonth(nextMonthDate.toLocaleDateString('en-CA')); // yyyy-MM-dd format
+
             setTotalPercentageByDay(null);
             return nextMonthDate;
         });
@@ -669,6 +685,10 @@ function UserDetails() {
                 currentDay.getFullYear() < currentDate.getFullYear() ||
                 (currentDay.getFullYear() === currentDate.getFullYear() &&
                     currentDay.getMonth() <= currentDate.getMonth());
+            // Determine if the current day is in the current month or earlier
+            // const isCurrentOrPastMonth =true
+            console.log('truth or dare', isCurrentOrPastMonth);
+
 
             const dayFormatted = `${currentDay.getFullYear()}-${(currentDay.getMonth() + 1).toString().padStart(2, '0')}-${currentDay.getDate().toString().padStart(2, '0')}`;
 
@@ -689,10 +709,10 @@ function UserDetails() {
                     <p className="weekName">{currentDay.toLocaleString("en-US", { weekday: "short" })}</p>
                     <p className="Weekdate">{currentDay.getDate()}</p>
                     <div style={{ padding: "2px" }}>
-                        {/* Show green line only for current and past months */}
+
                         <div
                             style={{
-                                width: `${isCurrentOrPastMonth && totalPercentageByDay ? totalPercentageByDay[i]?.percentage : 0}%`,
+                                width: `${totalPercentageByDay ? totalPercentageByDay[i]?.percentage : 0}%`,
                                 background: isCurrentOrPastMonth
                                     ? "linear-gradient(180deg,#cdeb8e 0,#a5c956)"
                                     : "transparent",
@@ -796,15 +816,17 @@ function UserDetails() {
 
 
     async function getAllDays() {
-        console.log(params);
+
+
         try {
+
             const response = await axios.get(items?.userType === "user" ? `${apiUrl}/timetrack/hoursbyday?date=${activeMonth}` : `${apiUrl}/owner/hoursbyday/${params.id}?date=${activeMonth}`, { headers });
             const totalHours = response.data.data.totalHoursByDay;
-            // console.log("totalHours of active month", response.data);
+            console.log("totalHours of active month", response.data);
             const currentDate = new Date();
             const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
             const currentYear = currentDate.getFullYear();
-            const maxHours = 1;
+            const maxHours = 8;
             let percentagesByDay = [];
             const processMonth = (totalHours, month, year) => {
                 const filteredHours = totalHours.filter(th => {
@@ -813,7 +835,7 @@ function UserDetails() {
                     )
                 });
                 // console.log('Total hOurs me yaahn hoo', totalHours)
-                console.log(`filteredHoursss for ${month}-${year}`, filteredHours);
+                // console.log(`filteredHoursss for ${month}-${year}`, filteredHours);
 
                 filteredHours.forEach(th => {
                     const timeMatches = th.totalHours.match(/(\d+)h\s*(\d*)m/);
@@ -839,7 +861,7 @@ function UserDetails() {
                 });
             };
             let isFirstMonthProcessed = false;
-            for (let year = currentDate.getFullYear(); year >= 2022; year--) {
+            for (let year = currentDate.getFullYear(); year >= 2023; year--) {
                 for (let month = 12; month >= 1; month--) {
                     processMonth(totalHours, month.toString().padStart(2, '0'), year.toString());
 
@@ -850,7 +872,7 @@ function UserDetails() {
                     }
                 }
             }
-            console.log({ percentagesByDay });
+            console.log('PERCENTAGES', percentagesByDay);
             setTotalPercentageByDay(percentagesByDay);
             // setTotalHoursByDay(totalHours); // Update the totalHoursByDay state
         }
@@ -874,21 +896,21 @@ function UserDetails() {
                 if (!time) return null; // Handle null or undefined input
                 const match = time.match(/(\d+):(\d+)\s?(AM|PM)/i); // Match the time format
                 if (!match) return null; // Handle invalid formats
-    
+
                 const [hours, minutes, meridian] = match.slice(1); // Safely extract matched groups
                 let hours24 = parseInt(hours, 10);
                 if (meridian.toUpperCase() === "PM" && hours24 !== 12) hours24 += 12;
                 if (meridian.toUpperCase() === "AM" && hours24 === 12) hours24 = 0;
                 return { hours: hours24, minutes: parseInt(minutes, 10) };
             };
-    
+
             const start = parseTime(offlineTime.startTime);
             const end = parseTime(offlineTime.endTime);
-    
+
             if (start && end) {
                 const startMinutes = start.hours * 60 + start.minutes;
                 const endMinutes = end.hours * 60 + end.minutes;
-    
+
                 if (endMinutes > startMinutes) {
                     const totalMinutes = endMinutes - startMinutes;
                     const hours = Math.floor(totalMinutes / 60);
@@ -915,7 +937,7 @@ function UserDetails() {
                 totalHours: "0h 0m",
             }));
         }
-    }, [offlineTime?.startTime, offlineTime?.endTime]);    
+    }, [offlineTime?.startTime, offlineTime?.endTime]);
 
     const handleDeleteSS = async () => {
         setShowDeleteModal(false)

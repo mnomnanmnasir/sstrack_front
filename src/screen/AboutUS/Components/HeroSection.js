@@ -1,13 +1,35 @@
 import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 
-const HeroSection = () => {
+const HeroSection = ({ language }) => {
+  // Translations for English and Arabic
+  const translations = {
+    en: {
+      aboutTitle: "ABOUT SS TRACK.IO",
+      mainHeading: "Seamless Presence Tracking for Smarter Businesses",
+      description:
+        "Track presence, manage seamlessly, and collaborate smarter with SS Track.io— built for efficiency across all major platforms.",
+      buttonText: "Get Started →",
+    },
+    ar: {
+      aboutTitle: "حول SS TRACK.IO",
+      mainHeading: "تتبع الحضور بسلاسة للشركات الذكية",
+      description:
+        "تتبع الحضور، قم بالإدارة بسلاسة، وتعاون بذكاء مع SS Track.io - مصمم لتحقيق الكفاءة عبر جميع المنصات الرئيسية.",
+      buttonText: "ابدأ الآن →",
+    },
+  };
+
+  const t = translations[language || "en"]; // Default to English if no language is provided
+
   return (
     <div
       style={{
         backgroundImage: `url(${require('../../../images/aboutUShero.png')})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        width: '100%',
         height: '600px',
         display: 'flex',
         alignItems: 'center',
@@ -16,6 +38,7 @@ const HeroSection = () => {
         textAlign: 'center',
         color: 'white',
       }}
+      className="hero-section"
     >
       {/* Overlay */}
       <div
@@ -25,7 +48,6 @@ const HeroSection = () => {
           left: 0,
           right: 0,
           bottom: 0,
-        //   backgroundColor: 'rgba(0, 0, 0, 0.6)',
         }}
       ></div>
 
@@ -37,7 +59,6 @@ const HeroSection = () => {
             style={{
               position: 'relative',
               zIndex: 1,
-            //   maxWidth: '800px',
               margin: '0 auto',
             }}
           >
@@ -48,20 +69,21 @@ const HeroSection = () => {
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
                 marginBottom: '10px',
+                fontFamily: "'Sinkin Sans', sans-serif",
               }}
             >
-              ABOUT SS TRACK.IO
+              {t.aboutTitle}
             </h3>
             <h1
               style={{
                 fontSize: '34px',
                 fontWeight: '700',
                 margin: '0px 0',
-                width:'100%',
-                backgroundColor:'red'
+                width: '100%',
+                fontFamily: "'Sinkin Sans', sans-serif",
               }}
             >
-              Seamless Presence Tracking for Smarter Businesses
+              {t.mainHeading}
             </h1>
             <p
               style={{
@@ -69,10 +91,10 @@ const HeroSection = () => {
                 fontWeight: '400',
                 lineHeight: '1.6',
                 marginBottom: '30px',
+                fontFamily: "'Sinkin Sans', sans-serif",
               }}
             >
-              Track presence, manage seamlessly, and collaborate smarter with SS Track.io—
-              built for efficiency across all major platforms.
+              {t.description}
             </p>
             <Button
               style={{
@@ -85,7 +107,7 @@ const HeroSection = () => {
                 cursor: 'pointer',
               }}
             >
-              Get Started →
+              {t.buttonText}
             </Button>
           </Col>
         </Row>

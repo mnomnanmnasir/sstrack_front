@@ -121,16 +121,16 @@ function DownloadApp({ language }) {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        minHeight: '100vh',
+        minHeight: '50vh',
         padding: "3rem",
         backgroundColor: "#FFFFFF",
       }}
     >
-      <Container fluid className="py-5">
+      <Container fluid className="">
         <Row className="align-items-center justify-content-center">
           {/* Left Section (Text & Store Buttons) */}
           <Col xs={12} md={6} className="text-md-start text-center mb-4">
-            <h2 className="fw-bold text-success display-5 card-title-responsive">
+            <h2 className="fw-bold display-5 card-title-responsive" style={{color:'#7ACB59'}}>
               {isArabic ? "قم بتحميل تطبيقنا" : "Download Our App"}
             </h2>
             <p className="text-muted lead card-subtitle-responsive">
@@ -149,7 +149,7 @@ function DownloadApp({ language }) {
           {/* Right Section (Image) */}
           <Col xs={12} md={6} className="text-center">
             {/* className="responsive-image" */}
-            <img src={phoneMockup} alt="Phone Mockup" className="img-fluid responsive-image" />
+            <img src={phoneMockup} alt="Phone Mockup" className="img-fluid" />
           </Col>
         </Row>
       </Container>

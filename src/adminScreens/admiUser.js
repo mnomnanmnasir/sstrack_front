@@ -88,7 +88,9 @@ function AdminUser() {
     const [showScrollButton, setShowScrollButton] = useState(false)
     const navigate = useNavigate("")
     const [totalPercentageByDay, setTotalPercentageByDay] = useState(null)
-    const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString())
+    // const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString())
+    const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString('en-CA')); 
+
     const [current_day, set_current_day] = useState(null)
     const [current_month, set_current_month] = useState(null)
     let token = localStorage.getItem('token');
@@ -158,7 +160,8 @@ function AdminUser() {
     const prevMonth = () => {
         setDate((prevDate) => {
             const prevMonthDate = new Date(prevDate.getFullYear(), prevDate.getMonth() - 1);
-            setActiveMonth(prevMonthDate.toLocaleDateString())
+            // setActiveMonth(prevMonthDate.toLocaleDateString())
+            setActiveMonth(prevMonthDate.toLocaleDateString('en-CA')); // yyyy-MM-dd format
             setTotalPercentageByDay(null)
             return prevMonthDate;
         });
@@ -167,7 +170,9 @@ function AdminUser() {
     const nextMonth = () => {
         setDate((prevDate) => {
             const nextMonthDate = new Date(prevDate.getFullYear(), prevDate.getMonth() + 1);
-            setActiveMonth(nextMonthDate.toLocaleDateString())
+            // setActiveMonth(nextMonthDate.toLocaleDateString())
+            setActiveMonth(nextMonthDate.toLocaleDateString('en-CA')); // yyyy-MM-dd format
+
             setTotalPercentageByDay(null)
             return nextMonthDate;
         });

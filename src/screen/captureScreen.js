@@ -15,9 +15,9 @@ function CaptureScreen() {
     const location = useLocation();
     const API_URL = "https://myuniversallanguages.com:9093/api/v1";
     // const API_URL = "https://zany-sneakers-hare.cyclic.cloud/api/v1";
-    const user = JSON.parse(localStorage.getItem("items"))
-
+    
     let token = localStorage.getItem('token');
+    const user = jwtDecode(JSON.stringify(token));
     let headers = {
         Authorization: "Bearer " + token,
     }
@@ -104,7 +104,7 @@ function CaptureScreen() {
     useEffect(() => {
         const token = screenshotCapture?.token;
         const decoded = jwtDecode(token);
-        localStorage.setItem("items", JSON.stringify(decoded));
+        // localStorage.setItem("items", JSON.stringify(decoded));
         localStorage.setItem("token", token);
         if (type === "startTimer") {
             const startScreenCapture = () => {

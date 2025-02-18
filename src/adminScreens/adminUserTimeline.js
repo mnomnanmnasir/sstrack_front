@@ -19,6 +19,7 @@ import Modal from 'react-bootstrap/Modal';
 import { AiFillStar } from 'react-icons/ai'
 import archiveIcon from "../images/archive.svg";
 import inviteIcon from "../images/invitation.svg";
+import jwtDecode from "jwt-decode";
 
 function AdminUserTimeline() {
 
@@ -30,7 +31,7 @@ function AdminUserTimeline() {
     const headers = {
         Authorization: "Bearer " + token,
     };
-    const user = JSON.parse(localStorage.getItem("items"))
+    const user = jwtDecode(JSON.stringify(token));
     const { id } = useParams()
 
     const [day, setDay] = useState("");

@@ -12,8 +12,6 @@ import Punctuality from './settingScreenComponent/punctuality';
 import Screenshot from "./settingScreenComponent/screenshot";
 import UrlTracking from "./settingScreenComponent/url";
 import jwtDecode from "jwt-decode";
-import UserHeader from "../screen/component/userHeader";
-import Footer from "../screen/component/footer";
 
 function Setting() {
     const [loading, setLoading] = useState(false);
@@ -90,66 +88,62 @@ function Setting() {
     };
 
     return (
-        <>
-            {/* <UserHeader /> */}
-            <div>
-                <div className="container">
-                    <div className="userHeader">
-                        <div className="headerTop">
-                            <img src={setting} />
-                            <h5>Settings</h5>
-                        </div>
+        <div>
+            <div className="container">
+                <div className="userHeader">
+                    <div className="headerTop">
+                        <img src={setting} />
+                        <h5>Settings</h5>
                     </div>
-                    <div className="mainwrapper">
-                        <div className="settingContainer">
-                            <div className="settingMainDiv">
-                                <div>
-                                    {settingsTabs
-                                        .filter(
-                                            (tab) =>
-                                                !(tab.id === 1 && userType !== "owner" && userType !== "admin") &&
-                                                // Filter out "Allow adding offline time" tab if the user is not owner/admin
-                                                !(tab.id === 6 && userType !== "owner" && userType !== "admin")
-                                        ) // Filter out the "Screenshots" tab if user is not owner/admin
-                                        .map((tab) => (
-                                            <button
-                                                className={tab.isActive ? "activeButtonClass" : "screenshotButton"}
-                                                onClick={() => handleTabClick(tab)} // Use the new handleTabClick function
-                                            >
-                                                <p>{tab.name}</p>
-                                                <p className="hour12">{tab.icon}</p>
-                                            </button>
-                                        ))}
-                                </div>
-                                <div>
-                                    <img src={middleLine} />
-                                </div>
-                                <div className="componentScreenshot">
-                                    {settingsTabs[0].isActive &&
-                                        (userType === "owner" || userType === "admin") && (
-                                            <Screenshot activeTab={settingsTabs[0]} />
-                                        )}
-                                    {settingsTabs[1].isActive && <ActivityLevel activeTab={settingsTabs[1]} />}
-                                    {settingsTabs[2].isActive && <UrlTracking activeTab={settingsTabs[2]} />}
-                                    {settingsTabs[3].isActive && <AutoPause activeTab={settingsTabs[3]} />}
-                                    {settingsTabs[4].isActive &&
-                                        (userType === "owner" || userType === "admin") && (
-                                            <OfflineTime activeTab={settingsTabs[4]} />
-                                        )}
+                </div>
+                <div className="mainwrapper">
+                    <div className="settingContainer">
+                        <div className="settingMainDiv">
+                            <div>
+                                {settingsTabs
+                                    .filter(
+                                        (tab) =>
+                                            !(tab.id === 1 && userType !== "owner" && userType !== "admin") &&
+                                            // Filter out "Allow adding offline time" tab if the user is not owner/admin
+                                            !(tab.id === 6 && userType !== "owner" && userType !== "admin")
+                                    ) // Filter out the "Screenshots" tab if user is not owner/admin
+                                    .map((tab) => (
+                                        <button
+                                            className={tab.isActive ? "activeButtonClass" : "screenshotButton"}
+                                            onClick={() => handleTabClick(tab)} // Use the new handleTabClick function
+                                        >
+                                            <p>{tab.name}</p>
+                                            <p className="hour12">{tab.icon}</p>
+                                        </button>
+                                    ))}
+                            </div>
+                            <div>
+                                <img src={middleLine} />
+                            </div>
+                            <div className="componentScreenshot">
+                                {settingsTabs[0].isActive &&
+                                    (userType === "owner" || userType === "admin") && (
+                                        <Screenshot activeTab={settingsTabs[0]} />
+                                    )}
+                                {settingsTabs[1].isActive && <ActivityLevel activeTab={settingsTabs[1]} />}
+                                {settingsTabs[2].isActive && <UrlTracking activeTab={settingsTabs[2]} />}
+                                {settingsTabs[3].isActive && <AutoPause activeTab={settingsTabs[3]} />}
+                                {settingsTabs[4].isActive &&
+                                    (userType === "owner" || userType === "admin") && (
+                                        <OfflineTime activeTab={settingsTabs[4]} />
+                                    )}
 
-                                    {settingsTabs[5].isActive && <BreakTime activeTab={settingsTabs[5]} />}
-                                    {settingsTabs[6].isActive && <Punctuality activeTab={settingsTabs[6]} />}
-                                </div>
+                                {settingsTabs[5].isActive && <BreakTime activeTab={settingsTabs[5]} />}
+                                {settingsTabs[6].isActive && <Punctuality activeTab={settingsTabs[6]} />}
                             </div>
                         </div>
                     </div>
                 </div>
-                <div>
-                    <img className="admin1Line" src={line} />
-                </div>
             </div>
-            {/* <Footer /> */}
-        </>
+            <div>
+                <img className="admin1Line" src={line} />
+            </div>
+        </div>
     );
 }
 

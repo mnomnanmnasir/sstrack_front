@@ -24,6 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { searchUsers } from "../store/timelineSlice";
 import { GetTimelineUsersAdmin } from "../middlewares/timeline";
 import { getEmployess, setEmployess } from "../store/adminSlice";
+import jwtDecode from "jwt-decode";
 
 function AdminDashboard() {
 
@@ -36,7 +37,7 @@ function AdminDashboard() {
     const navigate = useNavigate();
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem("token");
-    const user = JSON.parse(localStorage.getItem("items"));
+    const user = jwtDecode(JSON.stringify(token));
     const headers = {
         Authorization: "Bearer " + token,
     };
