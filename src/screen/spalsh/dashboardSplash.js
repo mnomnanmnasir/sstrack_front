@@ -16,45 +16,36 @@ function DashboardSplash() {
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const navigate = useNavigate();
 
-    const handleDownloadMac = async (processorType) => {
-        console.log("Processor Type:", processorType);
-        
-        setLoading2(true); // Mac button loading state
-    
-        // API endpoint selection based on processor type
-        let apiEndpoint = "";
-        if (processorType === "Silicon") {
-            apiEndpoint = `${apiUrl}/timetrack/getSiliconFile`;
-        } else if (processorType === "Intel") {
-            apiEndpoint = `${apiUrl}/timetrack/getIntelFile`;
-        } else {
-            console.error("Invalid processor type provided!");
-            setLoading2(false);
-            return;
-        }
-    
+    const handleDownloadMac = async (type) => {
+        console.log(type);
+        setLoading1(type === "WIN" ? true : false);
+        setLoading2(type === "MAC" ? true : false);
+
+        let apiEndpoint = type === "MAC" ? `${apiUrl}/timetrack/getIntelFile` : `${apiUrl}/timetrack/getSiliconFile`;
+
         try {
             const res = await axios.get(apiEndpoint);
             if (res.status === 200) {
-                const url = res.data.data.url;
-                const anchor = document.createElement('a');
+                var url = res.data.data.url;
+                var anchor = document.createElement('a');
                 anchor.href = url;
-                anchor.download = processorType === "Silicon" ? 'screenshot-time-silicon.dmg' : 'screenshot-time-intel.dmg'; 
-    
+                anchor.download = type === "MAC" ? 'screenshot-time.exe' : 'screenshot-time.dmg'; // .dmg for Mac
                 setTimeout(() => {
+                    setLoading1(false);
                     setLoading2(false);
                 }, 1000);
-    
                 document.body.appendChild(anchor);
                 anchor.click();
                 document.body.removeChild(anchor);
             } else {
+                setLoading1(false);
+                setLoading2(false);
                 console.log("Download link error 1 =====>", res);
             }
         } catch (error) {
-            console.log("Download link error 2 =====>", error);
-        } finally {
+            setLoading1(false);
             setLoading2(false);
+            console.log("Download link error 2 =====>", error);
         }
     };
     
