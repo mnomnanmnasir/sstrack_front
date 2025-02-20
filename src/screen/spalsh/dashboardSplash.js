@@ -7,12 +7,57 @@ import appStore from '../../images/SplashM.svg';
 import playStore from '../../images/SplashP.svg';
 import chrome from '../../images/SplashC.svg';
 import { useNavigate } from 'react-router-dom';
+import apple from '../../images/apple-Screenshot.png';
+
 
 function DashboardSplash() {
     const [loading1, setLoading1] = useState(false);
     const [loading2, setLoading2] = useState(false);
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const navigate = useNavigate();
+
+    const handleDownloadMac = async (processorType) => {
+        console.log("Processor Type:", processorType);
+        
+        setLoading2(true); // Mac button loading state
+    
+        // API endpoint selection based on processor type
+        let apiEndpoint = "";
+        if (processorType === "Silicon") {
+            apiEndpoint = `${apiUrl}/timetrack/getSiliconFile`;
+        } else if (processorType === "Intel") {
+            apiEndpoint = `${apiUrl}/timetrack/getIntelFile`;
+        } else {
+            console.error("Invalid processor type provided!");
+            setLoading2(false);
+            return;
+        }
+    
+        try {
+            const res = await axios.get(apiEndpoint);
+            if (res.status === 200) {
+                const url = res.data.data.url;
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = processorType === "Silicon" ? 'screenshot-time-silicon.dmg' : 'screenshot-time-intel.dmg'; 
+    
+                setTimeout(() => {
+                    setLoading2(false);
+                }, 1000);
+    
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+            } else {
+                console.log("Download link error 1 =====>", res);
+            }
+        } catch (error) {
+            console.log("Download link error 2 =====>", error);
+        } finally {
+            setLoading2(false);
+        }
+    };
+    
 
     const handleDownload = async (type) => {
         console.log(type);
@@ -115,7 +160,7 @@ function DashboardSplash() {
         }
     }
     `}
-    
+
                                     </style>
 
 
@@ -187,10 +232,30 @@ function DashboardSplash() {
                                                 className="img-fluid responsive-image"
                                             />
                                         </a>
+                                        <a
+                                            href="#!"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                handleDownloadMac("MAC");
+                                            }}
+                                            style={{ display: "inline-block" }}
+                                        >
+                                            <img
+                                                src={apple} // Apple logo
+                                                alt="Mac OS"
+                                                style={{
+                                                    width: "100%",
+                                                    maxWidth: "170px",
+                                                    height: "40px",
+                                                    background: "black",
+                                                    borderRadius: '6%',
+                                                    padding: '2%'
+                                                }}
+                                                className="img-fluid responsive-image"
+                                            />
+                                        </a>
                                     </div>
                                 </div>
-
-
 
                             </div>
 
