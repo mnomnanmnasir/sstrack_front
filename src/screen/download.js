@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 const DownloadSection = () => {
 
     const [language, setLanguage] = useState('en');
+    const [isOpen, setIsOpen] = useState(false); // ✅ Dropdown open/close state
 
     const handleToggleLanguage = () => {
         setLanguage(language === 'en' ? 'ar' : 'en');
@@ -29,13 +30,16 @@ const DownloadSection = () => {
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
-   
-    const handleDownloadMAC = async (type) => {
-        console.log(type);
-        setLoading1(type === "WIN" ? true : false);
-        setLoading2(type === "MAC" ? true : false);
 
-        let apiEndpoint = type === "MAC" ? `${apiUrl}/timetrack/getIntelFile` : `${apiUrl}/timetrack/getSiliconFile`;
+    const handleDownloadMac = async (type) => {
+        console.log(type);
+        // setLoading1(type === "Intel" ? true : false);
+        // setLoading2(type === "Silicon" ? true : false);
+
+        // ✅ API endpoints based on type
+        let apiEndpoint = type === "Intel"
+            ? `${apiUrl}/timetrack/getIntelFile`  // ✅ For Mac Apple Chip
+            : `${apiUrl}/timetrack/getSiliconFile`; // ✅ For Intel Chip
 
         try {
             const res = await axios.get(apiEndpoint);
@@ -43,22 +47,22 @@ const DownloadSection = () => {
                 var url = res.data.data.url;
                 var anchor = document.createElement('a');
                 anchor.href = url;
-                anchor.download = type === "MAC" ? 'screenshot-time.exe' : 'screenshot-time.dmg'; // .dmg for Mac
-                setTimeout(() => {
-                    setLoading1(false);
-                    setLoading2(false);
-                }, 1000);
+                anchor.download = type === "Intel" ? 'screenshot-time-intel.dmg' : 'screenshot-time-silicon.dmg'; // ✅ Different filenames
+                // setTimeout(() => {
+                //     setLoading1(false);
+                //     setLoading2(false);
+                // }, 1000);
                 document.body.appendChild(anchor);
                 anchor.click();
                 document.body.removeChild(anchor);
             } else {
-                setLoading1(false);
-                setLoading2(false);
+                // setLoading1(false);
+                // setLoading2(false);
                 console.log("Download link error 1 =====>", res);
             }
         } catch (error) {
-            setLoading1(false);
-            setLoading2(false);
+            // setLoading1(false);
+            // setLoading2(false);
             console.log("Download link error 2 =====>", error);
         }
     };
@@ -201,6 +205,7 @@ const DownloadSection = () => {
                             <div
                                 className="d-flex justify-content-start gap-3 flex-wrap"
                                 style={{
+                                    width: "100%",
                                     alignItems: "center", // Items vertically center hon
                                 }}
                             >
@@ -257,7 +262,7 @@ const DownloadSection = () => {
                                 </button>
 
                                 {/* Mac Download Button 3 */}
-                                <button
+                                {/* <button
                                     style={{
                                         backgroundColor: loading2 ? '#6c757d' : 'black',
                                         padding: '2%',
@@ -277,7 +282,66 @@ const DownloadSection = () => {
                                             </span>
                                         </>
                                     )}
+                                </button> */}
+
+                                <button
+                                    className="btn btn-dark dropdown-toggle no-caret"
+                                    type="button"
+                                    id="dropdownMenuButton"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded={isOpen}
+                                    onClick={() => setIsOpen(!isOpen)}
+                                    style={{
+                                        backgroundColor: 'black',
+                                        padding: '1.8%',
+                                        width: '30%',
+                                        fontSize: '75%',
+                                        // cursor: loading1 ? 'not-allowed' : 'pointer',
+                                    }}
+                                >
+                                    <BsApple color="#fff" size={20} style={{ marginRight: "10px" }} />
+                                    Download for Mac
+                                    <span style={{ marginLeft: "10px", transition: "transform 0.3s ease" }}>
+                                        {isOpen ? "▲" : "▼"}
+                                    </span>
                                 </button>
+
+                                {/* Dropdown Menu */}
+                                <ul className="dropdown-menu custom-dropdown" aria-labelledby="dropdownMenuButton">
+                                    <li>
+                                        <a
+                                            className="dropdown-item custom-dropdown-item"
+                                            href="#"
+                                            onClick={() => handleDownloadMac("Intel")}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                color: "white",
+                                                gap: "8px",
+                                            }}
+                                        >
+                                            <BsApple color="#fff" size={18} />
+                                            For Mac Apple Chip
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            className="dropdown-item custom-dropdown-item"
+                                            href="#"
+                                            onClick={() => handleDownloadMac("Silicon")}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                color: "white",
+                                                gap: "8px",
+                                            }}
+                                        >
+                                            <BsApple color="#fff" size={18} />
+                                            For Intel Chip
+                                        </a>
+                                    </li>
+                                </ul>
+
                             </div>
 
 

@@ -157,7 +157,7 @@ function Footer() {
                             </li>
                             
                             <li style={{ marginBottom: '0.6rem' }}>
-                                <a href="/signin" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}>Partners</a>
+                                <Link to="/privacy-policy" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}>Prvacy Policy</Link>
                             </li>
                             <li style={{ marginBottom: '0.6rem' }}>
                                 <a href="/#" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}

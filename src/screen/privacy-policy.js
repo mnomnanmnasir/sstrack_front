@@ -2,11 +2,16 @@ import React, { useEffect, useRef, useState } from "react";
 import { TbSquareRoundedArrowRightFilled } from 'react-icons/tb'
 import privacyPolicy from '../images/privacy-policy.svg'
 import privacyPolicy2 from '../images/privacy-2.jpg'
+import NewHeader from "./component/Header/NewHeader";
 
 function PrivacyPolicy() {
   return (
     <section>
+        
+        <NewHeader language={'en'} show={true} />
+      
       <div className="container">
+        
         <div className="trialDiv">
           <div className="employeesDiv" style={{ marginBottom: 50 }}>
             <p className='ethical'>Privacy Policy</p>

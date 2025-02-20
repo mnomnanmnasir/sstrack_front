@@ -6607,3 +6607,17 @@ input[type="number"] {
   }
 }
 
+
+.custom-dropdown {
+  background-color: black !important; /* Dropdown menu ka background black */
+}
+.custom-dropdown-item {
+  color: white !important; /* Text white */
+}
+.custom-dropdown-item:hover {
+  background-color: #333 !important; /* Hover effect ke liye dark gray */
+}
+
+.no-caret::after {
+  display: none !important; /* ✅ Bootstrap caret arrow hide */
+}

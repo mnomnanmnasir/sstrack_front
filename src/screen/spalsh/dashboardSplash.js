@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import NewHeader from '../component/Header/NewHeader';
 import step1 from '../../images/Container.png';
+import { BsWindows, BsApple, BsGoogle } from 'react-icons/bs'
 import step2 from '../../images/sp.png';
 import appStore from '../../images/SplashM.svg';
 import playStore from '../../images/SplashP.svg';
 import chrome from '../../images/SplashC.svg';
 import { useNavigate } from 'react-router-dom';
 import apple from '../../images/apple-Screenshot.png';
+import { Dropdown } from "react-bootstrap";
 
 
 function DashboardSplash() {
@@ -16,20 +18,25 @@ function DashboardSplash() {
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const navigate = useNavigate();
 
+    const [isOpen, setIsOpen] = useState(false); // ✅ Dropdown open/close state
+
     const handleDownloadMac = async (type) => {
         console.log(type);
-        setLoading1(type === "WIN" ? true : false);
-        setLoading2(type === "MAC" ? true : false);
-
-        let apiEndpoint = type === "MAC" ? `${apiUrl}/timetrack/getIntelFile` : `${apiUrl}/timetrack/getSiliconFile`;
-
+        setLoading1(type === "Intel" ? true : false);
+        setLoading2(type === "Silicon" ? true : false);
+    
+        // ✅ API endpoints based on type
+        let apiEndpoint = type === "Intel" 
+            ? `${apiUrl}/timetrack/getIntelFile`  // ✅ For Mac Apple Chip
+            : `${apiUrl}/timetrack/getSiliconFile`; // ✅ For Intel Chip
+    
         try {
             const res = await axios.get(apiEndpoint);
             if (res.status === 200) {
                 var url = res.data.data.url;
                 var anchor = document.createElement('a');
                 anchor.href = url;
-                anchor.download = type === "MAC" ? 'screenshot-time.exe' : 'screenshot-time.dmg'; // .dmg for Mac
+                anchor.download = type === "Intel" ? 'screenshot-time-intel.dmg' : 'screenshot-time-silicon.dmg'; // ✅ Different filenames
                 setTimeout(() => {
                     setLoading1(false);
                     setLoading2(false);
@@ -117,160 +124,123 @@ function DashboardSplash() {
             <NewHeader language={'en'} show={true} />
             <div className="container py-5">
                 <p className="text-center mb-4">Here is where you can track your activities and manage your team.</p>
+
+                {/* ✅ Bootstrap Grid for Two Cards in a Row */}
                 <div className="row justify-content-center">
-                    {/* Download App Section */}
-                    <div className="col-md-4 mb-4">
-                        <div className="card shadow-sm d-flex flex-column" style={{ height: '100%', cursor: 'pointer' }}>
+                    {/* ✅ First Card - Download App */}
+                    <div className="col-lg-6 col-md-8 col-sm-12 mb-4">
+                        <div className="card shadow-sm d-flex flex-column p-3" style={{ cursor: 'pointer' }}>
                             <img src={step2} alt="Step 3" className="card-img-top" />
-                            <div className="card-body d-flex flex-column justify-content-between" style={{ flex: 1 }}>
+                            <div className="card-body d-flex flex-column justify-content-between">
                                 <p className="h4" style={{ color: "#7ACB59" }}>Download The App</p>
                                 <p className="text-muted">To Track Your Own Time & See How It Works</p>
-                                <div>
-                                    <style>
-                                        {`
-    @media (max-width: 768px) {
-        .responsive-container {
-        
-            flex-direction: column !important; /* Stack items vertically on mobile */
-            align-items: center !important; /* Center items in the container */
-            gap: 16px !important; /* Add spacing between items */
-            width: 100%; /* Ensure the container spans the full width */
-        }
-        .responsive-link {
-        
-            width: 100%; /* Ensure the link spans the full width */
-        }
-        .responsive-image {
-            width: 100% !important; /* Full width on mobile */
-            max-width: none !important; /* Remove max-width restriction */
-            height: 46px !important; /* Increase height for mobile */
-            background-color: black !important; /* Black background for images */
-            border-radius: 8px; /* Add slight rounding for aesthetics */
-            padding: 4px; /* Add padding to the image */
-            display: block; /* Ensure the image takes the full width inside the link */
-        }
-    }
-    `}
 
-                                    </style>
+                                {/* ✅ Download Buttons - All in One Row */}
+                                <div className="d-flex justify-content-start align-items-center flex-wrap gap-3">
+                                    <a href="#!" onClick={(e) => { e.preventDefault(); handleDownload("WIN"); }}
+                                        className="btn" style={{background:'black', width: "230px", height: "50px" }}>
+                                        <img src={appStore} alt="Windows" className="img-fluid" style={{ width: "490px", height: "119%" }} />
+                                    </a>
 
+                                    <a href="https://play.google.com/store/apps/details?id=com.SSTRACK&pcampaignid=web_share"
+                                        target="_blank" rel="noopener noreferrer"
+                                        className="btn btn-outline-dark" style={{background:'black', width: "230px", height: "50px" }}>
+                                        <img src={playStore} alt="Google Play" className="img-fluid" style={{ width: "490px", height: "119%" }}  />
+                                    </a>
 
-                                    <div
-                                        className="d-flex justify-content-center gap-2 responsive-container"
-                                        style={{
-                                            flexWrap: "wrap", // Ensures wrapping for larger screens
-                                            alignItems: "center", // Center items horizontally on larger screens
-                                        }}
-                                    >
-                                        <a
-                                            href="#!"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                handleDownload("WIN");
+                                    <a href="https://chromewebstore.google.com/detail/sstrack/gkmllhjndmaaapegaopkpapaamfaeckg?hl=en-US"
+                                        target="_blank" rel="noopener noreferrer"
+                                        className="btn btn-dark" style={{ background:'black',width: "230px", height: "50px" }}>
+                                        <img src={chrome} alt="Chrome Play" className="img-fluid"  style={{ width: "490px", height: "119%" }}  />
+                                    </a>
+
+                                    {/* Mac OS Dropdown */}
+                                    <div style={{ width: "250px", height: "52px" }}>
+                                        <button
+                                            className="btn btn-dark dropdown-toggle no-caret"
+                                            type="button"
+                                            id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded={isOpen}
+                                            onClick={() => setIsOpen(!isOpen)}
+                                            style={{
+                                                width: "92%",
+                                                height: "100%",
+                                                backgroundColor: "black",
+                                                borderRadius: "6px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontSize: "14px",
+                                                fontWeight: "bold",
                                             }}
-                                            style={{ display: "inline-block" }}
                                         >
-                                            <img
-                                                src={appStore}
-                                                alt="App Store"
-                                                style={{
-                                                    width: "auto",
-                                                    maxWidth: "170px",
-                                                    height: "40px",
-                                                }}
-                                                className="img-fluid responsive-image"
-                                            />
-                                        </a>
-                                        <a
-                                            href="https://play.google.com/store/apps/details?id=com.SSTRACK&pcampaignid=web_share"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{ display: "inline-block" }}
-                                        >
-                                            <img
-                                                src={playStore}
-                                                alt="Google Play"
-                                                style={{
-                                                    width: "auto",
-                                                    maxWidth: "170px",
-                                                    height: "40px",
-                                                }}
-                                                className="img-fluid responsive-image"
-                                            />
-                                        </a>
-                                    </div>
-                                    <div
-                                        className="d-flex justify-content-center gap-2 mt-2 responsive-container"
-                                        style={{
-                                            flexWrap: "wrap", // Ensures wrapping for larger screens
-                                            alignItems: "center", // Center items horizontally on larger screens
-                                        }}
-                                    >
-                                        <a
-                                            href="https://chromewebstore.google.com/detail/sstrack/gkmllhjndmaaapegaopkpapaamfaeckg?hl=en-US"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{ display: "inline-block" }}
-                                        >
-                                            <img
-                                                src={chrome}
-                                                alt="Chrome Play"
-                                                style={{
-                                                    width: "auto",
-                                                    maxWidth: "170px",
-                                                    height: "40px",
-                                                }}
-                                                className="img-fluid responsive-image"
-                                            />
-                                        </a>
-                                        <a
-                                            href="#!"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                handleDownloadMac("MAC");
-                                            }}
-                                            style={{ display: "inline-block" }}
-                                        >
-                                            <img
-                                                src={apple} // Apple logo
-                                                alt="Mac OS"
-                                                style={{
-                                                    width: "100%",
-                                                    maxWidth: "170px",
-                                                    height: "40px",
-                                                    background: "black",
-                                                    borderRadius: '6%',
-                                                    padding: '2%'
-                                                }}
-                                                className="img-fluid responsive-image"
-                                            />
-                                        </a>
+                                            <BsApple color="#fff" size={20} style={{ marginRight: "10px" }} />
+                                            Download for Mac
+                                            <span style={{ marginLeft: "10px", transition: "transform 0.3s ease" }}>
+                                                {isOpen ? "▲" : "▼"}
+                                            </span>
+                                        </button>
+
+                                        {/* Dropdown Menu */}
+                                        <ul className="dropdown-menu custom-dropdown" aria-labelledby="dropdownMenuButton">
+                                            <li>
+                                                <a
+                                                    className="dropdown-item custom-dropdown-item"
+                                                    href="#"
+                                                    onClick={() => handleDownloadMac("Intel")}
+                                                    style={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        color: "white",
+                                                        gap: "8px",
+                                                    }}
+                                                >
+                                                    <BsApple color="#fff" size={18} />
+                                                    For Mac Apple Chip
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    className="dropdown-item custom-dropdown-item"
+                                                    href="#"
+                                                    onClick={() => handleDownloadMac("Silicon")}
+                                                    style={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        color: "white",
+                                                        gap: "8px",
+                                                    }}
+                                                >
+                                                    <BsApple color="#fff" size={18} />
+                                                    For Intel Chip
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
-                    {/* Invite Employees Section */}
-                    <div className="col-md-4 mb-4">
-                        <div className="card shadow-sm d-flex flex-column" style={{ height: '100%', cursor: 'pointer' }} onClick={() => navigate("/team")}>
+
+                    {/* ✅ Second Card - Invite Employees */}
+                    <div className="col-lg-6 col-md-8 col-sm-12 mb-4">
+                        <div className="card shadow-sm d-flex flex-column p-3 h-100" onClick={() => navigate("/team")} style={{ cursor: 'pointer' }}>
                             <img src={step1} alt="Step 1" className="card-img-top" />
-                            <div className="card-body d-flex flex-column justify-content-between" style={{ flex: 1 }}>
+                            <div className="card-body d-flex flex-column justify-content-between">
                                 <p className="h4" style={{ color: '#7ACB59' }}>Invite Employees</p>
-                                <p className="text-muted">After choosing a plan, managers can invite employees to join the team, enabling time tracking and screenshot submissions seamlessly.</p>
+                                <p className="text-muted">
+                                    After choosing a plan, managers can invite employees to join the team, enabling time tracking and screenshot submissions seamlessly.
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                {/* ✅ Dashboard Button */}
                 <div className="d-flex justify-content-center">
-                    <button
-                        className="btn "
-                        style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59', color: 'white' }}
-                        onClick={goToDashboard}
-                    >
-                        Dashboard→
+                    <button className="btn btn-success" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59' }} onClick={goToDashboard}>
+                        Dashboard →
                     </button>
                 </div>
             </div>
