@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link } from 'react-router-dom';
 import apple from '../../images/apple-Screenshot.png';
 import chrome from '../../images/chrome.svg';
 import laptopandmob from '../../images/laptopand mob.svg';
@@ -35,6 +35,10 @@ function NewHome() {
 
   const handleToggleLanguage = () => {
     setLanguage(language === 'en' ? 'ar' : 'en');
+  };
+
+  const handleClick = () => {
+    window.location.href = 'https://chromewebstore.google.com/detail/sstrack/gkmllhjndmaaapegaopkpapaamfaeckg?hl=en-US';
   };
 
   const currentText = translations[language];
@@ -186,38 +190,40 @@ function NewHome() {
 
           {/* Platforms Logos */}
           <Row className="justify-content-center text-center">
-            <Col xs={6} sm={4} md={3} className="mb-3">
-              <img src={microsoftlogo} alt="Microsoft" className="img-fluid platform-icon" />
+            <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
+            <Link to='/download'>
+              <img src={microsoftlogo} alt="Microsoft" className="img-fluid platform-icon" style={{ height: "auto" }} />
+            </Link>
             </Col>
-            <Col xs={6} sm={4} md={3} className="mb-3">
-              {/* <div className=""> */}
-                <img
-                  src={apple}
-                  alt="Apple"
-                  className="img-fluid platform-icon"
-                />
-                {/* <span className="ms-2">Mac OS</span> */}
-              {/* </div> */}
+            <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
+            <Link to='/download'>
+              <img src={apple} alt="Apple" className="img-fluid platform-icon" style={{ height: "auto" }} />
+            </Link>
             </Col>
-            <Col xs={6} sm={4} md={3} className="mb-3">
-              <img src={playstore} alt="Google Play" className="img-fluid platform-icon" />
-            </Col>
-            <Col xs={6} sm={4} md={3} className="mb-3">
-              <img src={chrome} alt="Chrome Web Store" className="img-fluid platform-icon" />
-            </Col>
-          </Row>
-        </Container>
-        <img
-          src={laptopandmob}
-          alt="Laptop and Mobile Mockup"
-          style={{
-            position: 'relative',
-            top: '60%',
-            width: '81%',
-            zIndex: 2,
-          }}
-        />
-      </div>
+            <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
+              <a href="https://play.google.com/store/apps/details?id=com.SSTRACK&pcampaignid=web_share">
+              <img src={playstore} alt="Google Play" className="img-fluid platform-icon" style={{ height: "auto" }} />
+            </a>
+          </Col>
+          <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
+            <img src={chrome} alt="Chrome Web Store" className="img-fluid platform-icon" style={{ height: "auto", cursor: 'pointer' }}
+              onClick={handleClick} // Directly calls handleClick without checking loading state
+            />
+          </Col>
+        </Row>
+
+      </Container>
+      <img
+        src={laptopandmob}
+        alt="Laptop and Mobile Mockup"
+        style={{
+          position: 'relative',
+          top: '60%',
+          width: '81%',
+          zIndex: 2,
+        }}
+      />
+    </div >
       <StatsSection language={language} />
       <div id="section1">
         <NewHIW language={language} />
@@ -236,7 +242,7 @@ function NewHome() {
         <ContactSection language={language} />
       </div>
       <StartingSStrack language={language} />
-      {/* <Footer language={language} /> */}
+  {/* <Footer language={language} /> */ }
     </>
   );
 }

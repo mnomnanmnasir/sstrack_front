@@ -155,16 +155,21 @@ function Footer() {
                                         }
                                     }}>Contact Us</a>
                             </li>
-                            
                             <li style={{ marginBottom: '0.6rem' }}>
-                                <Link to="/privacy-policy" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}>Prvacy Policy</Link>
+                                <Link
+                                    to="/privacy-policy"
+                                    state={{ scrollTo: "section4" }}
+                                    style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
+                                >
+                                    Privacy Policy
+                                </Link>
                             </li>
                             <li style={{ marginBottom: '0.6rem' }}>
                                 <a href="/#" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
                                     onClick={(e) => {
                                         e.preventDefault();
                                         if (window.location.pathname !== "/") {
-                                            navigate("/", { state: { scrollTo: "faq" } });
+                                            navigate("/", { state: { scrollTo: "section3" } });
                                         } else {
                                             scrollToSection('faq'); // Call the scroll function if already on homepage
                                         }
@@ -248,107 +253,4 @@ export default Footer;
 
 
 
-
-
-
-// import React, { useEffect } from "react";
-// import { Container, Row, Col } from 'react-bootstrap';
-// import logo from '../../images/ss-track-logo.svg';
-// import { useNavigate, Link } from "react-router-dom";
-
-// const Footer = ({ language }) => {
-//     const navigate = useNavigate();
-
-//     // Debugging: Check if language updates correctly
-//     useEffect(() => {
-//         console.log("Current Language in Footer:", language);
-//     }, [language]); // Runs when language changes
-
-//     const translations = {
-//         en: {
-//             product: "Product",
-//             chromeExtension: "Chrome Extension",
-//             desktopApp: "Desktop Application",
-//             mobileApp: "Mobile Application",
-//             integrations: "Integrations",
-//             pricing: "Pricing",
-//             freeTrial: "Free trial",
-//             company: "Company",
-//             aboutUs: "About Us",
-//             contactUs: "Contact Us",
-//             partners: "Partners",
-//             faq: "FAQ",
-//             readyToStart: "Ready to get started?",
-//             signUp: "Sign Up",
-//             allRightsReserved: "© All Rights Reserved 2025 SS Track.io",
-//         },
-//         ar: {
-//             product: "المنتج",
-//             chromeExtension: "إضافة كروم",
-//             desktopApp: "تطبيق سطح المكتب",
-//             mobileApp: "تطبيق الهاتف المحمول",
-//             integrations: "التكاملات",
-//             pricing: "الأسعار",
-//             freeTrial: "تجربة مجانية",
-//             company: "الشركة",
-//             aboutUs: "من نحن",
-//             contactUs: "اتصل بنا",
-//             partners: "الشركاء",
-//             faq: "الأسئلة الشائعة",
-//             readyToStart: "هل أنت جاهز للبدء؟",
-//             signUp: "اشترك",
-//             allRightsReserved: "© جميع الحقوق محفوظة 2025 SS Track.io",
-//         }
-//     };
-
-//     // Select translations based on the language state
-//     const t = translations[language || "en"]; 
-
-//     return (
-//         <footer className="text-white py-5" style={{ background: 'linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)', width: '100%', minHeight: '50vh' }}>
-//             <Container>
-//                 <Row className="mb-4 justify-content-center">
-//                     {/* Product Section */}
-//                     <Col xs={12} sm={6} lg={3}>
-//                         <h5 className="mb-3">{t.product}</h5>
-//                         <ul className="list-unstyled">
-//                             <li><a href="https://chromewebstore.google.com" style={{ color: 'white', textDecoration: 'none' }}>{t.chromeExtension}</a></li>
-//                             <li><a href="/download" style={{ color: 'white', textDecoration: 'none' }}>{t.desktopApp}</a></li>
-//                             <li><a href="https://play.google.com" style={{ color: 'white', textDecoration: 'none' }}>{t.mobileApp}</a></li>
-//                         </ul>
-//                     </Col>
-
-//                     {/* Company Section */}
-//                     <Col xs={12} sm={6} lg={3}>
-//                         <h5 className="mb-3">{t.company}</h5>
-//                         <ul className="list-unstyled">
-//                             <li><Link to="/aboutUs" style={{ color: 'white', textDecoration: 'none' }}>{t.aboutUs}</Link></li>
-//                             <li><a href="/#" style={{ color: 'white', textDecoration: 'none' }}>{t.contactUs}</a></li>
-//                         </ul>
-//                     </Col>
-
-//                     {/* Signup Section */}
-//                     <Col xs={12} sm={6} lg={3}>
-//                         <h4>{t.readyToStart}</h4>
-//                         <div className="d-flex flex-column">
-//                             <button className="btn" onClick={() => navigate("/signup")} style={{ backgroundColor: '#8CCA6B', color: 'white' }}>{t.signUp}</button>
-//                         </div>
-//                         <img className='logo' src={logo} alt="SS Track.io" width={150} />
-//                     </Col>
-//                 </Row>
-
-//                 {/* Bottom Row */}
-//                 <Row>
-//                     <Col>
-//                         <p className="text-center mb-0" style={{ fontSize: "12px" }}>
-//                             {t.allRightsReserved}
-//                         </p>
-//                     </Col>
-//                 </Row>
-//             </Container>
-//         </footer>
-//     );
-// };
-
-// export default Footer;
 

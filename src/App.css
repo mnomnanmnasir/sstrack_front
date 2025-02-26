@@ -6492,7 +6492,7 @@ input[type="number"] {
 
 @media (max-width: 1024px) {
   .responsive-image {
-    display: none;
+    /* display: none; */
     /* Hide image on all mobile screen sizes */
   }
 
@@ -6621,3 +6621,30 @@ input[type="number"] {
 .no-caret::after {
   display: none !important; /* ✅ Bootstrap caret arrow hide */
 }
+.download-buttons {
+  display: flex;
+  justify-content: space-between; /* Buttons evenly space hon */
+  flex-wrap: wrap; /* Agar jagah kam ho to wrap kar sake */
+  gap: 10px; /* Buttons ke darmiyan spacing */
+}
+
+.download-button {
+  background-color: black;
+  color: white;
+  /* padding: 10px; */
+  width: 32%; /* Teen buttons ek row me aayein */
+  min-width: 120px; /* Bohat choti screens pr bhi show ho */
+  font-size: 12px; /* Default font size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile screens ke liye styles */
+@media screen and (max-width: 768px) {
+  .download-button {
+      font-size: 12px; /* Mobile par text chhota ho */
+      /* padding: 8px; */
+  }
+}
+

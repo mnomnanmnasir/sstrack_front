@@ -117,7 +117,7 @@ function DashboardSplash() {
     }, []);
     function goToDashboard() {
         navigate("/dashboard");
-        window.location.reload();
+        // window.location.reload();
     }
     return (
         <div style={{ backgroundColor: 'white', minWidth: '100vw' }}>
@@ -188,7 +188,7 @@ function DashboardSplash() {
                                                 <a
                                                     className="dropdown-item custom-dropdown-item"
                                                     href="#"
-                                                    onClick={() => handleDownloadMac("Intel")}
+                                                    onClick={() => handleDownloadMac("Silicon")}
                                                     style={{
                                                         display: "flex",
                                                         alignItems: "center",
@@ -204,7 +204,7 @@ function DashboardSplash() {
                                                 <a
                                                     className="dropdown-item custom-dropdown-item"
                                                     href="#"
-                                                    onClick={() => handleDownloadMac("Silicon")}
+                                                    onClick={() => handleDownloadMac("Intel")}
                                                     style={{
                                                         display: "flex",
                                                         alignItems: "center",

@@ -243,7 +243,7 @@ const DownloadSection = () => {
                                     style={{
                                         backgroundColor: loading1 ? '#6c757d' : 'black',
                                         padding: '2%',
-                                        width: '30%',
+                                        width: '32%',
                                         fontSize: '75%',
                                         cursor: loading1 ? 'not-allowed' : 'pointer',
                                     }}
@@ -284,63 +284,71 @@ const DownloadSection = () => {
                                     )}
                                 </button> */}
 
-                                <button
-                                    className="btn btn-dark dropdown-toggle no-caret"
-                                    type="button"
-                                    id="dropdownMenuButton"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded={isOpen}
-                                    onClick={() => setIsOpen(!isOpen)}
-                                    style={{
-                                        backgroundColor: 'black',
-                                        padding: '1.8%',
-                                        width: '30%',
-                                        fontSize: '75%',
-                                        // cursor: loading1 ? 'not-allowed' : 'pointer',
-                                    }}
-                                >
-                                    <BsApple color="#fff" size={20} style={{ marginRight: "10px" }} />
-                                    Download for Mac
-                                    <span style={{ marginLeft: "10px", transition: "transform 0.3s ease" }}>
-                                        {isOpen ? "▲" : "▼"}
-                                    </span>
-                                </button>
+                                {/* Mac OS Dropdown */}
+                                <div style={{ width: "185px", height: "42px" }}>
+                                    <button
+                                        className="btn btn-dark dropdown-toggle no-caret"
+                                        type="button"
+                                        id="dropdownMenuButton"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded={isOpen}
+                                        onClick={() => setIsOpen(!isOpen)}
+                                        style={{
+                                            width: "110%",
+                                            height: "100%",
+                                            backgroundColor: "black",
+                                            borderRadius: "6px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            fontSize: "14px",
+                                            fontWeight: "bold",
+                                            marginLeft: '-4%'
+                                        }}
+                                    >
+                                        <BsApple color="#fff" size={20} style={{ marginRight: "10px" }} />
+                                        {isArabic ? "تحميل لنظام ماك" : "Download for Mac"}
+                                        <span style={{ marginLeft: "10px", transition: "transform 0.3s ease" }}>
+                                            {isOpen ? "▲" : "▼"}
+                                        </span>
+                                    </button>
 
-                                {/* Dropdown Menu */}
-                                <ul className="dropdown-menu custom-dropdown" aria-labelledby="dropdownMenuButton">
-                                    <li>
-                                        <a
-                                            className="dropdown-item custom-dropdown-item"
-                                            href="#"
-                                            onClick={() => handleDownloadMac("Intel")}
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                color: "white",
-                                                gap: "8px",
-                                            }}
-                                        >
-                                            <BsApple color="#fff" size={18} />
-                                            For Mac Apple Chip
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            className="dropdown-item custom-dropdown-item"
-                                            href="#"
-                                            onClick={() => handleDownloadMac("Silicon")}
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                color: "white",
-                                                gap: "8px",
-                                            }}
-                                        >
-                                            <BsApple color="#fff" size={18} />
-                                            For Intel Chip
-                                        </a>
-                                    </li>
-                                </ul>
+                                    {/* Dropdown Menu */}
+                                    <ul className="dropdown-menu custom-dropdown" aria-labelledby="dropdownMenuButton">
+                                        <li>
+                                            <a
+                                                className="dropdown-item custom-dropdown-item"
+                                                href="#"
+                                                onClick={() => handleDownloadMac("Silicon")}
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    color: "white",
+                                                    gap: "8px",
+                                                }}
+                                            >
+                                                <BsApple color="#fff" size={18} />
+                                                {isArabic ? "لنظام ماك بشريحة Apple" : "For Mac Apple Chip"}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                className="dropdown-item custom-dropdown-item"
+                                                href="#"
+                                                onClick={() => handleDownloadMac("Intel")}
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    color: "white",
+                                                    gap: "8px",
+                                                }}
+                                            >
+                                                <BsApple color="#fff" size={18} />
+                                                {isArabic ? "لنظام ماك بشريحة Intel" : "For Intel Chip"}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
 
                             </div>
 

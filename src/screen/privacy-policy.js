@@ -10,7 +10,7 @@ function PrivacyPolicy() {
         
         <NewHeader language={'en'} show={true} />
       
-      <div className="container">
+      <div className="container" id="section4">
         
         <div className="trialDiv">
           <div className="employeesDiv" style={{ marginBottom: 50 }}>

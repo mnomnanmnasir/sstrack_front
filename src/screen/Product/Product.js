@@ -56,9 +56,9 @@ function Product() {
       <EmpoweringTeamsSection />
       <PartnerLogosSection />
       <ContactSection language={language} /> */}
-            <HeroSection onContactButtonClick={scrollToContactSection} language={language}/>
-            <ProductSmarter onContactButtonClick={scrollToContactSection} language={language}/>
-            <ThreeCardsSection onContactButtonClick={scrollToContactSection} language={language}/>
+            <HeroSection onContactButtonClick={scrollToContactSection} language={language} />
+            <ProductSmarter onContactButtonClick={scrollToContactSection} language={language} />
+            <ThreeCardsSection onContactButtonClick={scrollToContactSection} language={language} />
             <HowToUseSection onContactButtonClick={scrollToContactSection} language={language} />
             <FAQ onContactButtonClick={scrollToContactSection} language={language} />
             <ContactSection language={language} />

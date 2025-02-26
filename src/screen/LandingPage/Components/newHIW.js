@@ -377,8 +377,8 @@ function NewHIW({ language }) {
             </p>
 
             {/* Steps Section */}
-            <Row className="justify-content-center gx-1">
-                <Col xs={12} md={6} lg={5} className="p-1 mt-lg-5">
+            <Row className="justify-content-center g-0 gx-0 mx-0 my-0 ">
+                <Col xs={12} md={6} lg={4} className="p-0 mt-lg-5 ">
                     <StepCard
                         stepNumber="01"
                         image={step1}
@@ -387,7 +387,7 @@ function NewHIW({ language }) {
                         language={language}
                     />
                 </Col>
-                <Col xs={12} md={6} lg={5} className="p-1">
+                <Col xs={12} md={6} lg={4} className="p-1">
                     <StepCard
                         stepNumber="02"
                         image={step2}
@@ -396,7 +396,11 @@ function NewHIW({ language }) {
                         language={language}
                     />
                 </Col>
-                <Col xs={12} md={6} lg={5} className="p-1 mt-lg-5">
+               
+            </Row>
+            <Row className="justify-content-center gx-0 mx-0">
+            
+                <Col xs={12} md={6} lg={4} className="p-1 mt-lg-5">
                     <StepCard
                         stepNumber="03"
                         image={step3}
@@ -405,7 +409,7 @@ function NewHIW({ language }) {
                         language={language}
                     />
                 </Col>
-                <Col xs={12} md={6} lg={5} className="p-1">
+                <Col xs={12} md={6} lg={4} className="p-1">
                     <StepCard
                         stepNumber="04"
                         image={step4}
