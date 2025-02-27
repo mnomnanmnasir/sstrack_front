@@ -8,19 +8,18 @@ function ProductivitySection({ language }) {
     const navigate = useNavigate();
 
     return (
-        // <div className="container" style={{backgroundColor: 'none !'}}>
-
+        <div style={{ width: "100%", backgroundColor: "white", padding: "50px 0" }}>
             <Container fluid className="bg-light py-5">
-                <Row className="align-items-center justify-content-center">
+                <Row className="align-items-center justify-content-center ">
                     {/* Left Column (Text Section) */}
-                    <Col xs={12} md={6} lg={6} className="d-flex flex-column justify-content-center align-items-md-start align-items-center text-md-start text-center mb-4">
+                    <Col xs={12} md={6} lg={5} className="d-flex flex-column justify-content-center align-items-start mb-4">
                         {/* Subtitle */}
                         <p className="text-muted small mb-2 card-title-responsive">
                             {language === "en" ? "Productivity Focused" : "يركز على الإنتاجية"}
                         </p>
 
                         {/* Title */}
-                        <h1 className="fw-bold text-dark card-title-responsive">
+                        <h1 className="fw-bold text-dark">
                             {language === "en" ? "Achieve more Productivity" : "حقق المزيد من الإنتاجية"}{" "}
                             <br />
                             {language === "en" ? "with" : "مع"}{" "}
@@ -90,17 +89,17 @@ function ProductivitySection({ language }) {
                     </Col>
 
                     {/* Right Column (Image Section) */}
-                    <Col xs={12} md={6} lg={6} className="d-flex justify-content-center align-items-center">
+                    <Col xs={12} md={6} lg={5} className="d-flex justify-content-center align-items-center mb-4">
                         <img
                             src={productivityImage}
                             alt="Productivity Illustration"
-                            className="img-fluid rounded responsive-image"
+                            className="img-fluid rounded"
                             style={{ maxWidth: "100%", height: "auto" }}
                         />
                     </Col>
                 </Row>
             </Container>
-        // {/* </div> */}
+        </div>
     );
 }
 
