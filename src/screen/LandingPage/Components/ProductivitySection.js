@@ -12,8 +12,8 @@ function ProductivitySection({ language }) {
             <Container fluid className="bg-light py-5">
                 <Row className="align-items-center justify-content-center ">
                     {/* Left Column (Text Section) */}
-                    <Col xs={12} md={6} lg={5} className="d-flex flex-column justify-content-center align-items-start mb-4">
-                        {/* Subtitle */}
+                    <Col xs={12} md={6} lg={5} className="d-flex flex-column justify-content-center align-items-md-start align-items-center text-center text-md-start mb-4">
+                    {/* Subtitle */}
                         <p className="text-muted small mb-2 card-title-responsive">
                             {language === "en" ? "Productivity Focused" : "يركز على الإنتاجية"}
                         </p>

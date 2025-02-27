@@ -6648,3 +6648,15 @@ input[type="number"] {
   }
 }
 
+@media (max-width: 991px) {  /* Mobile (sm, md) ke liye */
+  .second-card {
+      margin-left: 0 !important; /* Mobile screens pr margin remove */
+      text-align: center;
+  }
+}
+
+@media (min-width: 992px) {  /* Large screens (lg, xl) ke liye */
+  .second-card {
+      margin-left: -8%;
+  }
+}

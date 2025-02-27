@@ -52,8 +52,8 @@ function Footer() {
             <Container>
                 <Row className="mb-4 justify-content-center">
                     {/* Product Section */}
-                    <Col xs={12} sm={6} lg={3}>
-                        <h5 className="mb-3" style={{ fontSize: '16px' }}>Product</h5>
+                    <Col xs={12} sm={6} md={4} lg={3}>
+                    <h5 className="mb-3" style={{ fontSize: '16px' }}>Product</h5>
                         <ul className="list-unstyled" >
                             <li style={{ marginBottom: '0.6rem' }}>
                                 <a href="https://chromewebstore.google.com/detail/sstrack/gkmllhjndmaaapegaopkpapaamfaeckg?hl=en-US" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}>Chrome Extension</a>
@@ -88,8 +88,8 @@ function Footer() {
                     </Col>
 
                     {/* Features Section */}
-                    <Col xs={12} sm={6} lg={3}>
-                        <h5 className="mb-3" style={{ fontSize: '16px' }}>Features</h5>
+                    <Col xs={12} sm={6} md={4} lg={3}>
+                    <h5 className="mb-3" style={{ fontSize: '16px' }}>Features</h5>
                         <ul className="list-unstyled">
                             <li style={{ marginBottom: '0.6rem' }}>
                                 <a href="/signup" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}>Time tracker with screenshots</a>
@@ -138,8 +138,8 @@ function Footer() {
                     </Col> */}
 
                     {/* Company Section */}
-                    <Col xs={12} sm={6} lg={3}>
-                        <h5 className="mb-3" style={{ fontSize: '16px' }}>Company</h5>
+                    <Col xs={12} sm={6} md={4} lg={3}>
+                    <h5 className="mb-3" style={{ fontSize: '16px' }}>Company</h5>
                         <ul className="list-unstyled">
                             <li style={{ marginBottom: '0.6rem' }}>
                                 <Link to="/aboutUs" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}>About Us</Link>
@@ -191,8 +191,8 @@ function Footer() {
                         </ul>
                     </Col>
                     {/* Signup Section */}
-                    <Col xs={12} sm={6} lg={3}>
-                        <h4 style={{ fontWeight: '500' }}>Ready to get started?</h4>
+                    <Col xs={12} sm={6} md={4} lg={3}>
+                    <h4 style={{ fontWeight: '500' }}>Ready to get started?</h4>
                         <div className="d-flex flex-column">
                             <input
                                 type="email"

@@ -35,7 +35,7 @@ function ETIOP({ language }) {
                             : 'قم بتبسيط سير عملك باستخدام أدوات متطورة تجمع الفرق والمهام والمواعيد النهائية بسلاسة.'}
                     />
                 </Col>
-                <Col xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center mb-4">
+                <Col xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center mb-4" style={{marginTop: '1.1%'}}>
                     <CardComponent
                         image={monitoring}
                         title={language === 'en' ? 'Monitoring' : 'المراقبة'}
@@ -44,7 +44,7 @@ function ETIOP({ language }) {
                             : 'ابقَ على اطلاع على إنتاجية فريقك وتقدمه من خلال الرؤى في الوقت الفعلي.'}
                     />
                 </Col>
-                <Col xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center mb-4">
+                <Col xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center mb-4" style={{marginTop: '1.1%'}}>
                     <CardComponent
                         image={trainingAndAssessment}
                         title={language === 'en' ? 'Training and Assessment' : 'التدريب والتقييم'}
