@@ -954,7 +954,7 @@ function OwnerReport() {
                                                             <div className="durationDiv">
                                                                 <p>{project.hours || 'No duration'}</p>
                                                                 <p>{project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                                                                <p>{Math.floor(project.payRate)} %</p>
+                                                                <p>{Math.floor(project.payRate)}</p>
                                                             </div>
                                                         </div>
                                                     ))}
