@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Header from "./component/header";
+import Header from "../screen/component/header";
 import email from '../images/email.webp';
 import Footer from "./component/footer";
 import line from '../images/line.webp'
@@ -9,6 +9,7 @@ import { FerrisWheelSpinner } from "react-spinner-overlay";
 import { useNavigate, useParams } from "react-router-dom";
 import { setLogout } from "../store/timelineSlice";
 import { useDispatch } from "react-redux";
+// import Header from '../screen/component/header';
 
 function UpdatePassword() {
     
@@ -75,6 +76,7 @@ function UpdatePassword() {
     return (
         <div>
             <SnackbarProvider />
+            <Header />
             <div style={{ display: "flex", justifyContent: "center" }}>
                 <div className="mainInputDiv"
                     onKeyPress={(e) => {

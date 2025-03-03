@@ -432,33 +432,237 @@ function Account({ suspended }) {
 
     const handleShow = () => setShow(true);
 
+    // async function deleteMyAccount() {
+    //     const res = await fetch(`${apiUrl}/signin/userDelete/${items._id}`, {
+    //         headers,
+    //         method: "DELETE"
+    //     })
+    //     try {
+    //         if (res.status === 200) {
+    //             console.log((await res.json()));
+    //             localStorage.removeItem("items");
+    //             localStorage.removeItem("token");
+    //             enqueueSnackbar("Account Deleted successfully", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             });
+    //             // Verify Delete Account API Call
+    //             verifyDeleteAccount();
+    //         }
+    //     }
+    //     catch (error) {
+    //         console.log(error);
+    //     }
+    // }
+
+    const [showVerifyModal, setShowVerifyModal] = useState(false);
+    const [verificationCode, setVerificationCode] = useState("");
+    const [userId, setUserId] = useState(null);
+
     async function deleteMyAccount() {
-        const res = await fetch(`${apiUrl}/signin/userDelete/${items._id}`, {
-            headers,
-            method: "DELETE"
-        })
         try {
-            if (res.status === 200) {
-                console.log((await res.json()));
-                localStorage.removeItem("items");
-                localStorage.removeItem("token");
-                enqueueSnackbar("Account Deleted successfully", {
+            const ownerId = items._id; // Owner ID get kar rahe hain
+
+            const res = await fetch(`${apiUrl}/signin/userDelete/${ownerId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                console.log("User Archived Successfully!");
+                enqueueSnackbar("Account archived successfully", {
                     variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right"
-                    }
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
                 });
-                setTimeout(() => {
-                    navigate("/")
-                    window.location.reload()
-                }, 1000);
+
+                // Step 2: Call verifyDeleteAccount function
+                verifyDeleteAccount();
+            } else {
+                const errorData = await res.json(); // Error message extract karna
+                enqueueSnackbar(`Failed: ${errorData.message || "Error occurred"}`, {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
+                });
             }
-        }
-        catch (error) {
-            console.log(error);
+        } catch (error) {
+            console.error("Error archiving account:", error);
+            enqueueSnackbar("Error deleting account", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
         }
     }
+
+
+    // const [showVerifyModal, setShowVerifyModal] = useState(false);
+    // const [verificationCode, setVerificationCode] = useState("");
+    // const [email, setEmail] = useState(items.email);
+    const [showDeleteButton, setShowDeleteButton] = useState(false);
+
+    // Step 1: Send verification code to email
+    async function verifyDeleteAccount() {
+        try {
+            console.log("Verifying delete request for:", items.email); // Debugging ke liye
+
+            const res = await fetch(`${apiUrl}/superAdmin/verifyDeleteAccount`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    email: items.email // ✅ Correct email payload
+                })
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || "Failed to send verification code");
+            }
+
+            enqueueSnackbar("Verification code sent to email", {
+                variant: "info",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+
+            // ✅ "Permanently Delete Account" button ko show karein
+            setShowDeleteButton(true);
+            setShowVerifyModal(true); // ✅ Verification Modal Show karein
+
+        } catch (error) {
+            console.error("Error sending verification code:", error);
+            enqueueSnackbar(error.message, {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+        }
+    }
+
+
+    // Step 2: Verify Code API Call
+    async function verifyCode() {
+        try {
+            console.log("Verifying code for email:", items.email); // Debugging ke liye
+
+            const res = await fetch(`${apiUrl}/superAdmin/verifycode`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    verification: verificationCode,  // ✅ Correct verification code
+                    email: items.email               // ✅ Correct email
+                })
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || "Invalid verification code");
+            }
+
+            enqueueSnackbar("Verification successful", {
+                variant: "success",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+
+            // ✅ Step 4: Delete Account Permanently
+            deleteCompanyAndUsers();
+
+        } catch (error) {
+            console.error("Error verifying code:", error);
+            enqueueSnackbar(error.message, {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+        }
+    }
+
+
+
+    // Step 3: Final Delete API Call
+    // async function deleteCompanyAndUsers() {
+    //     try {
+    //         const res = await fetch(`${apiUrl}/superAdmin/deleteCompanyAndUsers`, {
+    //             method: "DELETE",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //                 Authorization: `Bearer ${token}`
+    //             },
+    //             body: JSON.stringify({ email })
+    //         });
+
+    //         if (res.status === 200) {
+    //             enqueueSnackbar("Account successfully deleted", {
+    //                 variant: "success",
+    //                 anchorOrigin: { vertical: "top", horizontal: "right" }
+    //             });
+
+    //             localStorage.removeItem("items");
+    //             localStorage.removeItem("token");
+
+    //             setTimeout(() => {
+    //                 navigate("/");
+    //                 window.location.reload();
+    //             }, 1000);
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         enqueueSnackbar("Account delete karne mein masla aya", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" }
+    //         });
+    //     }
+    // }
+
+
+    // Final Delete API Call
+    async function deleteCompanyAndUsers() {
+        try {
+            const res = await fetch(`${apiUrl}/superAdmin/deleteCompanyAndUsers`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ email: items.email })
+            });
+
+            if (res.status === 200) {
+                enqueueSnackbar("Account successfully deleted", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
+                });
+
+                // Clear local storage and logout
+                localStorage.removeItem("items");
+                localStorage.removeItem("token");
+
+                setTimeout(() => {
+                    navigate("/");
+                    window.location.reload();
+                }, 1000);
+            } else {
+                enqueueSnackbar("Failed to delete account completely", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
+                });
+            }
+        } catch (error) {
+            console.error("Error deleting account permanently:", error);
+            enqueueSnackbar("Error deleting account permanently", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+        }
+    }
+
 
     async function verifyPassword() {
         if (currentPassword !== "") {
@@ -1173,11 +1377,6 @@ function Account({ suspended }) {
 
 
 
-
-
-
-
-
     return (
         <>
 
@@ -1313,6 +1512,36 @@ function Account({ suspended }) {
                                 </div>
                             )}
                         </div>
+                        {showVerifyModal && (
+                            <Modal show={showVerifyModal} onHide={() => setShowVerifyModal(false)} centered>
+                                <Modal.Header closeButton>
+                                    <Modal.Title>Enter Verification Code</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter Code"
+                                        value={verificationCode}
+                                        onChange={(e) => setVerificationCode(e.target.value)}
+                                        style={{ width: "100%", padding: "10px", fontSize: "16px" }}
+                                    />
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    {/* <div onClick={handleShow} className="accountEditDiv"> */}
+                                        <button onClick={verifyCode} className="teamActionButton">
+                                            Verify & Delete
+                                        </button>
+                                    {/* </div> */}
+                                </Modal.Footer>
+                            </Modal>
+                        )}
+
+                        {/* {showDeleteButton && (
+                            <button onClick={() => setShowVerifyModal(true)} className="delete-btn">
+                                Permanently Delete Account
+                            </button>
+                        )} */}
+
                         {/* <Payment /> */}
 
                         <BillingComponent />

@@ -825,11 +825,12 @@ function OwnerReport() {
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="dropdown">
-                                        <button className="btn m-0 utc5" type="button" aria-expanded="false">
-                                            {items?.timezone}
-                                        </button>
+                                    {/* <div className="dropdown"> */}
+                                    <div className="btn m-0 utc5 curson-none" type="text">
+                                        {`(GMT+${items?.timezoneOffset}) ${items?.timezone}`}
+                                        {console.log("Set timezone", items?.timezone, "Offset:", items?.timezoneOffset)}
                                     </div>
+                                    {/* </div> */}
                                 </div>
                             </div>
                             <div className="crossButtonDiv">
@@ -953,6 +954,7 @@ function OwnerReport() {
                                                             <div className="durationDiv">
                                                                 <p>{project.hours || 'No duration'}</p>
                                                                 <p>{project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+                                                                <p>{Math.floor(project.payRate)} %</p>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -984,6 +986,8 @@ function OwnerReport() {
                                                         {/* <p>{Math.floor(data?.payRate)} %</p> */}
                                                         {console.log("Report Total Hours", project.hours)}
                                                         <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+                                                        <p>{Math.floor(project.payRate)} %</p>
+
                                                     </div>
                                                 ))}
                                             </div>

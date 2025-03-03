@@ -26,7 +26,7 @@ function VerificationCode() {
             enqueueSnackbar("Please enter the new code.", { variant: "error", anchorOrigin: { vertical: "top", horizontal: "right" } });
             return;
         }
-
+    
         setLoading(true);
         try {
             const response = await axios.post(`${apiUrl}/superAdmin/verifycode`, {

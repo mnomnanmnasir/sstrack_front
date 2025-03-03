@@ -10,9 +10,12 @@ import { set } from 'lodash';
 function RequestsContent() {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0);
-  const [pendingRequests, setpendingRequests] = useState(0);
-  const [approvedRequests, setapprovedRequests] = useState(0);
-  const [cancelRequests, setcancelRequests] = useState(0);
+  // const [pendingRequests, setpendingRequests] = useState(0);
+  // const [approvedRequests, setapprovedRequests] = useState(0);
+  // const [cancelRequests, setcancelRequests] = useState(0);
+  const [pendingRequests, setpendingRequests] = useState([]);
+  const [approvedRequests, setapprovedRequests] = useState([]);
+  const [cancelRequests, setcancelRequests] = useState([]);
 
   const [requests, setRequests] = useState([]); // State to store API data
   const [loading, setLoading] = useState(false); // Loading state
@@ -123,9 +126,12 @@ function RequestsContent() {
 
         setLoading(false);
         setRequests(pendingRequests);
-        setpendingRequests(pendingRequests);
-        setapprovedRequests(approvedRequests);
-        setcancelRequests(cancelRequests); // Update the state with transformed data
+        setpendingRequests([...pendingRequests]);
+        setapprovedRequests([...approvedRequests]);
+        setcancelRequests([...cancelRequests]);
+        // setpendingRequests(pendingRequests);
+        // setapprovedRequests(approvedRequests);
+        // setcancelRequests(cancelRequests); // Update the state with transformed data
       } else {
         setLoading(false);
         setError(response.data.message || 'Failed to fetch enterprise requests');
@@ -141,13 +147,19 @@ function RequestsContent() {
     fetchRequests();
     console.log('selected Request', selectedRequest)
   }, [])
+
+  // const handleTabChange = (event, newValue) => {
+  //   setSelectedTab(newValue);
+  //   if (newValue === 0) setRequests(pendingRequests);
+  //   else if (newValue === 1) setRequests(approvedRequests);
+  //   else if (newValue === 2) setRequests(cancelRequests);
+  // };
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
-    if (newValue === 0) setRequests(pendingRequests);
-    else if (newValue === 1) setRequests(approvedRequests);
-    else if (newValue === 2) setRequests(cancelRequests);
-  };
-
+    if (newValue === 0) setRequests([...pendingRequests]);
+    else if (newValue === 1) setRequests([...approvedRequests]);
+    else if (newValue === 2) setRequests([...cancelRequests]);
+  }
 
   const handleViewClick = (request) => {
     setSelectedRequest(request);
