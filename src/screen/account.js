@@ -429,6 +429,7 @@ function Account({ suspended }) {
 
 
 
+    const [isArchived, setIsArchived] = useState(false);
 
     const handleShow = () => setShow(true);
 
@@ -481,6 +482,7 @@ function Account({ suspended }) {
                     anchorOrigin: { vertical: "top", horizontal: "right" }
                 });
 
+                
                 // Step 2: Call verifyDeleteAccount function
                 verifyDeleteAccount();
             } else {
@@ -499,6 +501,14 @@ function Account({ suspended }) {
         }
     }
 
+    const handleArchive = async () => {
+        await deleteMyAccount(); // Archive function ko pehle execute karein
+
+        setTimeout(() => {
+            setShow(false);  // Pehle archive modal close karein
+            setShowVerifyModal(true); // Phir verification modal open karein
+        }, 500); // 0.5 second ka delay taake state properly update ho
+    };
 
     // const [showVerifyModal, setShowVerifyModal] = useState(false);
     // const [verificationCode, setVerificationCode] = useState("");
@@ -521,10 +531,8 @@ function Account({ suspended }) {
                 })
             });
 
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.message || "Failed to send verification code");
-            }
+            // ✅ Response ko JSON format main convert karein
+            const responseData = await res.json();
 
             enqueueSnackbar("Verification code sent to email", {
                 variant: "info",
@@ -533,7 +541,12 @@ function Account({ suspended }) {
 
             // ✅ "Permanently Delete Account" button ko show karein
             setShowDeleteButton(true);
-            setShowVerifyModal(true); // ✅ Verification Modal Show karein
+            setShowVerifyModal(true);  // ✅ Verification Code Modal Open karein
+
+            // ✅ Thoda delay dein taake Snackbar pehle show ho aur uske baad modal khule
+            // console.log("Opening Verification Modal...");
+            // setShowDeleteButton(true); // ✅ "Permanently Delete Account" button show karein
+            // setShowVerifyModal(true);  // ✅ Verification Code Modal Open karein
 
         } catch (error) {
             console.error("Error sending verification code:", error);
@@ -544,6 +557,7 @@ function Account({ suspended }) {
         }
     }
 
+    const [isDeleted, setIsDeleted] = useState(false);
 
     // Step 2: Verify Code API Call
     async function verifyCode() {
@@ -572,8 +586,10 @@ function Account({ suspended }) {
                 anchorOrigin: { vertical: "top", horizontal: "right" }
             });
 
+            setShowVerifyModal(false);
             // ✅ Step 4: Delete Account Permanently
             deleteCompanyAndUsers();
+            setIsDeleted(true);
 
         } catch (error) {
             console.error("Error verifying code:", error);
@@ -1384,18 +1400,29 @@ function Account({ suspended }) {
             <SnackbarProvider />
             {show ? <Modal show={show} onHide={() => setShow(false)} animation={false} centered>
                 <Modal.Body>
-                    <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>Are you sure want to delete your account ?</p>
-                    <p>All of the time tracking data and screenshots for this employee will be lost. This can not be undone.</p>
+                    <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>
+                        Are you sure you want to archive your account?
+                    </p>
+                    <p>
+                        Your account will be <strong>archived</strong>, and all time tracking data & screenshots will be saved.
+                        If you want to <strong>permanently delete</strong> your account, you will need to verify the process.
+                    </p>
+                    <p>
+                        Click <strong>Archive</strong> to proceed. A verification code will be sent to your email.
+                        Enter the code in the next step to permanently delete your account.
+                    </p>
                 </Modal.Body>
                 <Modal.Footer>
-                    <button className="teamActionButton" onClick={deleteMyAccount}>
-                        DELETE
+                    <button className="teamActionButton" onClick={handleArchive}>
+                        ARCHIVE
                     </button>
                     <button className="teamActionButton" onClick={() => setShow(false)}>
                         CANCEL
                     </button>
                 </Modal.Footer>
             </Modal> : null}
+
+
             {updatePassword ? <Modal show={updatePassword} onHide={() => setShow(false)} animation={false} centered>
                 <Modal.Body onKeyPress={(e) => {
                     if (e.key === "Enter") {
@@ -1506,10 +1533,11 @@ function Account({ suspended }) {
                             {/* <div onClick={() => navigate('/profile')} className="accountEditDiv"><div><img src={edit} /></div><p>Edit Profile</p></div> */}
                             <div onClick={() => setUpdatePassword(true)} className="accountEditDiv"><div><img src={passwords} /></div><p>Change Password</p></div>
                             {items?.userType === "owner" && (
-                                <div onClick={handleShow} className="accountEditDiv">
+                                <div className="accountEditDiv" style={isDeleted ? { opacity: 0.5, cursor: "not-allowed" } : {}} onClick={!isDeleted ? handleShow : null}>
                                     <div><img src={deleteIcon} alt="Delete Icon" /></div>
-                                    <p>Delete my Account</p>
+                                    <p>{isDeleted ? "Permanently Deleted" : "Archive my Account"}</p>
                                 </div>
+
                             )}
                         </div>
                         {showVerifyModal && (
@@ -1528,9 +1556,9 @@ function Account({ suspended }) {
                                 </Modal.Body>
                                 <Modal.Footer>
                                     {/* <div onClick={handleShow} className="accountEditDiv"> */}
-                                        <button onClick={verifyCode} className="teamActionButton">
-                                            Verify & Delete
-                                        </button>
+                                    <button onClick={verifyCode} className="teamActionButton">
+                                        Verify & Delete
+                                    </button>
                                     {/* </div> */}
                                 </Modal.Footer>
                             </Modal>
