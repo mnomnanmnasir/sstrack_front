@@ -429,7 +429,7 @@ function Account({ suspended }) {
 
 
 
-    const [isArchived, setIsArchived] = useState(false);
+    const [isArchived, setIsArchived] = useState(null);
 
     const handleShow = () => {
         if (isArchived) {
@@ -525,7 +525,7 @@ function Account({ suspended }) {
     // };
     useEffect(() => {
         if (isArchived) {
-            setShowVerifyModal(true); // Verification modal خودبخود کھل جائے
+            // setShowVerifyModal(true); // Verification modal خودبخود کھل جائے
         }
     }, [isArchived]);
 
@@ -897,20 +897,47 @@ function Account({ suspended }) {
         setLoading(false);
     };
 
+    // const getData = useCallback(async () => {
+    //     try {
+    //         const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
+    //         const ownerUser = response?.data?.employees?.find(user => user.userType === 'owner');
+
+    //         if (ownerUser) {
+    //             setIsArchived(ownerUser.isArchived);
+    //             console.log("Fetched isArchived from API:", ownerUser.isArchived);
+                
+    //         }
+    //     } catch (err) {
+    //         console.log("Error fetching owner data:", err);
+    //         setIsArchived(ownerUser.isArchived);
+    //     }
+    // }, [headers]);
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
-            const ownerUser = response?.data?.employees?.find(user => user.userType === 'owner');
-
-            if (ownerUser) {
-                console.log("Fetched isArchived from API:", ownerUser.isArchived);
-                setIsArchived(ownerUser.isArchived);
+    
+            // ✅ اگر API response میں employees موجود ہیں
+            if (response?.data?.employees) {
+                const ownerUser = response.data.employees.find(user => user.userType === "owner");
+    
+                if (ownerUser) {
+                    console.log("Fetched isArchived:", ownerUser.isArchived);  // ✅ Console میں Print کرنا
+                    setIsArchived(ownerUser.isArchived); // ✅ State کو Update کرنا
+                }
             }
-        } catch (err) {
-            console.log("Error fetching owner data:", err);
+        } catch (error) {
+            console.error("Error fetching owner data:", error);
+    
+            // ✅ اگر API error response میں isArchived موجود ہے تو Console میں Print کریں
+            if (error.response?.data?.isArchived !== undefined) {
+                console.log("Error Response isArchived:", error.response.data.isArchived);
+                setIsArchived(error.response.data.isArchived);
+            } else {
+                setIsArchived(false);  // Default false رکھیں
+            }
         }
     }, [headers]);
-
+    
     useEffect(() => {
         getData();
     }, []);
@@ -941,7 +968,7 @@ function Account({ suspended }) {
 
     useEffect(() => {
         if (isArchived) {
-            setShowVerifyModal(true);
+            // setShowVerifyModal(true);
         }
     }, [isArchived]);
 
