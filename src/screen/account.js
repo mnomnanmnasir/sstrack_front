@@ -431,7 +431,14 @@ function Account({ suspended }) {
 
     const [isArchived, setIsArchived] = useState(false);
 
-    const handleShow = () => setShow(true);
+    const handleShow = () => {
+        if (isArchived) {
+            setShowVerifyModal(true);  // اگر پہلے سے archive ہے تو verification modal اوپن کریں
+        } else {
+            setShow(true);  // اگر archive نہیں ہے تو archive modal اوپن کریں
+        }
+    };
+
 
     // async function deleteMyAccount() {
     //     const res = await fetch(`${apiUrl}/signin/userDelete/${items._id}`, {
@@ -463,6 +470,7 @@ function Account({ suspended }) {
     const [verificationCode, setVerificationCode] = useState("");
     const [userId, setUserId] = useState(null);
 
+
     async function deleteMyAccount() {
         try {
             const ownerId = items._id; // Owner ID get kar rahe hain
@@ -481,8 +489,9 @@ function Account({ suspended }) {
                     variant: "success",
                     anchorOrigin: { vertical: "top", horizontal: "right" }
                 });
+                setIsArchived(true); // ✅ UI instantly update hoga
 
-                
+
                 // Step 2: Call verifyDeleteAccount function
                 verifyDeleteAccount();
             } else {
@@ -501,13 +510,28 @@ function Account({ suspended }) {
         }
     }
 
-    const handleArchive = async () => {
-        await deleteMyAccount(); // Archive function ko pehle execute karein
 
-        setTimeout(() => {
-            setShow(false);  // Pehle archive modal close karein
-            setShowVerifyModal(true); // Phir verification modal open karein
-        }, 500); // 0.5 second ka delay taake state properly update ho
+
+
+
+
+    // const handleArchive = async () => {
+    //     await deleteMyAccount(); // Archive function ko pehle execute karein
+
+    //     setTimeout(() => {
+    //         setShow(false);  // Pehle archive modal close karein
+    //         setShowVerifyModal(true); // Phir verification modal open karein
+    //     }, 500); // 0.5 second ka delay taake state properly update ho
+    // };
+    useEffect(() => {
+        if (isArchived) {
+            setShowVerifyModal(true); // Verification modal خودبخود کھل جائے
+        }
+    }, [isArchived]);
+
+    const handleArchive = async () => {
+        await deleteMyAccount(); // Archive function کو کال کریں
+        setShow(false); // Archive modal کو بند کریں
     };
 
     // const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -515,10 +539,14 @@ function Account({ suspended }) {
     // const [email, setEmail] = useState(items.email);
     const [showDeleteButton, setShowDeleteButton] = useState(false);
 
+    useEffect(() => {
+        console.log("isArchived updated:", isArchived); // Debugging ke liye
+    }, [isArchived]); // ✅ Jab bhi isArchived change hoga, yeh useEffect chalega
+
     // Step 1: Send verification code to email
     async function verifyDeleteAccount() {
         try {
-            console.log("Verifying delete request for:", items.email); // Debugging ke liye
+            console.log("Verifying delete request for:", items.email);
 
             const res = await fetch(`${apiUrl}/superAdmin/verifyDeleteAccount`, {
                 method: "PATCH",
@@ -527,26 +555,24 @@ function Account({ suspended }) {
                     Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    email: items.email // ✅ Correct email payload
+                    email: items.email
                 })
             });
 
-            // ✅ Response ko JSON format main convert karein
             const responseData = await res.json();
+
+            if (responseData.user.isArchived) {
+                setIsArchived(true);  // ✅ isArchived ko state me update karein
+                localStorage.setItem("isArchived", true); // ✅ LocalStorage me bhi save karein
+            }
 
             enqueueSnackbar("Verification code sent to email", {
                 variant: "info",
                 anchorOrigin: { vertical: "top", horizontal: "right" }
             });
 
-            // ✅ "Permanently Delete Account" button ko show karein
             setShowDeleteButton(true);
-            setShowVerifyModal(true);  // ✅ Verification Code Modal Open karein
-
-            // ✅ Thoda delay dein taake Snackbar pehle show ho aur uske baad modal khule
-            // console.log("Opening Verification Modal...");
-            // setShowDeleteButton(true); // ✅ "Permanently Delete Account" button show karein
-            // setShowVerifyModal(true);  // ✅ Verification Code Modal Open karein
+            setShowVerifyModal(true);
 
         } catch (error) {
             console.error("Error sending verification code:", error);
@@ -875,23 +901,67 @@ function Account({ suspended }) {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
             const ownerUser = response?.data?.employees?.find(user => user.userType === 'owner');
+
             if (ownerUser) {
-                setBillingDate(ownerUser.billingDate);
+                console.log("Fetched isArchived from API:", ownerUser.isArchived);
+                setIsArchived(ownerUser.isArchived);
             }
-            setTotalUsers(response?.data?.count);
         } catch (err) {
-            console.log(err);
-        } finally {
-            setLoading(false);
+            console.log("Error fetching owner data:", err);
         }
     }, [headers]);
 
+    useEffect(() => {
+        getData();
+    }, []);
 
     useEffect(() => {
         getData();
         fetchTokenAndSuspendedStatus();
 
+    }, [getData]);
+
+    useEffect(() => {
+        const fetchArchivedStatus = async () => {
+            try {
+                const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
+                const ownerUser = response?.data?.employees?.find(user => user.userType === 'owner');
+
+                if (ownerUser) {
+                    setIsArchived(ownerUser.isArchived);
+                    console.log("Updated isArchived after refresh:", ownerUser.isArchived);
+                }
+            } catch (error) {
+                console.error("Error fetching owner data:", error);
+            }
+        };
+
+        fetchArchivedStatus();
     }, []);
+
+    useEffect(() => {
+        if (isArchived) {
+            setShowVerifyModal(true);
+        }
+    }, [isArchived]);
+
+    const fetchOwnerData = async () => {
+        try {
+            const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
+            const ownerUser = response?.data?.employees?.find(user => user.userType === 'owner');
+
+            if (ownerUser) {
+                setIsArchived(ownerUser.isArchived);
+                localStorage.setItem("isArchived", ownerUser.isArchived);
+            }
+        } catch (error) {
+            console.error("Error fetching owner data:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchOwnerData();
+    }, []);  // ✅ Empty dependency array taake sirf ek martaba chale on mount
 
 
     const formatDate = (date) => {
@@ -1533,11 +1603,23 @@ function Account({ suspended }) {
                             {/* <div onClick={() => navigate('/profile')} className="accountEditDiv"><div><img src={edit} /></div><p>Edit Profile</p></div> */}
                             <div onClick={() => setUpdatePassword(true)} className="accountEditDiv"><div><img src={passwords} /></div><p>Change Password</p></div>
                             {items?.userType === "owner" && (
-                                <div className="accountEditDiv" style={isDeleted ? { opacity: 0.5, cursor: "not-allowed" } : {}} onClick={!isDeleted ? handleShow : null}>
-                                    <div><img src={deleteIcon} alt="Delete Icon" /></div>
-                                    <p>{isDeleted ? "Permanently Deleted" : "Archive my Account"}</p>
-                                </div>
+                                // <div className="accountEditDiv" style={isDeleted ? { opacity: 0.5, cursor: "not-allowed" } : {}} onClick={!isDeleted ? handleShow : null}>
+                                //     <div><img src={deleteIcon} alt="Delete Icon" /></div>
+                                //     <p>{isDeleted ? "Permanently Deleted" : "Delete my Account"}</p>
+                                // </div>
+                                <>
+                                    <div
+                                        className="accountEditDiv"
+                                        onClick={handleShow}
+                                    >
+                                        <div><img src={deleteIcon} alt="Delete Icon" /></div>
+                                        <p>
+                                            {isArchived ? "Archived My Account" : "Delete My Account"}
+                                        </p>
+                                    </div>
 
+                                    {/* <p>Debugging: isArchived = {String(isArchived)}</p> */}
+                                </>
                             )}
                         </div>
                         {showVerifyModal && (
