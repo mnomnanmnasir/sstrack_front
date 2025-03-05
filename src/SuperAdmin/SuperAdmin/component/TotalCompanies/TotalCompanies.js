@@ -4,6 +4,8 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import TopBar from '../topBar';
 
+
+// commit
 function TotalCompanies() {
   const [companies, setCompanies] = useState([]); // State for companies data
   const [selectedCompany, setSelectedCompany] = useState(null);

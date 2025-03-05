@@ -57,7 +57,7 @@ function UserDashboardSection() {
         }
     }, [items]);
 
- 
+
     useEffect(() => {
         if (!items?.company) {
             navigate('/profile');
@@ -107,12 +107,12 @@ function UserDashboardSection() {
 
         fetchRemainingBreakTime();
     }, [items]);
-    
+
     return (
         <div className="cursor-pointer">
             <div className="d-flex justify-content-between align-items-center" style={{
                 backgroundColor: "white",
-                padding: "10px 20px",  
+                padding: "10px 20px",
                 borderBottomLeftRadius: "10px",
                 borderBottomRightRadius: "10px",
                 margin: "0px 30px 0 30px",
@@ -122,7 +122,7 @@ function UserDashboardSection() {
                         navigate('/dashboard')
                     }} >
                         <p style={{ margin: 0 }} onClick={() => {
-                            navigate('/dashboard')  
+                            navigate('/dashboard')
                         }}>Dashboard</p>
                     </div>
                     {/* {Object.entries(toggleData).map(([employeeId, data]) => (
@@ -138,23 +138,23 @@ function UserDashboardSection() {
                     {items?.userType === "user" || items?.userType === "manager" && <div className={location.pathname.includes("/timeline") ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
                         <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate(`/timeline/${items?._id}`)}>My timeline</p>
                     </div>}
-                    {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
+                    {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager" ) && (
                         <>
                             <div className={location.pathname === "/team" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/team')}>
-                                <p style={{ margin: 0 ,whiteSpace: 'nowrap'}} onClick={() => navigate('/team')}>Team</p>
+                                <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate('/team')}>Team</p>
                             </div>
                         </>
                     )}
                     <div className={location.pathname === "/reports" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/reports')}>
                         <p style={{ margin: 0 }} onClick={() => navigate('/reports')}>Reports</p>
                     </div>
-                 
+                    {!(items?.userType === "user" || items?.userType === "manager") && (
                         <>
                             <div className={location.pathname === "/Projects" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/Projects')}>
                                 <p style={{ margin: 0 }} onClick={() => navigate('/Projects')}>Projects</p>
                             </div>
                         </>
-                
+                    )}
                     {/* Leave Tab with Count */}
                     {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin") && (
                         <div
@@ -229,12 +229,12 @@ function UserDashboardSection() {
 
                         </div>
                     )}
-              
+
                     <div className="d-flex container">
-                 
+
                     </div>
                 </div>
-       
+
                 <div className="d-flex">
                     {/* <p className="ownerSectionCompany" style={{ margin: "0 20px", fontWeight: "bold" }}>
                         Break Time: {remainingBreakTime}
@@ -250,7 +250,7 @@ function UserDashboardSection() {
                         <div><img src={circle} className="company-logo" alt="Company Logo" />
                         </div>
                         <p className="m-0 text-truncate fw-bold company-text">
-                        {items?.company}</p>
+                            {items?.company}</p>
                     </div>
                 </div>
             </div>

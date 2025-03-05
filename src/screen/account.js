@@ -29,6 +29,9 @@ const stripePromise = loadStripe(process.env.REACT_AP_KEY);
 
 function Account({ suspended }) {
 
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    // const [showVerifyModal, setShowVerifyModal] = useState(false);
+    // const [verificationCode, setVerificationCode] = useState("");
     const [responseMessage, setResponseMessage] = useState(null);
     const location = useLocation();
     const [plans, setPlans] = useState(location.state?.plans || []);
@@ -433,9 +436,10 @@ function Account({ suspended }) {
 
     const handleShow = () => {
         if (isArchived) {
-            setShowVerifyModal(true);  // اگر پہلے سے archive ہے تو verification modal اوپن کریں
+            setShowConfirmModal(true); 
+   
         } else {
-            setShow(true);  // اگر archive نہیں ہے تو archive modal اوپن کریں
+            setShow(true);  
         }
     };
 
@@ -510,10 +514,17 @@ function Account({ suspended }) {
         }
     }
 
+    const handleConfirmArchive = () => {
+        setShowConfirmModal(false)
 
-
-
-
+        setTimeout(() => {
+            setShowVerifyModal(true); 
+            enqueueSnackbar("Please check your email for verification code.", {
+                variant: "info",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+        }, 500);
+    };
 
     // const handleArchive = async () => {
     //     await deleteMyAccount(); // Archive function ko pehle execute karein
@@ -525,14 +536,19 @@ function Account({ suspended }) {
     // };
     useEffect(() => {
         if (isArchived) {
-            // setShowVerifyModal(true); // Verification modal خودبخود کھل جائے
+
         }
     }, [isArchived]);
 
     const handleArchive = async () => {
-        await deleteMyAccount(); // Archive function کو کال کریں
-        setShow(false); // Archive modal کو بند کریں
+        await deleteMyAccount();
+        setShow(false);
+
+        setTimeout(() => {
+            setShowConfirmModal(true);
+        }, 500);
     };
+
 
     // const [showVerifyModal, setShowVerifyModal] = useState(false);
     // const [verificationCode, setVerificationCode] = useState("");
@@ -572,7 +588,7 @@ function Account({ suspended }) {
             });
 
             setShowDeleteButton(true);
-            setShowVerifyModal(true);
+            // setShowVerifyModal(true);
 
         } catch (error) {
             console.error("Error sending verification code:", error);
@@ -905,7 +921,7 @@ function Account({ suspended }) {
     //         if (ownerUser) {
     //             setIsArchived(ownerUser.isArchived);
     //             console.log("Fetched isArchived from API:", ownerUser.isArchived);
-                
+
     //         }
     //     } catch (err) {
     //         console.log("Error fetching owner data:", err);
@@ -915,11 +931,11 @@ function Account({ suspended }) {
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
-    
+
             // ✅ اگر API response میں employees موجود ہیں
             if (response?.data?.employees) {
                 const ownerUser = response.data.employees.find(user => user.userType === "owner");
-    
+
                 if (ownerUser) {
                     console.log("Fetched isArchived:", ownerUser.isArchived);  // ✅ Console میں Print کرنا
                     setIsArchived(ownerUser.isArchived); // ✅ State کو Update کرنا
@@ -927,7 +943,7 @@ function Account({ suspended }) {
             }
         } catch (error) {
             console.error("Error fetching owner data:", error);
-    
+
             // ✅ اگر API error response میں isArchived موجود ہے تو Console میں Print کریں
             if (error.response?.data?.isArchived !== undefined) {
                 console.log("Error Response isArchived:", error.response.data.isArchived);
@@ -937,7 +953,7 @@ function Account({ suspended }) {
             }
         }
     }, [headers]);
-    
+
     useEffect(() => {
         getData();
     }, []);
@@ -1644,11 +1660,87 @@ function Account({ suspended }) {
                                             {isArchived ? "Archived My Account" : "Delete My Account"}
                                         </p>
                                     </div>
-
                                     {/* <p>Debugging: isArchived = {String(isArchived)}</p> */}
                                 </>
                             )}
                         </div>
+                        {/* {show ? (
+                            <Modal show={show} onHide={() => setShow(false)} animation={false} centered>
+                                <Modal.Body>
+                                    <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>
+                                        Are you sure you want to archive your account?
+                                    </p>
+                                    <p>
+                                        Your account will be <strong>archived</strong>, and all time tracking data & screenshots will be saved.
+                                        If you want to <strong>permanently delete</strong> your account, you will need to verify the process.
+                                    </p>
+                                    <p>
+                                        Click <strong>Archive</strong> to proceed. A verification code will be sent to your email.
+                                        Enter the code in the next step to permanently delete your account.
+                                    </p>
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <button className="teamActionButton" onClick={() => {
+                                        setShow(false); // Archive modal بند کریں
+                                        setTimeout(() => {
+                                            setShowConfirmModal(true); // "Are you sure?" modal اوپن کریں
+                                        }, 500); // تھوڑا سا delay تاکہ UI smooth رہے
+                                    }}>
+                                        ARCHIVE
+                                    </button>
+                                    <button className="teamActionButton" onClick={() => setShow(false)}>
+                                        CANCEL
+                                    </button>
+                                </Modal.Footer>
+                            </Modal>
+                        ) : null} */}
+                        {show ? <Modal show={show} onHide={() => setShow(false)} animation={false} centered>
+                            <Modal.Body>
+                                <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>
+                                    Are you sure you want to archive your account?
+                                </p>
+                                <p>
+                                    Your account will be <strong>archived</strong>, and all time tracking data & screenshots will be saved.
+                                    If you want to <strong>permanently delete</strong> your account, you will need to verify the process.
+                                </p>
+                                <p>
+                                    Click <strong>Archive</strong> to proceed. A verification code will be sent to your email.
+                                    Enter the code in the next step to permanently delete your account.
+                                </p>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <button className="teamActionButton" onClick={handleArchive}>
+                                    ARCHIVE
+                                </button>
+                                <button className="teamActionButton" onClick={() => setShow(false)}>
+                                    CANCEL
+                                </button>
+                            </Modal.Footer>
+                        </Modal> : null}
+
+                        {/* Are you sure? Modal */}
+                        {showConfirmModal ? (
+                            <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} animation={false} centered>
+                                <Modal.Body>
+                                    <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>
+                                        Are you sure you want to delete this account?
+                                    </p>
+                                    <p>
+                                        Your account will be permanently deleted. You will receive a verification code via email to complete the deletion process.
+                                    </p>
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <button className="teamActionButton" onClick={handleConfirmArchive}>
+                                        Yes
+                                    </button>
+                                    <button className="teamActionButton" onClick={() => setShowConfirmModal(false)}>
+                                        No
+                                    </button>
+                                </Modal.Footer>
+                            </Modal>
+                        ) : null}
+
+                        {/* Verification Modal */}
                         {showVerifyModal && (
                             <Modal show={showVerifyModal} onHide={() => setShowVerifyModal(false)} centered>
                                 <Modal.Header closeButton>
@@ -1664,11 +1756,9 @@ function Account({ suspended }) {
                                     />
                                 </Modal.Body>
                                 <Modal.Footer>
-                                    {/* <div onClick={handleShow} className="accountEditDiv"> */}
                                     <button onClick={verifyCode} className="teamActionButton">
                                         Verify & Delete
                                     </button>
-                                    {/* </div> */}
                                 </Modal.Footer>
                             </Modal>
                         )}
