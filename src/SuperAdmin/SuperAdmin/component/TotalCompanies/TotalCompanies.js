@@ -4,8 +4,6 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import TopBar from '../topBar';
 
-
-// commit
 function TotalCompanies() {
   const [companies, setCompanies] = useState([]); // State for companies data
   const [selectedCompany, setSelectedCompany] = useState(null);
@@ -38,10 +36,12 @@ function TotalCompanies() {
           id: company._id, // Add a unique ID for the company
           accessBlock: company.accessBlock,
           name: company.companyName,
+          lastActiveCompany: company.lastActiveCompany || 'No last active company',
           phone: company.users[0]?.name || 'no user name found⚠️', // Company phone with default value
           email: company.users[0]?.email || 'No email',
           type: 'suspended', // Indicate that it's a suspended company
           users: company.users.map((user) => ({
+            lastActiveUser: user.lastActiveUser || 'No last active user',
             name: user.name || 'Unknown', // Placeholder if name is missing
             email: user.email || 'No email',
             role: user.userType || 'User', // Add role if available
@@ -52,10 +52,28 @@ function TotalCompanies() {
           id: company._id, // Add a unique ID for the company
           name: company.companyName,
           accessBlock: company.accessBlock,
+          lastActiveCompany: company.lastActiveCompany || 'No last active company',
           phone: company.users[0]?.name || 'no user name found⚠️', // Company phone with default value
           email: company.users[0]?.email || 'No email',
           type: 'other', // Indicate that it's another company
           users: company.users.map((user) => ({
+            lastActiveUser: user.lastActiveUser || 'No last active user',
+            name: user.name || 'Unknown', // Placeholder if name is missing
+            email: user.email || 'No email',
+            role: user.userType || 'User', // Add role if available
+            phone: user.phone || '(123) 456-7890', // Placeholder if phone is missing
+          })),
+        }));
+        const transformedArchiveCompanies = response.data.archivedCompanies.map((company) => ({
+          id: company._id, // Add a unique ID for the company
+          name: company.companyName,
+          accessBlock: company.accessBlock,
+          lastActiveCompany: company.lastActiveCompany || 'No last active company',
+          phone: company.users[0]?.name || 'no user name found⚠️', // Company phone with default value
+          email: company.users[0]?.email || 'No email',
+          type: 'archive', // Indicate that it's another company
+          users: company.users.map((user) => ({
+            lastActiveUser: user.lastActiveUser || 'No last active user',
             name: user.name || 'Unknown', // Placeholder if name is missing
             email: user.email || 'No email',
             role: user.userType || 'User', // Add role if available
@@ -63,7 +81,7 @@ function TotalCompanies() {
           })),
         }));
         // Combine both arrays if needed
-        const transformedCompanies = [...transformedSuspendedCompanies, ...transformedOtherCompanies];
+        const transformedCompanies = [...transformedSuspendedCompanies, ...transformedOtherCompanies,];
         setCompanies(transformedCompanies);
         setFilteredCompanies(transformedOtherCompanies)
       } else {
@@ -177,6 +195,60 @@ function TotalCompanies() {
     }
   };
 
+  const handleSuspend = async (selectedCompanyId) => {
+    if (!selectedCompanyId) {
+      alert('No company selected.');
+      return;
+    }
+
+    const token = localStorage.getItem('token_for_sa');
+    if (!token) {
+      setError('Token not found');
+      setLoading(false);
+      return;
+    }
+
+    setDLTLoading(true);
+
+    try {
+      // Toggle the accessBlock value
+      const updatedSuspended = selectedCompany?.type === "suspended" ? false : true;
+
+      // console.log('unupdated',updatedSuspended, '............',selectedCompany.type)
+      const response = await axios.post(
+        `https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
+        {
+          isArchived: false,
+          suspended: updatedSuspended,
+          accessBlock: false,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        // Show confirmation using window.confirm
+        const isConfirmed = window.confirm('Company updated successfully! Click OK to refresh the list.');
+        if (isConfirmed) {
+          setSelectedCompany(null);
+          setSelectedFilter('other') // Reset the selected company
+          fetchCompanies(); // Refresh the company list
+        }
+      } else {
+        alert('Failed to update the company.');
+      }
+    } catch (error) {
+      console.error('Error updating the company:', error);
+      alert('An error occurred while updating the company.');
+    } finally {
+      setDLTLoading(false);
+    }
+  };
+
+
 
   const handleFilterChange = (event) => {
     const filter = event.target.value;
@@ -235,7 +307,7 @@ function TotalCompanies() {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                   <Typography variant="h6" fontWeight="bold">
-                    Total Companies 
+                    Total Companies
                   </Typography>
                   {/* <Button startIcon={<ListAltIcon />} variant="text" sx={{ color: '#333' }}>
                     List View
@@ -303,10 +375,34 @@ function TotalCompanies() {
                       >
                         {company.type === 'suspended' ? 'Suspended' : 'active'}
                       </Box>
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: '16px',
+                          left: '16px',
+                          backgroundColor: 'transparent' ,
+                          color: '#4CAF50',
+                          borderRadius: '16px',
+                          fontSize: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {company.lastActiveCompany === 'just now' ? (
+                          <span style={{ fontSize: '16px', color: '#4CAF50' }}>●</span>
+                        ) : (
+                          company.lastActiveCompany
+                        )}
+                      </Box>
+
                       <CardContent sx={{ textAlign: 'center', padding: 0, marginTop: '20%' }}>
                         <Typography variant="h6" fontWeight="bold" sx={{ fontSize: '20px' }}>
                           {company.name}
                         </Typography>
+
+
 
                         <Box
                           sx={{
@@ -328,7 +424,7 @@ function TotalCompanies() {
                         </Box>
                       </CardContent>
 
-                      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2  }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Button
                           variant="contained"
                           onClick={() => handleViewClick(company)}
@@ -534,6 +630,24 @@ function TotalCompanies() {
                   >
                     {selectedCompany.accessBlock ? `Unblock Access` : `Block Access`}
                   </Button>
+                  {/* suspend Company */}
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: '#F0F4FF',  // Light Blue Shade
+                      color: '#1E3A8A',  // Dark Blue Shade
+                      borderRadius: '8px',
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      padding: '8px 16px',
+                      '&:hover': {
+                        backgroundColor: '#DFF6E4',
+                      },
+                    }}
+                    onClick={() => handleSuspend(selectedCompany.id)}
+                  >
+                    {selectedCompany?.type === "suspended" ? `Unsuspended` : `Suspended`}
+                  </Button>
 
                 </Box>
               </Box>
@@ -567,9 +681,7 @@ function TotalCompanies() {
                         <Typography variant="body2" sx={{ color: '#555', marginBottom: '4px' }}>
                           📧 {user.email}
                         </Typography>
-                        {/* <Typography variant="body2" sx={{ color: '#555' }}>
-                          📞 {user.phone}
-                        </Typography> */}
+
                       </Box>
                       {/* Role Badge */}
                       <Box
@@ -586,6 +698,27 @@ function TotalCompanies() {
                         }}
                       >
                         {user.role.toUpperCase()}
+                      </Box>
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: '56px',
+                          right: '16px',
+                          backgroundColor: 'transparent' ,
+                          color: '#4CAF50',
+                          borderRadius: '16px',
+                          fontSize: '11px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {user.lastActiveUser === 'just now' ? (
+                          <span style={{ fontSize: '16px', color: '#4CAF50' }}>●</span>
+                        ) : (
+                          user.lastActiveUser
+                        )}
                       </Box>
                     </Card>
                   </Grid>

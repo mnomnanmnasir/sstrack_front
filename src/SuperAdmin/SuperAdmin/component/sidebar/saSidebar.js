@@ -83,7 +83,7 @@ function SaSidebar({ selectedItem, onSelectItem }) {
           Kamran Tariq
         </Typography>
         <Typography variant="body2" style={{ color: '#b0bec5', marginBottom: '20px' }}>
-          kamrantariq@handshr.com
+          kamran@handshr.com
         </Typography>
 
         {/* Menu Items */}
@@ -130,7 +130,7 @@ function SaSidebar({ selectedItem, onSelectItem }) {
         <div style={{ marginTop: 'auto', padding: '10px', textAlign: 'center' }}>
           <Divider style={{ backgroundColor: '#ffffff', marginBottom: '10px' }} />
           <Typography variant="caption" style={{ color: '#b0bec5' }}>
-            Copyright © 2023 By SS Track. <br /> All Rights Reserved
+            Copyright © 2025 By SS Track. <br /> All Rights Reserved
           </Typography>
         </div>
       </Drawer>

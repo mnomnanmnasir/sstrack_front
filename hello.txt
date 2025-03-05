@@ -12,3 +12,19 @@ token issue
 user reports
 team section remove create user
 useraleaves for manager
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+download buttons
+auth issue fixed
+links u[dated
+landing page update
+>>>>>>> 9bcd9e59e8e68aa9afa19d5bcb46164e97e3072a
+>>>>>>> 9a4b82e2d2728e6c069faa9788038b41af3a401d
+
+payrate update
+Abdullah commit
+report issue
+updated
+timeline issue
