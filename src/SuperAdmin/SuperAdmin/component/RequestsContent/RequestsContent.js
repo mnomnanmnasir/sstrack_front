@@ -55,74 +55,95 @@ function RequestsContent() {
       if (response.data.success) {
 
         const pendingRequests = response.data.pending.map((request) => {
-          const company = request.companyId || {};
+          const company = request.companyId || {}; // Prevents undefined error
+          const owner = company?.ownerId || {}; // Prevents undefined error on ownerId
+
           return {
             id: request._id,
             type: 'Pending',
-            name: company.companyName || 'Unknown Company', // Company name from nested object
-            plan: request.paymentPlan || 'N/A', // Use `paymentPlan` or fallback value
-            time: new Date(request.createdAt).toLocaleTimeString(), // Convert timestamp to readable time
+            name: company?.companyName || 'Unknown Company', // Avoids undefined error
+            plan: request.paymentPlan || 'N/A',
+            time: request.createdAt ? new Date(request.createdAt).toLocaleTimeString() : 'N/A',
             details: {
-              email: 'Not Provided', // Placeholder for email
-              userCount: request.userCounts || 'N/A', // User count
+              email: owner?.email || 'Not Provided', // Prevents error if ownerId is missing
+              userCount: request.userCounts || 'N/A',
               paymentPlan: request.paymentPlan || 'N/A',
               contactNumber: request.contactNumber || 'N/A',
               screenshotsTime: request.ssStoredFor || 'N/A',
-              discount: `${request.Discount || '0'}% Discount`, // Add % to discount
-              totalAmount: `$${request.totalAmount || '0'}`, // Add total amount with $
-              billingDate: company.billingDate
+              discount: `${request.Discount || '0'}% Discount`,
+              totalAmount: `$${request.totalAmount || '0'}`,
+              billingDate: company?.billingDate
                 ? new Date(company.billingDate).toLocaleDateString()
-                : 'N/A', // Billing date in readable format
-              cardInfo: company.cardInfo?.find((card) => card.defaultCard) || {}, // Default card details
+                : 'N/A',
+              cardInfo: company.cardInfo?.find((card) => card.defaultCard) || {}, // Avoids error if empty
             },
           };
         });
-        const approvedRequests = response.data.approved.map((request) => {
-          const company = request.companyId || {};
-          return {
-            id: request._id,
-            type: 'Approved',
-            name: company.companyName || 'Unknown Company', // Company name from nested object
-            plan: request.paymentPlan || 'N/A', // Use `paymentPlan` or fallback value
-            time: new Date(request.createdAt).toLocaleTimeString(), // Convert timestamp to readable time
-            details: {
-              email: 'Not Provided', // Placeholder for email
-              userCount: request.userCounts || 'N/A', // User count
-              paymentPlan: request.paymentPlan || 'N/A',
-              contactNumber: request.contactNumber || 'N/A',
-              screenshotsTime: request.ssStoredFor || 'N/A',
-              discount: `${request.Discount || '0'}% Discount`, // Add % to discount
-              totalAmount: `$${request.totalAmount || '0'}`, // Add total amount with $
-              billingDate: company.billingDate
-                ? new Date(company.billingDate).toLocaleDateString()
-                : 'N/A', // Billing date in readable format
-              cardInfo: company.cardInfo?.find((card) => card.defaultCard) || {}, // Default card details
-            },
-          };
-        });
-        const cancelRequests = response.data.cancel.map((request) => {
-          const company = request.companyId || {};
-          return {
-            id: request._id,
-            type: 'Cancelled',
-            name: company.companyName || 'Unknown Company', // Company name from nested object
-            plan: request.paymentPlan || 'N/A', // Use `paymentPlan` or fallback value
-            time: new Date(request.createdAt).toLocaleTimeString(), // Convert timestamp to readable time
-            details: {
-              email: 'Not Provided', // Placeholder for email
-              userCount: request.userCounts || 'N/A', // User count
-              paymentPlan: request.paymentPlan || 'N/A',
-              contactNumber: request.contactNumber || 'N/A',
-              screenshotsTime: request.ssStoredFor || 'N/A',
-              discount: `${request.Discount || '0'}% Discount`, // Add % to discount
-              totalAmount: `$${request.totalAmount || '0'}`, // Add total amount with $
-              billingDate: company.billingDate
-                ? new Date(company.billingDate).toLocaleDateString()
-                : 'N/A', // Billing date in readable format
-              cardInfo: company.cardInfo?.find((card) => card.defaultCard) || {}, // Default card details
-            },
-          };
-        });
+
+        const approvedRequests = Array.isArray(response.data.approved)
+          ? response.data.approved.map((request, index) => {
+            console.log(`Processing Approved Request ${index + 1}:`, request);
+
+            const company = request.companyId || {}; // Handle missing company data
+            const owner = company?.ownerId || {}; // Avoid undefined errors
+
+            return {
+              id: request._id,
+              type: 'Approved',
+              name: company?.companyName || 'Unknown Company',
+              plan: request.paymentPlan || 'N/A',
+              time: request.createdAt ? new Date(request.createdAt).toLocaleTimeString() : 'N/A',
+              details: {
+                email: owner?.email || 'Not Provided',
+                userCount: request.userCounts || 'N/A',
+                paymentPlan: request.paymentPlan || 'N/A',
+                contactNumber: request.contactNumber || 'N/A',
+                screenshotsTime: request.ssStoredFor || 'N/A',
+                discount: `${request.Discount || '0'}% Discount`,
+                totalAmount: `$${request.totalAmount || '0'}`,
+                billingDate: company?.billingDate
+                  ? new Date(company.billingDate).toLocaleDateString()
+                  : 'N/A',
+                cardInfo: company.cardInfo?.find((card) => card.defaultCard) || {},
+              },
+            };
+          })
+          : [];
+
+        console.log('Final Processed Approved Requests:', approvedRequests);
+
+        const cancelRequests = Array.isArray(response.data.cancel)
+          ? response.data.cancel.map((request, index) => {
+            console.log(`Processing Cancelled Request ${index + 1}:`, request);
+
+            const company = request.companyId || {}; // Handle missing company data
+            const owner = company?.ownerId || {}; // Avoid undefined errors
+
+            return {
+              id: request._id,
+              type: 'Cancelled',
+              name: company?.companyName || 'Unknown Company',
+              plan: request.paymentPlan || 'N/A',
+              time: request.createdAt ? new Date(request.createdAt).toLocaleTimeString() : 'N/A',
+              details: {
+                email: owner?.email || 'Not Provided',
+                userCount: request.userCounts || 'N/A',
+                paymentPlan: request.paymentPlan || 'N/A',
+                contactNumber: request.contactNumber || 'N/A',
+                screenshotsTime: request.ssStoredFor || 'N/A',
+                discount: `${request.Discount || '0'}% Discount`,
+                totalAmount: `$${request.totalAmount || '0'}`,
+                billingDate: company?.billingDate
+                  ? new Date(company.billingDate).toLocaleDateString()
+                  : 'N/A',
+                cardInfo: company.cardInfo?.find((card) => card.defaultCard) || {},
+              },
+            };
+          })
+          : [];
+
+        console.log('Final Processed Cancelled Requests:', cancelRequests);
+
 
         setLoading(false);
         setRequests(pendingRequests);
@@ -147,7 +168,11 @@ function RequestsContent() {
     fetchRequests();
     console.log('selected Request', selectedRequest)
   }, [])
+<<<<<<< HEAD
 
+=======
+  console.log('Pending Requests:', pendingRequests);
+>>>>>>> 4e0ea5a8f1ff36a4c785202baec85b9a9e47d9bc
   // const handleTabChange = (event, newValue) => {
   //   setSelectedTab(newValue);
   //   if (newValue === 0) setRequests(pendingRequests);
@@ -361,7 +386,7 @@ function RequestsContent() {
                   {selectedRequest.name}
                 </Typography>
               </Box>
-              {console.log('selectedRequest', selectedRequest.type)}
+              {console.log('selectedRequest', selectedRequest)}
               {/* Action Buttons */}
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mb: 4 }}>
                 <Button
@@ -570,6 +595,7 @@ function RequestsContent() {
             </Box>
           </>
         ) : (
+
           <>
             <Typography variant="h5" fontWeight="bold" sx={{ marginBottom: 2 }}>
               Requests For Enterprise Plan
@@ -588,7 +614,7 @@ function RequestsContent() {
               <Tab label="Canceled" />
             </Tabs>
 
-            {/* List View */}
+            {/* List View */ console.log('checkkkkk', requests)}
             {requests.length === 0 ? (
               <Typography
                 variant="h6"
