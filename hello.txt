@@ -1,4 +1,4 @@
-hello Nim
+ pushhello Nim
 splash screen
 done
 signin issue
@@ -28,3 +28,17 @@ Abdullah commit
 report issue
 updated
 timeline issue
+pricing  section
+auth issue
+new updates
+update links
+demo push
+faq content
+email issue
+fix issues
+attendance update
+url issues ressolveed
+nomaan
+location isses ressolved
+App.css and trackingFile updated
+trackingFile updated
