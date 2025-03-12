@@ -1,241 +1,190 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-// import { useLocation, useNavigate } from "react-router-dom";
-import { useSocket } from "../../../../io";
-// Correct import
 import { useLocation, useNavigate, Link } from "react-router-dom";
-
+import axios from "axios";
+import { setToken } from "../../../../store/authSlice";
 
 function NewHEaderOpions({ language, showVertical = false }) {
-
-    // const navigate = useNavigate();
     const location = useLocation();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const [selectedLink, setSelectedLink] = useState(""); // New state to track the selected link
 
-
-
-    const [showContent, setShowContent] = useState(false);
-
-    const navigate = useNavigate("");
-    const dispatch = useDispatch()
-    const socket = useSocket()
-    let token = localStorage.getItem('token');
+    let token = localStorage.getItem("token");
     let headers = {
-        Authorization: 'Bearer ' + token,
-        'Content-Type': 'application/json'
-    }
-    // console.log(items);
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+    };
+
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
     function scrollToSection(sectionId) {
         const section = document.getElementById(sectionId);
         if (section) {
             window.scrollTo({
                 top: section.offsetTop,
-                behavior: 'smooth',
+                behavior: "smooth",
             });
+        }
+    }
+    console.log('====================================');
+    console.log(selectedLink);
+    console.log('====================================');
+
+    const handleLogin = async (e) => {
+        try {
+            const response = await axios.post(
+                `${apiUrl}/signin/`,
+                {
+                    email: "abdullahofficial2050@gmail.com", // Hardcoded email
+                    password: "12345678",
+                },
+                {
+                    headers: { "Content-Type": "application/json" },
+                }
+            );
+
+            const token = response.data.token;
+            const user = response.data.user; // Assuming user object contains isSplash
+            dispatch(setToken(token));
+            console.log("/dashboard navigation trigger");
+            setTimeout(() => {
+                navigate("/dashboard");
+                window.location.reload();
+            }, 2000);
+        } catch (error) {
+            console.error("Login error:", error);
         }
     };
 
+    // Function to handle clicking and setting the selected link
+    const handleLinkClick = (linkName) => {
+        setSelectedLink(linkName);
+    };
+
     return (
-
         <div className="cursor-pointer mt-3">
-            {/* <Header /> */}
-            <>
-                {/* <HeaderOption /> */}
-                <nav className="navbar navbar-expand-lg navbar-dark" style={{
+            <nav
+                className="navbar navbar-expand-lg navbar-dark"
+                style={{
                     backgroundColor: "transparent",
-
                     borderTopLeftRadius: "10px",
                     borderTopRightRadius: "10px",
-                    // margin: "0px 30px 0 30px",
+                }}
+            >
+                <div className="container-fluid" style={{ position: "relative" }}>
+                    <div>
+                        <div
+                            className={`d-flex amButton ${
+                                showVertical ? "flex-column align-items-start" : "justify-content-end"
+                            }`}
+                            role="search"
+                        >
+                            <Link
+                                to="/"
+                                className={`ownerSectionUser1 ${selectedLink === "home" ? "highlighted" : ""}`}
+                                style={{
+                                    color: "white",
+                                    textDecoration: "none",
+                                    fontSize: "17px",
+                                }}
+                                onClick={() => handleLinkClick("home")}
+                            >
+                                {language === "en" ? "Home" : "الصفحة الرئيسية"}
+                            </Link>
 
-                }}>
-                    {/* <HeaderOption /> */}
-                    <div className="container-fluid" style={{ position: "relative" }}>
-                        {/* <div>
-                        
-                        </div> */}
-                        <div>
-                            <div className={`d-flex amButton ${showVertical ? 'flex-column align-items-start' : 'justify-content-end'}`} role="search">
-                                {/* <div className="ownerSectionUser1 text-white" onClick={() => {
-                                    navigate('/')
-                                }} >
-                                    <p onClick={() => {
-                                        navigate('/')
+                            <Link
+                                to="/aboutUs"
+                                className={`ownerSectionUser1 ${selectedLink === "aboutUs" ? "highlighted" : ""}`}
+                                style={{
+                                    color: "white",
+                                    textDecoration: "none",
+                                    fontSize: "15px",
+                                }}
+                                onClick={() => handleLinkClick("aboutUs")}
+                            >
+                                {language === "en" ? "About Us" : "كيف يعمل"}
+                            </Link>
 
-                                    }}>{language === "en" ? "Home" : "الصفحة الرئيسية"}</p>
-                                </div> */}
-                                {/* <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }}
-                                > */}
-                                    <Link to="/" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', fontSize: '17px' }}> {language === "en" ? "Home" : "الصفحة الرئيسية"}
-                                    </Link>
-                                    {/* <p style={{ margin: 0, fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/aboutUs")}>{language === "en" ? "About Us" : "كيف يعمل"}</p> */}
-                                {/* </div> */}
-                                {/* <div className="ownerSectionUser1 text-white" onClick={() => {
-                                    navigate('/aboutUs')
-                                }} >
-                                    <p style={{ margin: 0, fontSize: '0.8rem', }} 
+                            <Link
+                                to="/product"
+                                className={`ownerSectionUser1 ${selectedLink === "product" ? "highlighted" : ""}`}
+                                style={{
+                                    color: "white",
+                                    textDecoration: "none",
+                                    fontSize: "15px",
+                                }}
+                                onClick={() => handleLinkClick("product")}
+                            >
+                                {language === "en" ? "Product" : "منتج"}
+                            </Link>
 
-                                    onClick={() => {
-                                        navigate('/aboutUs')
-                                    }}
-                                    >{language === "en" ? "About Us" : "من نحن"}</p>
-                                </div> */}
-                                {/* <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }}
-                                > */}
-                                    <Link to="/aboutUs" className="ownerSectionUser1"  style={{ color: 'white', textDecoration: 'none', fontSize: '15px' }}>  {language === "en" ? "About Us" : "كيف يعمل"}
-                                    </Link>
-                                    {/* <p style={{ margin: 0, fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/aboutUs")}>{language === "en" ? "About Us" : "كيف يعمل"}</p> */}
-                                {/* </div> */}
-                                {/* <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }}
-                                > */}
-                                    <Link to="/product" className="ownerSectionUser1"  style={{ color: 'white', textDecoration: 'none', fontSize: '15px' }}>     {language === "en" ? "Product" : "منتج"}
-                                    </Link>
-                                    {/* <p style={{ margin: 0, fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/aboutUs")}>{language === "en" ? "About Us" : "كيف يعمل"}</p> */}
-                                {/* </div> */}
-                                {/* <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }}
-                                >
-                                    <p style={{fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/")}>{language === "en" ? "How It Works" : "كيف يعمل"}</p>
-                                </div> */}
+                            <Link
+                                to="/#"
+                                className={`ownerSectionUser1 ${selectedLink === "pricing" ? "highlighted" : ""}`}
+                                style={{
+                                    color: "white",
+                                    textDecoration: "none",
+                                    fontSize: "15px",
+                                }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    if (window.location.pathname !== "/") {
+                                        navigate("/", { state: { scrollTo: "pricing" } });
+                                    } else {
+                                        scrollToSection("pricing");
+                                    }
+                                    handleLinkClick("pricing"); // Set the selected link when clicked
+                                }}
+                            >
+                                {language === "en" ? "Pricing" : "التسعير"}
+                            </Link>
 
-                                {/* <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }}
-                                > */}
-                                    {/* <Link to="/" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }} onClick={() => location.pathname === "/" ? scrollToSection('pricing') : navigate("/")}>{language === "en" ? "Pricing" : "التسعير"}
-                                    </Link> */}
-                                    <Link to="/#" className="ownerSectionUser1"  style={{ color: 'white', textDecoration: 'none', fontSize: '15px' }}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            if (window.location.pathname !== "/") {
-                                                navigate("/", { state: { scrollTo: "pricing" } });
-                                            } else {
-                                                scrollToSection('pricing'); // Call the scroll function if already on homepage
-                                            }
-                                        }}>{language === "en" ? "Pricing" : "التسعير"}</Link>
-                                    {/* <p style={{ margin: 0, fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/aboutUs")}>{language === "en" ? "About Us" : "كيف يعمل"}</p> */}
-                                {/* </div> */}
+                            <Link
+                                to="/workCards"
+                                className={`ownerSectionUser1 ${selectedLink === "howItWorks" ? "highlighted" : ""}`}
+                                style={{
+                                    color: "white",
+                                    textDecoration: "none",
+                                    fontSize: "15px",
+                                }}
+                               
+                            >
+                                {language === "en" ? "How It Works" : "كيف يعمل"}
+                            </Link>
 
-                                {/* <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }}
-                                > */}
-                                    {/* <Link to="/" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }} onClick={() => location.pathname === "/" ? scrollToSection('pricing') : navigate("/")}>{language === "en" ? "Pricing" : "التسعير"}
-                                    </Link> */}
-                                    <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', fontSize: '15px' }}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            if (window.location.pathname !== "/") {
-                                                navigate("/", { state: { scrollTo: "section1" } });
-                                            } else {
-                                                scrollToSection('section1'); // Call the scroll function if already on homepage
-                                            }
-                                        }}>{language === "en" ? "How It Works" : "كيف يعمل"}</Link>
-                                    {/* <p style={{ margin: 0, fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/aboutUs")}>{language === "en" ? "About Us" : "كيف يعمل"}</p> */}
-                                {/* </div> */}
-                                {/* <div className="ownerSectionUser1 text-white"
-                                >
-                                    <p onClick={() => location.pathname === "/" ? scrollToSection('pricing') : navigate("/")}>{language === "en" ? "Pricing" : "التسعير"}</p>
-                                </div> */}
+                            <Link
+                                to="/"
+                                className={`ownerSectionUser1 ${selectedLink === "contact" ? "highlighted" : ""}`}
+                                style={{
+                                    color: "white",
+                                    textDecoration: "none",
+                                    fontSize: "15px",
+                                }}
+                                onClick={() => {
+                                    location.pathname === "/"
+                                        ? scrollToSection("section3")
+                                        : navigate("/");
+                                    handleLinkClick("contact");
+                                }}
+                            >
+                                {language === "en" ? "Contact Us" : "اتصل بنا"}
+                            </Link>
 
-                                {/* <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }}
-                                > */}
-                                    <Link to="/" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', fontSize: '15px' }} onClick={() => location.pathname === "/" ? scrollToSection('section3') : navigate("/")}>{language === "en" ? "Contact Us" : "اتصل بنا"}
-                                    </Link>
-                                    {/* <p style={{ margin: 0, fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/aboutUs")}>{language === "en" ? "About Us" : "كيف يعمل"}</p> */}
-                                {/* </div> */}
-                                {/* <div className="ownerSectionUser1 text-white"  >
-                                    <p onClick={() => location.pathname === "/" ? scrollToSection('section3') : navigate("/")}>{language === "en" ? "Contact Us" : "اتصل بنا"}</p>
-                                </div> */}
-                            </div>
+                            {/* <Link
+                                to="/#"
+                                className="ownerSectionUser1"
+                                style={{ color: "white", textDecoration: "none", fontSize: "15px" }}
+                                onClick={handleLogin}
+                            >
+                                {language === "en" ? "Demo" : "تجريبي"}
+                            </Link> */}
                         </div>
                     </div>
-                </nav>
-            </>
-
+                </div>
+            </nav>
         </div>
-
-
-    )
+    );
 }
 
 export default NewHEaderOpions;
-
-
-
-
-// import React, { useState } from "react";
-// import { useDispatch } from "react-redux";
-// import { useLocation, useNavigate, Link } from "react-router-dom";
-// import { useSocket } from "../../../../io";
-
-// function NewHeaderOptions({ language, showVertical = false }) {
-//     const location = useLocation();
-//     const navigate = useNavigate();
-//     const dispatch = useDispatch();
-//     const socket = useSocket();
-//     const [isNavbarOpen, setIsNavbarOpen] = useState(false);
-
-//     let token = localStorage.getItem('token');
-//     let headers = {
-//         Authorization: 'Bearer ' + token,
-//         'Content-Type': 'application/json'
-//     };
-
-//     function scrollToSection(sectionId) {
-//         const section = document.getElementById(sectionId);
-//         if (section) {
-//             window.scrollTo({
-//                 top: section.offsetTop,
-//                 behavior: 'smooth',
-//             });
-//         }
-//     }
-
-//     return (
-//         <div className="cursor-pointer mt-3">
-//             <nav className="navbar navbar-expand-lg navbar-dark bg-transparent">
-//                 <div className="container-fluid">
-//                     <button className="navbar-toggler" type="button" onClick={() => setIsNavbarOpen(!isNavbarOpen)}>
-//                         <span className="navbar-toggler-icon"></span>
-//                     </button>
-//                     <div className={`collapse navbar-collapse ${isNavbarOpen ? 'show' : ''}`}>
-//                         <ul className="navbar-nav ms-auto text-center">
-//                             <li className="nav-item">
-//                                 <Link className="nav-link text-white" to="/">{language === "en" ? "Home" : "الصفحة الرئيسية"}</Link>
-//                             </li>
-//                             <li className="nav-item">
-//                                 <Link className="nav-link text-white" to="/aboutUs">{language === "en" ? "About Us" : "كيف يعمل"}</Link>
-//                             </li>
-//                             <li className="nav-item">
-//                                 <Link className="nav-link text-white" to="/product">{language === "en" ? "Product" : "منتج"}</Link>
-//                             </li>
-//                             <li className="nav-item">
-//                                 <Link className="nav-link text-white" to="#" onClick={(e) => {
-//                                     e.preventDefault();
-//                                     if (location.pathname !== "/") {
-//                                         navigate("/", { state: { scrollTo: "pricing" } });
-//                                     } else {
-//                                         scrollToSection('pricing');
-//                                     }
-//                                 }}>{language === "en" ? "Pricing" : "التسعير"}</Link>
-//                             </li>
-//                             <li className="nav-item">
-//                                 <Link className="nav-link text-white" to="#" onClick={(e) => {
-//                                     e.preventDefault();
-//                                     if (location.pathname !== "/") {
-//                                         navigate("/", { state: { scrollTo: "section1" } });
-//                                     } else {
-//                                         scrollToSection('section1');
-//                                     }
-//                                 }}>{language === "en" ? "How It Works" : "كيف يعمل"}</Link>
-//                             </li>
-//                             <li className="nav-item">
-//                                 <Link className="nav-link text-white" to="#" onClick={() => {
-//                                     location.pathname === "/" ? scrollToSection('section3') : navigate("/");
-//                                 }}>{language === "en" ? "Contact Us" : "اتصل بنا"}</Link>
-//                             </li>
-//                         </ul>
-//                     </div>
-//                 </div>
-//             </nav>
-//         </div>
-//     );
-// }
-
-// export default NewHeaderOptions;

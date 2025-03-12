@@ -324,7 +324,7 @@ nav li a {
 }
 
 .logo {
-  width: 230px;
+  width: 260px;
   cursor: pointer;
   margin-left: 10px;
   /* margin-top: -70px; */
@@ -344,12 +344,10 @@ nav li a {
 
 @media only screen and (max-width: 351px) {
   .logo {
-    width: 140px !important;
+    width: 160px !important;
   }
 
 }
-
-
 
 .navbar-nav {
   padding-right: -8px !important;
@@ -1907,6 +1905,23 @@ nav li a {
   /* padding-bottom: 200px; */
   margin-bottom: 50px;
 }
+
+.howItWorksSection {
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 0 0 10px 10px;
+  /* padding-bottom: 200px; */
+  margin-bottom: 50px;
+}
+
+.userDashboardContainer1 {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px 10px 10px 10px;
+  /* padding-bottom: 200px; */
+  margin-bottom: 50px;
+}
+
 
 .companyPlan {
   font-size: 20px;
@@ -6092,7 +6107,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   }
 
   .logo {
-    width: 160px !important;
+    width: 180px !important;
   }
 
   .footerImg {
@@ -6659,4 +6674,49 @@ input[type="number"] {
   .second-card {
       margin-left: -8%;
   }
+}
+
+
+.dropdown1 {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-btn {
+  /* background-color: #7ACB59; */
+  color: '#7ACB59';
+  border: none;
+  padding: 3px 8px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.dropdown-content1 {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 5px;
+  padding: 5px 0;
+  top: 100%; 
+  left: 0;
+}
+
+.dropdown-content1 p {
+  padding: 10px;
+  margin: 0;
+  cursor: pointer;
+  color: #28659C;
+  font-size: 14px;
+}
+
+.dropdown-content1 p:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown1:hover .dropdown-content1 {
+  display: block;
 }

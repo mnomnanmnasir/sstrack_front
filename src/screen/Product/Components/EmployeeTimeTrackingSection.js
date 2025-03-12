@@ -1,19 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import EmployeeTimeTracking from "../../../images/prduct-timetracking-image.png";
 import { FaUserCircle } from "react-icons/fa";
+import { useNavigate, Link } from 'react-router-dom';
+import { useSnackbar, SnackbarProvider } from 'notistack'; // ✅ Import Snackbar
 
-const EmployeeTimeTrackingSection = ({ language }) => {
+const EmployeeTimeTrackingSection = ({ language, isAuthenticated }) => {
   // Content translations
   const translations = {
     en: {
       title: "Employee time tracking software for in-office employees",
       description:
         "Save hours each week using our user-friendly time tracking, automated payroll, and invoicing solution.",
-      placeholder: "Enter your work email",
+      placeholder: "Enter your work",
       buttonText: "Start tracking time",
       testimonial:
-        "We use SS Track for international teams for Time Tracking purposes because we can make sure that people are not unproductive or wasting our time.",
+        "We use SSTRACK.IO for international teams for Time Tracking purposes because we can make sure that people are not unproductive or wasting our time.",
       testimonialAuthor: "Kamran.T / CTO",
     },
     ar: {
@@ -23,12 +25,47 @@ const EmployeeTimeTrackingSection = ({ language }) => {
       placeholder: "أدخل بريدك الإلكتروني الوظيفي",
       buttonText: "ابدأ تتبع الوقت",
       testimonial:
-        "نحن نستخدم SS Track للفرق الدولية لأغراض تتبع الوقت لأنه يمكننا التأكد من أن الناس لا يضيعون وقتنا أو غير منتجين.",
+        "نحن نستخدم SSTRACK.IO للفرق الدولية لأغراض تتبع الوقت لأنه يمكننا التأكد من أن الناس لا يضيعون وقتنا أو غير منتجين.",
       testimonialAuthor: "كامران.ت / المدير الفني",
     },
   };
 
   const t = translations[language || "en"]; // Default to English if no language is specified
+  const { enqueueSnackbar } = useSnackbar(); // ✅ Snackbar Hook
+
+  const [email, setEmail] = useState(""); // Store email input
+  // Handle Form Submission
+  const handleSubmit = (e) => {
+    // e.preventDefault();
+
+    if (!email) {
+      // enqueueSnackbar("Please enter a valid email.", { variant: "error" }); // ✅ Show error message?
+      enqueueSnackbar("Please enter a valid email.", {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "right"
+        }
+      })
+      return;
+    }
+
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    } else {
+      navigate("/signup");
+    }
+  };
+
+  // Handle Enter Key Press
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent form submission default behavior
+      handleSubmit(); // Trigger button click action
+    }
+  };
+
+  const navigate = useNavigate();
 
   return (
     <div style={{ padding: "4rem 0", backgroundColor: "#FFFFFF" }}>
@@ -54,10 +91,15 @@ const EmployeeTimeTrackingSection = ({ language }) => {
               <Form.Control
                 type="email"
                 placeholder={t.placeholder}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 style={{
                   borderRadius: "5px 0 0 5px",
-                  border: "1px solid #ddd",
+                  // border: "1px solid #ddd",
+                  // padding: '-15px'
                 }}
+                onKeyDown={handleKeyDown} // Listen for Enter key press
+                required
               />
               <Button
                 style={{
@@ -66,7 +108,10 @@ const EmployeeTimeTrackingSection = ({ language }) => {
                   borderRadius: "0 5px 5px 0",
                   fontSize: "16px",
                   fontWeight: "500",
+                  // cursor: email ? "pointer" : "not-allowed",
                 }}
+                // disabled={!email} // Disable button if no email
+                onClick={handleSubmit}
               >
                 {t.buttonText}
               </Button>

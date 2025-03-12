@@ -60,9 +60,12 @@ function Product() {
             <ProductSmarter onContactButtonClick={scrollToContactSection} language={language} />
             <ThreeCardsSection onContactButtonClick={scrollToContactSection} language={language} />
             <HowToUseSection onContactButtonClick={scrollToContactSection} language={language} />
-            <FAQ onContactButtonClick={scrollToContactSection} language={language} />
-            <ContactSection language={language} />
-
+            {/* <div id="faq"> */}
+                <FAQ onContactButtonClick={scrollToContactSection} language={language} />
+            {/* </div> */}
+            <div ref={contactSectionRef} id="section3">
+                <ContactSection language={language} />
+            </div>
         </>
     )
 }

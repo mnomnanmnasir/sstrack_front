@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FaClock } from "react-icons/fa";
 import trackingImage from "../../../images/product-smartImage.png"; // Replace with your image path
+import { useNavigate,Link } from 'react-router-dom';
 
 const BenefitsSection = ({ language }) => {
   // Translations object for English and Arabic
@@ -9,24 +10,26 @@ const BenefitsSection = ({ language }) => {
     en: {
       title: "Benefits of a smarter time tracking tool",
       description1:
-        "At SSTrack.io, we believe that productivity thrives on transparency. Our platform was created to revolutionize how teams track their progress, ensuring accountability and fostering collaboration.",
+        "At SSTRACK.IO, we believe that productivity thrives on transparency. Our platform was created to revolutionize how teams track their progress, ensuring accountability and fostering collaboration.",
       description2:
-        "Our solutions are designed to provide real-time insights, streamline workflows, and empower organizations to achieve their goals with confidence. Whether you're managing a remote team or optimizing in-office operations, SSTrack.io is your trusted partner in building a transparent and efficient workplace.",
+        "Our solutions are designed to provide real-time insights, streamline workflows, and empower organizations to achieve their goals with confidence. Whether you're managing a remote team or optimizing in-office operations, SSTRACK.IO is your trusted partner in building a transparent and efficient workplace.",
       buttonText: "Get Started →",
-      linkText: "SSTrack.io",
+      linkText: "SSTRACK.IO",
     },
     ar: {
       title: "فوائد أداة تتبع الوقت الذكية",
       description1:
-        "في SSTrack.io، نؤمن أن الإنتاجية تزدهر بالشفافية. تم إنشاء منصتنا لإحداث ثورة في كيفية تتبع الفرق لتقدمها، مما يضمن المساءلة ويعزز التعاون.",
+        "في SSTRACK.IO، نؤمن أن الإنتاجية تزدهر بالشفافية. تم إنشاء منصتنا لإحداث ثورة في كيفية تتبع الفرق لتقدمها، مما يضمن المساءلة ويعزز التعاون.",
       description2:
-        "تم تصميم حلولنا لتوفير رؤى فورية، وتبسيط سير العمل، وتمكين المؤسسات من تحقيق أهدافها بثقة. سواء كنت تدير فريقًا عن بُعد أو تحسين العمليات المكتبية، فإن SSTrack.io هو شريكك الموثوق في بناء مكان عمل شفاف وفعال.",
+        "تم تصميم حلولنا لتوفير رؤى فورية، وتبسيط سير العمل، وتمكين المؤسسات من تحقيق أهدافها بثقة. سواء كنت تدير فريقًا عن بُعد أو تحسين العمليات المكتبية، فإن SSTRACK.IO هو شريكك الموثوق في بناء مكان عمل شفاف وفعال.",
       buttonText: "ابدأ الآن →",
-      linkText: "SSTrack.io",
+      linkText: "SSTRACK.IO",
     },
   };
 
   const t = translations[language || "en"]; // Default to English if no language is provided
+
+  const navigate = useNavigate();
 
   return (
     <div style={{ padding: "4rem 0", backgroundColor: "#FFFFFF" }}>
@@ -55,6 +58,7 @@ const BenefitsSection = ({ language }) => {
             >
               {t.description2}
             </p>
+            <a href='/signup' className="td-none">
             <Button
               style={{
                 backgroundColor: "#7ACB59",
@@ -63,9 +67,11 @@ const BenefitsSection = ({ language }) => {
                 fontSize: "16px",
                 padding: "10px 20px",
               }}
-            >
+              // onClick={() => navigate("/signup")}
+              >
               {t.buttonText}
             </Button>
+              </a>
           </Col>
 
           {/* Right Image */}

@@ -6,25 +6,39 @@ import "leaflet/dist/leaflet.css";
 import { GoogleMap, LoadScript, Polyline } from "@react-google-maps/api";
 import DatePicker from "react-datepicker";
 import { FaCalendarAlt } from "react-icons/fa";
+import Joyride from 'react-joyride';
+import jwtDecode from 'jwt-decode';
+import SelectBox from '../companyOwner/ownerComponent/selectBox';
+import makeAnimated from 'react-select/animated';
+import axios from 'axios';
 
 
 
 const LocaitonTracking = () => {
+    const [run, setRun] = useState(true);
+    const [stepIndex, setStepIndex] = useState(0);
+    const [users, setUsers] = useState([]);
     const [totalDistance, setTotalDistance] = useState(0); // Total distance in KM
     const [totalTime, setTotalTime] = useState("0h 0m");
-
+    const tokens = localStorage.getItem("token");
+    const items = jwtDecode(JSON.stringify(tokens));
+    const [userID, setuserId] = useState(items?._id)
     const [overviewData, setOverviewData] = useState({
         totalDistance: "0 KM",
         totalTime: "0h : 0m",
     });
-
+    let headers = {
+        Authorization: 'Bearer ' + tokens,
+    }
     const [latestSession, setLatestSession] = useState({
         timeRange: "N/A",
         totalTime: "0h : 0m",
         totalDistance: "0 KM",
     });
 
+
     const [activeSummary, setActiveSummary] = useState([]);
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
     // State to hold map polyline data
     const [polylinePath, setPolylinePath] = useState([]);
@@ -33,25 +47,55 @@ const LocaitonTracking = () => {
     const handleDateChange = (date) => {
         setSelectedDate(date); // Update selected date as a Date object
     };
+    const steps = [
+        {
+            target: '#stepone',
+            content: 'here you can see your location total distance and total time',
+            disableBeacon: true,
+            continuous: true,
+        },
+        {
+            target: '#datePicker',
+            content: 'here you can select the date you want to see your location tracking',
+            continuous: true,
+        },
+        {
+            target: '#mapView',
+            content: 'here you can see routes in map',
+            continuous: true,
+        },
 
+    ];
+    const handleJoyrideCallback = (data) => {
+        const { action, index, status } = data;
+
+        if (action === "next") {
+            setStepIndex(index + 1);
+        }
+        if (status === "finished" || status === "skipped") {
+            setRun(false); // End the tour when finished
+        }
+    };
     const fetchData = async (date) => {
         try {
             const formattedDate = date.toISOString().split("T")[0]; // Format to YYYY-MM-DD
             const token = localStorage.getItem("token");
-
-            const response = await fetch(
-                `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerData?date=${formattedDate}`,
-                {
+            const apiUrl = items?.userType === "user"
+                ? `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerData?date=${formattedDate}`
+                : `https://myuniversallanguages.com:9093/api/v1/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
+                const response = await fetch(apiUrl, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
-                }
-            );
+                });
+        
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // const error = await response.json();
+                // throw new Error(`HTTP error! status: ${response.status}`);
+                console.log('response.status', response)
             }
 
             const data = await response.json();
@@ -111,8 +155,13 @@ const LocaitonTracking = () => {
     // Fetch data whenever the selected date changes
     useEffect(() => {
         fetchData(selectedDate);
-    }, [selectedDate]);
+    }, [selectedDate, userID]);
 
+    const handleSelectUsers = (e) => {
+        setuserId(e?.value)
+        console.log('here', e?.value)
+    }
+    const animatedComponents = makeAnimated();
     useEffect(() => {
         // Determine the initial center of the map
         const initialCenter = polylinePath.length > 0 && polylinePath[0].length > 0
@@ -139,11 +188,62 @@ const LocaitonTracking = () => {
             map.remove();
         };
     }, [polylinePath]);
+    const getManagerEmployees = async () => {
+        try {
+            const response = await axios.get(`${apiUrl}/manager/employees`, { headers });
+            if (response.status === 200) {
+                // Assuming the response contains the list of employees for the manager
+                return response.data.convertedEmployees;
+            } else {
+                console.log("Error fetching manager's employees");
+                return [];
+            }
+        } catch (error) {
+            console.log("Error:", error);
+            return [];
+        }
+    };
+    const getEmployess = async () => {
+        try {
+            const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
+            if (response.status === 200) {
+                const user = items?.userType || "user";
+                let formattedUsers = [];
+
+                if (user === "admin" || user === "owner") {
+                    formattedUsers = response.data.employees.map(emp => ({
+                        value: emp._id,  // Use a unique identifier
+                        label: emp.name  // Use the name as the label
+                    }));
+                } else if (user === "manager") {
+                    const managerEmployees = await getManagerEmployees();
+                    formattedUsers = managerEmployees.map(emp => ({
+                        value: emp._id,
+                        label: emp.name
+                    }));
+                } else {
+                    const userByEmail = response.data.employees.find(emp => items.email === emp.email);
+                    if (userByEmail) {
+                        formattedUsers = [{ value: userByEmail._id, label: userByEmail.name }];
+                    }
+                }
+
+                setUsers(formattedUsers);
+            }
+        } catch (error) {
+            console.log("Error:", error);
+        }
+    };
+
+    const defaultValue = users.length > 0 ? [{ value: users[0].value }] : [];
+    useEffect(() => {
+        getEmployess();
+    }, []);
 
     // // Default to San Francisco if no polylines are available
     // const defaultCenter = { lat: 37.7749, lng: -122.4194 };
 
-    // // Extract the initial center based on the polyline path
+    // Extract the initial center based on the polyline path
     // const initialCenter =
     //     polylinePath.length > 0 && polylinePath[0].length > 0
     //         ? { lat: polylinePath[0][0][0], lng: polylinePath[0][0][1] }
@@ -157,11 +257,6 @@ const LocaitonTracking = () => {
     //     width: "100%",
     //     height: "500px",
     // };
-
-
-
-
-
 
     //google map
     // useEffect(() => {
@@ -213,6 +308,18 @@ const LocaitonTracking = () => {
 
     return (
         <>
+            {items?._id === "679b223b61427668c045c659" && (
+                <Joyride
+                    steps={steps}
+                    run={run}
+                    callback={handleJoyrideCallback}
+                    showProgress
+                    showSkipButton
+                    continuous
+                    scrollToFirstStep
+                />
+
+            )}
             <SnackbarProvider />
             <div className="container">
                 <div className="userHeader">
@@ -227,6 +334,19 @@ const LocaitonTracking = () => {
                     }}
                 >
                     <div style={{ width: "90%", fontFamily: "Arial, sans-serif", }}>
+                        {/* {items?.userType===} */}
+                        {items?.userType !== "user" && (
+                            <div className="crossButtonDiv">
+                                <SelectBox
+                                    onChange={(e) => handleSelectUsers(e)}
+                                    options={users}
+                                    closeMenuOnSelect={true}
+                                    components={animatedComponents}
+                                    defaultValue={defaultValue}
+                                />
+                                {console.dir(users, { depth: null })}
+                            </div>
+                        )}
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px", }}>
                             {/* Overview Data */}
                             <div
@@ -240,7 +360,7 @@ const LocaitonTracking = () => {
                                 <h3 style={{
                                     color: "#2C5282", fontSize: "23px", marginBottom: "10px", fontWeight: "600",
                                 }}>Overview Data</h3>
-                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+                                <div id='stepone' style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px", }}>
                                     {/* Total Distance Card */}
                                     <div
                                         style={{
@@ -426,6 +546,7 @@ const LocaitonTracking = () => {
 
                             {/* Date Picker Wrapper */}
                             <div
+                                id="datePicker"
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
@@ -451,6 +572,7 @@ const LocaitonTracking = () => {
 
                                 {/* DatePicker Input */}
                                 <DatePicker
+
                                     selected={selectedDate}
                                     onChange={handleDateChange}
                                     dateFormat="MMM d, yyyy EEEE" // Example: Dec 9, 2024 Monday
@@ -495,7 +617,7 @@ const LocaitonTracking = () => {
                         </div>
 
                         {/* Map View */}
-                        <div style={{ marginBottom: "20px" }}>
+                        <div id="mapView" style={{ marginBottom: "20px" }}>
                             <h3 style={{ fontSize: "23px", color: "#28659C", fontWeight: "600" }}>
                                 Map View
                             </h3>

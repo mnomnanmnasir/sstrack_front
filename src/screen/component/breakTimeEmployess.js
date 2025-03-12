@@ -56,7 +56,7 @@ const CompanyEmployess = (props) => {
             );
 
             if (response.status === 200) {
-                enqueueSnackbar("Toggle updated successfully!", { variant: "success" });
+                // enqueueSnackbar("Toggle updated successfully!", { variant: "success" });
 
                 // Fetch updated Break Time data if toggle is ON
                 if (isSelected) {
@@ -148,7 +148,12 @@ const CompanyEmployess = (props) => {
             );
 
             if (response.status === 200) {
-                enqueueSnackbar("Break Time successfully submitted!", { variant: "success" });
+                enqueueSnackbar("Break Time successfully submitted!", {variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                })
 
                 // Fetch updated data from backend to reflect changes
                 const updatedResponse = await axios.get(

@@ -117,7 +117,8 @@ function DashboardSplash() {
     }, []);
     function goToDashboard() {
         navigate("/dashboard");
-        // window.location.reload();
+        window.location.reload();
+
     }
     return (
         <div style={{ backgroundColor: 'white', minWidth: '100vw' }}>

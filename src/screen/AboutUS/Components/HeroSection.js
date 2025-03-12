@@ -1,29 +1,32 @@
 import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
+import { useNavigate, Link } from 'react-router-dom';
 
 const HeroSection = ({ language }) => {
   // Translations for English and Arabic
   const translations = {
     en: {
-      aboutTitle: "ABOUT SS TRACK.IO",
+      aboutTitle: "ABOUT SSTRACK.IO",
       mainHeading: "Seamless Presence Tracking for Smarter Businesses",
       description:
-        "Track presence, manage seamlessly, and collaborate smarter with SS Track.io— built for efficiency across all major platforms.",
+        "Track presence, manage seamlessly, and collaborate smarter with SSTRACK.IO— built for efficiency across all major platforms.",
       buttonText: "Get Started →",
     },
     ar: {
-      aboutTitle: "حول SS TRACK.IO",
+      aboutTitle: "حول SSTRACK.IO",
       mainHeading: "تتبع الحضور بسلاسة للشركات الذكية",
       description:
-        "تتبع الحضور، قم بالإدارة بسلاسة، وتعاون بذكاء مع SS Track.io - مصمم لتحقيق الكفاءة عبر جميع المنصات الرئيسية.",
+        "تتبع الحضور، قم بالإدارة بسلاسة، وتعاون بذكاء مع SSTRACK.IO - مصمم لتحقيق الكفاءة عبر جميع المنصات الرئيسية.",
       buttonText: "ابدأ الآن →",
     },
   };
 
   const t = translations[language || "en"]; // Default to English if no language is provided
 
+  const navigate = useNavigate();
+
   return (
-    <div
+    <div id="section5"
       style={{
         backgroundImage: `url(${require('../../../images/aboutUShero.png')})`,
         backgroundSize: 'cover',
@@ -106,6 +109,7 @@ const HeroSection = ({ language }) => {
                 borderRadius: '5px',
                 cursor: 'pointer',
               }}
+              onClick={() => navigate("/signup")}
             >
               {t.buttonText}
             </Button>

@@ -150,7 +150,7 @@ function PricingSection({ language }) {
                         <Row className="align-items-start justify-content-between g-4"> {/* Added `g-4` for uniform spacing */}
 
                             {/* Enterprise Title & Pricing */}
-                            <Col xs={12} md={3} className="text-md-start text-center d-flex flex-column">
+                            <Col xs={6} sm={12} md={3} className="text-md-start text-center d-flex flex-column">
                                 <h3 className="fw-bold border-bottom pb-2">
                                     {language === "ar" ? "المؤسسة" : "Enterprise"}
                                 </h3>
@@ -159,15 +159,19 @@ function PricingSection({ language }) {
                                 </p>
                                 <h4 style={{ color: '#000' }} className="fw-bold">
                                     $ <span style={{ color: '#7ACB59' }}>
-                                        {language === "ar" ? "تسعير مخصص" : "Custom Pricing"}
+                                        {language === "ar" ? "تسعير مخصص" : "20 / user / month"}
                                     </span>
                                 </h4>
-
-                                <h6 style={{ color: '#000' }} className="text-muted mt-3">
-                                     <span>
-                                        {language === "ar" ? "تسعير مخصص" : "Custom Pricing"}
+                                
+                                <h6 style={{ color: '#000' }} className="mt-3">
+                                    <span className="fw-bold">
+                                        {language === "ar" ? "تسعير مخصص" : "30-day free trial"}
+                                    </span>
+                                    <span className="text-muted">
+                                        {" "}({language === "ar" ? "لا يلزم بطاقة ائتمان" : "No credit card required"})
                                     </span>
                                 </h6>
+
                                 <p className="text-muted mt-3" style={{ fontSize: '14px' }}>
                                     {language === "ar"
                                         ? "مصمم خصيصًا للمؤسسات التي لديها احتياجات معقدة—دعنا نخصص خطة لك."
@@ -176,7 +180,7 @@ function PricingSection({ language }) {
                             </Col>
 
                             {/* Features List 1 */}
-                            <Col xs={12} md={3} className="text-md-start d-flex flex-column" style={{marginTop: '3.5%'}}>
+                            <Col xs={6} sm={12} md={3} className="text-md-start text-center d-flex flex-column" style={{ marginTop: '3.5%' }}>
                                 <p className="text-muted fw-semibold" style={{ fontSize: '15px' }}>
                                     {language === "ar" ? "يتضمن جميع ميزات خطة Pro، بالإضافة إلى:" : "Includes all Pro Plan features, plus:"}
                                 </p>
@@ -190,7 +194,7 @@ function PricingSection({ language }) {
                             </Col>
 
                             {/* Features List 2 */}
-                            <Col xs={12} md={3} className=" text-md-start d-flex flex-column" style={{ marginTop: '5.5%' }}>
+                            <Col xs={6} sm={12} md={3} className=" text-md-start text-center d-flex flex-column" style={{ marginTop: '5.5%' }}>
                                 <ul className="list-unstyled">
                                     {[
                                         isArabic ? "خيارات العلامة البيضاء" : "White-labeling options (custom branding)",
@@ -205,10 +209,10 @@ function PricingSection({ language }) {
                             </Col>
 
                             {/* Contact Us Button - Centered */}
-                            <Col xs={12} md={3} className="d-flex align-items-center justify-content-center" style={{ marginTop: '8%' }}>
+                            <Col xs={6} sm={12} md={3} className="d-flex align-items-center text-center justify-content-center" style={{ marginTop: '8%' }}>
                                 <Button
                                     variant="success"
-                                    className="px-4 py-2 w-50"
+                                    className="px-4 py-2 w-70"
                                     onClick={() => setShowModal(true)}
                                     style={{
                                         backgroundColor: "#7ACB59",

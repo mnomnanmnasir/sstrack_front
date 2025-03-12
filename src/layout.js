@@ -26,7 +26,7 @@ const Layout = () => {
     setLanguage(language === 'en' ? 'ar' : 'en');
   };
   const contactSectionRef = useRef(null); // Create a ref for ContactSection
-
+  
   const scrollToContactSection = () => {
     if (contactSectionRef.current) {
       contactSectionRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -48,6 +48,9 @@ const Layout = () => {
           location.pathname === "/privacy-policy" ||
           location.pathname === "/privacy-policy1" ||
           location.pathname === "/privacy-policy2" ||
+          // location.pathname === "/effective-settings/break-time" ||
+          location.pathname === "/privacy-policy2" ||
+          location.pathname === "/workCards" ||
           location.pathname === "/aboutUs" ||
           location.pathname === "/product" ||
           location.pathname === "/splash" ||
@@ -57,7 +60,6 @@ const Layout = () => {
           <></>
         ) : (
           location.pathname !== "/capture-screen" && token && <UserHeader />
-
         )
       }
       <div>

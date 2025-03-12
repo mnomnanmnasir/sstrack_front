@@ -28,13 +28,15 @@ import axios from "axios";
 import crossButton from "../images/cross.webp";
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import jwtDecode from "jwt-decode";
+import Joyride from "react-joyride";
 // import Footer from '../screen/component/footer'
 
 
 function OwnerReport() {
     let token = localStorage.getItem('token');
     const items = jwtDecode(JSON.stringify(token));
-
+    const [run, setRun] = useState(true);
+    const [stepIndex, setStepIndex] = useState(0);
     const year = new Date().getFullYear()
     // let token = localStorage.getItem('token');
     const [startDate, setStartDate] = useState();
@@ -45,7 +47,34 @@ function OwnerReport() {
     const [reportType, setReportType] = useState("daily"); // Added to store the report type
     const [userType, setUserType] = useState(items?.userType || 'user');
     const [expandedEmployee, setExpandedEmployee] = useState(null);
+    const steps = [
+        {
+            target: '#activityChart',
+            content: 'here you can see your activity chart',
+            // disableBeacon: true,
+            continuous: true,
+        },
+        {
+            target: '#times',
+            content: 'here you can choose filter and select the range of dates',
+        },
+        {
+            target: '#indivisualUser',
+            content: 'here you can see reports of each indivisual users',
+        },
 
+
+    ];
+    const handleJoyrideCallback = (data) => {
+        const { action, index, status } = data;
+
+        if (action === "next") {
+            setStepIndex(index + 1);
+        }
+        if (status === "finished" || status === "skipped") {
+            setRun(false); // End the tour when finished
+        }
+    };
     const handleExpand = (employee) => {
         if (expandedEmployee === employee) {
             setExpandedEmployee((prevExpanded) => (prevExpanded === employee ? null : employee));
@@ -211,30 +240,121 @@ function OwnerReport() {
     };
 
 
-
-
     const getData = async () => {
-        setLoading(true);
-        try {
-            const url = employeeId
-                ? `${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`
-                : `${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`;
+        if (!startDate || !endDate) {
+            console.error("🚨 Error: Start Date or End Date is missing!");
+            return;
+        }
 
+        setLoading(true);
+
+        try {
+            // 🛠 Ensure dates are properly formatted
+            const formattedStartDate = new Date(startDate).toISOString().split("T")[0];
+            const formattedEndDate = new Date(endDate).toISOString().split("T")[0];
+
+            // 🔗 Initialize URL Variable (IMPORTANT)
+            let url = ""; // ✅ Ensure URL is always defined
+
+            // 🔗 Construct API URL based on User Type
+            if (userType === "admin" || userType === "owner") {
+                url = `${apiUrl}/owner/day?startDate=${formattedStartDate}&endDate=${formattedEndDate}`;
+                if (employeeId) {
+                    url += `&userId=${Array.isArray(employeeId) ? employeeId.join(",") : employeeId}`;
+                }
+            } else if (userType === "manager") {
+                url = `${apiUrl}/manager/day?startDate=${formattedStartDate}&endDate=${formattedEndDate}`;
+            } else {
+                url = `${apiUrl}/timetrack/day?startDate=${formattedStartDate}&endDate=${formattedEndDate}`;
+                if (employeeId) {
+                    url += `&userId=${Array.isArray(employeeId) ? employeeId.join(",") : employeeId}`;
+                }
+            }
+
+            // ✅ Debugging Logs
+            console.log("🔗 API Request URL:", url);
+            console.log("👤 User Type:", userType);
+            console.log("📅 Formatted Dates:", { formattedStartDate, formattedEndDate });
+
+            // 🛠 Ensure headers are correctly set
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("🚨 No Token Found!");
+                return;
+            }
+            let headers = {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            };
+            console.log("🛠 Headers:", headers);
+
+            // 🚀 Ensure URL is not empty before calling API
+            if (!url) {
+                console.error("🚨 Error: API URL is empty! Cannot make a request.");
+                return;
+            }
+
+            // 🚀 API Call using GET
             const response = await axios.get(url, { headers });
 
-            console.log('API Request URL:', url);
-            if (response.status === 200) {
-                console.log('New Api response', response);
+            // 🛠 Check API Response
+            if (response && response.status === 200) {
+                console.log("✅ API Response:", response.data);
+                if (!response.data || Object.keys(response.data).length === 0) {
+                    console.warn("⚠️ Warning: API Response is empty!");
+                }
                 setReportData(response.data?.data);
+            } else {
+                console.error("⚠️ API returned a non-200 status:", response.status);
             }
         } catch (error) {
-            console.log(error);
+            console.error("🚨 API Error:", error);
+
+            if (error.response) {
+                console.error("📌 Response Data:", error.response.data);
+                console.error("📌 Status Code:", error.response.status);
+                console.error("📌 Headers:", error.response.headers);
+
+                // 🚀 If `GET` fails, try `POST`
+                if (error.response.status === 405 || error.response.status === 400) {
+                    try {
+                        let url = ""; // ✅ Ensure URL is always defined
+                        console.log("🔄 Trying API with POST...");
+                        const response = await axios.post(url, {}, { headers });
+                        if (response.status === 200) {
+                            console.log("✅ API Response (POST):", response.data);
+                            setReportData(response.data?.data);
+                        }
+                    } catch (postError) {
+                        console.error("🚨 POST API Error:", postError);
+                    }
+                }
+
+            } else if (error.request) {
+                console.error("📌 No Response from API:", error.request);
+            } else {
+                console.error("📌 General Error:", error.message);
+            }
         } finally {
             setLoading(false);
         }
     };
 
-
+    // const getData = async () => {
+    //     setLoading(true)
+    //     try {
+    //         const response = await axios.get(`${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
+    //         if (response.status === 200) {
+    //             console.log('New Api response', response);
+    //             setLoading(false)
+    //             setReportData(response.data?.data)
+    //         }
+    //     }
+    //     catch (error) {
+    //         setLoading(false)
+    //         console.log(error);
+    //     }
+    // }
 
     useEffect(() => {
         if (startDate && endDate) {
@@ -284,6 +404,11 @@ function OwnerReport() {
     // useEffect(() => {
     //   getManagers();
     // }, []);
+
+    const formatDate = (date) => {
+        if (!date) return ""; // Agar date undefined ya null ho to empty string return karein
+        return date.toISOString().split("T")[0]; // YYYY-MM-DD format
+    };
 
     const getManagerEmployees = async () => {
         try {
@@ -365,32 +490,86 @@ function OwnerReport() {
     //     throw new Error('Failed to fetch reports');
     //   }
     // };
+    useEffect(() => {
+        if (!startDate || !endDate) {
+            return; // Agar date select nahi hui to API call na ho
+        }
 
-    const getReports = async () => {
+        console.log("🟢 Checking API conditions:");
+        console.log("👤 User Type:", userType);
+        console.log("📅 Start Date:", startDate);
+        console.log("📅 End Date:", endDate);
+        console.log("🔍 Employee ID:", employeeId);
+
+        if (userType === "user" && employeeId) {
+            // Sirf normal user login kare to ye API call ho
+            getUserReports();
+        } else {
+            // Baqi admin, owner aur manager kay liye purani API chalayein
+            getReports();
+        }
+    }, [startDate, endDate, employeeId, userType]);
+
+    const getUserReports = async () => {
         setLoading(true);
+
         try {
-            let response;
-            if (userType === 'admin' || userType === 'owner') {
-                // Fetch reports for all users
-                response = await axios.get(`${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
-            } else if (user === 'manager') {
-                // If user is a manager, filter managers based on the logged-in manager's ID
-                const loggedInManager = response.data.employees.find(employee => employee.email === items.email);
-                if (loggedInManager) {
-                    return response.data.employees.filter(employee => employee.managerId === loggedInManager._id);
-                } else {
-                    return [];
-                }
-            } else {
-                // Fetch reports for a single user
-                response = await axios.get(`${apiUrl}/timetrack/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
-            }
+            const formattedStartDate = formatDate(startDate);
+            const formattedEndDate = formatDate(endDate);
+
+            const url = `${apiUrl}/timetrack/day?startDate=${formattedStartDate}&endDate=${formattedEndDate}`;
+
+            console.log("🔗 User API Request URL:", url);
+
+            const response = await axios.get(url, { headers });
+
             if (response.status === 200) {
-                console.log(response);
+                console.log("✅ User API Response:", response.data);
                 setReportData(response.data.data);
             }
         } catch (err) {
-            console.log(err);
+            console.error("🚨 User API Error:", err);
+        }
+
+        setLoading(false);
+    };
+
+
+    const getReports = async () => {
+        if (!startDate || !endDate) {
+            console.log("🚨 Error: Start Date or End Date is missing!");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            // const formattedStartDate = formatDate(startDate);
+            // const formattedEndDate = formatDate(endDate);
+            const formattedStartDate = new Date(startDate).toISOString().split("T")[0]; // YYYY-MM-DD
+            const formattedEndDate = new Date(endDate).toISOString().split("T")[0]; // YYYY-MM-DD
+
+            console.log("📅 Start Date:", formattedStartDate);
+            console.log("📅 End Date:", formattedEndDate);
+
+            let url = "";
+            if (userType === "admin" || userType === "owner") {
+                url = `${apiUrl}/owner/day?startDate=${formattedStartDate}&endDate=${formattedEndDate}&userId=${employeeId}`;
+            } else if (userType === "manager") {
+                url = `${apiUrl}/manager/day?startDate=${formattedStartDate}&endDate=${formattedEndDate}`;
+            } else {
+                url = `${apiUrl}/timetrack/day?startDate=${formattedStartDate}&endDate=${formattedEndDate}&userId=${employeeId}`;
+            }
+
+            console.log("🔗 API Request URL:", url);
+
+            const response = await axios.get(url, { headers });
+
+            if (response.status === 200) {
+                console.log("✅ API Response:", response.data);
+                setReportData(response.data.data);
+            }
+        } catch (err) {
+            console.error("🚨 API Error:", err);
         }
         setLoading(false);
     };
@@ -647,7 +826,17 @@ function OwnerReport() {
     return (
         <>
             {/* <UserHeader /> */}
-
+            {items?._id === "679b223b61427668c045c659" && (
+                <Joyride
+                    steps={steps}
+                    run={run}
+                    callback={handleJoyrideCallback}
+                    showProgress
+                    showSkipButton
+                    continuous
+                    scrollToFirstStep
+                />
+            )}
             <div>
                 <div className="container">
                     <div className="userHeader">
@@ -660,7 +849,7 @@ function OwnerReport() {
                         <div className="summaryContainer">
                             <div className="calenderDiv">
 
-                                <div className="calenderInnerDiv">
+                                <div id='times' className="calenderInnerDiv">
                                     <div className="dateDiv">
                                         <div>           <button>
                                             <DatePicker
@@ -843,9 +1032,7 @@ function OwnerReport() {
                                     components={animatedComponents}
                                     defaultValue={defaultValue}
                                     isMulti={true}
-                                // maxValues={1} // Limit the number of selections to 1
-                                // isClearable={true} // Allow the user to clear the selection
-                                // value={selectedUsers.length > 0 ? selectedUsers[0] : null} // Set the value to the first selected user
+
                                 />
                                 {console.log("User Detials", user)}
                             </div>
@@ -872,7 +1059,7 @@ function OwnerReport() {
                             {/* <div className="summaryButton">
               <button className="activeButton">Show Reports</button>
             </div> */}
-                            <div className="adminReport4" style={{ backgroundColor: '#F5F5F5' }}>
+                            <div id="activityChart" className="adminReport4" style={{ backgroundColor: '#F5F5F5' }}>
                                 {loading ? (
                                     <div className="loader"></div>
                                 ) : reportData ? (
@@ -900,199 +1087,144 @@ function OwnerReport() {
                                     <div className="loader"></div>
                                 )}
                             </div>
+                            <div id="indivisualUser">
+                                <div className="employeeDiv">
+                                    <p>{"± Employees / ± Projects"}</p>
+                                    <div className="durationDiv">
+                                        <p>Duration</p>
+                                        <p>Activity</p>
+                                        <p>PayRate</p>
 
-                            <div className="employeeDiv">
-                                <p>{"± Employees / ± Projects"}</p>
-                                <div className="durationDiv">
-                                    <p>Duration</p>
-                                    <p>Activity</p>
-                                    <p>PayRate</p>
-
+                                    </div>
                                 </div>
-                            </div>
-                            {/* Debugging: Output user type and report data to console */}
-                            {console.log("userType:", userType)}
-                            {console.log("reportData:", reportData)}
-                            {console.log("reportData.allUsers:", reportData && reportData.allUsers)}
-
-                            {(userType === "admin" || userType === "owner" || userType === 'user' || userType === 'manager') && reportData && reportData.allUsers ? (
-                                reportData.allUsers.map((data, index) => (
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <div className="asadMehmoodDiv" key={index}>
-                                            <div onClick={() => handleExpand(data?.employee)}>
-                                                <p>
-                                                    {/* <FaPlus /> Add */}
-                                                    <p>{expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />}
-                                                        {/* <img src={expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />} alt="Toggle" /> */}
-                                                        {/* <img src={expandedEmployee === data?.employee ? crossButton : addButton} alt="Toggle" /> */}
-                                                        <span>{data?.employee}</span>
+                                {(userType === "admin" || userType === "owner" || userType === 'user' || userType === 'manager') && reportData && reportData.allUsers ? (
+                                    reportData.allUsers.map((data, index) => (
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <div className="asadMehmoodDiv" key={index}>
+                                                <div onClick={() => handleExpand(data?.employee)}>
+                                                    <p>
+                                                        {/* <FaPlus /> Add */}
+                                                        <p>{expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />}
+                                                            {/* <img src={expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />} alt="Toggle" /> */}
+                                                            {/* <img src={expandedEmployee === data?.employee ? crossButton : addButton} alt="Toggle" /> */}
+                                                            <span>{data?.employee}</span>
+                                                        </p>
                                                     </p>
-                                                </p>
+                                                </div>
+                                                {console.log('Report Data selectUsers', reportData)}
+                                                <div className="durationDiv">
+                                                    <p>{data?.Duration}</p>
+                                                    <p>{Math.floor(data?.Activity)} %</p>
+                                                    <p>{Math.floor(data?.payRate)} </p>
+
+                                                </div>
                                             </div>
-                                            {console.log('Report Data selectUsers', reportData)}
-                                            <div className="durationDiv">
-                                                <p>{data?.Duration}</p>
-                                                <p>{Math.floor(data?.Activity)} %</p>
-                                                <p>{Math.floor(data?.payRate)} </p>
+                                            {expandedEmployee === data?.employee && (
+                                                <div className="expandedDetails">
+                                                    {data?.projects
+                                                        ?.filter((project, index, projectsArray) => {
 
-                                            </div>
-                                        </div>
-                                        {expandedEmployee === data?.employee && (
-                                            <div className="expandedDetails">
-                                                {data?.projects
-                                                    ?.filter((project, index, projectsArray) => {
+                                                            if (projectsArray.length > 1) {
+                                                                return project.projectname !== null;
+                                                            }
+                                                            return true;
+                                                        })
+                                                        ?.map((project, projectIndex) => (
+                                                            <div key={projectIndex} className="asadMehmoodkabhaiDiv">
 
-                                                        if (projectsArray.length > 1) {
-                                                            return project.projectname !== null;
-                                                        }
-                                                        return true;
-                                                    })
-                                                    ?.map((project, projectIndex) => (
-                                                        <div key={projectIndex} className="asadMehmoodkabhaiDiv">
-
-                                                            <p >{project?.projectname || 'No project name'}</p>
-                                                            <div className="durationDiv">
-                                                                <p>{project.hours || 'No duration'}</p>
-                                                                <p>{project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                                                                <p>{Math.floor(project.payRate)}</p>
+                                                                <p >{project?.projectname || 'No project name'}</p>
+                                                                <div className="durationDiv">
+                                                                    <p>{project.hours || 'No duration'}</p>
+                                                                    <p>{project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+                                                                    <p>{Math.floor(project.payRate)}</p>
+                                                                </div>
                                                             </div>
+                                                        ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                ) : (
+                                    userType === "owner" && reportData ? (
+                                        <div className="asadMehmoodDiv">
+                                            <div onClick={() => handleExpand(reportData?.employee)}>
+                                                <p>
+                                                    <img
+                                                        src={expandedEmployee === reportData?.employee ? crossButton : ""}
+                                                        alt="Toggle"
+                                                    />
+                                                    <span>{reportData?.employee}</span></p>
+                                            </div>
+                                            <div className="durationDiv">
+                                                <p>{reportData?.Duration}</p>
+                                                <p>{Math.floor(reportData?.Activity)} %</p>
+                                            </div>
+                                            {expandedEmployee === reportData?.employee && (
+                                                <div className="expandedDetails">
+                                                    {reportData?.projects?.map((project, projectIndex) => (
+                                                        <div key={projectIndex} className="projectDetails">
+                                                            <p>Project Name: {project.projectname || 'No project name'}</p>
+                                                            <p>Duration: {project.hours || 'No duration'}</p>
+                                                            {/* <p>{Math.floor(data?.payRate)} %</p> */}
+                                                            {console.log("Report Total Hours", project.hours)}
+                                                            <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+                                                            <p>{Math.floor(project.payRate)} %</p>
+
                                                         </div>
                                                     ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))
-                            ) : (
-                                userType === "owner" && reportData ? (
-                                    <div className="asadMehmoodDiv">
-                                        <div onClick={() => handleExpand(reportData?.employee)}>
-                                            <p>
-                                                <img
-                                                    src={expandedEmployee === reportData?.employee ? crossButton : ""}
-                                                    alt="Toggle"
-                                                />
-                                                <span>{reportData?.employee}</span></p>
-                                        </div>
-                                        <div className="durationDiv">
-                                            <p>{reportData?.Duration}</p>
-                                            <p>{Math.floor(reportData?.Activity)} %</p>
-                                        </div>
-                                        {expandedEmployee === reportData?.employee && (
-                                            <div className="expandedDetails">
-                                                {reportData?.projects?.map((project, projectIndex) => (
-                                                    <div key={projectIndex} className="projectDetails">
-                                                        <p>Project Name: {project.projectname || 'No project name'}</p>
-                                                        <p>Duration: {project.hours || 'No duration'}</p>
-                                                        {/* <p>{Math.floor(data?.payRate)} %</p> */}
-                                                        {console.log("Report Total Hours", project.hours)}
-                                                        <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                                                        <p>{Math.floor(project.payRate)} %</p>
-
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    userType === 'manager' && reportData ? (
-                                        <>
-                                            {reportData ? (
-                                                reportData.allUsers.map((data, index) => (
-                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                        <div className="asadMehmoodDiv" key={index}>
-                                                            <div onClick={() => handleExpand(data?.employee)}>
-                                                                <p><img src={expandedEmployee === reportData?.employee ? crossButton : ""} alt="Toggle" /><span>{data?.employee}</span></p>
-                                                            </div>
-                                                            <div className="durationDiv">
-                                                                <p>{data?.Duration}</p>
-                                                                <p>{Math.floor(data?.Activity)} %</p>
-                                                                <p>{Math.floor(data?.payRate)} %</p>
-                                                            </div>
-                                                        </div>
-                                                        {expandedEmployee === data?.employee && (
-                                                            <div className="expandedDetails">
-                                                                {data?.projects?.map((project, projectIndex) => (
-                                                                    <div key={projectIndex} className="projectDetails">
-                                                                        <p>Project Name: {project.projectname || 'No project name'}</p>
-                                                                        <p>Duration: {project.hours || 'No duration'}</p>
-                                                                        <p>{Math.floor(project.payRate)} %</p>
-
-                                                                        <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <div>No data available for the manager</div>
+                                                </div>
                                             )}
-                                        </>
+                                        </div>
                                     ) : (
-                                        <>
-                                            {/* <div className="container">
+                                        userType === 'manager' && reportData ? (
+                                            <>
+                                                {reportData ? (
+                                                    reportData.allUsers.map((data, index) => (
+                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                            <div className="asadMehmoodDiv" key={index}>
+                                                                <div onClick={() => handleExpand(data?.employee)}>
+                                                                    <p><img src={expandedEmployee === reportData?.employee ? crossButton : ""} alt="Toggle" /><span>{data?.employee}</span></p>
+                                                                </div>
+                                                                <div className="durationDiv">
+                                                                    <p>{data?.Duration}</p>
+                                                                    <p>{Math.floor(data?.Activity)} %</p>
+                                                                    <p>{Math.floor(data?.payRate)} %</p>
+                                                                </div>
+                                                            </div>
+                                                            {expandedEmployee === data?.employee && (
+                                                                <div className="expandedDetails">
+                                                                    {data?.projects?.map((project, projectIndex) => (
+                                                                        <div key={projectIndex} className="projectDetails">
+                                                                            <p>Project Name: {project.projectname || 'No project name'}</p>
+                                                                            <p>Duration: {project.hours || 'No duration'}</p>
+                                                                            <p>{Math.floor(project.payRate)} %</p>
+
+                                                                            <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div>No data available for the manager</div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <>
+                                                {/* <div className="container">
                         {reportData && reportData.allUsers ? (
                           reportData.allUsers.map(renderEmployeeData)
                         ) : (
                           <div>No data available</div>
                         )}
                       </div> */}
-                                        </>
+                                            </>
+                                        )
                                     )
-                                )
-                            )}
-                            {/* {reportData?.allUsers?.map((data, index) => {
-              return (
-                <div className="asadMehmoodDiv">
-                  <div>
-                    <p>
-                      <img src={addButton} />
-                      <span>{data?.employee}</span>
-                    </p>
-                  </div>
-                  <div className="durationDiv">
-                    <p>{data?.Duration}</p>
-                    <p>{Math.floor(data.Activity)} %</p>
-                  </div>
-                </div>
-              );
-            })} */}
-                            {/* {filteredData.length > 0 ? (
-              filteredData.map((data, index) => {
-                return (
-                  <div className="asadMehmoodDiv">
-                    <div>
-                      <p>
-                        <img src={addButton} />
-                        <span>{data.employee}</span>
-                      </p>
-                    </div>
-                    <div className="durationDiv">
-                      <p>{data.Duration}</p>
-                      <p>{Math.floor(data.Activity)} %</p>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              reportData?.allUsers?.map((data, index) => {
-                return (
-                  <div className="asadMehmoodDiv">
-                    <div>
-                      <p>
-                        <img src={addButton} />
-                        <span>{data?.employee}</span>
-                      </p>
-                    </div>
-                    <div className="durationDiv">
-                      <p>{data?.Duration}</p>
-                      <p>{Math.floor(data?.Activity)} %</p>
-                    </div>
-                  </div>
-                );
-              })
-            )} */}
+                                )}
+                            </div>
                             {/* {filteredData.map((data, index) => {
               return (
                 <div className="asadMehmoodDiv">

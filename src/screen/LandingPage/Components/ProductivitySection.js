@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import productivityImage from "../../../images/break.svg"; // Replace with your image path
-import { useNavigate } from "react-router-dom";
+import productivityImage from "../../../images/break.png"; // Replace with your image path
+import { useNavigate, Link } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function ProductivitySection({ language }) {
@@ -13,9 +13,9 @@ function ProductivitySection({ language }) {
                 <Row className="align-items-center justify-content-center ">
                     {/* Left Column (Text Section) */}
                     <Col xs={12} md={6} lg={5} className="d-flex flex-column justify-content-center align-items-md-start align-items-center text-center text-md-start mb-4">
-                    {/* Subtitle */}
+                        {/* Subtitle */}
                         <p className="text-muted small mb-2 card-title-responsive">
-                            {language === "en" ? "Productivity Focused" : "يركز على الإنتاجية"}
+                            {language === "en" ? "With Advanced Reporting" : "مع التقارير المتقدمة"}
                         </p>
 
                         {/* Title */}
@@ -23,7 +23,7 @@ function ProductivitySection({ language }) {
                             {language === "en" ? "Achieve more Productivity" : "حقق المزيد من الإنتاجية"}{" "}
                             <br />
                             {language === "en" ? "with" : "مع"}{" "}
-                            <span style={{ color: "#7ACB59" }}>SS Track.io</span>
+                            <span style={{ color: "#7ACB59" }}>SSTRACK.IO</span>
                         </h1>
 
                         {/* Description */}
@@ -68,24 +68,30 @@ function ProductivitySection({ language }) {
                         </ul>
 
                         {/* CTA Button */}
-                        <Button
-                            variant="success"
-                            className="mt-3 card-title-responsive"
-                            size="lg"
-                            onClick={() => navigate("/signup")}
-                            style={{
-                                backgroundColor: "#7ACB59",
-                                color: "#FFFFFF",
-                                fontSize: "16px",
-                                fontWeight: "500",
-                                padding: "10px 20px",
-                                borderRadius: "8px",
-                                border: "none",
-                                cursor: "pointer",
-                            }}
+                        <Link
+                            to="/signup"
+                            state={{ scrollTo: "signUp-btn" }}
+                            style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
                         >
-                            {language === "en" ? "Get Started →" : "ابدأ الآن →"}
-                        </Button>
+                            <Button
+                                variant="success"
+                                className="mt-3 card-title-responsive"
+                                size="lg"
+                                // onClick={() => navigate("/signup")}
+                                style={{
+                                    backgroundColor: "#7ACB59",
+                                    color: "#FFFFFF",
+                                    fontSize: "16px",
+                                    fontWeight: "500",
+                                    padding: "10px 20px",
+                                    borderRadius: "8px",
+                                    border: "none",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                {language === "en" ? "Get Started →" : "ابدأ الآن →"}
+                            </Button>
+                        </Link>
                     </Col>
 
                     {/* Right Column (Image Section) */}
@@ -99,7 +105,7 @@ function ProductivitySection({ language }) {
                     </Col>
                 </Row>
             </Container>
-        </div>
+        </div >
     );
 }
 

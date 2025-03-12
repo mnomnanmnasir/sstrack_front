@@ -10,19 +10,19 @@ const AboutSection = ({ language }) => {
       heading: "Empowering Productivity with ",
       transparency: "Transparency",
       description1:
-        "At SSTrack.io, we believe that productivity thrives on transparency. Our platform was created to revolutionize how teams track their progress, ensuring accountability and fostering collaboration.",
+        "At SSTRACK.IO, we believe that productivity thrives on transparency. Our platform was created to revolutionize how teams track their progress, ensuring accountability and fostering collaboration.",
       description2:
-        "Our solutions are designed to provide real-time insights, streamline workflows, and empower organizations to achieve their goals with confidence. Whether you're managing a remote team or optimizing in-office operations, SSTrack.io is your trusted partner in building a transparent and efficient workplace.",
-      readMore: "Read More →",
+        "Our solutions are designed to provide real-time insights, streamline workflows, and empower organizations to achieve their goals with confidence. Whether you're managing a remote team or optimizing in-office operations, SSTRACK.IO is your trusted partner in building a transparent and efficient workplace.",
+      readMore: "Get Started →",
     },
     ar: {
       aboutUs: "من نحن",
       heading: "تمكين الإنتاجية من خلال ",
       transparency: "الشفافية",
       description1:
-        "في SSTrack.io، نؤمن أن الإنتاجية تزدهر بالشفافية. تم إنشاء منصتنا لإحداث ثورة في كيفية تتبع الفرق لتقدمها، مما يضمن المساءلة ويعزز التعاون.",
+        "في SSTRACK.IO، نؤمن أن الإنتاجية تزدهر بالشفافية. تم إنشاء منصتنا لإحداث ثورة في كيفية تتبع الفرق لتقدمها، مما يضمن المساءلة ويعزز التعاون.",
       description2:
-        "تم تصميم حلولنا لتوفير رؤى فورية، وتبسيط سير العمل، وتمكين المؤسسات من تحقيق أهدافها بثقة. سواء كنت تدير فريقًا عن بُعد أو تحسّن العمليات داخل المكتب، فإن SSTrack.io هو شريكك الموثوق به في بناء بيئة عمل شفافة وفعالة.",
+        "تم تصميم حلولنا لتوفير رؤى فورية، وتبسيط سير العمل، وتمكين المؤسسات من تحقيق أهدافها بثقة. سواء كنت تدير فريقًا عن بُعد أو تحسّن العمليات داخل المكتب، فإن SSTRACK.IO هو شريكك الموثوق به في بناء بيئة عمل شفافة وفعالة.",
       readMore: "اقرأ المزيد →",
     },
   };
@@ -63,7 +63,7 @@ const AboutSection = ({ language }) => {
             <p style={{ fontSize: "16px", color: "#6c757d", lineHeight: "1.8" }}>
               {t.description2}
             </p>
-            <Button
+            {/* <Button
               style={{
                 backgroundColor: "#7ACB59",
                 border: "none",
@@ -73,7 +73,7 @@ const AboutSection = ({ language }) => {
               }}
             >
               {t.readMore}
-            </Button>
+            </Button> */}
           </Col>
 
           {/* Image Section */}

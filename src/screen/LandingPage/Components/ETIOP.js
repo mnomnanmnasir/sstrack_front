@@ -3,7 +3,7 @@ import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import projectManagement from '../../../images/Pm.png';
 import monitoring from '../../../images/Monitoring.png';
 import trainingAndAssessment from '../../../images/TandA.png';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function ETIOP({ language }) {
@@ -35,7 +35,7 @@ function ETIOP({ language }) {
                             : 'قم بتبسيط سير عملك باستخدام أدوات متطورة تجمع الفرق والمهام والمواعيد النهائية بسلاسة.'}
                     />
                 </Col>
-                <Col xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center mb-4" style={{marginTop: '1.1%'}}>
+                <Col xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center mb-4" style={{ marginTop: '1.1%' }}>
                     <CardComponent
                         image={monitoring}
                         title={language === 'en' ? 'Monitoring' : 'المراقبة'}
@@ -44,7 +44,7 @@ function ETIOP({ language }) {
                             : 'ابقَ على اطلاع على إنتاجية فريقك وتقدمه من خلال الرؤى في الوقت الفعلي.'}
                     />
                 </Col>
-                <Col xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center mb-4" style={{marginTop: '1.1%'}}>
+                <Col xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center mb-4" style={{ marginTop: '1.1%' }}>
                     <CardComponent
                         image={trainingAndAssessment}
                         title={language === 'en' ? 'Training and Assessment' : 'التدريب والتقييم'}
@@ -56,18 +56,25 @@ function ETIOP({ language }) {
             </Row>
 
             {/* Call-to-Action Button */}
-            <Button
-                className="mt-3"
-                style={{
-                    backgroundColor: '#7ACB59',
-                    border: 'none',
-                    padding: '0.75rem 1.5rem',
-                    fontSize: '16px',
-                }}
-                onClick={() => navigate("/signup")}
+            <Link
+                to="/signup"
+                state={{ scrollTo: "signUp-btn" }}
+                style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
             >
-                {language === 'en' ? 'Start Free Trial →' : 'ابدأ النسخة التجريبية المجانية →'}
-            </Button>
+                <Button
+                    className="mt-3"
+                    style={{
+                        backgroundColor: '#7ACB59',
+                        border: 'none',
+                        padding: '0.75rem 1.5rem',
+                        fontSize: '16px',
+                    }}
+                    // onClick={() => navigate("/signup")}
+                >
+                    {language === 'en' ? 'Start Free Trial →' : 'ابدأ النسخة التجريبية المجانية →'}
+                </Button>
+            </Link>
+
         </Container>
     );
 }

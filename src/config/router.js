@@ -26,7 +26,7 @@ import Attendence from "../screen/AttendenceManagement/Attendence";
 import Payment from "../screen/payment";
 import axios from "axios";
 import Pricing from '../screen/pricing'
-import WorkCards from "../screen/workCards";
+import WorkCards from "../screen/howitwork";
 // import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleLogin } from '@react-oauth/google';
 import OwnerLeaveManagement from '../companyOwner/owner-setting-components/ownerLeaveManagement'
@@ -43,7 +43,10 @@ import DashboardSplash from "../screen/spalsh/dashboardSplash";
 import Project from "../screen/Project/Project";
 import Home from "../screen/home";
 import Product from '../screen/Product/Product'
-
+import BreakTime from '../adminScreens/settingScreenComponent/breakTime'
+import Punctuality from '../adminScreens/settingScreenComponent/punctuality'
+import ActivityLevel from "../adminScreens/settingScreenComponent/activitylevel";
+import UrlTracking from "../adminScreens/settingScreenComponent/url";
 
 export default function AppRouter() {
 
@@ -153,7 +156,11 @@ export default function AppRouter() {
             <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} />
             <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} />
             <Route path="/attendence-management" element={token ? (suspended ? <Navigate to="/account" /> : <Attendence />) : <Navigate to="/" />} />
-
+            {/* <Route path="/effective-settings/break-time" element={<BreakTime />} /> */}
+            <Route path="/settings" element={<Setting />}>
+              <Route path="break-time" element={<BreakTime />} />
+              <Route path="punctuality" element={<Punctuality />} />
+            </Route>
             {/* <Route
               path="/profile"
               element={
@@ -167,7 +174,7 @@ export default function AppRouter() {
 
             {/* <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} /> */}
             <Route path="/pricing" element={token ? (suspended ? <Navigate to="/account" /> : <Pricing />) : <Navigate to="/" />} />
-            <Route path="/workCards" element={token ? (suspended ? <Navigate to="/account" /> : <WorkCards />) : <Navigate to="/" />} />
+            <Route path="/workCards" element={<WorkCards />} />
             {/* <Route path="/privacy-policy" element={token ? <PrivacyPolicy /> : <Navigate to="/" />} /> */}
             {/* <Route path="/privacy-policy1" element={<PrivacyPolicy1/>} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} /> */}

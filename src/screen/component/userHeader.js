@@ -6,11 +6,12 @@ import { useNavigate } from "react-router-dom";
 import dashboard from "../../images/dashboard.webp";
 import logout from "../../images/logout.webp";
 import account from "../../images/myaccount.webp";
-import logo from '../../images/ss-track-logo.svg';
+import logo from '../../images/sloganLogo.png';
 import { useSocket } from '../../io'; // Correct import
 import UserDashboardSection from "../../screen/component/userDashboardsection";
 import { setLogout } from "../../store/timelineSlice";
 // import { useLocation, useNavigate } from "react-router-dom";
+import BeachAccessIcon from '@mui/icons-material/BeachAccess';
 import SettingsIcon from '@mui/icons-material/Settings';
 import jwtDecode from "jwt-decode";
 import HeaderOption from './HeaderOption';
@@ -328,14 +329,14 @@ function UserHeader() {
                                             <p>My Account</p>
                                         </div>
 
-                                        {user?.userType === "user" && (
+                                        {/* {user?.userType === "user" && (
                                             <div onClick={userSettings}>
                                                 <div style={{ marginLeft: '-5px' }}>
-                                                    <SettingsIcon style={{ fontSize: '24px', color: '#fff' }} />
+                                                    <BeachAccessIcon style={{ fontSize: '24px', color: '#fff' }} />
                                                 </div>
-                                                <p>Settings</p>
+                                                <p>Leaves</p>
                                             </div>
-                                        )}
+                                        )} */}
 
                                         {user?.userType === "user" ? null : (
                                             <div onClick={takeToSettings}>

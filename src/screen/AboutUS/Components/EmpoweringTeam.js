@@ -9,7 +9,7 @@ const EmpoweringTeamsSection = ({ language }) => {
     en: {
       sectionTitle: "WHO WE SERVE",
       mainTitle: "Empowering Teams",
-      subTitle: "With Tailored Solutions",
+      subTitle: " With Tailored Solutions",
       description:
         "We connect our clients with cutting-edge tools and expertise to streamline their workflows and enhance productivity. Our platform is designed to ensure transparency, accountability, and efficiency at every level of your organization.",
       timeTracking: "Time Tracking",
@@ -19,7 +19,7 @@ const EmpoweringTeamsSection = ({ language }) => {
       appsWebsites: "Apps and Website",
       appsWebsitesDesc: "Gain detailed insights into app and website usage, helping you optimize workflows and improve time management.",
       invoice: "Invoice",
-      invoiceDesc: "Streamline billing with automated invoices generated based on accurate time tracking and project data.",
+      invoiceDesc: "Streamline billing with automated invoices generated based on accurate time tracking.",
       reports: "Reports",
       reportsDesc: "Access comprehensive reports that highlight key performance metrics and offer actionable insights for growth.",
       activityLevel: "Activity Level",

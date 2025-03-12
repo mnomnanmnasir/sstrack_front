@@ -286,13 +286,13 @@ const CompanyEmployess = (props) => {
             );
 
             if (updateResponse.status === 200) {
-                enqueueSnackbar("Punctuality setting updated successfully!", {
-                    variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right",
-                    },
-                });
+                // enqueueSnackbar("Punctuality setting updated successfully!", {
+                //     variant: "success",
+                //     anchorOrigin: {
+                //         vertical: "top",
+                //         horizontal: "right",
+                //     },
+                // });
 
                 // Sync the local state and update `localStorage` for cross-tab visibility
                 const updatedState = {

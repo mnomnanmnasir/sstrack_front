@@ -35,7 +35,7 @@ function ActivityLevel(props) {
                     }
                 })
             }
-            else{
+            else {
                 enqueueSnackbar(res.data.message, {
                     variant: "false",
                     anchorOrigin: {
@@ -117,7 +117,7 @@ function ActivityLevel(props) {
 
     async function getData() {
         try {
-            const response = await fetch(`https://myuniversallanguages.com:9093/api/v1/manager/employees`, { headers })
+            const response = await fetch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`, { headers })
             const json = await response.json();
             dispatch(getEmployess(json?.convertedEmployees))
             // json?.convertedEmployees.map(async (employee) => {
@@ -126,6 +126,8 @@ function ActivityLevel(props) {
             //         dispatch(setIds(data?.data?.employeeSettings?.userId))
             //     }
             // })
+            console.log("api responce in activity level", json?.convertedEmployees);
+
         }
         catch (error) {
             console.log(error);

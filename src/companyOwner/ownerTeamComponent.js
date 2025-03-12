@@ -359,14 +359,13 @@ function OwnerTeamComponent(props) {
                             )}
                             {user?.userType === 'owner' && deleteUser && (
                                 <>
-                                    {selectedUser?.userType !== 'owner' &&
-                                        (
-                                            <>
-                                                <div className="deleteMain mt-3" onClick={deleteUser}>
-                                                    <p><img className="paueIcon" src={deleteIcon} alt="DeleteTeam.png" />Delete</p>
-                                                </div>
-                                            </>
-                                        )}
+                                    {selectedUser?.userType !== 'owner' && (
+                                        <>
+                                            <div className="deleteMain mt-3" onClick={deleteUser}>
+                                                <p><img className="paueIcon" src={deleteIcon} alt="DeleteTeam.png" />Delete</p>
+                                            </div>
+                                        </>
+                                    )}
                                 </>
                             )}
                             {/* {console.log("User Type", userType)} */}
@@ -379,9 +378,15 @@ function OwnerTeamComponent(props) {
                                     <p className="employeeDetailName1">{data.name}</p>
                                     <p className="employeeDetailName2">{data.email}</p>
                                 </div>
-                                <div>
-                                    <CurrencyConverter userId={fixId} payrate={payrate} />
-                                </div>
+                                <>
+
+                                    {selectedUser?.userType !== 'owner' && (
+                                        <div>
+                                            <CurrencyConverter userId={fixId} payrate={payrate} />
+                                        </div>
+                                    )}
+                                </>
+
                             </div>
                         ) : (
                             <p></p>
@@ -401,16 +406,20 @@ function OwnerTeamComponent(props) {
                     ) : ""}
                     {isUserArchive === true && (
                         <>
-                            {loading ? <Skeleton count={1} width="100px" height="24px" style={{ margin: "0 0 16px 0" }} /> : inviteStatus === false &&
-                                <p onClick={() => {
-                                    navigate(`/timeline/${fixId}`);
-                                }} style={{
-                                    fontWeight: "600",
-                                    color: "green",
-                                    cursor: "pointer",
-                                    textDecoration: "underline"
-                                }}>View timeline</p>}
+                            {selectedUser?.userType !== 'owner' && (
+                                <>
+                                    {loading ? <Skeleton count={1} width="100px" height="24px" style={{ margin: "0 0 16px 0" }} /> : inviteStatus === false &&
 
+                                        <p onClick={() => {
+                                            navigate(`/timeline/${fixId}`);
+                                        }} style={{
+                                            fontWeight: "600",
+                                            color: "green",
+                                            cursor: "pointer",
+                                            textDecoration: "underline"
+                                        }}>View timeline</p>}
+                                </>
+                            )}
                             <div>
                                 {data && Object.keys(data).length > 0 && data.name ? ( // Check if data is not empty and data.name exists
                                     // {data && Object.keys(data).length > 0 ? (

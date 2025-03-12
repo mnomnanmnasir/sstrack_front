@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavItem, Navbar, Nav, NavDropdown, Form, Row, Col, FormControl, Button, Container, NavLink } from 'react-bootstrap';
-import logo from '../../images/ss-track-logo.svg';
+import logo from '../../images/sloganLogo.png';
 import { useNavigate, useLocation } from "react-router-dom";
 import line from '../../images/line.webp';
 import { setLogout } from "../../store/timelineSlice";
@@ -56,7 +56,6 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
                     <Navbar.Collapse id="navbarSupportedContent">
                         <Nav className="me-auto mb-2 mb-lg-0">
 
-
                         </Nav>
                         <Form className="d-flex">
 
@@ -84,8 +83,9 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
                                             fontFamily: "'Sinkin Sans', sans-serif",
                                             borderColor: '#8CCA6B', // Border color
                                             borderWidth: '1px',    // Optional for a visible border
-                                        }}>Log In</Button>
-
+                                        }}>
+                                            Log In / Sign Up
+                                        </Button>
                                     </>
                                 ) : (
                                     <>

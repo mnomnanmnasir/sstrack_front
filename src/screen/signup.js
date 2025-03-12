@@ -11,12 +11,13 @@ import line from '../images/line.webp';
 import user from '../images/user.webp';
 import verifyImge from '../images/verfiyImage.png';
 import Header from '../screen/component/header';
+import { FaEnvelope, FaGoogle } from "react-icons/fa"; // Import Email Icon
 
 
 function Signup() {
     const location = useLocation();
     const emailfromlink = location.state?.email;
-    console.log('new email',emailfromlink)
+    console.log('new email', emailfromlink)
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
@@ -138,7 +139,7 @@ function Signup() {
 
     }, [location]);
 
-    console.log('sdssdsdds',model);
+    console.log('sdssdsdds', model);
 
     return (
         <div>
@@ -147,26 +148,113 @@ function Signup() {
 
             <SnackbarProvider />
             <section>
-                <div className="container"
+                <div className="container" id='signUp-btn'
                 >
                     {showSuccessMessage ? (
-                        <div className="text-center bg-white mt-3 py-2" style={{ borderRadius: "10px" }} >
-                            <img
-                                src={verifyImge}
-                                alt="Verification"
-                                className="img-fluid mb-4"
-                                style={{ maxWidth: "50%", height: "auto" }} // Reduced width to 50%
-                            />
-                            <p className="lead text-center">
-                                Thank you for signing up! We've sent a verification link to your email
-                                address. Please check your inbox to verify your account.
-                            </p>
+                        <div className="container">
+                            <div className=" row align-items-center justify-content-center bg-white mt-3 py-2" style={{ borderRadius: "10px" }}>
+                                <div className="col-lg-6 ml-3 d-flex flex-column align-items-center">
+                                    <p className="lead text-center">
+                                        {/* Thank you for signing up! We've sent a verification link to your email
+                                        address. Please check your inbox to verify your account. */}
+                                        {/* Thanks for signing up! */}
+                                        {/* <br /> */}
+                                        <span className="d-block">Thanks for signing up!</span>
+                                        <span className="d-block">A verification link has been sent to your email.</span>
+                                        {/* A verification link has been sent to your email. */}
+                                        {/* Please check your inbox and follow the instructions to activate your account. */}
+                                        {/* If you don’t see it, check your spam or junk folder. */}
+                                    </p>
+                                    {/* 🔹 Resend Verification Email Button */}
+                                    {/* 🔹 Resend Verification Email Button */}
+                                    {/* <div className="alig"> */}
+                                    {/* <button> */}
+                                    <div className="d-flex align-items-center gap-3">
+                                        <a
+                                            href="https://mail.google.com/"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn btn-primary mt-3 d-flex gap-1 align-items-center justify-content-center text-center"
+                                            // className="btn btn-primary mt-3 d-flex align-items-center justify-content-center"
+
+                                            style={{
+                                                backgroundColor: "#7ACB59",
+                                                border: "none",
+                                                padding: "10px 20px",
+                                                fontSize: "16px",
+                                                width: '250px',
+                                                borderRadius: "5px",
+                                                display: "inline-block"
+
+                                            }}
+                                        // onClick={() => enqueueSnackbar("Redirecting to your email for verification...", { variant: "info" })}
+                                        >
+                                            <FaGoogle size={18} style={{ color: "white" }} />
+                                            Open Gmail →
+                                        </a>
+                                        <a
+                                            href={`mailto:${emailfromlink}?subject=Resend Verification Email&body=Hello, please resend my verification email.`}
+                                            className="btn btn-primary mt-3 d-flex gap-1 align-items-center justify-content-center text-center"
+                                            // className="btn btn-primary mt-3 d-flex align-items-center justify-content-center"
+
+                                            style={{
+                                                backgroundColor: "#7ACB59",
+                                                border: "none",
+                                                padding: "10px 20px",
+                                                fontSize: "16px",
+                                                // width: '150px',
+                                                borderRadius: "5px",
+                                                display: "inline-block"
+
+                                            }}
+                                        // onClick={() => enqueueSnackbar("Redirecting to your email for verification...", { variant: "info" })}
+                                        >
+                                            <FaEnvelope size={18} style={{ color: "white" }} /> {/* Email Icon */}
+                                            Verify Your Email Now →
+                                        </a>
+
+                                    </div>
+                                    {/* </button> */}
+                                    {/* 🔹 Text with Different Font Sizes */}
+                                    {/* <p className=" flex-end text-center" style={{ marginTop: '5%', fontSize: "18px", fontWeight: "bold" }}> */}
+                                    <span style={{ marginTop: '5%', fontSize: "18px", fontWeight: "bold" }}>
+                                        Please check your inbox and
+                                    </span>
+                                    <span style={{ fontSize: "18px", fontWeight: "bold" }}>
+                                        follow the instructions to activate your account.
+                                    </span>
+                                    {/* </p> */}
+                                    <p className="text-muted" style={{ marginTop: '2%', fontSize: "14px"}}>
+                                        If you don’t see it, check your spam or junk folder.
+                                    </p>
+                                    {/* <span className="d-block" style={{ marginTop: '10%', fontSize: "14px", marginTop: "-2%" }}>Please check your inbox and
+                                    </span>
+                                    <span>
+                                        follow the instructions to activate your account.
+                                    </span>
+                                        <p className="text-muted" style={{ marginTop: '10%', fontSize: "14px", marginTop: "-2%" }}>
+                                        If you don’t see it, check your spam or junk folder.
+                                    </p>
+                                    {/* <span className="d-block">A verification link has been sent to your email.</span> */}
+                                    {/* </div> */}
+                                </div>
+                                <div className="col-lg-6 text-center">
+                                    <img
+                                        src={verifyImge}
+                                        alt="Verification"
+                                        className="img-fluid"
+                                        style={{ maxWidth: "80%", height: "auto" }} // Adjust width as needed
+                                    />
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         <>
-                            <p className="freePera">Try it Free for 14 days</p>
-                            <p className="mainFont">Maintain it Free always on the Free Plan.</p>
-                            <div className="maininputdivs">
+                            {/* <p className="freePera" >Try it Free for 14 days</p> */}
+                            <p className="freePera" >Sign Up Now</p>
+
+                            {/* <p className="mainFont">Maintain it Free always on the Free Plan.</p> */}
+                            <div className="maininputdivs" id='signUp-btn'>
                                 <div className="mainInputDiv">
                                     <p className="account">Create an account</p>
                                     <div className="inputDiv">
@@ -201,8 +289,6 @@ function Signup() {
                 </div>
             </section>
             <img className="liness" src={line} />
-
-
         </div>
     )
 }

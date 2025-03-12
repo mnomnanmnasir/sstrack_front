@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Container, Form, Nav, Navbar, Offcanvas } from 'react-bootstrap';
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import logo from '../../../images/ss-track-logo.svg';
+import logo from '../../../images/sloganLogo.png';
 import { setLogout } from "../../../store/timelineSlice";
 import NewHeaderOptions from './components/NewHeaderOptions';
 
@@ -100,7 +100,7 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                             fontFamily: "'Sinkin Sans', sans-serif",
                                             borderColor: '#8CCA6B', // Border color
                                             borderWidth: '1px',    // Optional for a visible border
-                                        }}>{language === "en" ? "Log In" : "تسجيل الدخول"}</Button>
+                                        }}>{language === "en" ? "Log In / SignUp" : "تسجيل الدخول"}</Button>
 
                                     </>
                                 ) : (
@@ -111,8 +111,7 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                             fontSize: '0.8rem',  // Text size
 
                                         }} type="button"> {language === "en" ? "Dashboard" : "لوحة القيادة"}</Button>
-
-
+                                        
                                         <Button onClick={() => logOut()} className="btn loginButton1" style={{
                                             marginRight: '10px',
                                             fontWeight: '400', // Sinkin Sans weight

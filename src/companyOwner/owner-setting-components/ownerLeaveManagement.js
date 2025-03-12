@@ -5,8 +5,11 @@ import { Modal, Button, Form } from "react-bootstrap";
 // import { FaUser } from "react-icons/fa";
 import PersonIcon from "@mui/icons-material/Person";
 import jwtDecode from "jwt-decode";
+import Joyride from "react-joyride";
 
 const OwnerTeam = () => {
+    const [run, setRun] = useState(true);
+    const [stepIndex, setStepIndex] = useState(0);
     const [leaveData, setLeaveData] = useState({
         requestedLeaves: [],
         approvedLeaves: [],
@@ -56,7 +59,35 @@ const OwnerTeam = () => {
         reason: "",
     });
 
+    const steps = [
+        {
+            target: '#buttons',
+            content: 'here you can see approved, rejected and pending leaves',
+            continuous: true,
+            disableBeacon: true,
+        },
+        {
+            target: '#leaveCounts',
+            content: 'here are alloted leave count from the company',
+            continuous: true,
+        },
+        {
+            target: '#allLeaves',
+            content: 'here you can approve, reject and see your leave requests',
+            continuous: true,
+        },
 
+    ];
+    const handleJoyrideCallback = (data) => {
+        const { action, index, status } = data;
+
+        if (action === "next") {
+            setStepIndex(index + 1);
+        }
+        if (status === "finished" || status === "skipped") {
+            setRun(false); // End the tour when finished
+        }
+    };
 
     const [modalContent, setModalContent] = useState(""); // Content for the modal
 
@@ -204,15 +235,15 @@ const OwnerTeam = () => {
             setIsSubmitting(false); // Stop loading
         }
     };
- console.log('userType',items?.userType)
- 
+    console.log('userType', items?.userType)
+
     const fetchLeaveRequests = async () => {
         try {
-            const userType = items?.userType; 
-            const endpoint = userType === 'manager' 
-                ? `${apiUrl}/manager/getAllLeaveRequests` 
+            const userType = items?.userType;
+            const endpoint = userType === 'manager'
+                ? `${apiUrl}/manager/getAllLeaveRequests`
                 : `${apiUrl}/superAdmin/getAllLeaveRequests`;
-    
+
             const response = await axios.get(endpoint, { headers });
 
             const { requestedLeaves = [], approvedLeaves = [], rejectedLeaves = [] } =
@@ -244,7 +275,7 @@ const OwnerTeam = () => {
             const apiUrlForLeaves = userType === 'manager'
                 ? "https://myuniversallanguages.com:9093/api/v1/manager/getAllUserLeaves"
                 : "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAllUserLeaves";
-    
+
             const response = await axios.get(apiUrlForLeaves, { headers });
             const usersData = response.data?.data || [];
 
@@ -258,29 +289,29 @@ const OwnerTeam = () => {
 
             if (userData) {
                 const { allottedLeaves } = userData;
-              
+
                 // Extract leave counts
                 const {
-                  sickLeaves = 0,
-                  casualLeaves = 0,
-                  annualLeaves = 0,
-                  bereavementLeaves = 0,
+                    sickLeaves = 0,
+                    casualLeaves = 0,
+                    annualLeaves = 0,
+                    bereavementLeaves = 0,
                 } = allottedLeaves[0] || {};
-              
+
                 // Set leave counts to state or display directly in the UI
                 setLeaveCounts({
-                  annualLeaves,
-                  sickLeaves,
-                  casualLeaves,
-                  bereavementLeaves,
+                    annualLeaves,
+                    sickLeaves,
+                    casualLeaves,
+                    bereavementLeaves,
                 });
                 setLeavemodalCounts({
-                  annualLeaves,
-                  sickLeaves,
-                  casualLeaves,
-                  bereavementLeaves,
+                    annualLeaves,
+                    sickLeaves,
+                    casualLeaves,
+                    bereavementLeaves,
                 });
-              } else {
+            } else {
                 console.warn("No data found for the current user.");
             }
         } catch (error) {
@@ -983,6 +1014,17 @@ const OwnerTeam = () => {
     // main component
     return (
         <>
+             {items?._id === "679b223b61427668c045c659" && (
+                <Joyride
+                    steps={steps}
+                    run={run}
+                    callback={handleJoyrideCallback}
+                    showProgress
+                    showSkipButton
+                    continuous
+                    scrollToFirstStep
+                />
+            )}
             <SnackbarProvider />
             <div className="container">
                 <div
@@ -1000,7 +1042,7 @@ const OwnerTeam = () => {
                     <h5 style={{ margin: 0, fontSize: "18px", fontWeight: "600" }}>
                         Employee Leave Management
                     </h5>
-                    <div style={{ display: "flex" }}>
+                    <div id='buttons' style={{ display: "flex" }}>
                         <button
                             style={{
                                 padding: "10px 20px",
@@ -1020,42 +1062,7 @@ const OwnerTeam = () => {
                         >
                             Approved
                         </button>
-                        {/* <button
-                                style={{
-                                    padding: "10px 20px",
-                                    border: "none",
-                                    backgroundColor:
-                                        activeTab === "requestedLeaves" ? "#7FC45B" : "#E8F4FC",
-                                    color:
-                                        activeTab === "requestedLeaves" ? "#fff" : "#7094B0",
-                                    fontWeight: "600",
-                                    cursor: "pointer",
-                                    position: "relative", // Added to position the count correctly
-                                }}
-                                onClick={() => {
-                                    setActiveTab("requestedLeaves");
-                                    setCurrentPage(1); // Reset to first page
-                                }}
-                            >
-                                Pending
-                                {pendingCount > 0 && (
-                                    <span
-                                        style={{
-                                            position: "absolute",
-                                            top: "-5px",
-                                            right: "-10px",
-                                            backgroundColor: "red",
-                                            color: "white",
-                                            borderRadius: "50%",
-                                            padding: "2px 8px",
-                                            fontSize: "12px",
-                                            fontWeight: "bold",
-                                        }}
-                                    >
-                                        {pendingCount}
-                                    </span>
-                                )}
-                            </button> */}
+
 
                         <button
                             style={{
@@ -1191,23 +1198,25 @@ const OwnerTeam = () => {
                     </div>
 
                 </div>
-                <div 
-                style={{
-                    // padding: "10px 0px",
-                    backgroundColor: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center", // Added space between elements for buttons
-                    // gap: '20px',
-                    // border: '1px solid #ddd', // Light border color
-                    // borderRadius: '10px', // Rounded corners
-                }}
+                <div
+                    id="leaveCounts"
+                    style={{
+                        // padding: "10px 0px",
+                        backgroundColor: "#fff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center", // Added space between elements for buttons
+                        // gap: '20px',
+                        // border: '1px solid #ddd', // Light border color
+                        // borderRadius: '10px', // Rounded corners
+                    }}
                 >
                     <div
+
                         style={{
                             padding: "20px 30px",
                             backgroundColor: "#fff",
-                            width:'99%',
+                            width: '99%',
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "flex-start", // Added space between elements for buttons
@@ -1319,14 +1328,17 @@ const OwnerTeam = () => {
 
 
                 <div className="mainwrapper ownerTeamContainer" style={{ marginTop: "-2px" }}>
-                    <div style={{ width: "100%" }}>
+                    <div
+
+                        style={{ width: "100%" }}>
                         <table
+                            id='allLeaves'
                             style={{
                                 width: "100%",
                                 borderCollapse: "collapse",
                                 alignItems: 'center',
                                 textAlign: 'center',
-                                fontSize:'12px'
+                                fontSize: '12px'
                             }}
                         >
                             <thead style={{

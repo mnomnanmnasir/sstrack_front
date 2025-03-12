@@ -21,7 +21,7 @@ function StartingSStrack({ language }) {
             >
                 <h4 style={{ fontSize: "2rem", fontWeight: "600", marginBottom: "2rem" }}>
                     {language === "en"
-                        ? "Starting with SS Track.io is easy, fast and free"
+                        ? "Starting with SSTRACK.IO is easy, fast and free"
                         : "البدء مع SS Track.io سهل وسريع ومجاني"
                     }
                 </h4>
@@ -31,40 +31,45 @@ function StartingSStrack({ language }) {
                         : "يستغرق الأمر بضع نقرات فقط للبدء"
                     }
                 </p>
-                <button
-                    style={{
-                        padding: "0.8rem 1.5rem",
-                        backgroundColor: "white",
-                        color: "#7ACB59",
-                        fontSize: "1rem",
-                        fontWeight: "500",
-                        border: "none",
-                        borderRadius: "0.5rem",
-                        cursor: "pointer",
-                        marginBottom: "1rem",
-                    }}
-                    onMouseEnter={(e) => {
 
-                        e.target.style.backgroundColor = "#7ACB59";
-                        e.target.style.color = "white";
-                        e.target.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.2)";
-                    }}
-                    onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = "white";
-                        e.target.style.color = "#7ACB59";
-                        e.target.style.boxShadow = "0 2px 5px rgba(0, 0, 0, 0.1)";
-                    }}
-                    onClick={() => navigate("/signup")}
-                >
-                    {language === "en"
-                        ? "Get started - it’s free"
-                        : "ابدأ الآن - مجاني"
-                    }
+                <a href='/signup' className="td-none">
+                    <button
+                        style={{
+                            padding: "0.8rem 1.5rem",
+                            backgroundColor: "#7ACB59",
+                            color: "white",
+                            fontSize: "1rem",
+                            fontWeight: "500",
+                            border: "none",
+                            borderRadius: "0.5rem",
+                            cursor: "pointer",
+                            marginBottom: "1rem",
+                        }}
+                        // className="signUpButton"
+                        onMouseEnter={(e) => {
 
-                </button>
+                            e.target.style.backgroundColor = "#7ACB59";
+                            e.target.style.color = "white";
+                            // e.target.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.2)";
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.backgroundColor = "white";
+                            e.target.style.color = "#7ACB59";
+                            // e.target.style.boxShadow = "0 2px 5px rgba(0, 0, 0, 0.1)";
+                        }}
+                    // onClick={() => navigate("/signup")}
+                    >
+                        {/* <a href='/signup' className="td-none text-white"> */}
+                        {language === "en"
+                            ? "Get started - it’s free"
+                            : "ابدأ الآن - مجاني"
+                        }
+                    </button>
+                    
+                </a>
                 <p style={{ fontSize: "0.9rem" }}>{language === "en"
-                    ? "Free for 14 days, no credit card required."
-                    : "مجاني لمدة 14 يومًا، لا حاجة لبطاقة ائتمان."
+                    ? "Free for 30 days, no credit card required."
+                    : "مجاني لمدة 30 يومًا، لا حاجة لبطاقة ائتمان."
                 }
                 </p>
             </div>

@@ -23,7 +23,7 @@ function AboutUs() {
       {/* <NavigationBar /> */}
       <HeroSection language={language}/>
       <AboutContent language={language}/>
-      <StatisticsSection language={language}/>
+      {/* <StatisticsSection language={language}/> */}
       <EasyStartSections language={language}/>
       <EmpoweringTeamsSection language={language}/>
       <PartnerLogosSection language={language}/>

@@ -7,6 +7,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from '../../images/ss-track-logo.svg';
 import { useDispatch } from "react-redux";
 import { useSocket } from '../../io'; // Correct import
+import axios from "axios";
+import { setToken } from "../../store/authSlice";
 
 
 function UserDashboardSection(params) {
@@ -26,19 +28,35 @@ function UserDashboardSection(params) {
         Authorization: 'Bearer ' + token,
         'Content-Type': 'application/json'
     }
-
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const wordsAfterSpace = user?.name?.split(" ")[1] ? user?.name?.split(" ")[1].charAt(0).toUpperCase() : "";
     const capitalizedWord = user?.name?.charAt(0).toUpperCase();
 
-    // function scrollToSection(sectionId) {
-    //     const section = document.getElementById(sectionId);
-    //     if (section) {
-    //         window.scrollTo({
-    //             top: section.offsetTop,
-    //             behavior: 'smooth',
-    //         });
-    //     }
-    // };
+    const handleLogin = async (e) => {
+
+        try {
+            const response = await axios.post(`${apiUrl}/signin/`, {
+                email: "abdullahofficial2050@gmail.com",  // Hardcoded email
+                password: "12345678",
+            }, {
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            const token = response.data.token;
+            const user = response.data.user; // Assuming user object contains isSplash
+            dispatch(setToken(token));
+            console.log('/dashboard navigation trigger');
+            setTimeout(() => {
+                navigate("/dashboard");
+                window.location.reload();
+            }, 2000);
+
+        } catch (error) {
+
+            console.error("Login error:", error);
+
+        }
+    };
 
 
     function scrollToSection(sectionId) {
@@ -74,14 +92,14 @@ function UserDashboardSection(params) {
                         </div>
                         <div>
                             <div className="d-flex amButton justify-content-end" role="search">
-                                <div className="ownerSectionUser1 text-white" onClick={() => {
+                                {/* <div className="ownerSectionUser1 text-white" onClick={() => {
                                     navigate('/')
                                 }} >
                                     <p style={{ margin: 0 }} onClick={() => {
                                         navigate('/')
 
                                     }}>Home</p>
-                                </div>
+                                </div> */}
                                 {/* <div className="ownerSectionUser1 text-white" onClick={() => {
                                     navigate('/download')
                                 }} >
@@ -107,15 +125,13 @@ function UserDashboardSection(params) {
                                 )}
 
                                 {/* <div className=" text-white" > */}
-                                <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none' }}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        if (window.location.pathname !== "/") {
-                                            navigate("/", { state: { scrollTo: "section1" } });
-                                        } else {
-                                            scrollToSection('section1'); // Call the scroll function if already on homepage
-                                        }
-                                    }}>How It Work</Link>
+                                <Link
+                                    to="/workCards"
+                                    className="ownerSectionUser1"
+                                    // state={{ scrollTo: "section5" }}
+                                    style={{ color: 'white', textDecoration: 'none', margin: 0 }}
+                                >
+                                    How It Works</Link>
                                 {/* <p style={{ margin: 0 }} onClick={() => location.pathname === "/" ? scrollToSection('section4') : navigate("/")}>How It Work</p> */}
                                 {/* </div> */}
                                 {/* <div className="ownerSectionUser1 text-white" onClick={() => {
@@ -125,18 +141,20 @@ function UserDashboardSection(params) {
                                 </div> */}
                                 {/* <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }}
                                 > */}
-                                    {/* <Link to="/" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }} onClick={() => location.pathname === "/" ? scrollToSection('pricing') : navigate("/")}>{language === "en" ? "Pricing" : "التسعير"}
+                                {/* <Link to="/" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }} onClick={() => location.pathname === "/" ? scrollToSection('pricing') : navigate("/")}>{language === "en" ? "Pricing" : "التسعير"}
                                     </Link> */}
-                                    <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', margin: 0 }}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            if (window.location.pathname !== "/") {
-                                                navigate("/", { state: { scrollTo: "pricing" } });
-                                            } else {
-                                                scrollToSection('pricing'); // Call the scroll function if already on homepage
-                                            }
-                                        }}>Pricing</Link>
-                                    {/* <p style={{ margin: 0, fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/aboutUs")}>{language === "en" ? "About Us" : "كيف يعمل"}</p> */}
+                                <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', margin: 0 }}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (window.location.pathname !== "/") {
+                                            navigate("/", { state: { scrollTo: "pricing" } });
+                                        } else {
+                                            scrollToSection('pricing'); // Call the scroll function if already on homepage
+                                        }
+                                    }}>Pricing</Link>
+                                {/* <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', margin: 0 }}
+                                        onClick={handleLogin}>demo</Link> */}
+                                {/* <p style={{ margin: 0, fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/aboutUs")}>{language === "en" ? "About Us" : "كيف يعمل"}</p> */}
                                 {/* </div> */}
                             </div>
 

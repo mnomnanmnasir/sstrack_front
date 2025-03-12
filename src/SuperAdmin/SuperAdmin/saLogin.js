@@ -55,7 +55,9 @@ function SaLogin() {
           }
         })
         setTimeout(() => {
+          
           navigate('/sADashboard')
+          window.location.reload(); 
         }, 1000);
         setLoading(false)
       }

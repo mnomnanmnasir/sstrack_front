@@ -207,55 +207,33 @@ function Home() {
   console.log("Token agya",token);
 
 
-  // const signin = () => {
-  //   if (token && token.startsWith("auth=")) {
-  //     try {
-  //       const extractedToken = token.substring(5); // Extract text after "auth="
-  //       console.log('Valid token detected, proceeding to authentication');
-
-  //       localStorage.removeItem('token');
-  //       localStorage.setItem('token', extractedToken); // Store the new token
-
-  //       navigate("/dashboard");
-  //       window.location.reload(); // Reload the page to apply changes
-  //       console.log("Dashboard", extractedToken);
-  //     } catch (error) {
-  //       console.error("Token processing failed:", error);
-  //       navigate("/dashboard");
-  //       window.location.reload();
-  //     }
-  //   } else {
-  //     // If no valid token, redirect to sign-in
-  //     console.log('Invalid or missing token, redirecting to sign-in');
-  //     navigate("/dashboard");
-  //     window.location.reload();
-  //   }
-  // };
-
-
   const signin = () => {
-    if (token) {
-        try {
-            // Remove the previous token from localStorage
-            console.log('tryto go check token')
-            localStorage.removeItem('token');
-            // const decoded = jwtDecode(token);
-            // localStorage.setItem("items", JSON.stringify(decoded));
-            localStorage.setItem('token', token); // Store the new token
-            
-            navigate("/dashboard");
-            window.location.reload(); // Reload the page to apply changes
-            console.log("Dashboard", token);
-        } catch (error) {
-            console.error("Token decoding failed:", error);
-            navigate("/signup");
-        }
+    if (token && token.startsWith("auth=")) {
+      try {
+        const extractedToken = token.substring(5); // Extract text after "auth="
+        console.log('Valid token detected, proceeding to authentication');
+
+        localStorage.removeItem('token');
+        localStorage.setItem('token', extractedToken); // Store the new token
+
+        navigate("/dashboard");
+        window.location.reload(); // Reload the page to apply changes
+        console.log("Dashboard", extractedToken);
+      } catch (error) {
+        console.error("Token processing failed:", error);
+        navigate("/dashboard");
+        window.location.reload();
+      }
     } else {
-        // If no token, redirect to sign-in or another appropriate page
-        console.log('tryto go to sign in')
-        navigate("/signin");
+      // If no valid token, redirect to sign-in
+      console.log('Invalid or missing token, redirecting to sign-in');
+      navigate("/dashboard");
+      window.location.reload();
     }
-};
+  };
+
+
+
 
 
 

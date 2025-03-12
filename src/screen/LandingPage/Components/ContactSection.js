@@ -474,75 +474,30 @@ function ContactSection({ language }) {
 
                 <Col
                     md={5}
-                    className="d-flex flex-column justify-content-start text-white p-4"
+                    className="d-flex flex-column text-white p-5 gap-4"
                     style={{
                         background: "linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)",
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         borderRadius: "10px",
                         minHeight: "500px",
-                        paddingTop: '15%'
+                        paddingTop: "10%",
                     }}
                 >
-                    <h2 className="mb-4 card-title-responsive">
-                        {language === "en" ? "Contact Information" : "معلومات الاتصال"}
+                    <h2 className="mb-4" style={{ fontSize: "40px" }}>
+                        {language === "en" ? "Contact Us" : "معلومات الاتصال"}
                     </h2>
-                    <p className="mb-4 card-subtitle-responsive">
-                        {language === "en" ? "Say something to start a live chat!" : "قل شيئًا لبدء محادثة مباشرة!"}
-                    </p>
-                    <p className='mt-3 card-subtitle-responsive' >
-                        📞{" "}
-                        <strong>
-                            {language === "en" ? "+1 647-930-0988" : "+1 647-930-0988"}
-                        </strong>
-                    </p>
-                    <p className="mt-3 card-subtitle-responsive">
-                        ✉️{" "}
-                        <a href="mailto:info@sstrack.io" className="text-white">
-                            {language === "en" ? "info@sstrack.io" : "info@sstrack.io"}
-                        </a>
-                    </p>
-                    <p className="mt-3 card-subtitle-responsive">
-                        📍{" "}
-                        {language === "en"
-                            ? "4370 Steels Ave W #204 Woodbridge, ON L4L 4Y4, Canada."
-                            : "4370 ستيلز أفينيو دبليو #204 وودبريدج، أونتاريو L4L 4Y4، كندا."}
-                    </p>
-                    {/* Social Icons */}
-                    <div className="mt-5 d-flex justify-content-bottom py-4">
-                        <a
-                            href="https://twitter.com"
-                            className="me-3"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: "#1DA1F2" }} // Twitter color
-                        >
-                            <i className="fab fa-twitter fa-lg"></i>
-                        </a>
-                        <a
-                            href="https://instagram.com"
-                            className="me-3"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                                background: "linear-gradient(45deg, #F58529, #DD2A7B, #8134AF)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                            }}
-                        >
-                            <i className="fab fa-instagram fa-lg"></i>
-                        </a>
-                        <a
-                            href="https://facebook.com"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: "#5865F2" }} // Discord color
-                        >
-                            <i className="fab fa-facebook fa-lg"></i>
-                        </a>
-                    </div>
-                </Col>
 
+                    <p className="mt-4" style={{ fontSize: "22px", marginBottom: "20px" }}>
+                        {language === "en"
+                            ? "We're here to assist you! If you have any questions or need assistance, please feel free to reach out to us."
+                            : "نحن هنا لمساعدتك! إذا كان لديك أي أسئلة أو تحتاج إلى مساعدة، فلا تتردد في التواصل معنا."}
+                    </p>
+
+                    <strong>
+                        <a href="mailto:info@sstrack.io" className="text-white" style={{ fontSize: "25px" }}>info@sstrack.io</a>
+                    </strong>
+                </Col>
 
                 {/* Right Section */}
                 <Col
@@ -583,7 +538,7 @@ function ContactSection({ language }) {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
 
-                                        placeholder={language === "en" ? "Email" : "البريد الإلكتروني"}
+                                        placeholder={language === "en" ? "Email Address" : "البريد الإلكتروني"}
                                         style={{
                                             flex: 1,
                                             padding: "1rem",
@@ -661,25 +616,25 @@ function ContactSection({ language }) {
                                 }}
                             />
                         </Form.Group> */}
-<Form.Group controlId="message" className="mb-3">
-    <Form.Label>Message</Form.Label>
-    <Form.Control
-        as="textarea"
-        placeholder={language === "en" ? "Message" : "الرسالة"}
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        style={{
-            flex: 1,
-            padding: "0.5rem",  // Reduced padding
-            fontSize: "0.875rem",
-            border: "0px solid #E0E0E0",
-            borderRadius: "5px",
-            boxShadow: "0px 4px 4px rgba(171, 171, 171, 0.2)",
-            borderLeft: "1px solid #4CAF50",
-            minHeight: "150px" // Adjust height if necessary
-        }}
-    />
-</Form.Group>
+                        <Form.Group controlId="message" className="mb-3">
+                            <Form.Label>Message</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                placeholder={language === "en" ? "Message" : "الرسالة"}
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                style={{
+                                    flex: 1,
+                                    padding: "0.5rem",  // Reduced padding
+                                    fontSize: "0.875rem",
+                                    border: "0px solid #E0E0E0",
+                                    borderRadius: "5px",
+                                    boxShadow: "0px 4px 4px rgba(171, 171, 171, 0.2)",
+                                    borderLeft: "1px solid #4CAF50",
+                                    minHeight: "150px" // Adjust height if necessary
+                                }}
+                            />
+                        </Form.Group>
 
                         <button
                             onClick={handleSubmit}

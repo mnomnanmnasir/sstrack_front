@@ -6,7 +6,7 @@ const EasyStartSection = ({ language }) => {
   // Translations for English and Arabic
   const translations = {
     en: {
-      title: "Starting with SS Track.io is easy, fast and free",
+      title: "Starting with SSTRACK.IO is easy, fast and free",
       button: "Get started - It's free",
     },
     ar: {
@@ -31,7 +31,7 @@ const EasyStartSection = ({ language }) => {
           maxWidth: "1500px",
           overflow: "hidden",
           boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-          height: "400px",
+          height: "325px",
         }}
       >
         {/* Background Image */}
@@ -43,7 +43,7 @@ const EasyStartSection = ({ language }) => {
             top: "50%",
             left: "20%",
             transform: "translate(-50%, -50%)",
-            width: "25%",
+            width: "23%",
             height: "75%",
             opacity: 0.3,
           }}

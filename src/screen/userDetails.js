@@ -34,6 +34,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setEmployessSetting } from "../store/adminSlice"; // Adjust the import based on your file structure
 import Payment from "./paymentPlan";
 import jwtDecode from "jwt-decode";
+import Joyride from "react-joyride";
 
 
 function UserDetails() {
@@ -41,28 +42,19 @@ function UserDetails() {
 
     const dispatch = useDispatch();
     const employees = useSelector((state) => state.adminSlice.employess);
-    // const employees = useSelector((state) => state?.adminSlice?.employess?.effectiveSettings?.screenshots?.allowBlur)
-    // console.log('Employees ka blur dekhna hai mujhyy', employees)
-    const [allowBlur, setAllowBlur] = useState(true);
-    // const allowBlur = employees.some(employee => employee.effectiveSettings.screenshots?.allowBlur);
-    // console.log("Allow Blur agyaaa", allowBlur)
-    // const { employee,    allowBlur } = props;
 
-    // useEffect(() => {
-    //     // Set allowBlur based on the Redux store
-    //     const employeeWithBlur = employees.find(employee => employee.effectiveSettings.screenshots?.allowBlur);
-    //     setAllowBlur(!!employeeWithBlur); // Use double negation to convert to boolean
-    // }, [employees]);
+    const [allowBlur, setAllowBlur] = useState(true);
+
     useEffect(() => {
         if (!Array.isArray(employees)) return; // Ensure employees is an array before calling find()
-        
-        const employeeWithBlur = employees.find(employee => 
+
+        const employeeWithBlur = employees.find(employee =>
             employee?.effectiveSettings?.screenshots?.allowBlur
         );
-    
+
         setAllowBlur(!!employeeWithBlur);
     }, [employees]);
-    
+
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     // Mock authentication check (replace with your actual logic)
@@ -75,22 +67,7 @@ function UserDetails() {
         }
     }, []);
 
-    // Handle Arrow Key Press
-    // const handleKeyPress = (event) => {
-    //     if (event.key === "ArrowRight") {
-    //         setCurrentMonth((prevMonth) => (prevMonth + 1) % 12); // Move to next month
-    //     } else if (event.key === "ArrowLeft") {
-    //         setCurrentMonth((prevMonth) => (prevMonth - 1 + 12) % 12); // Move to previous month
-    //     }
-    // };
 
-    // // Add Event Listener for Key Press
-    // useEffect(() => {
-    //     window.addEventListener("keydown", handleKeyPress);
-    //     return () => {
-    //         window.removeEventListener("keydown", handleKeyPress);
-    //     };
-    // }, []);
 
     async function handleApplySetting(data) {
 
@@ -153,6 +130,7 @@ function UserDetails() {
     }
 
     const { loading, setLoading } = useLoading()
+    const [run, setRun] = useState(true);
     const [data, setData] = useState([]);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [ssData, setSSData] = useState(null);
@@ -183,7 +161,7 @@ function UserDetails() {
 
     const [totalPercentageByDay, setTotalPercentageByDay] = useState(null)
     // const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString())
-    const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString('en-CA')); 
+    const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString('en-CA'));
 
     const [timeTrackingId, setTimeTrackingId] = useState(null)
 
@@ -216,57 +194,39 @@ function UserDetails() {
     const apiUrl2 = "https://ss-track.vercel.app/api/v1/owner";
     const userId = params.id;
 
-    // const handleStartTimeChange = (e) => {
-    //     let value = e.target.value;
 
-    //     // Allow only valid characters (digits, colon, space, AM/PM)
-    //     if (/^[0-9: ]*(AM|PM)?$/i.test(value) || value === "") {
-    //         // Update state
-    //         setOfflineTime((prev) => ({
-    //             ...prev,
-    //             startTime: value,
-    //         }));
-    //     } else {
-    //         enqueueSnackbar("Only numeric values and 'AM/PM' are allowed", {
-    //             variant: "error",
-    //             anchorOrigin: { vertical: "top", horizontal: "right" },
-    //         });
-    //     }
+    const steps = [
+        {
+            target: '#activity-tracker',
+            content: 'here you can see each day activity ',
+            disableBeacon: true,
+            continuous: true,
+        },
+        {
+            target: '#secondStep',
+            content: 'Here you can see your hours you work, your ativity percentage and date',
+            continuous: true,
+        },
+        {
+            target: '#Thirdstep',
+            content: 'Here you see your active hours,',
+            continuous: true,
+        },
+        {
+            target: '#screenshots',
+            content: 'Here you your screen shot which you can delete,',
+            continuous: true,
+        },
+    ];
 
-    //     // Validate full input format
-    //     if (value && !/^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)?$/i.test(value)) {
-    //         enqueueSnackbar("Invalid start time format. Please use 'HH:mm AM/PM'", {
-    //             variant: "error",
-    //             anchorOrigin: { vertical: "top", horizontal: "right" },
-    //         });
-    //     }
-    // };
+    const handleJoyrideCallback = (data) => {
+        const { index, status } = data;
 
-    // const handleEndTimeChange = (e) => {
-    //     let value = e.target.value;
 
-    //     // Allow only valid characters (digits, colon, space, AM/PM)
-    //     if (/^[0-9: ]*(AM|PM)?$/i.test(value) || value === "") {
-    //         // Update state
-    //         setOfflineTime((prev) => ({
-    //             ...prev,
-    //             endTime: value,
-    //         }));
-    //     } else {
-    //         enqueueSnackbar("Only numeric values and 'AM/PM' are allowed", {
-    //             variant: "error",
-    //             anchorOrigin: { vertical: "top", horizontal: "right" },
-    //         });
-    //     }
-
-    //     // Validate full input format
-    //     if (value && !/^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)?$/i.test(value)) {
-    //         enqueueSnackbar("Invalid end time format. Please use 'HH:mm AM/PM'", {
-    //             variant: "error",
-    //             anchorOrigin: { vertical: "top", horizontal: "right" },
-    //         });
-    //     }
-    // };
+        if (status === "finished" || status === "skipped") {
+            setRun(false); // End the tour when finished
+        }
+    };
     const handleStartTimeChange = (e) => {
         let value = e.target.value;
         const isValidFormat = !!parseTime(value); // Check if the time is valid
@@ -578,75 +538,9 @@ function UserDetails() {
         setSSData(element)
     };
 
-    // const renderCalendar = () => {
-    //     const month = date.getMonth();
-    //     // const [totalHoursByDay, setTotalHoursByDay] = useState([]); // State for total hours by day
-    //     const year = date.getFullYear();
-    //     const firstDayOfMonth = new Date(year, month, 1);
-    //     const lastDayOfMonth = new Date(year, month + 1, 0);
-    //     const daysInMonth = lastDayOfMonth.getDate();
-    //     const weeks = [];
-    //     let days = [];
-    //     let currentDay = new Date(firstDayOfMonth);
-    //     // const [totalHoursByDay, setTotalHoursByDay] = useState({}); // State for total hours by day
 
 
 
-    //     const handleClick = (key) => {
-    //         setSelectedDate(key);
-    //         const clickDay = new Date(key).getFullYear();
-    //         const clickMonth = (new Date(key).getMonth() + 1).toString().padStart(2, '0');
-    //         const clickDate = new Date(key).getDate().toString().padStart(2, '0');
-    //         const clickDa = new Date(key).getDay();
-    //         const clickMon = new Date(key).getMonth();
-    //         setClickDay(clickDa);
-    //         setMonth(clickMon);
-    //         const formattedDate = `${clickDay}-${clickMonth}-${clickDate}`;
-    //         setFormattedDate(formattedDate);
-    //         setActiveButton(key);
-    //     };
-
-    //     for (let i = 0; i < daysInMonth; i++) {
-    //         const isWeekend = currentDay.getDay() === 0 || currentDay.getDay() === 6;
-    //         const dayKey = currentDay.toString();
-    //         const isCurrentDate = currentDay.getDate() === new Date().getDate() && currentDay.getMonth() === new Date().getMonth();
-
-    //         const dayFormatted = `${currentDay.getFullYear()}-${(currentDay.getMonth() + 1).toString().padStart(2, '0')}-${currentDay.getDate().toString().padStart(2, '0')}`;
-
-    //         // Check if data.totalHours.daily is an array and find the total hours for the specific date
-    //         const totalHoursForDate = Array.isArray(data?.totalHours?.daily)
-    //             ? data?.totalHours?.daily.find(item => item.date === dayFormatted)?.data?.totalHours?.daily
-    //             : 0; // Default to 0 if not an array or if no match is found
-    //         days.push(
-    //             // <OverlayTrigger
-    //             //     key={dayKey}
-    //             //     placement="top"
-    //             //     overlay={
-    //             //         <Tooltip>
-    //             //             {totalHoursForDate}
-    //             //         </Tooltip>
-    //             //     }
-    //             // >
-    //             <div
-    //                 style={{ cursor: "pointer", border: "1px solid #ebeaea" }}
-    //                 className={`col cell ${isWeekend ? "week day week first" : "day"} ${dayKey === activeButton ? "active" : isCurrentDate ? "active2" : ""}`}
-    //                 onClick={() => handleClick(dayKey)}
-    //             >
-    //                 <p className="weekName">{currentDay.toLocaleString("en-US", { weekday: "short" })}</p>
-    //                 <p className="Weekdate">{currentDay.getDate()}</p>
-    //                 <div style={{ padding: "2px" }}>
-    //                     <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
-    //                 </div>
-    //             </div>
-    //             // </OverlayTrigger>
-    //         );
-
-    //         currentDay.setDate(currentDay.getDate() + 1);
-    //     }
-
-    //     weeks.push(<div className="days" key={currentDay}>{days}</div>);
-    //     return weeks;
-    // };
     const renderCalendar = () => {
         const month = date.getMonth();
         const year = date.getFullYear();
@@ -1251,6 +1145,17 @@ function UserDetails() {
 
     return (
         <>
+            {items._id === "679b223b61427668c045c659" && (
+                <Joyride
+                    steps={steps}
+                    run={run}
+                    callback={handleJoyrideCallback}
+                    showProgress
+                    showSkipButton
+                    continuous
+                    scrollToFirstStep
+                />
+            )}
             <div>
                 {showScrollButton === true ? <BackToTop /> : null}
 
@@ -1463,9 +1368,9 @@ function UserDetails() {
                                     <button onClick={() => navigate(`/activity/${params.id}`)}>View activity</button>
                                 </div> */}
                             </div>
-                            <div className="days-weeks">{renderCalendar()}</div>
+                            <div id="activity-tracker" className="days-weeks">{renderCalendar()}</div>
                             {items.userType === "user" ? (
-                                <div className="timerAndTracking">
+                                <div className="timerAndTracking" >
                                     <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
                                         <div>
                                             <img width={120} src={logo} alt="" />
@@ -1546,7 +1451,7 @@ function UserDetails() {
                                         </div>
                                     </div>
                                 </div>
-                            ) : <div className="timerAndTracking">
+                            ) : <div className="timerAndTracking" id='secondStep'>
                                 <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
                                     <div>
                                         <img width={120} src={logo} alt="" />
@@ -1650,10 +1555,10 @@ function UserDetails() {
                                     </div>
                                 </div>
                             </div>}
-                            <div className="time-scale" style={{ display: "flex", justifyContent: "space-between" }}>
+                            <div className="time-scale" style={{ display: "flex", justifyContent: "space-between" }} id="Thirdstep">
                                 {renderTimeIntervals()}
                             </div>
-                            <div>
+                            <div id='screenshots'>
                                 {items.userType === "user" ? (
 
                                     <div>

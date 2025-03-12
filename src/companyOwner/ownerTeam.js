@@ -15,9 +15,11 @@ import groupCompany from "../images/Group.webp";
 import inviteIcon from "../images/invitation.svg";
 import line from "../images/Line 3.webp";
 import OwnerTeamComponent from "./ownerTeamComponent";
+import Joyride from "react-joyride";
 
 function OwnerTeam() {
-
+    const [run, setRun] = useState(true);
+    const [stepIndex, setStepIndex] = useState(0);
     const [show, setShow] = useState(false);
     const [show2, setShow2] = useState(false);
     const [isTypingEmail, setIsTypingEmail] = useState(false);
@@ -43,7 +45,33 @@ function OwnerTeam() {
         Authorization: "Bearer " + token,
     };
     const user = jwtDecode(JSON.stringify(token));
+    // console.log('check',user._id === "679b223b61427668c045c659");
+    
+    const steps = [
+        {
+            target: '#addUserButton',
+            content: 'Invite employees to track their time for your company',
+            // disableBeacon: true,
+            continuous: true,
+        },
+        {
+            target: '#lisstofallusers',
+            content: 'Here you can assign a role or User, Manager or Admin',
+            // disableBeacon: true,
+            // continuous: true,
+        },
 
+    ];
+    const handleJoyrideCallback = (data) => {
+        const { action, index, status } = data;
+
+        if (action === "next") {
+            setStepIndex(index + 1);
+        }
+        if (status === "finished" || status === "skipped") {
+            setRun(false); // End the tour when finished
+        }
+    };
     const getData = async () => {
         setLoading(true)
         try {
@@ -307,6 +335,17 @@ function OwnerTeam() {
                     </button>
                 </Modal.Footer>
             </Modal> : null}
+            {user?._id === "679b223b61427668c045c659" && (
+                <Joyride
+                    steps={steps}
+                    run={run}
+                    callback={handleJoyrideCallback}
+                    showProgress
+                    showSkipButton
+                    continuous
+                    scrollToFirstStep
+                />
+            )}
             <SnackbarProvider />
             <div className="container">
                 <div className="userHeader">
@@ -322,11 +361,13 @@ function OwnerTeam() {
                                 {user?.userType !== "manager" && (
                                     <>
                                         {/* <p className="addUserButton" onClick={() => navigate('/company-owner-user')}>+ Create user</p> */}
-                                        <div style={{
-                                            marginTop: "20px",
-                                            display: "flex",
-                                            justifyContent: "space-between"
-                                        }}>
+                                        <div
+                                            id="addUserButton"
+                                            style={{
+                                                marginTop: "20px",
+                                                display: "flex",
+                                                justifyContent: "space-between"
+                                            }}>
                                             <input value={email} onChange={(e) => {
                                                 const emailValue = e.target.value;
                                                 setEmail(emailValue);
@@ -386,17 +427,19 @@ function OwnerTeam() {
                                         {users?.length}
                                     </div>
                                 </div>
-                                <div>
+                                <div id="lisstofallusers" >
                                     {users?.map((e, i) => {
                                         return (
-                                            <div className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center gap-1`} onClick={() => {
-                                                setMainId(e._id)
-                                                setActiveId(e._id)
-                                                setIsUserArchive(e?.isArchived ? false : true)
-                                                setInviteStatus(false)
-                                                setPayrate(e)
-                                                setSelectedUser(e)
-                                            }}>
+                                            <div
+
+                                                className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center gap-1`} onClick={() => {
+                                                    setMainId(e._id)
+                                                    setActiveId(e._id)
+                                                    setIsUserArchive(e?.isArchived ? false : true)
+                                                    setInviteStatus(false)
+                                                    setPayrate(e)
+                                                    setSelectedUser(e)
+                                                }}>
                                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: '100%' }}>
                                                     <div style={{ display: "flex", alignItems: "center" }}>
                                                         <div className="groupContentMainImg">

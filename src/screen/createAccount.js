@@ -17,8 +17,9 @@ import { FerrisWheelSpinner } from "react-spinner-overlay";
 import showPasswordIcon from '../images/showPassword.svg';
 import hidePasswordIcon from '../images/hidePassword.svg';
 import jwtDecode from "jwt-decode";
+// import NewHeader from './component/Header/NewHeader';
 
-function CreateAccount() {
+function CreateAccount({language}) {
 
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false)
@@ -218,6 +219,7 @@ function CreateAccount() {
     return (
         <div>
             <SnackbarProvider />
+            <Header/>
             {linkExpired ? (
                 <div style={{
                     backgroundColor: "white",

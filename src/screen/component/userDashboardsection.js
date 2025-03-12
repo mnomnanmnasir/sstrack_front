@@ -6,21 +6,75 @@ import circle from "../../images/circle.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
+import Joyride from "react-joyride";
+import BreakTime from '../../adminScreens/settingScreenComponent/breakTime';
 
 
-function UserDashboardSection() {
+function UserDashboardSection({ settingsTabs }) {
+    const [run, setRun] = useState(true);
+    const [stepIndex, setStepIndex] = useState(0);
     const token = localStorage.getItem("token");
     const getitems = jwtDecode(JSON.stringify(token));
     const navigate = useNavigate();
     const location = useLocation();
     const [items, setItems] = useState(getitems);
-
+    const [selectedTab, setSelectedTab] = useState(null); // Track selected tab
+    const steps = [
+        {
+            target: "#team",
+            content: "Here you can see all your team members and control their roles",
+            disableBeacon: true,
+            continuous: true,
+        },
+        {
+            target: "#Reports",
+            content: "Here you can see your company reports",
+            // disableBeacon: true,
+            continuous: true,
+        },
+        {
+            target: "#Projects",
+            content: "Here you can see your company projects",
+            // disableBeacon: true,
+            continuous: true,
+        },
+        {
+            target: "#Leave",
+            content: "Here you can manage your leave requests",
+            // disableBeacon: true,
+            continuous: true,
+        },
+        {
+            target: "#LocationTracking",
+            content: "Here you can see your location tracking",
+            // disableBeacon: true,
+            continuous: true,
+        },
+        {
+            target: "#Attendence",
+            content: "Here you can manage your attendance",
+            // disableBeacon: true,
+            continuous: true,
+        },
+    ];
     useEffect(() => {
         const updatedItems = getitems
         setItems(updatedItems);
     }, []);
+    console.log('itemmsssss', items._id === "679b223b61427668c045c659");
 
-    console.log('Items from localStorage:', items);
+
+    const handleJoyrideCallback = (data) => {
+        const { action, index, status } = data;
+
+        if (action === "next") {
+            setStepIndex(index + 1);
+        }
+        if (status === "finished" || status === "skipped") {
+            setRun(false); // End the tour when finished
+        }
+    };
+
     const [remainingBreakTime, setRemainingBreakTime] = useState(''); // State to store remaining break time
 
 
@@ -108,8 +162,22 @@ function UserDashboardSection() {
         fetchRemainingBreakTime();
     }, [items]);
 
+    const [dropdownOpen, setDropdownOpen] = useState(false)
+
     return (
         <div className="cursor-pointer">
+            {items._id === "679b223b61427668c045c659" && (
+                <Joyride
+                    steps={steps}
+                    run={run}
+                    callback={handleJoyrideCallback}
+                    showProgress
+                    showSkipButton
+                    continuous
+                    scrollToFirstStep
+                />
+            )}
+
             <div className="d-flex justify-content-between align-items-center" style={{
                 backgroundColor: "white",
                 padding: "10px 20px",
@@ -135,22 +203,23 @@ function UserDashboardSection() {
                         )
                     ))} */}
 
+
                     {items?.userType === "user" || items?.userType === "manager" && <div className={location.pathname.includes("/timeline") ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
-                        <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate(`/timeline/${items?._id}`)}>My timeline</p>
+                        <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate(`/timeline/${items?._id}`)}>Timeline</p>
                     </div>}
-                    {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager" ) && (
+                    {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
                         <>
-                            <div className={location.pathname === "/team" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/team')}>
+                            <div id="team" className={location.pathname === "/team" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/team')}>
                                 <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate('/team')}>Team</p>
                             </div>
                         </>
                     )}
-                    <div className={location.pathname === "/reports" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/reports')}>
+                    <div id="Reports" className={location.pathname === "/reports" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/reports')}>
                         <p style={{ margin: 0 }} onClick={() => navigate('/reports')}>Reports</p>
                     </div>
-                    {!(items?.userType === "user" || items?.userType === "manager") && (
+                    {!(items?.userType === "user") && (
                         <>
-                            <div className={location.pathname === "/Projects" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/Projects')}>
+                            <div id="Projects" className={location.pathname === "/Projects" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/Projects')}>
                                 <p style={{ margin: 0 }} onClick={() => navigate('/Projects')}>Projects</p>
                             </div>
                         </>
@@ -158,6 +227,7 @@ function UserDashboardSection() {
                     {/* Leave Tab with Count */}
                     {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin") && (
                         <div
+                            id="Leave"
                             className={location.pathname === "/leave-management" ? "active-tab" : "ownerSectionUser"}
                             onClick={() => navigate("/leave-management")}
                             style={{
@@ -188,9 +258,30 @@ function UserDashboardSection() {
                             </span> */}
                         </div>
                     )}
+                    {/* {(items?.userType === "user") && (
+                        <div
+                            id="LocationTracking"
+                            className={location.pathname === "/user-setting" ? "active-tab" : "ownerSectionUser"}
+                            onClick={() => navigate("/user-setting")}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "5px",
+
+                                cursor: "pointer",
+                            }}
+                        >
+                            <p style={{ margin: 0 }}>Leave</p>
+                            <span>
+                                Management
+                            </span>
+
+                        </div>
+                    )} */}
                     {/* {/ Location Tracking /} */}
                     {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin" || items?.userType === "user") && (
                         <div
+                            id="LocationTracking"
                             className={location.pathname === "/Locationtracking" ? "active-tab" : "ownerSectionUser"}
                             onClick={() => navigate("/Locationtracking")}
                             style={{
@@ -209,27 +300,113 @@ function UserDashboardSection() {
 
                         </div>
                     )}
-                    {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin") && (
+                    {(items?.userType === "user") && (
                         <div
-                            className={location.pathname === "/attendence-management" ? "active-tab" : "ownerSectionUser"}
-                            onClick={() => navigate("/attendence-management")}
+                            id="LocationTracking"
+                            className={location.pathname === "/user-setting" ? "active-tab" : "ownerSectionUser"}
+                            onClick={() => navigate("/user-setting")}
                             style={{
                                 display: "flex",
                                 alignItems: "center",
                                 gap: "5px",
+
                                 cursor: "pointer",
                             }}
                         >
-                            <p style={{ margin: 0 }}>
-                                Attendence
-                                <span style={{ marginLeft: "5px" }}>
-                                    Management
-                                </span>
-                            </p>
+                            <p style={{ margin: 0 }}>Leave</p>
+                            <span>
+                                Management
+                            </span>
 
                         </div>
                     )}
+                    {/* ✅ Attendance Management Dropdown */}
+                    {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin") && (
+                        <div
+                            id="Attendence"
+                            className={location.pathname.startsWith("/attendence-management") ? "active-tab" : "ownerSectionUser"}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between", // ✅ Items ek row main rakhne ke liye
+                                gap: "5px",
+                                cursor: "pointer",
+                                position: "relative",
+                                // backgroundColor: "#F5F5F5", // ✅ Background color
+                                // padding: "10px 15px",
+                                borderRadius: "5px",
+                                width: "250px", // ✅ Same width for alignment
+                            }}
+                            onClick={() => navigate("/attendence-management")}
+                        >
+                            {/* ✅ Attendance Management Text */}
+                            <p style={{ margin: 0 }}>Attendance
+                            </p>
+                            <span>
+                                Management
+                            </span>
 
+                            {/* ✅ Dropdown Button - Only for Admin & Owner */}
+                            {/* ✅ Dropdown Button */}
+                            {/* <> */}
+                            {items?.userType !== "manager" &&
+
+                                <div
+                                    className="dropdown1"
+                                    onMouseEnter={() => setDropdownOpen(true)}
+                                    onMouseLeave={() => setDropdownOpen(false)}
+                                    style={{ position: "relative" }}
+                                >
+                                    <button
+                                        className="dropdown-btn"
+                                        style={{
+                                            background: "none",
+                                            border: "none",
+                                            // fontSize: "18px",
+                                            cursor: "pointer",
+                                            fontWeight: "bold",
+                                        }}
+                                    >
+                                        ▼
+                                    </button>
+                                    {dropdownOpen && (
+                                        <div className="dropdown-content1">
+                                            <Link
+                                                to="/settings/break-time"
+                                                state={{ deactivateTabs: true }} // ✅ Jab navigate ho to tabs deactivate ho jayein
+                                                style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
+                                            >
+                                                <p
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        // navigate("/settings/break-time"); // ✅ Navigate to Break Time Page
+                                                    }}
+                                                >
+                                                    Break Time
+                                                </p>
+                                            </Link>
+                                            <Link
+                                                to="/settings/punctuality"
+                                                state={{ deactivateTabs: true }} // ✅ Jab navigate ho to tabs deactivate ho jayein
+                                                style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
+                                            >
+                                                <p
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        // navigate("/settings/punctuality");
+                                                    }}
+                                                >
+                                                    Punctuality
+                                                </p>
+                                            </Link>
+                                        </div>
+                                    )}
+                                </div>
+                            }
+                        </div>
+                    )}
+
+                    {/* ✅ Render BreakTime Component When "Break Time" is Selected */}
                     <div className="d-flex container">
 
                     </div>
@@ -252,6 +429,7 @@ function UserDashboardSection() {
                         <p className="m-0 text-truncate fw-bold company-text">
                             {items?.company}</p>
                     </div>
+
                 </div>
             </div>
         </div >

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from 'react-bootstrap';
 import { IoMdMail } from 'react-icons/io';
-import logo from '../../images/ss-track-logo.svg';
+import logo from '../../images/sloganLogo.png';
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
 function Footer() {
@@ -53,7 +53,7 @@ function Footer() {
                 <Row className="mb-4 justify-content-center">
                     {/* Product Section */}
                     <Col xs={12} sm={6} md={4} lg={3}>
-                    <h5 className="mb-3" style={{ fontSize: '16px' }}>Product</h5>
+                        <h5 className="mb-3" style={{ fontSize: '16px' }}>Product</h5>
                         <ul className="list-unstyled" >
                             <li style={{ marginBottom: '0.6rem' }}>
                                 <a href="https://chromewebstore.google.com/detail/sstrack/gkmllhjndmaaapegaopkpapaamfaeckg?hl=en-US" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}>Chrome Extension</a>
@@ -89,7 +89,7 @@ function Footer() {
 
                     {/* Features Section */}
                     <Col xs={12} sm={6} md={4} lg={3}>
-                    <h5 className="mb-3" style={{ fontSize: '16px' }}>Features</h5>
+                        <h5 className="mb-3" style={{ fontSize: '16px' }}>Features</h5>
                         <ul className="list-unstyled">
                             <li style={{ marginBottom: '0.6rem' }}>
                                 <a href="/signup" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}>Time tracker with screenshots</a>
@@ -139,10 +139,18 @@ function Footer() {
 
                     {/* Company Section */}
                     <Col xs={12} sm={6} md={4} lg={3}>
-                    <h5 className="mb-3" style={{ fontSize: '16px' }}>Company</h5>
+                        <h5 className="mb-3" style={{ fontSize: '16px' }}>Company</h5>
                         <ul className="list-unstyled">
                             <li style={{ marginBottom: '0.6rem' }}>
-                                <Link to="/aboutUs" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}>About Us</Link>
+                                <Link
+                                    to="/aboutUs"
+                                    state={{ scrollTo: "section5" }}
+                                    style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
+                                >
+                                    About Us
+                                </Link>
+                                {/* <Link to="/aboutUs" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}>
+                                </Link> */}
                             </li>
                             <li style={{ marginBottom: '0.6rem' }}>
                                 <a href="/#" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
@@ -192,7 +200,7 @@ function Footer() {
                     </Col>
                     {/* Signup Section */}
                     <Col xs={12} sm={6} md={4} lg={3}>
-                    <h4 style={{ fontWeight: '500' }}>Ready to get started?</h4>
+                        <h4 style={{ fontWeight: '500' }}>Ready to get started?</h4>
                         <div className="d-flex flex-column">
                             <input
                                 type="email"
@@ -204,21 +212,31 @@ function Footer() {
                                 style={{ Width: '300px', marginBottom: '10px', fontSize: '12px' }}
                             />
 
-                            <button
-                                className="btn"
-                                onClick={handleSignUp}
-                                style={{ backgroundColor: '#7ACB59', color: 'white', fontSize: '12px', textAlign: 'center', width: '100%' }}
-                            >
-                                Sign Up
-                            </button>
-
+                            {/* <Link
+                                to="/signup"
+                                state={{ scrollTo: "signup-btn" }}
+                                style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
+                            > */}
+                            <a href="/signup" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}>
+                                <button
+                                    className="btn"
+                                    // onClick={handleSignUp}
+                                    style={{ backgroundColor: '#7ACB59', color: 'white', fontSize: '12px', textAlign: 'center', width: '100%' }}
+                                // id='signUp-btn'
+                                >
+                                    Sign Up
+                                    {/* Sign Up */}
+                                </button>
+                            </a>
+                            {/* </Link> */}
                         </div>
                         <img
                             className='logo'
                             src={logo}
                             alt="SS Track.io"
                             style={{ marginLeft: '5px', marginTop: '30px' }}
-                            width={150}
+                            width={250}
+                            onClick={() => navigate('/')}
                         />
                     </Col>
 

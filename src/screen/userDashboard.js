@@ -10,6 +10,7 @@ import useLoading from "../hooks/useLoading";
 import axios from "axios";
 import offline from "../images/not-active.svg";
 import moment from 'moment-timezone';
+import Joyride from 'react-joyride';
 // import socket from '../io';
 import { io } from 'socket.io-client'; // Correct import
 import { useSocket } from '../io'; // Correct import
@@ -20,6 +21,8 @@ const fetcher = (url, headers) => axios.get(url, { headers }).then((res) => res.
 
 
 function UserDashboard() {
+    const [run, setRun] = useState(true);
+    const [stepIndex, setStepIndex] = useState(0);
     const [activeUser, setActiveUser] = useState(null);
     const { loading, setLoading } = useLoading();
     const [data, setData] = useState(null);
@@ -35,7 +38,9 @@ function UserDashboard() {
     const socket = useSocket()
     const token = localStorage.getItem("token");
     let user;
-
+    useEffect(() => {
+          console.log('run--------',run)
+      }, []);
     try {
         if (token) {
             user = jwtDecode(JSON.stringify(token));// Decode token
@@ -49,7 +54,29 @@ function UserDashboard() {
         navigate("/");
         window.location.reload(); // Reload the page
     }
+    const steps = [
+        {
+          target: '.my-first-step',
+          content: 'here you can see your summary of hours worked. Click on the screenshot to see details',
+        //   disableBeacon: true,
+          continuous: true,
+        },
+        {
+          target: '.dashsheadings',
+          content: 'Here you can see all your employees and the summary of their work. Click on the screenshot to see details',
+          continuous: true,
+        },
+      ];
+      const handleJoyrideCallback = (data) => {
+        const { action, index, status } = data;
 
+        if (action === "next") {
+            setStepIndex(index + 1);
+        }
+        if (status === "finished" || status === "skipped") {
+            setRun(false); // End the tour when finished
+        }
+    };
     //
     const headers = {
         Authorization: 'Bearer ' + token,
@@ -198,6 +225,7 @@ function UserDashboard() {
     useEffect(() => {
         if (!socket) {
             console.error('Socket instance is null or undefined');
+            // setRun(true);
             return;
         }
 
@@ -248,7 +276,8 @@ function UserDashboard() {
 
 
     }, [socket]);
-
+   
+ 
 
     useEffect(() => {
         if (userData) {
@@ -416,6 +445,17 @@ function UserDashboard() {
 
     return (
         <div className="mobhayat">
+            {user?._id === "679b223b61427668c045c659" && (
+                <Joyride
+                    steps={steps}
+                    run={run}
+                    callback={handleJoyrideCallback}
+                    showProgress
+                    showSkipButton
+                    continuous
+                    scrollToFirstStep
+                />
+            )}
             <div className="container">
                 <div className="userHeader">
                     <div>
@@ -472,6 +512,7 @@ function UserDashboard() {
                                 This month {thisMonthSortOrder === 'asc' ? '↑' : '↓'}
                             </p>
                         </div>
+                        <div className="my-first-step">
                         {isLoading ? (
                             <>
                                 <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
@@ -490,11 +531,13 @@ function UserDashboard() {
                                             <h5 className="dashCompanyName">{data?.data?.name}</h5>
                                         </div>
                                         <div className="companyNameverified lastActive" style={{ width: "100%" }}>
+                                           
                                             <img
                                                 className="screenShotPreview"
                                                 src={data?.data?.lastScreenshot?.key ? data?.data?.lastScreenshot?.key : screenshot}
                                                 alt="Screenshot"
                                             />
+                                           
                                             <p className="dashheadingtop">
                                                 ({data?.data?.lastActiveTime === "0 minutes ago" ? "just now" : data?.data?.lastActiveTime})
                                             </p>
@@ -524,11 +567,13 @@ function UserDashboard() {
                                                 <h5 className="dashCompanyName">{user?.userName}</h5>
                                             </div>
                                             <div key={user.userId} className="companyNameverified lastActive" style={{ width: "100%" }}>
+                                            <div className="firststep">
                                                 <img
                                                     className="screenShotPreview"
                                                     src={user?.recentScreenshot && user?.recentScreenshot.key ? user.recentScreenshot.key : screenshot}
                                                     alt="Screenshot"
                                                 />
+                                             </div>
                                                 <p className="dashheadingtop">
                                                     ({user.minutesAgo === "0 minutes ago" ? "just now" : user.minutesAgo})
                                                 </p>
@@ -561,6 +606,7 @@ function UserDashboard() {
                                 )}
                             </>
                         )}
+                        </div>
 
                     </div>
                 </div>

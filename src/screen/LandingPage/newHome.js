@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { useNavigate,Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import apple from '../../images/apple-Screenshot.png';
 import chrome from '../../images/chrome.svg';
-import laptopandmob from '../../images/laptopand mob.svg';
+import laptopandmob from '../../images/laptopImg.svg';
 import microsoftlogo from '../../images/microsoft.svg';
 import playstore from '../../images/playStore.svg';
 import NavigationBar from '../../screen/component/header'; // Import your NavigationBar component
@@ -20,8 +20,9 @@ import translations from './Components/translations';
 import NewHeader from '../component/Header/NewHeader';
 import Footer from '../component/footer';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { useSnackbar, SnackbarProvider } from 'notistack'; // ✅ Import Snackbar
 
-function NewHome() {
+function NewHome({ isAuthenticated }) {
   const navigate = useNavigate();
   const contactSectionRef = useRef(null); // Create a ref for ContactSection
 
@@ -31,6 +32,8 @@ function NewHome() {
     }
   };
 
+  const { enqueueSnackbar } = useSnackbar(); // ✅ Snackbar Hook
+
   const [language, setLanguage] = useState('en');
 
   const handleToggleLanguage = () => {
@@ -39,6 +42,38 @@ function NewHome() {
 
   const handleClick = () => {
     window.location.href = 'https://chromewebstore.google.com/detail/sstrack/gkmllhjndmaaapegaopkpapaamfaeckg?hl=en-US';
+  };
+
+  const [email, setEmail] = useState(""); // Store email input
+  // Handle Form Submission
+  const handleSubmit = (e) => {
+    // e.preventDefault();
+
+    if (!email) {
+      // enqueueSnackbar("Please enter a valid email.", { variant: "error" }); // ✅ Show error message?
+      enqueueSnackbar("Please enter a valid email.", {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "right"
+        }
+      })
+      return;
+    }
+
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    } else {
+      navigate("/signup");
+    }
+  };
+
+  // Handle Enter Key Press
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent form submission default behavior
+      handleSubmit(); // Trigger button click action
+    }
   };
 
   const currentText = translations[language];
@@ -142,6 +177,10 @@ function NewHome() {
                 type="email"
                 placeholder={currentText.signUpPlaceholder}
                 className=" mobile-input"
+                // type="email"
+                // placeholder={t.placeholder}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 style={{
                   padding: '0.86rem 1rem',
                   fontSize: '0.9rem', // Default for desktop
@@ -150,6 +189,8 @@ function NewHome() {
                   outline: 'none',
                   borderRadius: '0' // ✅ Removes border-radius
                 }}
+                onKeyDown={handleKeyDown} // Listen for Enter key press
+                required
               />
               <Button
                 style={{
@@ -164,7 +205,8 @@ function NewHome() {
                   borderRadius: '0' // ✅ Removes border-radius
                 }}
                 className="mobile-button"
-                onClick={() => navigate("/signup")}
+                onClick={handleSubmit}
+              // onClick={() => navigate("/signup")}
               >
                 {currentText.signUpButton}
               </Button>
@@ -191,40 +233,40 @@ function NewHome() {
           {/* Platforms Logos */}
           <Row className="justify-content-center text-center">
             <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
-            <Link to='/download'>
-              <img src={microsoftlogo} alt="Microsoft" className="img-fluid platform-icon" style={{ height: "auto" }} />
-            </Link>
+              <Link to='/download'>
+                <img src={microsoftlogo} alt="Microsoft" className="img-fluid platform-icon" style={{ height: "auto" }} />
+              </Link>
             </Col>
             <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
-            <Link to='/download'>
-              <img src={apple} alt="Apple" className="img-fluid platform-icon" style={{ height: "auto" }} />
-            </Link>
+              <Link to='/download'>
+                <img src={apple} alt="Apple" className="img-fluid platform-icon" style={{ height: "auto" }} />
+              </Link>
             </Col>
             <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
               <a href="https://play.google.com/store/apps/details?id=com.SSTRACK&pcampaignid=web_share">
-              <img src={playstore} alt="Google Play" className="img-fluid platform-icon" style={{ height: "auto" }} />
-            </a>
-          </Col>
-          <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
-            <img src={chrome} alt="Chrome Web Store" className="img-fluid platform-icon" style={{ height: "auto", cursor: 'pointer' }}
-              onClick={handleClick} // Directly calls handleClick without checking loading state
-            />
-          </Col>
-        </Row>
+                <img src={playstore} alt="Google Play" className="img-fluid platform-icon" style={{ height: "auto" }} />
+              </a>
+            </Col>
+            <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
+              <img src={chrome} alt="Chrome Web Store" className="img-fluid platform-icon" style={{ height: "auto", cursor: 'pointer' }}
+                onClick={handleClick} // Directly calls handleClick without checking loading state
+              />
+            </Col>
+          </Row>
 
-      </Container>
-      <img
-        src={laptopandmob}
-        alt="Laptop and Mobile Mockup"
-        style={{
-          position: 'relative',
-          top: '60%',
-          width: '81%',
-          zIndex: 2,
-        }}
-      />
-    </div >
-      <StatsSection language={language} />
+        </Container>
+        <img
+          src={laptopandmob}
+          alt="Laptop and Mobile Mockup"
+          style={{
+            position: 'relative',
+            top: '60%',
+            width: '81%',
+            zIndex: 2,
+          }}
+        />
+      </div >
+      {/* <StatsSection language={language} /> */}
       <div id="section1">
         <NewHIW language={language} />
       </div>
@@ -242,7 +284,7 @@ function NewHome() {
         <ContactSection language={language} />
       </div>
       <StartingSStrack language={language} />
-  {/* <Footer language={language} /> */ }
+      {/* <Footer language={language} /> */}
     </>
   );
 }

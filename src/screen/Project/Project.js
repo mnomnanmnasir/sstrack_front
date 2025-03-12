@@ -14,10 +14,13 @@ import { useSocket } from '../../io';
 import { useQuery, useQueryClient } from 'react-query';
 import Projectcomponent from '../Project/Component/projectcomponent';
 import jwtDecode from 'jwt-decode';
+import Joyride from 'react-joyride';
 
 
 
 const Project = () => {
+    const [run, setRun] = useState(true);
+    const [stepIndex, setStepIndex] = useState(0);
     const [show, setShow] = useState(false);
     const [show2, setShow2] = useState(false);
     const [show3, setShow3] = useState(false);
@@ -44,7 +47,31 @@ const Project = () => {
     const headers = {
         Authorization: "Bearer " + token,
     };
+    const steps = [
+        {
+            target: '#addUserButton',
+            content: 'here you can invite and add new users to your team',
+            // disableBeacon: true,
+            continuous: true,
+        },
+        {
+            target: '#lisstofallusers',
+            content: 'here you can see all your team members and control their roles',
+            // disableBeacon: true,
+            // continuous: true,
+        },
 
+    ];
+    const handleJoyrideCallback = (data) => {
+        const { action, index, status } = data;
+
+        if (action === "next") {
+            setStepIndex(index + 1);
+        }
+        if (status === "finished" || status === "skipped") {
+            setRun(false); // End the tour when finished
+        }
+    };
     const user = jwtDecode(token);
 
     // Get the query client at the top level
@@ -184,6 +211,17 @@ const Project = () => {
 
     return (
         <div>
+           {user?._id === "679b223b61427668c045c659" && (
+                <Joyride
+                    steps={steps}
+                    run={run}
+                    callback={handleJoyrideCallback}
+                    showProgress
+                    showSkipButton
+                    continuous
+                    scrollToFirstStep
+                />
+            )}
             <SnackbarProvider />
             <div className="container">
                 <div className="userHeader">
@@ -196,7 +234,9 @@ const Project = () => {
                         <div className="d-flex gap-3">
                             <div style={{ width: "350px" }}>
                                 <>
-                                    <div style={{
+                                    <div
+                                    id="addUserButton"
+                                    style={{
                                         marginTop: "20px",
                                         display: "flex",
                                         width: '350px',
@@ -252,7 +292,7 @@ const Project = () => {
                                         {project?.length}
                                     </div>
                                 </div>
-                                <div>
+                                <div  id="lisstofallusers" >
                                     {project?.map((e, i) => {
                                         return (
                                             <div className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center`} onClick={() => {

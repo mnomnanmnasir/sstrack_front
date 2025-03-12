@@ -8,41 +8,41 @@ const HowToUseSection = ({ language }) => {
         en: [
             {
                 number: "1",
-                title: "Download the SS Track.io Desktop Application",
+                title: "Sign Up & Set Up Your Team",
                 description:
-                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
+                    "Create your account at SSTRACK.IO, then head to your dashboard to add team members, manage roles, and configure your projects.",
             },
             {
                 number: "2",
-                title: "Track time to projects and tasks",
+                title: "Download the SSTRACK.IO Desktop App",
                 description:
-                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
+                    "Have each team member install the desktop application. Once they start tracking, their time and activity data syncs automatically.",
             },
             {
                 number: "3",
-                title: "Use time tracking software to generate time reports",
+                title: " Monitor & Manage in Real Time",
                 description:
-                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
+                    "Use the dashboard to view employee activities, monitor productivity, and generate detailed reports—all from one centralized location.",
             },
         ],
         ar: [
             {
                 number: "١",
-                title: "قم بتنزيل تطبيق SS Track.io لسطح المكتب",
+                title: "قم بالتسجيل وأضف فريقك",
                 description:
-                    "لوريم إيبسوم هو ببساطة نص شكلي يستخدم في صناعة الطباعة والتنضيد. كان لوريم إيبسوم النص القياسي لهذه الصناعة منذ القرن الخامس عشر.",
+                    "أنشئ حسابك على SSTRACK.IO، ثم انتقل إلى لوحة التحكم لإضافة أعضاء الفريق، وإدارة الأدوار، وإعداد مشاريعك.",
             },
             {
                 number: "٢",
-                title: "تتبع الوقت للمشاريع والمهام",
+                title: "قم بتنزيل تطبيق SSTRACK.IO لسطح المكتب",
                 description:
-                    "لوريم إيبسوم هو ببساطة نص شكلي يستخدم في صناعة الطباعة والتنضيد. كان لوريم إيبسوم النص القياسي لهذه الصناعة منذ القرن الخامس عشر.",
+                    "يجب على كل عضو في الفريق تثبيت تطبيق سطح المكتب. بمجرد أن يبدأوا التتبع، تتم مزامنة بيانات الوقت والنشاط تلقائيًا.",
             },
             {
                 number: "٣",
-                title: "استخدم برنامج تتبع الوقت لإنشاء تقارير زمنية",
+                title: "راقب وأدر فريقك في الوقت الفعلي",
                 description:
-                    "لوريم إيبسوم هو ببساطة نص شكلي يستخدم في صناعة الطباعة والتنضيد. كان لوريم إيبسوم النص القياسي لهذه الصناعة منذ القرن الخامس عشر.",
+                    "استخدم لوحة التحكم لعرض أنشطة الموظفين، ومراقبة الإنتاجية، وإنشاء تقارير تفصيلية—كل ذلك من مكان واحد مركزي.",
             },
         ],
     };
@@ -63,7 +63,7 @@ const HowToUseSection = ({ language }) => {
                             {language === "ar"
                                 ? "كيفية استخدام"
                                 : "How to use"}{" "}
-                            <span style={{ color: "#7ACB59" }}>SS Track.io</span>
+                            <span style={{ color: "#7ACB59" }}>SSTRACK</span>
                         </h1>
                     </Col>
                 </Row>

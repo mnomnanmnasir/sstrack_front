@@ -24,7 +24,7 @@ function Screenshot() {
 
   const handleApplySettings = async (employee, type, setting) => {
     const settings = {
-      ...employee.effectiveSettings,  
+      ...employee.effectiveSettings,
       screenshots: {
         ...employee.effectiveSettings.screenshots,
         enabled: setting,
@@ -258,10 +258,10 @@ function Screenshot() {
     setNumber(matches?.length > 0 && parseInt(matches[0]));
   }, [employees]);
 
- 
 
 
- 
+
+
 
   async function getData() {
     try {
@@ -271,23 +271,23 @@ function Screenshot() {
       );
       const json = await response.json();
       const employeesData = json?.convertedEmployees || [];
-  
+
       // Transform and set breakTimes to show in UTC format
       const transformedBreakTimes =
         employeesData[0]?.punctualityData?.breakTime.map((breakEntry) => {
           const breakStartUTC = new Date(breakEntry.breakStartTime).toISOString(); // Store in UTC
           const breakEndUTC = new Date(breakEntry.breakEndTime).toISOString(); // Store in UTC
           const duration = breakEntry.TotalHours || "0h:0m";
-  
+
           return {
             start: breakStartUTC.substring(11, 16), // Display as HH:MM in UTC
             end: breakEndUTC.substring(11, 16), // Display as HH:MM in UTC
             duration,
           };
         }) || [];
-  
+
       setBreakTimes(transformedBreakTimes);
-  
+
       // Calculate total duration
       const totalMinutes = transformedBreakTimes.reduce((acc, curr) => {
         const [hours, minutes] = curr.duration
@@ -295,7 +295,7 @@ function Screenshot() {
           .map((val) => parseInt(val) || 0);
         return acc + hours * 60 + minutes;
       }, 0);
-  
+
       // Convert total minutes back to "Xh:Ym" format
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
@@ -311,8 +311,8 @@ function Screenshot() {
       });
     }
   }
-  
-  
+
+
 
   //
   //
@@ -585,8 +585,8 @@ function Screenshot() {
 
 
 
-  
- 
+
+
   const handleSubmit = async () => {
     try {
       // Validate that all break times have start and end
@@ -595,29 +595,29 @@ function Screenshot() {
           throw new Error(`Please fill both start and end time for Break ${index + 1}.`);
         }
       });
-  
+
       // Format the break times in UTC
       const formattedBreakTimes = breakTimes.map((slot) => {
         const currentDate = new Date().toISOString().split("T")[0]; // Get today's date
         const breakStartTime = new Date(`${currentDate}T${slot.start}:00Z`).toISOString();
         const breakEndTime = new Date(`${currentDate}T${slot.end}:00Z`).toISOString();
-  
+
         // Calculate total hours and minutes
         const durationMinutes =
           (new Date(breakEndTime) - new Date(breakStartTime)) / (1000 * 60);
         const hours = Math.floor(durationMinutes / 60);
         const minutes = durationMinutes % 60;
-  
+
         return {
           TotalHours: `${hours}h:${minutes}m`,
           breakStartTime,
           breakEndTime,
         };
       });
-  
+
       // Prepare only the specific userIds (do not update global allUsers)
       const specificUserIds = employees.map((employee) => employee._id);
-  
+
       // API payload: send only userIds and breakTime settings
       const requestData = specificUserIds.map((userId) => ({
         userId,
@@ -627,7 +627,7 @@ function Screenshot() {
           puncEndTime: "2024-11-21T17:00:00.000Z",
         },
       }));
-  
+
       // API call to update break time for selected userIds
       const response = await axios.post(
         "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
@@ -639,7 +639,7 @@ function Screenshot() {
           },
         }
       );
-  
+
       if (response.status === 200) {
         enqueueSnackbar("Break Time rule successfully submitted!", {
           variant: "success",
@@ -657,7 +657,7 @@ function Screenshot() {
       console.error("Error submitting punctuality rule:", error);
     }
   };
-  
+
 
 
   const handleRemoveBreakTime = (index) => {
@@ -855,23 +855,23 @@ function Screenshot() {
 
   const handleBreakTimeChange = (index, field, value) => {
     const updatedBreakTimes = [...breakTimes];
-  
+
     // Combine current date with input time
     const currentDate = new Date().toISOString().split("T")[0]; // Current date
     const utcTime = new Date(`${currentDate}T${value}:00Z`).toISOString(); // Convert to UTC
-  
+
     // Update raw input and UTC equivalent
     updatedBreakTimes[index][field] = value; // Raw input (HH:MM)
     updatedBreakTimes[index][`${field}UTC`] = utcTime; // Store UTC time
-  
+
     const startUTC = updatedBreakTimes[index].startUTC;
     const endUTC = updatedBreakTimes[index].endUTC;
-  
+
     // Validate start and end times
     if (startUTC && endUTC) {
       const startTimeUTC = new Date(startUTC);
       const endTimeUTC = new Date(endUTC);
-  
+
       if (endTimeUTC <= startTimeUTC) {
         enqueueSnackbar("End Time must be after Start Time.", {
           variant: "error",
@@ -879,7 +879,7 @@ function Screenshot() {
         });
         return;
       }
-  
+
       // Calculate duration
       const durationMinutes = Math.floor((endTimeUTC - startTimeUTC) / (1000 * 60));
       if (durationMinutes > 60) {
@@ -889,15 +889,15 @@ function Screenshot() {
         });
         return;
       }
-  
+
       updatedBreakTimes[index].duration = `${Math.floor(durationMinutes / 60)}h:${durationMinutes % 60}m`;
     }
-  
+
     setBreakTimes(updatedBreakTimes);
     calculateTotalDuration();
   };
-  
-  
+
+
 
 
   // Initialize state with value from localStorage or default value
@@ -910,7 +910,7 @@ function Screenshot() {
     localStorage.setItem("totalDuration", totalDuration);
   }, [totalDuration]);
 
- 
+
 
   const calculateTotalDuration = () => {
     let totalMinutes = 0;
@@ -942,7 +942,7 @@ function Screenshot() {
   return (
     <div>
       <SnackbarProvider />
-      <div
+      <div id='breakTime'
         style={{
           display: "flex",
           justifyContent: "space-between",
@@ -955,10 +955,9 @@ function Screenshot() {
         </div>
       </div>
       <div className="settingScreenshotDiv">
-        <p>How frequently screenshots will be taken.</p>
+        <p>Break time allows employees to take short pauses during their work hours.</p>
         <p>
-          This number is an average since screenshots are taken at random
-          intervals.
+          You can set a total break duration that determines how long an employee can be on break.
         </p>
       </div>
       {/* Total Duration */}

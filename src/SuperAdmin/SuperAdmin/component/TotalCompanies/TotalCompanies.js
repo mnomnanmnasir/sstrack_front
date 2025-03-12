@@ -81,7 +81,8 @@ function TotalCompanies() {
           })),
         }));
         // Combine both arrays if needed
-        const transformedCompanies = [...transformedSuspendedCompanies, ...transformedOtherCompanies,];
+        // const transformedCompanies = [...transformedSuspendedCompanies, ...transformedOtherCompanies,...transformedArchiveCompanies];
+        const transformedCompanies = [...transformedSuspendedCompanies, ...transformedOtherCompanies];
         setCompanies(transformedCompanies);
         setFilteredCompanies(transformedOtherCompanies)
       } else {

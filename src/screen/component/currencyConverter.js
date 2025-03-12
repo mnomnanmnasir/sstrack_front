@@ -30,7 +30,8 @@ const CurrencyConverter = ({ userId, payrate }) => {
         const { value: inputValue } = await Swal.fire({
             title: 'Set payrate',
             html:
-                `<input type="number" name="amount" value="${formData.amount}" step="any" min="0" class="swal2-input">` +
+                `<input type="number" name="amount" value=" placeholder='Set your pay amount' ${formData.amount}" placeholder='Set your pay amount' step="any" min="0" class="swal2-input">` +
+                // <input type="number" name="amount" placeholder="Set your pay amount" value="${formData.amount || ''}">
                 `<select name="currency" class="swal2-input" id="swal-currency-select" value="${formData.currency}">
            <option value="usd">USD</option>
          </select>` +

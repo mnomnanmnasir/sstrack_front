@@ -171,8 +171,8 @@ const DownloadSection = () => {
     console.log(loading1);
 
     function goToDashboard() {
-        navigate("/dashboard");
-        window.location.reload();
+        navigate("/signup");
+        // window.location.reload();
     }
 
     const isArabic = language === "ar"; // ✅ Check if Arabic
@@ -191,16 +191,15 @@ const DownloadSection = () => {
                         {/* Left Content */}
                         <Col md={6}>
                             <h1 style={{ fontWeight: "700", color: "#0D4873" }}>
-                                {isArabic ? "تحميل " : "Download "}
-                                <span style={{ color: "#7ACB59" }}> {isArabic ? "تطبيق سطح المكتب" : "Desktop Application"}
-                                </span> For{" "}
-                                <span style={{ color: "#7ACB59" }}>Windows</span>
+                                {isArabic ? "احصل على تطبيق سطح المكتب لـ" : "Get the Desktop App for"}
+                                <span style={{ color: "#7ACB59" }}>
+                                    {isArabic ? "ويندوز، ماك، وكروم أو إس" : " Windows, macOS, and ChromeOS"}
+                                </span>
                             </h1>
                             <p style={{ color: "#6C757D", fontSize: "16px", marginTop: "1rem" }}>
                                 {isArabic
                                     ? "يمكن لمسؤولي الشركة مراجعة الساعات المسجلة ولقطات الشاشة من خلال هذا الموقع."
                                     : "Company administrators can review the tracked hours and screenshots on this website."}
-
                             </p>
                             <div
                                 className="d-flex justify-content-start gap-3 flex-wrap"
@@ -353,7 +352,7 @@ const DownloadSection = () => {
                             </div>
 
 
-                            <h4 style={{ marginTop: "2rem", color: "#0D4873" }}>Description</h4>
+                            <h4 style={{ marginTop: "2rem", color: "#0D4873" }}></h4>
                             <p style={{ color: "#6C757D", fontSize: "16px", lineHeight: "1.8" }}>
                                 {/* This is a Windows desktop application designed for employees. It
                                 allows an employee to start and stop tracking their work time and
@@ -396,7 +395,7 @@ const DownloadSection = () => {
                                 }}
                             />
                             <Button
-                                href="#"
+                                // href="#"
                                 style={{
                                     backgroundColor: "#7ACB59",
                                     color: "#FFFFFF",
