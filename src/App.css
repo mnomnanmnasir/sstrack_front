@@ -4619,7 +4619,7 @@ input.checkboxes:checked {
 }
 
 .active {
-  border: 3px solid #28659C !important;
+  border: 3px solid #28659C;
 }
 
 .active2 {
@@ -4977,7 +4977,7 @@ input.checkboxes:checked {
 
 .ownerSectionUser1 {
   padding: 8px 10px !important;
-  border-radius: 6px !important;
+  /* border-radius: 6px !important; */
   color: #7ACB59;
   font-size: 17px;
   font-weight: 500;
@@ -6801,7 +6801,8 @@ input[type="number"] {
   min-width: 100px;
   max-width: 150px;
 }
-.company-name-container1{
+
+.company-name-container1 {
   display: flex;
   align-items: center;
   font-size: 12px;
@@ -6857,8 +6858,10 @@ input[type="number"] {
     height: 12px;
   }
 }
-/* 
+
 .ownerSectionUser1.active {
-    color: #7ACB59 !important;
-    font-weight: bold;
-} */
+  color: #7ACB59 !important;
+  /* font-weight: bold; */
+  font-size: 15px;
+  border: none
+}

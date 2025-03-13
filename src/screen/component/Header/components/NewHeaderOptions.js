@@ -30,7 +30,7 @@ function NewHEaderOpions({ language, showVertical = false }) {
                                 className="nav-link ownerSectionUser1"
                                 style={({ isActive }) => ({
                                     color: isActive ? "#7ACB59" : "white",
-                                    fontSize: "17px",
+                                    fontSize: "15px",
                                 })}
                             >
                                 {language === "en" ? "Home" : "الصفحة الرئيسية"}
@@ -100,7 +100,6 @@ function NewHEaderOpions({ language, showVertical = false }) {
                             >
                                 {language === "en" ? "How It Works" : "كيف يعمل"}
                             </NavLink>
-
                             {/* Contact Us Link (Corrected) */}
                             {location.pathname === "section3" ? (
                                 <button
