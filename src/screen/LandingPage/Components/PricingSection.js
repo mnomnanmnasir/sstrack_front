@@ -147,10 +147,10 @@ function PricingSection({ language }) {
                         style={{ border: '2px solid #F0F0F0', boxShadow: '5px 5px 15px rgba(0, 0, 0, 0.05)' }}>
 
                         {/* Content Row with Equal Gaps */}
-                        <Row className="align-items-start justify-content-between g-4"> {/* Added `g-4` for uniform spacing */}
+                        <Row className="align-items-start justify-content-center g-4"> {/* Centered on small screens */}
 
                             {/* Enterprise Title & Pricing */}
-                            <Col xs={6} sm={12} md={3} className="text-md-start text-center d-flex flex-column">
+                            <Col xs={12} md={3} className="text-md-start text-center d-flex flex-column">
                                 <h3 className="fw-bold border-bottom pb-2">
                                     {language === "ar" ? "المؤسسة" : "Enterprise"}
                                 </h3>
@@ -162,7 +162,7 @@ function PricingSection({ language }) {
                                         {language === "ar" ? "تسعير مخصص" : "20 / user / month"}
                                     </span>
                                 </h4>
-                                
+
                                 <h6 style={{ color: '#000' }} className="mt-3">
                                     <span className="fw-bold">
                                         {language === "ar" ? "تسعير مخصص" : "30-day free trial"}
@@ -180,21 +180,21 @@ function PricingSection({ language }) {
                             </Col>
 
                             {/* Features List 1 */}
-                            <Col xs={6} sm={12} md={3} className="text-md-start text-center d-flex flex-column" style={{ marginTop: '3.5%' }}>
+                            <Col xs={12} md={3} className="text-md-start text-center d-flex flex-column" style={{ marginTop: '3.5%' }}>
                                 <p className="text-muted fw-semibold" style={{ fontSize: '15px' }}>
                                     {language === "ar" ? "يتضمن جميع ميزات خطة Pro، بالإضافة إلى:" : "Includes all Pro Plan features, plus:"}
                                 </p>
                                 <ul className="list-unstyled">
                                     {translations[language].map((feature, index) => (
                                         <li key={index} className="d-flex align-items-center mb-3">
-                                            <span className="text-success me-2">✓</span> {feature}
+                                            <span className="text-success text-md-center me-2">✓</span> {feature}
                                         </li>
                                     ))}
                                 </ul>
                             </Col>
 
                             {/* Features List 2 */}
-                            <Col xs={6} sm={12} md={3} className=" text-md-start text-center d-flex flex-column" style={{ marginTop: '5.5%' }}>
+                            <Col xs={12} md={3} className="text-md-start text-center d-flex flex-column" style={{ marginTop: '5.5%' }}>
                                 <ul className="list-unstyled">
                                     {[
                                         isArabic ? "خيارات العلامة البيضاء" : "White-labeling options (custom branding)",
@@ -209,7 +209,7 @@ function PricingSection({ language }) {
                             </Col>
 
                             {/* Contact Us Button - Centered */}
-                            <Col xs={6} sm={12} md={3} className="d-flex align-items-center text-center justify-content-center" style={{ marginTop: '8%' }}>
+                            <Col xs={12} md={3} className="d-flex align-items-center justify-content-center" style={{ marginTop: '8%' }}>
                                 <Button
                                     variant="success"
                                     className="px-4 py-2 w-70"
@@ -232,7 +232,6 @@ function PricingSection({ language }) {
                     </Card>
                 </Col>
             </Row>
-
 
             {/* Modal Form */}
             <Modal show={showModal} onHide={() => setShowModal(false)} centered>

@@ -6813,7 +6813,7 @@ input[type="number"] {
   /* ✅ Prevents shrinking */
   background-color: #1f4d7a;
   /* ✅ Match button bg */
-  padding: 8px 10px;
+  padding: 9px 5px;
   border-radius: 5px;
   color: #7ACB59;
   /* ✅ Text color */
