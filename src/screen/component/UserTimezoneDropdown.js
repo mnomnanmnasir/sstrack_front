@@ -1,0 +1,84 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Select from "react-select";
+
+const UserTimezoneDropdown = () => {
+    const [usersByTimezone, setUsersByTimezone] = useState({});
+    const [selectedTimezone, setSelectedTimezone] = useState(null); // Store selected timezone
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const token = localStorage.getItem("token");
+
+                const response = await axios.get(
+                    "https://myuniversallanguages.com:9093/api/v1/owner/getUsersTimezone",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                if (response.data.success) {
+                    const users = response.data.Users;
+
+                    // Group users by timezone
+                    const grouped = users.reduce((acc, user) => {
+                        if (!acc[user.timezone]) {
+                            acc[user.timezone] = [];
+                        }
+                        acc[user.timezone].push(user);
+                        return acc;
+                    }, {});
+
+                    setUsersByTimezone(grouped);
+                }
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            }
+        };
+
+        fetchUsers();
+    }, []);
+
+    // Convert timezones into options for react-select
+    const timezoneOptions = Object.keys(usersByTimezone).map((timezone) => ({
+        value: timezone,
+        label: timezone,
+    }));
+
+    // Handle timezone selection
+    const handleTimezoneChange = (selectedOption) => {
+        setSelectedTimezone(selectedOption);
+        
+        if (selectedOption && usersByTimezone[selectedOption.value]) {
+            console.log(`Users in ${selectedOption.value}:`, usersByTimezone[selectedOption.value]);
+        }
+    };
+
+    return (
+        <div>
+            {/* Timezone Dropdown using react-select */}
+            <Select
+                value={selectedTimezone}
+                onChange={handleTimezoneChange}
+                options={timezoneOptions}
+                placeholder="Select a Timezone"
+                isClearable
+                styles={{
+                    control: (base) => ({
+                        ...base,
+                        padding: "5px",
+                        borderRadius: "8px",
+                        boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                    }),
+                }}
+            />
+        </div>
+    );
+};
+
+export default UserTimezoneDropdown;

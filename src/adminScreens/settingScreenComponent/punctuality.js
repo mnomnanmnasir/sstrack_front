@@ -75,7 +75,7 @@ function Screenshot() {
                     userId: employee._id,
                     effectiveSettings: type === "setting1" ? settings : type === "setting2" ? settings2 : settings3
                 }, { headers })
-            console.log('Response owner', res);
+
 
             if (res.status === 200) {
                 enqueueSnackbar("Employee settings updated", {
@@ -93,7 +93,7 @@ function Screenshot() {
                     alert(res.data.message)
                 }
             }
-            // console.log('Employee setting ka message', response?.data?.message);
+
         } catch (error) {
             if (error.response && error.response.data) {
                 if (error.response.status === 403 && error.response.data.success === false) {
@@ -221,7 +221,7 @@ function Screenshot() {
                     }
                 })
             }
-            console.log(res);
+
         } catch (error) {
             if (error.response && error.response.data) {
                 if (error.response.status === 404 && error.response.data.success === false) {
@@ -344,8 +344,7 @@ function Screenshot() {
                 setPuncStartTime(punctualityData.puncStartTime);
                 setPuncEndTime(punctualityData.puncEndTime);
 
-                console.log("Punctuality Start Time:", punctualityData.puncStartTime);
-                console.log("Punctuality End Time:", punctualityData.puncEndTime);
+
             } else {
                 console.warn("No employee data found.");
             }
@@ -738,8 +737,8 @@ function Screenshot() {
                 </div>
             </div>
             <div className="settingScreenshotDiv">
-                <p>How frequently screenshots will be taken.</p>
-                <p>This number is an average since screenshots are taken at random intervals.</p>
+                {/* <p>How frequently screenshots will be taken.</p> */}
+                <p>You can set the timeout duration to control how frequently screenshots are taken, with captures occurring at random intervals.</p>
             </div>
             <div className="takeScreenShotDiv">
                 {/* <div style={{ marginBottom: "10px" }}>

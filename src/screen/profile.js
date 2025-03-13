@@ -311,7 +311,7 @@ function Profile() {
                                     <label className="countryLabel">Email</label>
                                     <div className={(items?.userType === "owner" || items?.userType === "admin") ? "countryDropdown" : "countryDropdownDisabled"}>
                                         <input  // Display email value here
-                                            disabled={items?.userType !== "owner" ? true : false} onChange={(e) => fillModel("email", e.target.value)} style={{ width: '100%', backgroundColor: (items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager") ? "#ccc" : "#E8F4FC" }} defaultValue={items?.email} />
+                                            disabled={items?.userType !== "owner" ? true : false} onChange={(e) => fillModel("email", e.target.value)} style={{ borderRadius: '4px', width: '100%', height: '100%', backgroundColor: (items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager") ? "#ccc" : "#E8F4FC" }} defaultValue={items?.email} />
                                     </div>
                                 </div>
                                 <div>
@@ -324,6 +324,8 @@ function Profile() {
                                             }
                                             style={{
                                                 width: '100%',
+                                                height: '100%',
+                                                borderRadius: '4px',
                                                 backgroundColor: (items?.userType === "owner" || items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager") && items?.company ? "#ccc" : "#E8F4FC"
                                             }}
                                             onChange={(e) => fillModel("company", e.target.value)}

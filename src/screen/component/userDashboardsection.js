@@ -185,7 +185,7 @@ function UserDashboardSection({ settingsTabs }) {
                 borderBottomRightRadius: "10px",
                 margin: "0px 30px 0 30px",
             }}>
-                <div className="d-flex gap-1 align-items-center w-80">
+                <div className="d-flex align-items-center" style={{ width: '50%', gap:'0.05' }}>
                     <div className={location.pathname === "/dashboard" ? "active-tab" : "ownerSectionUser"} onClick={() => {
                         navigate('/dashboard')
                     }} >
@@ -407,29 +407,38 @@ function UserDashboardSection({ settingsTabs }) {
                     )}
 
                     {/* ✅ Render BreakTime Component When "Break Time" is Selected */}
-                    <div className="d-flex container">
+                    <div className=" container">
 
                     </div>
                 </div>
-
-                <div className="d-flex">
-                    {/* <p className="ownerSectionCompany" style={{ margin: "0 20px", fontWeight: "bold" }}>
-                        Break Time: {remainingBreakTime}
-                    </p> */}
+                <div className="d-flex justify-content-end align-items-center w-100 flex-nowrap info-container">
+                  
+                    {/* {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
+                        <div className="break-time-container">
+                            <p className="" style={{ textAlign: 'center', width: '50%' }}>
+                                Break Time {remainingBreakTime || '0h 0m'}
+                            </p>
+                        </div>
+                    )} */}
                     {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
-                        <div className="ownerSectionCompany company-container" style={{ margin: "0 10px", fontWeight: "bold", display: 'flex', alignItems: 'center' }}>
-                            <p style={{ margin: "0px", fontWeight: "bold", fontSize: '14px' }}>
-                                Break Time: <span>{remainingBreakTime || '0h:0m'}</span>
+                        <div className="company-name-container1">
+                            <div>
+
+                            </div>
+                            <p className="m-0 fw-bold">
+                                Break Time {remainingBreakTime || '0h 0m'}
                             </p>
                         </div>
                     )}
-                    <div className="ownerSectionCompany d-flex align-items-center cursor-none company-container">
-                        <div><img src={circle} className="company-logo" alt="Company Logo" />
+                  
+                    <div className="company-name-container1">
+                        <div>
+                            <img src={circle} className="company-logo" alt="Company Logo" />
                         </div>
-                        <p className="m-0 text-truncate fw-bold company-text">
-                            {items?.company}</p>
+                        <p className="m-0 fw-bold">
+                            {items?.company}
+                        </p>
                     </div>
-
                 </div>
             </div>
         </div >

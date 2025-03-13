@@ -29,10 +29,14 @@ import crossButton from "../images/cross.webp";
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import jwtDecode from "jwt-decode";
 import Joyride from "react-joyride";
+import TimezoneSelect from "react-timezone-select";
+import { Center } from "devextreme-react/cjs/map";
+import UserTimezoneDropdown from "./component/UserTimezoneDropdown";
 // import Footer from '../screen/component/footer'
 
 
 function OwnerReport() {
+    const [tdata, setTdata] = useState([]);
     let token = localStorage.getItem('token');
     const items = jwtDecode(JSON.stringify(token));
     const [run, setRun] = useState(true);
@@ -46,6 +50,20 @@ function OwnerReport() {
     const [managerId, setManagerId] = useState(null);
     const [reportType, setReportType] = useState("daily"); // Added to store the report type
     const [userType, setUserType] = useState(items?.userType || 'user');
+    const [timezone, setSelectedTimezone] = useState(
+        Intl.DateTimeFormat().resolvedOptions().timeZone
+    );
+    const handleStartDateChange = (timezone) => {
+        // setSelectedTimezone(timezone);
+        // const newtime = timezone?.value;
+        // setModel((prevUserInfo) => ({
+        //     ...prevUserInfo,
+        //     timezone: newtime,
+        //     timezoneOffset: timezone?.offset
+        // }));
+        console.log('time zone of reports', timezone);
+
+    };
     const [expandedEmployee, setExpandedEmployee] = useState(null);
     const steps = [
         {
@@ -110,7 +128,7 @@ function OwnerReport() {
 
         const totalActivity = 0;
 
-        debugger
+
         // Update reportData state with total hours of selected users
         setReportData({
             ...reportData,
@@ -1022,6 +1040,9 @@ function OwnerReport() {
                                     {/* </div> */}
                                 </div>
                             </div>
+
+
+                                <UserTimezoneDropdown onUsersFiltered={setTdata} />
                             <div className="crossButtonDiv">
                                 <SelectBox
                                     onChange={(e) =>
@@ -1034,7 +1055,7 @@ function OwnerReport() {
                                     isMulti={true}
 
                                 />
-                                {console.log("User Detials", user)}
+                                {console.log("User Detials", allUsers)}
                             </div>
                             <div>
                                 {/* <img className="reportButton" src={reportButton} /> */}

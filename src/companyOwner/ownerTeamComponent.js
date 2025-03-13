@@ -19,6 +19,7 @@ import { useSocket } from '../io'; // Correct import
 import { setLogout } from "../store/timelineSlice";
 import { useDispatch } from "react-redux";
 import jwtDecode from "jwt-decode";
+import TimezoneSelect from "react-timezone-select";
 
 function OwnerTeamComponent(props) {
 
@@ -35,7 +36,41 @@ function OwnerTeamComponent(props) {
     const headers = {
         Authorization: "Bearer " + token,
     };
+    const [timezone, setSelectedTimezone] = useState(
+        Intl.DateTimeFormat().resolvedOptions().timeZone
+    );
 
+    console.log('yoyoyoyoyoyoyoyoy', selectedUser?.timezone)
+    const handleStartDateChange = async (selectedTimezone) => {
+        const apiUrl = "https://myuniversallanguages.com:9093/api/v1/owner/updateUsersTimezone/679a2da9ac8d9d680cf28fee";
+        setSelectedTimezone(selectedTimezone);
+        const payload = {
+            timezone: selectedTimezone.value,  // Example: "Asia/Kabul"
+            timezoneOffset: selectedTimezone.offset.toString()  // Example: "4.5"
+        };
+
+        const token = localStorage.getItem('token'); // Replace with your actual token retrieval method
+
+        try {
+            const response = await axios.patch(apiUrl, payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`  // Send the token in Authorization header
+                }
+            });
+
+            console.log('Timezone updated successfully:', response.data.message);
+            enqueueSnackbar(response?.data?.message, {
+                variant: "success",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            })
+        } catch (error) {
+            console.error('Error updating timezone:', error.response ? error.response.data : error.message);
+        }
+    };
     const [isUserArchived, setIsUserArchived] = useState(false);
     const dispatch = useDispatch();
 
@@ -66,16 +101,7 @@ function OwnerTeamComponent(props) {
             navigate('/');
             window.location.reload();
         }
-        // const logOut = () => {
-        //     if (isUserArchived) {
-        //       localStorage.removeItem('token');
-        //       localStorage.removeItem('items');
-        //       localStorage.removeItem('cachedData');
-        //       dispatch(setLogout());
-        //       navigate('/');
-        //       window.location.reload();
-        //     }
-        //   };
+
         const handleUserUnarchive = (data) => {
             console.log('User unarchived event received:', data);
             setUsers((prevUsers) =>
@@ -100,11 +126,8 @@ function OwnerTeamComponent(props) {
         if (socket) {
             console.log('Socket connection established:', socket.connected);
 
-            // socket.on('user_archive', () => {
-            //     console.log('Received user archived reload event');
-            //     // Reload the page
-            //     // window.location.reload();
-            // });
+
+
 
             socket.on('user_unarchive', handleUserUnarchive);
             //   socket.on('role_update', handleRoleUpdate);
@@ -131,15 +154,7 @@ function OwnerTeamComponent(props) {
         }
     }, [socket, setUsers, setRole]);
 
-    // const changeRole = (userId, newRole) => {
-    //     updateRole(userId, newRole);
-    //     // Update local state
-    //     const user = users.find((user) => user._id === userId);
-    //     if (user) {
-    //         user.role = newRole;
-    //         setUsers([...users]);
-    //     }
-    // };
+
 
     const changeRole = (userId, newRole) => {
         updateRole(userId, newRole);
@@ -157,12 +172,6 @@ function OwnerTeamComponent(props) {
         socket.emit('role_update', { userId, role: newRole });
     };
     //     // When archiving a user, emit an event to the server
-    // const handleArchive = (userId) => {
-    //     handleArchiveUser(userId);
-    // };
-    // const handleUnarchiveUser = (userId) => {
-    //     socket.emit('user_archive_emit', { userId, isArchived: false });
-    // };
 
     const getData = async (fixId) => {
         setLoading(true);
@@ -323,6 +332,7 @@ function OwnerTeamComponent(props) {
     useEffect(() => {
         setRole(data.userType)
     }, [data])
+
 
 
     const userType = 'owner'; // This should come from your authentication logic
@@ -582,12 +592,15 @@ function OwnerTeamComponent(props) {
 
                         </>
                     )}
-
+                    <div className="dropdown" style={{ minWidth: 440 }}>
+                        <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
+                    </div>
                 </>
             ) : (
                 <img width={500} src={settingIcon} alt="" style={{ display: "block", margin: "auto" }} />
             )
             }
+
         </div >
     )
 }
