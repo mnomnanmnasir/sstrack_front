@@ -1,6 +1,7 @@
 
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
+import { FaProjectDiagram, FaUserPlus, FaClock, FaCheckCircle, FaCalendarCheck } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import dashboard from "../../images/dashboard.webp";
@@ -11,6 +12,7 @@ import { useSocket } from '../../io'; // Correct import
 import UserDashboardSection from "../../screen/component/userDashboardsection";
 import { setLogout } from "../../store/timelineSlice";
 // import { useLocation, useNavigate } from "react-router-dom";
+import { AiOutlineHistory } from "react-icons/ai"; // 🛠 Import History Icon
 import BeachAccessIcon from '@mui/icons-material/BeachAccess';
 import SettingsIcon from '@mui/icons-material/Settings';
 import jwtDecode from "jwt-decode";
@@ -22,20 +24,21 @@ function UserHeader() {
     let user = null;
 
     if (token) {
-      try {
-        user = jwtDecode(token); // Decode the token
-      } catch (error) {
-        console.error('Error decoding token:', error);
-      }
+        try {
+            user = jwtDecode(token); // Decode the token
+        } catch (error) {
+            console.error('Error decoding token:', error);
+        }
     } else {
-      console.warn('No token available');
+        console.warn('No token available');
     }
-    
+
     const [showContent, setShowContent] = useState(false);
     const [userType, setUserType] = useState(user?.userType);
     const navigate = useNavigate("");
     const dispatch = useDispatch()
     const socket = useSocket()
+    const [forceUpdate, setForceUpdate] = useState(0); // 🔹 Force re-render state
 
     let headers = {
         Authorization: 'Bearer ' + token,
@@ -48,7 +51,8 @@ function UserHeader() {
 
 
 
-    const [toggleData, setToggleData] = useState({}); // Shared state for toggles
+    const [toggleData, setToggleData] = useState({});
+    const [showMessage, setShowMessage] = useState(true); // Shared state for toggles
 
     const handleToggleChange = (employeeId, data) => {
         setToggleData((prev) => ({
@@ -73,7 +77,22 @@ function UserHeader() {
     const [items, setItem] = useState(getitems);
 
     const [leaveCount, setLeaveCount] = useState(0); // State to store leave request count
+    useEffect(() => {
+        // Function to check localStorage and update state
+        const checkSetupStatus = () => {
+            const isSetupComplete = localStorage.getItem("isAccountSetupComplete");
+            setShowMessage(isSetupComplete !== "true");
+        };
 
+        checkSetupStatus(); // Initial check
+
+        // Listen for localStorage changes (useful if updated from another component)
+        window.addEventListener("storage", checkSetupStatus);
+
+        return () => {
+            window.removeEventListener("storage", checkSetupStatus);
+        };
+    }, []);
     // Fetch leave requests and calculate count
     const fetchLeaveRequests = async () => {
         try {
@@ -117,8 +136,11 @@ function UserHeader() {
 
         const handleUpdateData = () => {
             console.log('Received updateData event===========SOCKET');
-            updateData()
-        };
+            updateData();
+            setForceUpdate(prev => prev + 1); // 🔹 Just update state to trigger re-render
+
+            // Window ko reload karne ke liye
+        }
 
         socket.on('role_update', handleUpdateData);
 
@@ -143,6 +165,8 @@ function UserHeader() {
                 localStorage.setItem("token", response.data.token);
                 // localStorage.setItem("items", JSON.stringify(response.data.user));
 
+                // 🔹 Force re-render
+                setForceUpdate(prev => prev + 1);
             }
         } catch (error) {
             // setLoading(false)
@@ -183,6 +207,11 @@ function UserHeader() {
     function takeToAdmin() {
         setShowContent(false)
         navigate("/account")
+    }
+
+    function takeToHistory() {
+        setShowContent(false)
+        navigate("/history")
     }
 
     function takeToSettings() {
@@ -337,7 +366,16 @@ function UserHeader() {
                                                 <p>Leaves</p>
                                             </div>
                                         )} */}
-
+                                        <div onClick={takeToHistory}>
+                                            <div style={{ marginLeft: '-4%' }}>
+                                                <AiOutlineHistory size={24} color="#fff" /> {/* 🛠 Icon Added Here */}
+                                            </div>
+                                            <p>History
+                                                <span style={{ marginLeft: '5%' }}>
+                                                    Logs
+                                                </span>
+                                            </p>
+                                        </div>
                                         {user?.userType === "user" ? null : (
                                             <div onClick={takeToSettings}>
                                                 <div>
@@ -374,6 +412,7 @@ function UserHeader() {
                             <div className="container-fluid" style={{ position: "relative" }}>
                                 <div>
                                     <img onClick={() => navigate('/')} className="logo1" src={logo} />
+
                                     {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                                     <span className="navbar-toggler-icon"></span>
                                 </button> */}
@@ -416,6 +455,27 @@ function UserHeader() {
                                             </div>
                                             <p>My Account</p>
                                         </div>
+                                        {/* <div onClick={takeToHistory}>
+                                            <div>
+                                                <img src={account} />
+                                            </div>
+                                            <p>History 
+                                                <span>    
+                                                Logs
+                                                </span>
+                                                </p>
+                                        </div> */}
+
+                                        <div onClick={takeToHistory}>
+                                            <div style={{ marginLeft: '-4%' }}>
+                                                <AiOutlineHistory size={24} color="#fff" /> {/* 🛠 Icon Added Here */}
+                                            </div>
+                                            <p>History
+                                                <span style={{ marginLeft: '5%' }}>
+                                                    Logs
+                                                </span>
+                                            </p>
+                                        </div>
                                         {(user?.userType === "user") || (user?.userType === "manager") ? null : (
                                             <div onClick={takeToSettings}>
                                                 <div style={{ marginLeft: '-5px' }}>
@@ -425,15 +485,7 @@ function UserHeader() {
                                             </div>
                                         )}
 
-                                        {/* Display this only for userType === "user" */}
-                                        {/* {user?.userType === "user" && (
-                                            <div onClick={userSettings}>
-                                                <div>
-                                                    <img src={account} alt="Account Icon" />
-                                                </div>
-                                                <p>Settings</p>
-                                            </div>
-                                        )} */}
+
 
                                         <div onClick={logOut}>
                                             <div>
@@ -442,22 +494,47 @@ function UserHeader() {
                                             <p>Logout</p>
                                         </div>
                                     </div>
-                                        // {user?.userType === "user" ? null : (
-                                        //     <div onClick={takeToSettings}>
-                                        //         <div>
-                                        //             <img src={account} />
-                                        //         </div>
-                                        //         <p>leaveManagement</p>
 
-                                        //     </div>
-                                        // )}
                                     }
                                 </div>
                             </div>
                         </nav>
-                        {token && (
-                            <UserDashboardSection />
+                        {showMessage && (<div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                // height: '100vh',
+                                width: '100vw'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    backgroundColor: 'orange',
+                                    padding: 10,
+                                    // borderRadius: 8,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: 8,
+                                    width: '95.2%',
+                                    marginRight: 10,
+                                    textAlign:'center',
+                                }}
+                            >
+                                {/* <FaCheckCircle style={{ color: 'white' }} /> */}
+                                <span>
+                                    Complete your account setup by adding a project, inviting users,
+                                    setting break times, ensuring punctuality, and configuring leaves.
+                                    please click Training center.
+                                </span>
+                            </div>
+                        </div>)}
 
+
+                        {token && (
+                            // {/* 🔹 Only UserDashboardSection reloads when socket updates */ }
+                            < UserDashboardSection key={forceUpdate} />
                         )}
                         {/* <img className="line" src={line} /> */}
                     </>

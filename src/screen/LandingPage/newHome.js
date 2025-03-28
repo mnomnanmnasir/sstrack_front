@@ -81,6 +81,7 @@ function NewHome({ isAuthenticated }) {
     <>
       {/* Navbar */}
 
+      <NewHeader language={language} handleToggleLanguage={handleToggleLanguage} />
       {/* Main content */}
       <div style={{
         position: 'relative',
@@ -100,7 +101,6 @@ function NewHome({ isAuthenticated }) {
       }}>
         <div style={{ position: 'sticky', top: '0', width: '100%', zIndex: '10' }}>
           {/* <NavigationBar /> */}
-          <NewHeader language={language} handleToggleLanguage={handleToggleLanguage} />
           {/* <button
             onClick={handleToggleLanguage}
             style={{

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Select from "react-select";
 
-const UserTimezoneDropdown = () => {
+const UserTimezoneDropdown = ({ onTimezoneChange }) => {
     const [usersByTimezone, setUsersByTimezone] = useState({});
-    const [selectedTimezone, setSelectedTimezone] = useState(null); // Store selected timezone
+    const [selectedTimezone, setSelectedTimezone] = useState(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -14,9 +14,7 @@ const UserTimezoneDropdown = () => {
                 const response = await axios.get(
                     "https://myuniversallanguages.com:9093/api/v1/owner/getUsersTimezone",
                     {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
+                        headers: { Authorization: `Bearer ${token}` },
                     }
                 );
 
@@ -51,15 +49,11 @@ const UserTimezoneDropdown = () => {
     // Handle timezone selection
     const handleTimezoneChange = (selectedOption) => {
         setSelectedTimezone(selectedOption);
-        
-        if (selectedOption && usersByTimezone[selectedOption.value]) {
-            console.log(`Users in ${selectedOption.value}:`, usersByTimezone[selectedOption.value]);
-        }
+        onTimezoneChange(selectedOption, usersByTimezone);
     };
 
     return (
         <div>
-            {/* Timezone Dropdown using react-select */}
             <Select
                 value={selectedTimezone}
                 onChange={handleTimezoneChange}

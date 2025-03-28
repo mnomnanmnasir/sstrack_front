@@ -8,7 +8,7 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import Joyride from "react-joyride";
 import BreakTime from '../../adminScreens/settingScreenComponent/breakTime';
-
+import { FaChevronDown } from "react-icons/fa"; // 🛠 Import Professional Arrow Icon
 
 function UserDashboardSection({ settingsTabs }) {
     const [run, setRun] = useState(true);
@@ -17,6 +17,7 @@ function UserDashboardSection({ settingsTabs }) {
     const getitems = jwtDecode(JSON.stringify(token));
     const navigate = useNavigate();
     const location = useLocation();
+    const [attendanceDropdownOpen, setAttendanceDropdownOpen] = useState(false);
     const [items, setItems] = useState(getitems);
     const [selectedTab, setSelectedTab] = useState(null); // Track selected tab
     const steps = [
@@ -185,7 +186,7 @@ function UserDashboardSection({ settingsTabs }) {
                 borderBottomRightRadius: "10px",
                 margin: "0px 30px 0 30px",
             }}>
-                <div className="d-flex align-items-center" style={{ width: '50%', gap:'0.05' }}>
+                <div className="d-flex align-items-center" style={{ width: '50%', gap: '0.05' }}>
                     <div className={location.pathname === "/dashboard" ? "active-tab" : "ownerSectionUser"} onClick={() => {
                         navigate('/dashboard')
                     }} >
@@ -328,81 +329,87 @@ function UserDashboardSection({ settingsTabs }) {
                             style={{
                                 display: "flex",
                                 alignItems: "center",
-                                justifyContent: "space-between", // ✅ Items ek row main rakhne ke liye
-                                gap: "5px",
+                                justifyContent: "space-between",
                                 cursor: "pointer",
                                 position: "relative",
                                 // backgroundColor: "#F5F5F5", // ✅ Background color
                                 // padding: "10px 15px",
                                 borderRadius: "5px",
-                                width: "250px", // ✅ Same width for alignment
                             }}
                             onClick={() => navigate("/attendence-management")}
                         >
                             {/* ✅ Attendance Management Text */}
-                            <p style={{ margin: 0 }}>Attendance
-                            </p>
-                            <span>
-                                Management
-                            </span>
 
-                            {/* ✅ Dropdown Button - Only for Admin & Owner */}
-                            {/* ✅ Dropdown Button */}
-                            {/* <> */}
-                            {items?.userType !== "manager" &&
 
+                            <div
+                                className="dropdown1"
+                                onMouseEnter={() => setDropdownOpen(true)}
+                                onMouseLeave={() => setDropdownOpen(false)}
+                                style={{ position: "relative" }}
+                            >
                                 <div
-                                    className="dropdown1"
-                                    onMouseEnter={() => setDropdownOpen(true)}
-                                    onMouseLeave={() => setDropdownOpen(false)}
-                                    style={{ position: "relative" }}
+                                    className=""
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between", // 
+                                        gap: "15px",
+                                        cursor: "pointer",
+                                        position: "relative",
+                                        // backgroundColor: "#F5F5F5", // ✅ Background color
+                                        // padding: "10px 15px",
+                                        borderRadius: "5px",
+                                        width: items?.userType === "manager" ? "190px" : "210px",
+
+                                    }}
                                 >
-                                    <button
-                                        className="dropdown-btn"
-                                        style={{
-                                            background: "none",
-                                            border: "none",
-                                            // fontSize: "18px",
-                                            cursor: "pointer",
-                                            fontWeight: "bold",
-                                        }}
-                                    >
-                                        ▼
-                                    </button>
-                                    {dropdownOpen && (
-                                        <div className="dropdown-content1">
-                                            <Link
-                                                to="/settings/break-time"
-                                                state={{ deactivateTabs: true }} // ✅ Jab navigate ho to tabs deactivate ho jayein
-                                                style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
-                                            >
-                                                <p
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        // navigate("/settings/break-time"); // ✅ Navigate to Break Time Page
-                                                    }}
-                                                >
-                                                    Break Time
-                                                </p>
-                                            </Link>
-                                            <Link
-                                                to="/settings/punctuality"
-                                                state={{ deactivateTabs: true }} // ✅ Jab navigate ho to tabs deactivate ho jayein
-                                                style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
-                                            >
-                                                <p
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        // navigate("/settings/punctuality");
-                                                    }}
-                                                >
-                                                    Punctuality
-                                                </p>
-                                            </Link>
-                                        </div>
-                                    )}
+                                    <span style={{ textAlign: 'center' }}>
+                                        Attendence Management
+                                        {/* ✅ Manager ke liye dropdown icon hide karein */}
+                                        {items?.userType !== "manager" && (
+                                            <FaChevronDown size={14} color="#000" style={{ marginLeft: "5px" }} />
+                                        )}
+                                    </span>
+                                    {/* <FaChevronDown size={14} color="#000" style={{ marginLeft: "5px" }} /> ✅ Icon ko Padding di */}
                                 </div>
-                            }
+                                {items?.userType !== "manager" && (
+                                    <>
+                                        {dropdownOpen && (
+                                            <div className="dropdown-content1">
+                                                <Link
+                                                    to="/settings/break-time"
+                                                    state={{ deactivateTabs: true }}
+                                                    style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
+                                                >
+                                                    <p
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            // navigate("/settings/break-time"); // ✅ Navigate to Break Time Page
+                                                        }}
+                                                    >
+                                                        Break Time
+                                                    </p>
+                                                </Link>
+                                                <Link
+                                                    to="/settings/punctuality"
+                                                    state={{ deactivateTabs: true }} // ✅ Jab navigate ho to tabs deactivate ho jayein
+                                                    style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
+                                                >
+                                                    <p
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            // navigate("/settings/punctuality");
+                                                        }}
+                                                    >
+                                                        Punctuality
+                                                    </p>
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+
                         </div>
                     )}
 
@@ -412,7 +419,7 @@ function UserDashboardSection({ settingsTabs }) {
                     </div>
                 </div>
                 <div className="d-flex justify-content-end align-items-center w-100 flex-nowrap info-container">
-                  
+
                     {/* {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
                         <div className="break-time-container">
                             <p className="" style={{ textAlign: 'center', width: '50%' }}>
@@ -430,7 +437,7 @@ function UserDashboardSection({ settingsTabs }) {
                             </p>
                         </div>
                     )}
-                  
+
                     <div className="company-name-container1">
                         <div>
                             <img src={circle} className="company-logo" alt="Company Logo" />

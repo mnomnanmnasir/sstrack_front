@@ -47,6 +47,9 @@ import BreakTime from '../adminScreens/settingScreenComponent/breakTime'
 import Punctuality from '../adminScreens/settingScreenComponent/punctuality'
 import ActivityLevel from "../adminScreens/settingScreenComponent/activitylevel";
 import UrlTracking from "../adminScreens/settingScreenComponent/url";
+import History from '../screen/historyLogs'
+import OwnerManualLeave from '../companyOwner/owner-setting-components/ownerManualLeave'
+import TrainingPage from "../screen/TrainingPage";
 
 export default function AppRouter() {
 
@@ -144,6 +147,7 @@ export default function AppRouter() {
             <Route path="/effective-settings" element={token ? (suspended ? <Navigate to="/account" /> : <Setting />) : <Navigate to="/" />} />
 
             <Route path="/user-setting" element={token ? (suspended ? <Navigate to="/account" /> : <UserSettings />) : <Navigate to="/" />} />
+            <Route path="/Training" element={token ? (suspended ? <Navigate to="/account" /> : <TrainingPage />) : <Navigate to="/" />} />
 
             <Route path="/team" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerTeam />) : <Navigate to="/" />} />
             <Route path="/reports" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerReport />) : <Navigate to="/" />} />
@@ -153,12 +157,15 @@ export default function AppRouter() {
             <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} />
             <Route path="/leave-management" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerLeaveManagement />) : <Navigate to="/" />} />
             <Route path="/applyForLeave" element={token ? (suspended ? <Navigate to="/account" /> : <ApplyForLeave />) : <Navigate to="/" />} />
+            <Route path="/ownerManualLeave" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerManualLeave />) : <Navigate to="/" />} />
             <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} />
-            <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} />
+            {/* <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} /> */}
             <Route path="/attendence-management" element={token ? (suspended ? <Navigate to="/account" /> : <Attendence />) : <Navigate to="/" />} />
+            <Route path="/history" element={token ? (suspended ? <Navigate to="/account" /> : <History />) : <Navigate to="/" />} />
+
             {/* <Route path="/effective-settings/break-time" element={<BreakTime />} /> */}
             <Route path="/settings" element={<Setting />}>
-              <Route path="break-time" element={<BreakTime />} />
+              <Route path="break-time" element={< BreakTime />} />
               <Route path="punctuality" element={<Punctuality />} />
             </Route>
             {/* <Route

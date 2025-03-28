@@ -16,10 +16,13 @@ import axios from "axios";
 import { FerrisWheelSpinner } from "react-spinner-overlay";
 import showPasswordIcon from '../images/showPassword.svg';
 import hidePasswordIcon from '../images/hidePassword.svg';
+import passwordIcon from "../images/passwordIcon.webp";
 import jwtDecode from "jwt-decode";
 // import NewHeader from './component/Header/NewHeader';
+import { useDispatch } from "react-redux";
+import { setToken } from "../store/authSlice";
 
-function CreateAccount({language}) {
+function CreateAccount({ language }) {
 
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false)
@@ -37,6 +40,9 @@ function CreateAccount({language}) {
         timezoneOffset: "",
         userType: "user",
     });
+
+    const dispatch = useDispatch();
+
     const [err, setErr] = useState("");
     const [error, setError] = useState("");
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
@@ -50,73 +56,141 @@ function CreateAccount({language}) {
         Authorization: "Bearer " + token,
     };
 
+    const [showMessage, setShowMessage] = useState(false);  // ✅ Track message visibility
+    const [firstTimeGenerated, setFirstTimeGenerated] = useState(false);  // ✅ Track first-time status
+
+    // ✅ Function to Generate Secure Password
+    // const generatePassword = () => {
+    //     if (!firstTimeGenerated) { // ✅ Sirf pehli baar message show karein
+    //         const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?";
+    //         let password = "";
+    //         for (let i = 0; i < 12; i++) {
+    //             password += chars.charAt(Math.floor(Math.random() * chars.length));
+    //         }
+    //         fillModel("password", password);
+
+    // setShowMessage(true);  // ✅ Message ko dikhayein
+    // setFirstTimeGenerated(true);  // ✅ First-time flag set karein
+
+    // setTimeout(() => {
+    //     setShowMessage(false);  // ✅ 3s baad message hide karein
+    // }, 3000);
+    //     } 
+    // };
+    // ✅ Function to Generate Secure Password
+    const generatePassword = () => {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?";
+        let password = "";
+        for (let i = 0; i < 12; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        fillModel("password", password); // ✅ Password field update karein
+
+        if (!firstTimeGenerated) { // ✅ Sirf pehli baar message show karein
+            setShowMessage(true);
+            setFirstTimeGenerated(true);
+
+            setTimeout(() => {
+                setShowMessage(false);
+            }, 3000);
+        }
+        return password;
+    };
+
+    // ✅ Handle Key Press (',' Generates a New Password)
+    const handleKeyPress = (e) => {
+        if (e.key === " ") {
+            e.preventDefault(); // Stop inputting ','
+            fillModel("password", generatePassword()); // Generate new password
+        }
+    };
+
     async function handleCreateAccount() {
-        if (!model?.name === "" || !model?.company === "" || !model?.email === "" || !model?.password === "" || !model?.timezone === "" || !model?.timezoneOffset === "" || !model.name ||
+        if (
+            !model.name ||
             !model.company ||
             !model.email ||
             !model.password ||
             !model.timezone ||
-            !model.timezoneOffset) {
+            !model.timezoneOffset
+        ) {
             enqueueSnackbar("Please fill all fields", {
                 variant: "error",
                 anchorOrigin: {
                     vertical: "top",
                     horizontal: "right"
                 }
-            })
-            return null
+            });
+            return;
         }
+
         if (!model.email.includes("@") || !model.email.includes(".")) {
-            enqueueSnackbar("Invalid email please enter valid email", {
+            enqueueSnackbar("Invalid email, please enter a valid email", {
                 variant: "error",
                 anchorOrigin: {
                     vertical: "top",
                     horizontal: "right"
                 }
-            })
-            return null
+            });
+            return;
         }
-        else {
-            setLoading(true)
-            try {
-                const response = await axios.post(`${apiUrl}/owner/updateemployee`, {
-                    company: model?.company,
-                    email: model?.email,
-                    _id: model?.id,
-                    name: model?.name,
-                    password: model?.password,
-                    timezone: model?.timezone,
-                    timezoneOffset: model?.timezoneOffset,
-                    userType: model?.userType,
-                })
-                console.log("Response create account", response)
-                if (response.status) {
-                    setLoading(false)
-                    enqueueSnackbar(response.data.message, {
-                        variant: "success",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right"
-                        }
-                    })
+
+        setLoading(true);
+        try {
+            const response = await axios.post(`${apiUrl}/owner/updateemployee`, {
+                company: model.company,
+                email: model.email,
+                _id: model.id,
+                name: model.name,
+                password: model.password,
+                timezone: model.timezone,
+                timezoneOffset: model.timezoneOffset,
+                userType: model.userType,
+            });
+
+            console.log("Response create account", response);
+
+            // ✅ Step 1: Get token from response
+            const token = response?.data?.token;
+
+            if (token) {
+                dispatch(setToken(token));
+                localStorage.setItem("token", token);
+
+                enqueueSnackbar("Account created successfully!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
+                });
+
+                if (user?.isSplashScreen === false) {
+                    navigate("/splash");
+                    console.log("Navigated to /splash");
+                } else {
+                    console.log("Navigated to /dashboard");
                     setTimeout(() => {
-                        navigate('/signin')
-                    }, 3000);
+                        window.location.href = "/dashboard"; // ✅ Hard reload with redirect
+                    }, 1000);
                 }
-                console.log("signup from link response =====>", response);
-            } catch (error) {
-                setLoading(false)
-                enqueueSnackbar(error?.response?.data?.message ? error?.response?.data?.message : "Network error", {
+            }
+
+        } catch (error) {
+            setLoading(false);
+            enqueueSnackbar(
+                error?.response?.data?.message || "Network error",
+                {
                     variant: "error",
                     anchorOrigin: {
                         vertical: "top",
                         horizontal: "right"
                     }
-                })
-                console.log("catch error ===>", error);
-            }
+                }
+            );
+            console.log("catch error ===>", error);
         }
     }
+
+
 
     const handleStartDateChange = (selectedtimezone) => {
         // Assuming selectedtimezone is an object with a 'value' property representing the time zone name
@@ -143,6 +217,9 @@ function CreateAccount({language}) {
         setCurrentTimeZone(defaultTimezone);
         fillModel("timezoneOffset", offsetInHours);
         fillModel("timezone", defaultTimezone);
+
+        // ✅ Auto-generate password on first render
+        fillModel("password", generatePassword());
     }, []);
 
     async function getLink(params) {
@@ -219,7 +296,7 @@ function CreateAccount({language}) {
     return (
         <div>
             <SnackbarProvider />
-            <Header/>
+            <Header />
             {linkExpired ? (
                 <div style={{
                     backgroundColor: "white",
@@ -268,19 +345,136 @@ function CreateAccount({language}) {
                                     placeholder="Your full name"
                                 />
                             </div>
-                            <div className="inputDiv">
+                            {/* <div className="inputDiv">
                                 <div><img src={account} /></div>
                                 <input value={model?.company} placeholder="Company" />
                             </div>
                             <div className="inputDiv">
                                 <div><img src={emailIcon} /></div>
                                 <input className="autofill" value={model?.email} type="email" placeholder="Email" />
+                            </div> */}
+                               <div
+                                className="inputDiv"
+                                style={{
+                                    backgroundColor: model?.company ? "#f0f0f0" : "white",
+                                    opacity: model?.company ? 0.6 : 1,
+                                    pointerEvents: model?.company ? "none" : "auto",
+                                    padding: "10px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "5px",
+                                    transition: "0.3s"
+                                }}
+                            >
+                                <div><img src={account} /></div>
+                                <input
+                                    value={model?.company}
+                                    placeholder="Company"
+                                    disabled={!!model?.company}
+                                    style={{
+                                        backgroundColor: model?.company ? "#f0f0f0"  : "white",
+                                        border: "none",
+                                        outline: "none",
+                                        flex: 1,
+                                        padding: "5px"
+                                    }}
+                                />
                             </div>
-                            <div className="inputDiv">
+
+                            <div
+                                className="inputDiv"
+                                style={{
+                                    backgroundColor: model?.email ? "#f0f0f0" : "white",
+                                    opacity: model?.email ? 0.6 : 1,
+                                    pointerEvents: model?.email ? "none" : "auto",
+                                    padding: "10px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "5px",
+                                    transition: "0.3s"
+                                }}
+                            >
+                                <div><img src={emailIcon} /></div>
+                                <input
+                                    value={model?.email}
+                                    type="email"
+                                    placeholder="Email"
+                                    disabled={!!model?.email}
+                                    style={{
+                                        backgroundColor: model?.email ? "#f0f0f0" : "white",
+                                        border: "none",
+                                        outline: "none",
+                                        flex: 1,
+                                        padding: "5px"
+                                    }}
+                                />
+                            </div>
+
+                            {/* <div className="inputDiv">
                                 <div><img src={password} /></div>
                                 <input className="password" type={showPassword ? 'text' : 'password'} value={model.password} onChange={(e) => fillModel("password", e.target.value)} placeholder="Password (8 or more characters)" />
                                 {model.password !== "" && <img style={{ cursor: "pointer" }} width={30} src={showPassword ? showPasswordIcon : hidePasswordIcon} alt="Password" onClick={() => setShowPassword(!showPassword)} />}
+                            </div> */}
+                            {/* ✅ Auto Generated Password with ',' Key Feature */}
+                            <div className="inputDiv" style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                                <div><img src={passwordIcon} /></div>
+
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={model.password}
+                                    onChange={(e) => fillModel("password", e.target.value)}
+                                    placeholder="Password (Press space to Generate)"
+                                    onKeyPress={handleKeyPress} // ✅ Detect Key Press
+                                />
+                                {/* Auto Generate Button */}
+                                <button
+                                    onClick={() => {
+                                        const newPassword = generatePassword(); // ✅ Random password generate karein
+                                        fillModel("password", newPassword); // ✅ Password field update karein
+                                    }}
+                                    style={{
+                                        position: "absolute",
+                                        right: "35px", // ✅ Adjusted to fit before the eye icon
+                                        top: "50%",
+                                        transform: "translateY(-50%)",
+                                        backgroundColor: "#6ABB47",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        cursor: "pointer",
+                                        fontSize: "12px",
+                                        padding: "5px 8px",
+                                    }}>
+                                    Auto Generate
+                                </button>
+                                {/* Eye Icon */}
+                                <img
+                                    style={{
+                                        cursor: "pointer",
+                                        position: "absolute",
+                                        right: "5px", // ✅ Adjusted after the Auto Generate button
+                                        top: "50%",
+                                        transform: "translateY(-50%)",
+                                        width: "25px",
+                                    }}
+                                    src={showPassword ? showPasswordIcon : hidePasswordIcon}
+                                    alt="Toggle Password"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                />
                             </div>
+
+                            {/* ✅ Secure Password Message */}
+                            {showMessage && (
+                                <p className="text-warning" style={{ fontSize: "14px", marginTop: "5px" }}>
+                                    This is a secure, randomly generated password.
+                                    It is encrypted for your safety and ensures strong protection.
+                                </p>
+                            )}
+
                             <div className="inputDiv2">
                                 {/* <div><img src={clock} /></div> */}
                                 {/* <div> */}

@@ -11,7 +11,7 @@ import playStore from '../images/SplashP.svg';
 import chrome from '../images/SplashC.svg';
 import { AiFillWindows } from 'react-icons/ai';
 import chromeImg from '../images/Mic Logo 2 2.png'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const DownloadSection = () => {
 
@@ -193,13 +193,19 @@ const DownloadSection = () => {
                             <h1 style={{ fontWeight: "700", color: "#0D4873" }}>
                                 {isArabic ? "احصل على تطبيق سطح المكتب لـ" : "Get the Desktop App for"}
                                 <span style={{ color: "#7ACB59" }}>
-                                    {isArabic ? "ويندوز، ماك، وكروم أو إس" : " Windows, macOS, and ChromeOS"}
+                                    {isArabic ? "ويندوز، ماك، وكروم أو إس" : " Windows, macOS, and Chrome Extension"}
                                 </span>
                             </h1>
-                            <p style={{ color: "#6C757D", fontSize: "16px", marginTop: "1rem" }}>
+                            <p style={{ fontSize: "16px", marginTop: "1rem" }}>
+                                <span style={{ fontWeight: "bold" }}>
+                                    {isArabic ? "مسؤولو الشركة " : "Company administrators "}
+                                </span>
                                 {isArabic
-                                    ? "يمكن لمسؤولي الشركة مراجعة الساعات المسجلة ولقطات الشاشة من خلال هذا الموقع."
-                                    : "Company administrators can review the tracked hours and screenshots on this website."}
+                                    ? "يمكنهم مراجعة الساعات المسجلة ولقطات الشاشة "
+                                    : "can review the tracked hours and screenshots "}
+                                <span style={{ fontWeight: "bold" }}>
+                                    {isArabic ? "على لوحة التحكم الخاصة بهم." : "on their dashboard."}
+                                </span>
                             </p>
                             <div
                                 className="d-flex justify-content-start gap-3 flex-wrap"
@@ -231,7 +237,7 @@ const DownloadSection = () => {
                                             }}
                                         />
                                         <span style={{ color: 'white', fontSize: '-15%' }}>
-                                            {isArabic ? "تحميل الإضافة" : "Download Extension"}
+                                            {isArabic ? "إضافة كروم" : "Chrome Extension"}
                                         </span>
                                     </>
                                 </button>
@@ -353,21 +359,62 @@ const DownloadSection = () => {
 
 
                             <h4 style={{ marginTop: "2rem", color: "#0D4873" }}></h4>
-                            <p style={{ color: "#6C757D", fontSize: "16px", lineHeight: "1.8" }}>
+                            <p style={{ fontSize: "26px", color: "#0D4873", lineHeight: "1.8" }}>
                                 {/* This is a Windows desktop application designed for employees. It
                                 allows an employee to start and stop tracking their work time and
                                 captures screenshots of their computer during work hours. */}
                                 {isArabic
                                     ? "هذا تطبيق سطح مكتب لنظام ويندوز مصمم للموظفين. يتيح للموظف بدء وإيقاف تتبع وقت عمله ويلتقط لقطات شاشة لجهاز الكمبيوتر الخاص به أثناء ساعات العمل."
-                                    : "This is a Windows desktop application designed for employees. It allows an employee to start and stop tracking their work time and captures screenshots of their computer during work hours."
-                                }
-                                <br />
-                                <br />
-                                {isArabic
-                                    ? "بمجرد تنشيط زر الإيقاف، يتوقف عن التقاط لقطات الشاشة. يمكن مراجعة وقت عملك ولقطات الشاشة في \"صفحتي الرئيسية\"، حيث لديك أيضًا خيار حذف أي لقطات شاشة."
-                                    : "Once the stop button is activated, it ceases to take screenshots. Your work time and screenshots can be reviewed in My Home, where you also have the option to delete any screenshots."
+                                    : "What is this?"
                                 }
                             </p>
+                            <p style={{ color: "#6C757D" }}>
+                                {isArabic
+                                    ? "هذا تطبيق سطح مكتب لنظام التشغيل ويندوز مصمم للموظفين. يتيح للمستخدمين بدء وإيقاف تتبع ساعات العمل ويلتقط لقطات شاشة أثناء جلسات العمل."
+                                    : "This is a desktop application designed for "
+                                }
+                                <span style={{ fontWeight: "bold" }}>
+                                    {isArabic ? "الموظفين." : "employees."}
+                                </span>
+                                <span>
+                                    {isArabic
+                                        ? " يسمح للمستخدمين ببدء وإيقاف تتبع ساعات العمل ويلتقط لقطات شاشة أثناء جلسات العمل."
+                                        : " It allows users to start and stop tracking work hours and captures screenshots during work sessions."
+                                    }
+                                </span>
+                            </p>
+
+                            <ul style={{ color: "#6C757D", fontSize: "16px", lineHeight: "1.8" }}>
+                                <li style={{ color: "#6C757D" }}>
+                                    {isArabic
+                                        ? "يتم تسجيل لقطات الشاشة وسجلات الوقت تلقائيًا."
+                                        : "Screenshots and time logs are recorded automatically."
+                                    }
+                                </li>
+                                <li style={{ color: "#6C757D" }}>
+                                    {isArabic
+                                        ? "عند تنشيط زر الإيقاف، يتوقف التطبيق عن التقاط لقطات الشاشة."
+                                        : "When the Stop button is activated, no further screenshots are taken."
+                                    }
+                                </li>
+                                <li style={{ color: "#6C757D" }}>
+                                    {isArabic ? (
+                                        <span>
+                                            يمكن للمستخدمين مراجعة وحذف لقطات الشاشة وساعات العمل المسجلة من خلال{" "}
+                                            <Link to="/dashboard" style={{ color: "#28659C", textDecoration: "underline" }}>
+                                                sstrack.io/dashboard
+                                            </Link>
+                                        </span>
+                                    ) : (
+                                        <>
+                                            Users can review and delete their screenshots and tracked time under{" "}
+                                            <Link to="/dashboard" style={{ color: "#28659C", textDecoration: "underline" }}>
+                                                sstrack.io/dashboard
+                                            </Link>
+                                        </>
+                                    )}
+                                </li>
+                            </ul>
 
                             <h4 style={{ marginTop: "1.5rem", color: "#0D4873" }}>
                                 {isArabic ? "بعد التثبيت" : "Post-installation"}
@@ -375,10 +422,36 @@ const DownloadSection = () => {
 
                             <p style={{ color: "#6C757D", fontSize: "16px", lineHeight: "1.8" }}>
                                 {isArabic
-                                    ? "بمجرد تثبيت التطبيق، قم بتشغيله وانقر على \"ابدأ\" لبدء مراقبة وقتك والتقاط لقطات الشاشة."
-                                    : "Once the application is installed, launch it and click 'Start' to begin monitoring your time and capturing screenshots."
+                                    ? "بمجرد تثبيت التطبيق:"
+                                    : "Once the application is installed:"
                                 }
                             </p>
+                            <ul style={{ color: "#6C757D", fontSize: "16px", lineHeight: "1.8" }}>
+                                <li>
+                                    {isArabic
+                                        ? "قم بتشغيل التطبيق."
+                                        : "Launch the app"
+                                    }
+                                </li>
+                                <li>
+                                    {isArabic
+                                        ? "اضغط على أيقونة التشغيل لبدء تتبع وقت عملك والتقاط لقطات الشاشة."
+                                        : "Click "
+                                    }
+                                    <span style={{ fontWeight: 'bold' }}>
+                                        {isArabic
+                                            ? "اضغط على أيقونة التشغيل لبدء تتبع وقت عملك والتقاط لقطات الشاشة."
+                                            : "play icon "
+                                        }
+                                    </span>
+                                    <span>
+                                        {isArabic
+                                            ? "اضغط على أيقونة التشغيل لبدء تتبع وقت عملك والتقاط لقطات الشاشة."
+                                            : "to begin tracking your work time and capturing screenshots"
+                                        }
+                                    </span>
+                                </li>
+                            </ul>
 
                         </Col>
 
@@ -413,7 +486,7 @@ const DownloadSection = () => {
                         </Col>
                     </Row>
                 </Container>
-            </div>
+            </div >
         </>
     );
 };

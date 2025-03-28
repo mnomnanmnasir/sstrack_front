@@ -180,7 +180,7 @@ function PricingSection({ language }) {
                             </Col>
 
                             {/* Features List 1 */}
-                            <Col xs={12} md={3} className="text-md-start text-center d-flex flex-column" style={{ marginTop: '3.5%' }}>
+                            <Col xs={12} md={3} className="text-md-start d-flex flex-column" style={{ marginTop: '3.5%' }}>
                                 <p className="text-muted fw-semibold" style={{ fontSize: '15px' }}>
                                     {language === "ar" ? "يتضمن جميع ميزات خطة Pro، بالإضافة إلى:" : "Includes all Pro Plan features, plus:"}
                                 </p>
@@ -194,7 +194,7 @@ function PricingSection({ language }) {
                             </Col>
 
                             {/* Features List 2 */}
-                            <Col xs={12} md={3} className="text-md-start text-center d-flex flex-column" style={{ marginTop: '5.5%' }}>
+                            <Col xs={12} md={3} className="text-md-start d-flex flex-column" style={{ marginTop: '5.5%' }}>
                                 <ul className="list-unstyled">
                                     {[
                                         isArabic ? "خيارات العلامة البيضاء" : "White-labeling options (custom branding)",

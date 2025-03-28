@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+import timezoneReducer from "./timezoneSlice";  // ✅ Import timezone slice
+
 
 const adminSlice = createSlice({
     name: "admin",
@@ -8,6 +10,7 @@ const adminSlice = createSlice({
         activeTab: null,
         breakTimes: [], // Initial state for breakTime
         timeFields: {},
+        timezone: timezoneReducer,  // ✅ Add timezone reducer
         ids: []
     },
     reducers: {
@@ -551,6 +554,8 @@ const adminSlice = createSlice({
                 }),
             };
         },
+
+        
         updateEmployeeSettings(state, action) {
             const { id, isSelected, key } = action.payload;
             const employee = state.employess.find(emp => emp._id === id);

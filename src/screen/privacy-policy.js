@@ -7,15 +7,33 @@ import NewHeader from "./component/Header/NewHeader";
 function PrivacyPolicy() {
   return (
     <section>
-        
-        <NewHeader language={'en'} show={true} />
-      
+
+      <NewHeader language={'en'} show={true} />
+
       <div className="container" id="section4">
-        
+
         <div className="trialDiv">
           <div className="employeesDiv" style={{ marginBottom: 50 }}>
             <p className='ethical'>Privacy Policy</p>
             <p className='employees'>This Privacy Policy outlines the manner in which SS Track collects, uses, maintains, and discloses information collected from users.</p>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "10px" }}>
+              <button
+                style={{
+                  backgroundColor: "#28659C",
+                  color: "#fff",
+                  padding: "10px 20px",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                }}
+                onClick={() =>
+                  window.open("https://i8is.io/wp-content/uploads/2025/03/Mastering-Privacy-with-SS-Track_-Your-Control-Your-Choice-1.mp4", "_blank")
+                }
+              >
+                Click Here
+              </button>
+            </div>
           </div>
 
           <div style={{ display: "flex", alignItems: 'center', justifyContent: "space-between" }} className="how-it-work-container">
@@ -104,11 +122,11 @@ function PrivacyPolicy() {
             <div>
               <p className="features-title">9. Location Tracking <TbSquareRoundedArrowRightFilled size={50} color="#7ACB59" /> </p>
               <ul>
-              <li>
-                <p className="unitedFont">Purpose of Location Tracking: <br />
-                  The SS Track mobile application includes a location tracking feature designed for employees who work outdoors. This feature is used to monitor outdoor activities, enhance location-based services, and improve operational efficiency for employers. Location tracking is integral to the app’s functionality, especially in a work environment where outdoor tracking is necessary.</p>
-              </li>
-              <br />
+                <li>
+                  <p className="unitedFont">Purpose of Location Tracking: <br />
+                    The SS Track mobile application includes a location tracking feature designed for employees who work outdoors. This feature is used to monitor outdoor activities, enhance location-based services, and improve operational efficiency for employers. Location tracking is integral to the app’s functionality, especially in a work environment where outdoor tracking is necessary.</p>
+                </li>
+                <br />
                 <li>
                   <p className="unitedFont">User Consent:
                     <br />

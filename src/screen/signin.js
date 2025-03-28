@@ -65,6 +65,7 @@ function SignIn() {
         
         // Check if `isSplash` exists and is false
         if (user?.isSplashScreen === false) {
+          window.location.reload(); 
           navigate("/splash");
           console.log('/splash navigation trigger',);
          

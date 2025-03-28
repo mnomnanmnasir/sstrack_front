@@ -30,14 +30,21 @@ const CurrencyConverter = ({ userId, payrate }) => {
         const { value: inputValue } = await Swal.fire({
             title: 'Set payrate',
             html:
-                `<input type="number" name="amount" value=" placeholder='Set your pay amount' ${formData.amount}" placeholder='Set your pay amount' step="any" min="0" class="swal2-input">` +
+                `<input type="number" name="amount" value=" placeholder='Set your pay amount' ${formData.amount}" required placeholder='Set your pay amount' step="any" min="0" class="swal2-input">` +
                 // <input type="number" name="amount" placeholder="Set your pay amount" value="${formData.amount || ''}">
                 `<select name="currency" class="swal2-input" id="swal-currency-select" value="${formData.currency}">
            <option value="usd">USD</option>
+           <option value="qar">QAR</option>
+           <option value="pkr">PKR</option>
+           <option value="sar">SAR</option>
+           <option value="aed">AED</option>
+           <option value="php">PHP</option>
+
          </select>` +
                 `<select name="rateType" class="swal2-input" id="swal-rate-select" value="${formData.rateType}">
            <option value="hourly">Hourly Rate</option>
            <option value="monthly">Monthly Rate</option>
+    
          </select>`,
             focusConfirm: false,
             confirmButtonText: "Set",
@@ -68,21 +75,52 @@ const CurrencyConverter = ({ userId, payrate }) => {
         }
     }
 
+    // async function setPayrate() {
+    //     console.log(formData);
+    //     try {
+    //         const res = await axios.patch(`${apiUrl}/superAdmin/UpdateBillingInfo/${userId}`, {
+    //             ratePerHour: formData.amount,
+    //             currency: formData.currency,
+    //         }, {
+    //             headers: headers
+    //         })
+    //         console.log("Curreny", res)
+    //         if (res.status) {
+    //             setFormData({
+    //                 amount: null,
+    //                 currency: "",
+    //                 rateType: ""
+    //             });
+    //             enqueueSnackbar("Payrate successfully set", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             })
+    //         }
+    //         console.log(res);
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
     async function setPayrate() {
         console.log(formData);
         try {
             const res = await axios.patch(`${apiUrl}/superAdmin/UpdateBillingInfo/${userId}`, {
-                ratePerHour: formData.amount,
-                currency: formData.currency,
+                ratePerHour: formData.amount,  // Sending payrate
+                currency: formData.currency,   // Sending currency
+                payType: formData.rateType    // Sending Hourly/Monthly type
             }, {
                 headers: headers
-            })
-            console.log("Curreny", res)
+            });
+
+            console.log("Curreny", res);
             if (res.status) {
                 setFormData({
                     amount: null,
                     currency: "",
-                    rateType: ""
+                    payType: ""
                 });
                 enqueueSnackbar("Payrate successfully set", {
                     variant: "success",
@@ -90,7 +128,7 @@ const CurrencyConverter = ({ userId, payrate }) => {
                         vertical: "top",
                         horizontal: "right"
                     }
-                })
+                });
             }
             console.log(res);
         } catch (error) {

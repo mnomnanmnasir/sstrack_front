@@ -30,7 +30,7 @@ function OwnerTeamComponent(props) {
     const [viewTimeline, setViewTimeline] = useState(false)
     const [role, setRole] = useState("")
     const [data, setData] = useState({});
-    let { fixId, archived_unarchived_users, deleteUser, isUserArchive, inviteStatus, handleSendInvitation, payrate, reSendInvitation, users, setUsers, selectedUser } = props
+    let { fixId, archived_unarchived_users, deleteUser, isUserArchive, selectedGroupName, inviteStatus, handleSendInvitation, payrate, reSendInvitation, users, setUsers, selectedUser } = props
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem('token');
     const headers = {
@@ -38,14 +38,23 @@ function OwnerTeamComponent(props) {
     };
     const [timezone, setSelectedTimezone] = useState(
         Intl.DateTimeFormat().resolvedOptions().timeZone
+
+
     );
 
-    console.log('yoyoyoyoyoyoyoyoy', selectedUser?.timezone)
+    const [selectedGroupId, setSelectedGroupId] = useState(null);
+
+    useEffect(() => {
+        if (selectedUser?.timezone) {
+            setSelectedTimezone(selectedUser.timezone);
+        }
+    }, [selectedUser]);
+    console.log("Current Timezone:", timezone);
     const handleStartDateChange = async (selectedTimezone) => {
-        const apiUrl = "https://myuniversallanguages.com:9093/api/v1/owner/updateUsersTimezone/679a2da9ac8d9d680cf28fee";
         setSelectedTimezone(selectedTimezone);
+        const apiUrl = `https://myuniversallanguages.com:9093/api/v1/owner/updateUsersTimezone/${fixId}`;
         const payload = {
-            timezone: selectedTimezone.value,  // Example: "Asia/Kabul"
+            timezone: selectedTimezone.value.toString(),  // Example: "Asia/Kabul"
             timezoneOffset: selectedTimezone.offset.toString()  // Example: "4.5"
         };
 
@@ -55,11 +64,12 @@ function OwnerTeamComponent(props) {
             const response = await axios.patch(apiUrl, payload, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`  // Send the token in Authorization header
-                }
+                    'Authorization': `Bearer ${token}`
+                },
+
             });
 
-            console.log('Timezone updated successfully:', response.data.message);
+            console.log('Timezone updated successfully:', payload);
             enqueueSnackbar(response?.data?.message, {
                 variant: "success",
                 anchorOrigin: {
@@ -173,6 +183,41 @@ function OwnerTeamComponent(props) {
     };
     //     // When archiving a user, emit an event to the server
 
+    const handleGroupToggle = async (userId, isCurrentlyAssigned) => {
+        const isAssign = !isCurrentlyAssigned;
+
+        try {
+            const response = await axios.post(
+                `${apiUrl}/userGroup/addEmployeesToGroup/${selectedGroupId}`,
+                {
+                    isAssign,
+                    userIds: [userId]
+                },
+                { headers }
+            );
+
+            if (response.status === 200 || response.status === 201) {
+                enqueueSnackbar(`User ${isAssign ? "assigned to" : "removed from"} group`, {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                setUsers(prev =>
+                    prev.map(user =>
+                        user._id === userId ? { ...user, isGroupAssigned: isAssign } : user
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("Error assigning user to group:", error);
+            enqueueSnackbar("Something went wrong", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+        }
+    };
+
+
     const getData = async (fixId) => {
         setLoading(true);
         try {
@@ -228,30 +273,6 @@ function OwnerTeamComponent(props) {
         }
     }
 
-    // const handleAssignUser = async (userID) => {
-    //     try {
-    //         const response = await axios.patch(`${apiUrl}/superAdmin/assign-user-to-manager/${fixId}`, {
-    //             // userIds: [userID]
-    //             userIds: [...new Set([...users.filter(user => user.isAssign).map(user => user._id), userID])]
-    //             // userId: users.filter(user => user.isAssign).map(user => user._id)
-    //             //   userIds: [...users.filter(user => user.isAssign).map(user => user._id), userID]
-    //             // userIds: [...users.filter(user => user.isAssign).map(user => user._id), userID]
-    //         }, { headers })
-    //         if (response.status) {
-    //             enqueueSnackbar("Settings saved", {
-    //                 variant: "success",
-    //                 anchorOrigin: {
-    //                     vertical: "top",
-    //                     horizontal: "right"
-    //                 }
-    //             })
-    //         }
-    //     }
-    //     catch (err) {
-    //         setLoading(false)
-    //         console.log(err);
-    //     }
-    // }
 
 
     const handleAssignUser = async (userID) => {
@@ -276,29 +297,7 @@ function OwnerTeamComponent(props) {
         }
     }
 
-    // const handleAssignUser = async (userID) => {
-    //     try {
-    //         const response = await axios.patch(`${apiUrl}/superAdmin/assign-user-to-manager/${fixId}`, {
-    //             userIds: [...new Set([...users.filter(user => user.isAssign).map(user => user._id), userID])]
-    //         }, { headers })
-    //         if (response.status) {
-    //             // Update the owner's count
-    //             const ownerCount = users.filter(user => user.isAssign).length + 1;
-    //             // Update the owner's count in the state or database
-    //             setOwnerCount(ownerCount);
-    //             enqueueSnackbar("Settings saved", {
-    //                 variant: "success",
-    //                 anchorOrigin: {
-    //                     vertical: "top",
-    //                     horizontal: "right"
-    //                 }
-    //             })
-    //         }
-    //     } catch (err) {
-    //         setLoading(false)
-    //         console.log(err);
-    //     }
-    // }
+   
 
 
     const handleRemoveAssignUser = async (id) => {
@@ -354,9 +353,9 @@ function OwnerTeamComponent(props) {
                                             {selectedUser?.userType !== 'owner' &&
                                                 (
                                                     <>
-                                                        <div className="pauseMain mt-3">
+                                                        {/* <div className="pauseMain mt-3">
                                                             <p><img className="paueIcon" src={pause} alt="pauseIcon.png" />Pause</p>
-                                                        </div>
+                                                        </div> */}
                                                         <div className="archiveMain mt-3" onClick={archived_unarchived_users}>
 
                                                             <p><img className="paueIcon" src={archive} alt="Archive.png" />{isUserArchive ? "Archive" : "Unarchive"}</p>
@@ -367,7 +366,7 @@ function OwnerTeamComponent(props) {
                                     )}
                                 </>
                             )}
-                            {user?.userType === 'owner' && deleteUser && (
+                            {user?.userType !== 'manager' && deleteUser && (
                                 <>
                                     {selectedUser?.userType !== 'owner' && (
                                         <>
@@ -381,6 +380,13 @@ function OwnerTeamComponent(props) {
                             {/* {console.log("User Type", userType)} */}
                         </div>
                     </div>
+
+                    {selectedGroupName && (
+                        <div style={{ marginBottom: "20px" }}>
+                            <p className="employeeDetail">Selected Group</p>
+                            <p className="employeeDetailName2" style={{ fontWeight: "bold", color: "#28659C" }}>{selectedGroupName}</p>
+                        </div>
+                    )}
                     <div>
                         {data && Object.keys(data).length > 0 ? (
                             <div className="d-flex align-items-center justify-content-between">
@@ -389,11 +395,15 @@ function OwnerTeamComponent(props) {
                                     <p className="employeeDetailName2">{data.email}</p>
                                 </div>
                                 <>
+                                    {user?.userType !== 'manager' && !selectedUser?.inviteStatus && (
+                                        <>
 
-                                    {selectedUser?.userType !== 'owner' && (
-                                        <div>
-                                            <CurrencyConverter userId={fixId} payrate={payrate} />
-                                        </div>
+                                            {selectedUser?.userType !== 'owner' && (
+                                                <div>
+                                                    <CurrencyConverter userId={fixId} payrate={payrate} />
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </>
 
@@ -402,6 +412,17 @@ function OwnerTeamComponent(props) {
                             <p></p>
                         )}
                     </div>
+                    {user?.userType !== 'manager' &&
+                        selectedUser?.userType !== 'owner' &&
+                        !selectedUser?.inviteStatus && (  // ✅ Check if user has accepted the invite
+                            <div style={{ marginTop: 30, marginBottom: 30 }}>
+                                <p className="employeeDetail">Select Timezone</p>
+                                <div className="dropdown" style={{ minWidth: 440 }}>
+                                    <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
+                                </div>
+                            </div>
+                        )}
+
                     {user?._id === fixId && (user?.userType === "owner" || user?.userType === "admin") ? (
                         <>
                             <p className="employeeDetailName1">Role</p>
@@ -412,11 +433,35 @@ function OwnerTeamComponent(props) {
                             <p className="employeeDetailName1">Role</p>
                             <p className="employeeDetailName2" style={{ textTransform: "capitalize" }}>{selectedUser?.userType}</p>
                             {console.log('Selected User: ', userType)}
+                            {selectedGroupName && (
+                                <div style={{ marginBottom: "20px" }}>
+                                    <p className="employeeDetail">Selected Group</p>
+                                    <p className="employeeDetailName2" style={{ fontWeight: "bold", color: "#28659C" }}>
+                                        {selectedGroupName}
+                                    </p>
+                                </div>
+                            )}
                         </>
                     ) : ""}
+                    {selectedGroupId && (
+                        <div>
+                            <p className="employeeDetail">Assign Users to Group</p>
+                            {users?.map(user => (
+                                <div key={user._id} style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={user.isGroupAssigned || false}
+                                        onChange={() => handleGroupToggle(user._id, user.isGroupAssigned)}
+                                    />
+                                    <label style={{ marginLeft: 10 }}>{user.name}</label>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
                     {isUserArchive === true && (
                         <>
-                            {selectedUser?.userType !== 'owner' && (
+                            {selectedUser?.userType !== 'owner' && !selectedUser?.inviteStatus && (
                                 <>
                                     {loading ? <Skeleton count={1} width="100px" height="24px" style={{ margin: "0 0 16px 0" }} /> : inviteStatus === false &&
 
@@ -592,9 +637,7 @@ function OwnerTeamComponent(props) {
 
                         </>
                     )}
-                    <div className="dropdown" style={{ minWidth: 440 }}>
-                        <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
-                    </div>
+
                 </>
             ) : (
                 <img width={500} src={settingIcon} alt="" style={{ display: "block", margin: "auto" }} />

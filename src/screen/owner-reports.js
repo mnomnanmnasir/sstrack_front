@@ -32,11 +32,15 @@ import Joyride from "react-joyride";
 import TimezoneSelect from "react-timezone-select";
 import { Center } from "devextreme-react/cjs/map";
 import UserTimezoneDropdown from "./component/UserTimezoneDropdown";
+import EmployeeFilter from "./component/EmployeeFilter";
+import { CodeStarNotifications } from "aws-sdk";
+import ProjectFilter from "./component/ProjectFilter";
 // import Footer from '../screen/component/footer'
+import { FerrisWheelSpinner } from 'react-spinner-overlay';
 
 
 function OwnerReport() {
-    const [tdata, setTdata] = useState([]);
+
     let token = localStorage.getItem('token');
     const items = jwtDecode(JSON.stringify(token));
     const [run, setRun] = useState(true);
@@ -50,19 +54,14 @@ function OwnerReport() {
     const [managerId, setManagerId] = useState(null);
     const [reportType, setReportType] = useState("daily"); // Added to store the report type
     const [userType, setUserType] = useState(items?.userType || 'user');
-    const [timezone, setSelectedTimezone] = useState(
-        Intl.DateTimeFormat().resolvedOptions().timeZone
+    const [selectedTimezone, setSelectedTimezone] = useState(
+        null
     );
-    const handleStartDateChange = (timezone) => {
-        // setSelectedTimezone(timezone);
-        // const newtime = timezone?.value;
-        // setModel((prevUserInfo) => ({
-        //     ...prevUserInfo,
-        //     timezone: newtime,
-        //     timezoneOffset: timezone?.offset
-        // }));
-        console.log('time zone of reports', timezone);
+    const handleTimezoneChange = (selectedOption, usersByTimezone) => {
+        setSelectedTimezone(selectedOption);
 
+        // Log the users for the selected timezone
+        console.log(`Users in ${selectedOption?.value}:`, usersByTimezone[selectedOption?.value]);
     };
     const [expandedEmployee, setExpandedEmployee] = useState(null);
     const steps = [
@@ -102,25 +101,42 @@ function OwnerReport() {
         }
     };
 
-    const [selectedUsers, setSelectedUsers] = useState([]);
+    const [selectedUser, setSelectedUsers] = useState([]);
 
     // const handleSelectUsers = (e) => { setSelectedUsers(e); const userIds = e.map(user => user.id); setEmployeeId(userIds);
     // }
     const handleSelectUsers = (selectedUsers) => {
+        console.log("selectedUsers", selectedUsers);
+
         setSelectedUsers(selectedUsers);
-        const userIds = selectedUsers.map((user) => user.id);
+        const userIds = selectedUsers?.map((user) => user.id);
         setEmployeeId(userIds);
 
-
         // Calculate total hours of selected users
-        const totalHours = selectedUsers.reduce((acc, user) => {
-            const hours = acc.hours + Math.floor(user.totalHours);
-            const minutes = acc.minutes + (user.totalHours % 1) * 60;
-            return { hours, minutes: minutes % 60 };
-        }, { hours: 0, minutes: 0 });
+        const totalHours = selectedUsers?.reduce(
+            (acc, user) => {
+                const hours = acc.hours + Math.floor(user.totalHours || 0);
+                const minutes = acc.minutes + ((user.totalHours || 0) % 1) * 60;
+                return { hours, minutes: minutes % 60 };
+            },
+            { hours: 0, minutes: 0 }
+        );
 
-        // Parse existing totalHours value
-        const [existingHours, existingMinutes] = reportData.totalHours.split('h ').map((val) => parseInt(val.replace('m', '')));
+        // Check if reportData is null or undefined
+        if (!reportData || !reportData.totalHours) {
+            console.warn("reportData is null or totalHours is missing. Initializing default values.");
+            setReportData({
+                totalHours: "0h 0m",
+                totalActivity: "0",
+                allUsers: [],
+            });
+            return;
+        }
+
+        // Parse existing totalHours value safely
+        const [existingHours, existingMinutes] = reportData.totalHours
+            ? reportData.totalHours.split("h ").map((val) => parseInt(val.replace("m", ""), 10))
+            : [0, 0];
 
         // Calculate new total hours
         const newHours = existingHours + totalHours.hours;
@@ -128,60 +144,61 @@ function OwnerReport() {
 
         const totalActivity = 0;
 
-
         // Update reportData state with total hours of selected users
         setReportData({
             ...reportData,
-            totalHours: selectedUsers.reduce((acc, user) => {
-                let totalUserHours = 0;
-                if (user.projects && Array.isArray(user.projects)) {
-                    totalUserHours = user.projects.reduce((acc, project) => acc + project.projectHours, 0);
-                }
-                totalUserHours += user.duration;
-                return acc + totalUserHours;
-            }, 0) > 0
-                ? `${Math.floor(totalHours / 60)}h ${totalHours % 60}m`
-                : '0h 0m',
-            totalActivity: selectedUsers.reduce((acc, user) => {
-                let totalUserActivity = 0;
-                if (user.projects && Array.isArray(user.projects)) {
-                    totalUserActivity = user.projects.reduce((acc, project) => acc + project.projectActivity, 0);
-                }
-                totalUserActivity += user.activity;
-                return acc + totalUserActivity;
-            }, 0) > 0
-                ? `${Math.floor(totalActivity / selectedUsers.length)}`
-                : '0',
+            totalHours:
+                selectedUsers.reduce((acc, user) => {
+                    let totalUserHours = 0;
+                    if (user.projects && Array.isArray(user.projects)) {
+                        totalUserHours = user.projects.reduce((acc, project) => acc + (project.projectHours || 0), 0);
+                    }
+                    totalUserHours += user.duration || 0;
+                    return acc + totalUserHours;
+                }, 0) > 0
+                    ? `${Math.floor(totalHours.hours)}h ${totalHours.minutes}m`
+                    : "0h 0m",
+            totalActivity:
+                selectedUsers.length > 0
+                    ? `${Math.floor(totalActivity / selectedUsers.length)}`
+                    : "0",
             allUsers: selectedUsers.map((user) => {
-                let totalProjectHours = 0; // Initialize to 0
-                let totalProjectActivity = 0; // Initialize to 0
+                let totalProjectHours = 0;
+                let totalProjectActivity = 0;
                 let projects = [];
 
                 if (user.projects && Array.isArray(user.projects)) {
                     user.projects.forEach((project) => {
-                        totalProjectHours += project.projectHours;
-                        totalProjectActivity += project.projectActivity;
+                        totalProjectHours += project.projectHours || 0;
+                        totalProjectActivity += project.projectActivity || 0;
                         projects.push({
                             projectname: project.projectname,
-                            projectHours: `${Math.floor(project.projectHours)}h ${(project.projectHours % 1) * 60}m`,
-                            projectActivity: Math.floor(project.projectActivity),
+                            projectHours: `${Math.floor(project.projectHours || 0)}h ${((project.projectHours || 0) % 1) * 60}m`,
+                            projectActivity: Math.floor(project.projectActivity || 0),
                         });
                     });
                 }
 
-                totalProjectHours += user.duration;
-                totalProjectActivity += user.activity;
+                totalProjectHours += user.duration || 0;
+                totalProjectActivity += user.activity || 0;
 
                 return {
-                    employee: user.label, // Display the employee name
-                    Duration: `${Math.floor(totalProjectHours)}h ${(totalProjectHours % 1) * 60}m`, // Display duration
-                    Activity: user.projects && Array.isArray(user.projects) ? Math.floor(totalProjectActivity / user.projects.length) : 0, // Display activity
-                    projects: projects, // Return the projects array
+                    employee: user.label,
+                    Duration: `${Math.floor(totalProjectHours)}h ${(totalProjectHours % 1) * 60}m`,
+                    Activity:
+                        user.projects && Array.isArray(user.projects)
+                            ? Math.floor(totalProjectActivity / (user.projects.length || 1))
+                            : 0,
+                    projects: projects,
                 };
             }),
         });
-        console.log('Set Report Data', setReportData)
-    }
+
+        console.log("Set Report Data", reportData);
+    };
+
+
+
 
 
 
@@ -358,70 +375,23 @@ function OwnerReport() {
         }
     };
 
-    // const getData = async () => {
-    //     setLoading(true)
-    //     try {
-    //         const response = await axios.get(`${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
-    //         if (response.status === 200) {
-    //             console.log('New Api response', response);
-    //             setLoading(false)
-    //             setReportData(response.data?.data)
-    //         }
-    //     }
-    //     catch (error) {
-    //         setLoading(false)
-    //         console.log(error);
-    //     }
-    // }
 
+    const handleProjectDataFetched = (data) => {
+        if (data === undefined) {
+            console.log("No project selected.");
+            fetchYearlyReports("this") // Or an empty array [] based on your needs
+        } else {
+            console.log("Received Data from ProjectFilter:", data);
+            setReportData(data.data);
+        }
+    };
     useEffect(() => {
         if (startDate && endDate) {
             getData();
         }
-    }, [startDate, endDate, employeeId]);
+    }, [startDate, endDate, employeeId,]);
 
     const animatedComponents = makeAnimated();
-
-
-
-
-    // const getManagers = async () => {
-    //   try {
-    //     const response = await axios.get(`${apiUrl}/manager/employees`, { headers });
-    //     console.log("Response:", response); // Log the entire response object
-
-    //     if (response.status === 200) {
-    //       console.log("Response data:", response.data); // Log the response data
-    //       // Check if response data and employees array exist
-    //       if (response.data && response.data.employees) {
-    //         // Filter out only manager emails
-    //         const managerEmails = response.data.employees
-    //           .filter(employee => employee.userType === "manager")
-    //           .map(manager => manager.email);
-    //         console.log("Manager emails:", managerEmails); // Log the extracted manager emails
-    //         // Ensure managerEmails is an array
-    //         if (Array.isArray(managerEmails)) {
-    //           console.log("Length of managerEmails:", managerEmails.length); // Log the length of managerEmails
-    //           setUsers(managerEmails); // Set only the email addresses of managers
-    //         } else {
-    //           console.log("managerEmails is not an array:", managerEmails);
-    //           setUsers([]); // Set an empty array if managerEmails is not an array
-    //         }
-    //       } else {
-    //         console.log("No employees found in response data");
-    //         setUsers([]); // Set an empty array if there are no employees in the response
-    //       }
-    //     }
-    //   } catch (err) {
-    //     console.log("Error:", err); // Log any errors that occur
-    //   }
-    // }
-
-
-
-    // useEffect(() => {
-    //   getManagers();
-    // }, []);
 
     const formatDate = (date) => {
         if (!date) return ""; // Agar date undefined ya null ho to empty string return karein
@@ -446,68 +416,43 @@ function OwnerReport() {
 
     const getEmployess = async () => {
         try {
-            const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
-            if (response.status === 200) {
-                // Identify user type and filter users accordingly
-                const user = items?.userType || "user"; // Assuming userType is stored in localStorage items
-                setUserType(user);
+            let employees = [];
 
-                if (user === "admin" || user === "owner") {
-                    setUsers(response.data.employees);
-                } else if (user === "manager") {
-                    const managerEmployees = await getManagerEmployees();
-                    const managerId = items._id; // Get the logged-in manager's ID
-                    // const filteredEmployees = managerEmployees.filter(employee => employee.managerId === managerId);
-                    setUsers(managerEmployees);
-                } else {
-                    const userByEmail = response.data.employees.find(employee => items.email === employee.email);
-                    setUsers(userByEmail ? [userByEmail] : []);
+            const user = items?.userType || "user"; // Assuming userType is stored in localStorage
+            setUserType(user);
+
+            if (user === "manager") {
+                try {
+                    employees = await getManagerEmployees();
+                } catch (error) {
+                    console.log("Error fetching manager employees:", error);
+                    return;
                 }
-                console.log(response);
+            } else {
+                const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
+                if (response.status === 200) {
+                    employees = response.data.employees;
+
+                    if (user !== "admin" && user !== "owner") {
+                        const userByEmail = employees.find(employee => items.email === employee.email);
+                        employees = userByEmail ? [userByEmail] : [];
+                    }
+                }
             }
+
+            setUsers(employees);
         } catch (error) {
-            console.log("Error:", error);
+            console.log("Error fetching employees:", error);
         }
     };
+
+
 
     useEffect(() => {
         getEmployess();
     }, []);
 
 
-    // const getReports = async (type) => {
-
-    //   let response;
-    //   if (userType === 'admin' || userType === 'owner') {
-    //     if (employeeId) {
-    //       response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}&userId=${employeeId}`, { headers });
-    //     }
-    //     else {
-    //       response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}`, { headers });
-    //     }
-    //   }
-    //   else if (user === 'manager') {
-    //     // If user is a manager, filter managers based on the logged-in manager's ID
-    //     const loggedInManager = response.data.employees.find(employee => employee.email === items.email);
-    //     if (loggedInManager) {
-    //       return response.data.employees.filter(employee => employee.managerId === loggedInManager._id);
-    //     } else {
-    //       return [];
-    //     }
-    //   }
-    //   else {
-    //     response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}${type}&userId=${items._id}`, { headers });
-    //   }
-    //   if (response.status === 200) {
-    //     console.log(response);
-    //     setReportData(response.data.data);
-    //   }
-    //   if (response.status === 200) {
-    //     return response.data.data;
-    //   } else {
-    //     throw new Error('Failed to fetch reports');
-    //   }
-    // };
     useEffect(() => {
         if (!startDate || !endDate) {
             return; // Agar date select nahi hui to API call na ho
@@ -626,37 +571,40 @@ function OwnerReport() {
     };
 
     const fetchYearlyReports = async (type) => {
+        setLoading(true); // ✅ Start loader
 
-        let response;
-        if (userType === 'admin' || userType === 'owner') {
-            if (employeeId) {
-                response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+        try {
+            let response;
+            if (userType === 'admin' || userType === 'owner') {
+                if (employeeId) {
+                    response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+                } else {
+                    response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
+                }
+            } else if (userType === 'manager') {
+                if (employeeId) {
+                    response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+                } else {
+                    response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}`, { headers });
+                }
+            } else {
+                response = await axios.get(`${apiUrl}/timetrack/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
             }
-            else {
-                response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
+
+            if (response.status === 200) {
+                console.log(response);
+                setReportData(response.data.data);
+                return response.data.data;
+            } else {
+                throw new Error('Failed to fetch reports');
             }
-        }
-        else if (userType === 'manager') {
-            if (employeeId) {
-                response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
-            }
-            else {
-                response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}`, { headers });
-            }
-        }
-        else {
-            response = await axios.get(`${apiUrl}/timetrack/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
-        }
-        if (response.status === 200) {
-            console.log(response);
-            setReportData(response.data.data);
-        }
-        if (response.status === 200) {
-            return response.data.data;
-        } else {
-            throw new Error('Failed to fetch reports');
+        } catch (error) {
+            console.error("Yearly Report API Error:", error);
+        } finally {
+            setLoading(false); // ✅ Stop loader regardless of success/failure
         }
     };
+
 
     const getWeeklyReports = async (type) => {
 
@@ -690,10 +638,6 @@ function OwnerReport() {
             throw new Error('Failed to fetch reports');
         }
     };
-
-
-
-
 
     const getDailyReports = async (type) => {
         if (employeeId) {
@@ -794,9 +738,7 @@ function OwnerReport() {
         }
     };
 
-    useEffect(() => {
-        getEmployess()
-    }, [])
+
 
     useEffect(() => {
         dateFilter?.today === true ? fetchDailyReports("this") :
@@ -831,14 +773,25 @@ function OwnerReport() {
         };
     });
 
-    console.log("main agya users ho main", users);
-    { console.log("User showing...", user) }
+
     const defaultValue = user.length > 0 ? [{ value: user[0].value }] : [];
 
-    console.log(dateFilter);
+    // console.log(dateFilter);
+
 
     const allUsers = user; // assuming 'user' is the original array of users
     const filteredUsers = user.filter(user => user.value !== null);
+
+    const transformEmployeeData = (employees) => {
+        return employees.map(employee => ({
+            label: `${employee.name} (admin)`, // Adjust role if needed
+            value: employee.email,
+            id: employee._id,
+            duration: 0, // Default value, adjust as needed
+            activity: 0  // Default value, adjust as needed
+        }));
+    };
+    const [projectData, setProjectData] = useState(null);
 
 
     return (
@@ -1031,24 +984,32 @@ function OwnerReport() {
 
                                     </div>
                                 </div>
+
                                 <div>
-                                    {/* <div className="dropdown"> */}
-                                    <div className="btn m-0 utc5 curson-none" type="text">
-                                        {`(GMT+${items?.timezoneOffset}) ${items?.timezone}`}
-                                        {console.log("Set timezone", items?.timezone, "Offset:", items?.timezoneOffset)}
-                                    </div>
-                                    {/* </div> */}
+                                    <EmployeeFilter
+                                        employees={users}
+                                        onFilter={(filteredUsers) => {
+                                            const transformedUsers = transformEmployeeData(filteredUsers);
+                                            handleSelectUsers(transformedUsers);
+                                            console.log('datafromdrop', transformedUsers);
+                                        }}
+                                        showLabel={false}
+                                    />
+
                                 </div>
                             </div>
 
-
-                                <UserTimezoneDropdown onUsersFiltered={setTdata} />
                             <div className="crossButtonDiv">
+                                <p className="settingScreenshotIndividual"> Select user</p>
                                 <SelectBox
                                     onChange={(e) =>
+                                        // console.log('chekkking123', e)
                                         handleSelectUsers(e)
                                     }
-                                    options={allUsers.filter(user => user.label)}
+                                    options={allUsers
+                                        .filter(user => user.label)
+                                        .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
+                                    }
                                     closeMenuOnSelect={true}
                                     components={animatedComponents}
                                     defaultValue={defaultValue}
@@ -1057,57 +1018,41 @@ function OwnerReport() {
                                 />
                                 {console.log("User Detials", allUsers)}
                             </div>
+                            <ProjectFilter usersData={reportData} onProjectDataFetched={handleProjectDataFetched} />
                             <div>
-                                {/* <img className="reportButton" src={reportButton} /> */}
-                                {/* <SelectBox
-                  classNamePrefix="Select projects"
-                  defaultValue="Select projects"
-                  isDisabled={isDisabled}
-                  isClearable={isClearable}
-                  isRtl={isRtl}
-                  isSearchable={isSearchable}
-                  options={colourOptions}
-                  optionHeight={40}
-                  optionPadding={10}
-                /> */}
-                                {/* <SelectBox
-                  defaultValue="Select projects"
-                  isSearchable={true}
-                  optionHeight={40}
-                  optionPadding={10}
-                /> */}
+
                             </div>
-                            {/* <div className="summaryButton">
-              <button className="activeButton">Show Reports</button>
-            </div> */}
+
                             <div id="activityChart" className="adminReport4" style={{ backgroundColor: '#F5F5F5' }}>
                                 {loading ? (
-                                    <div className="loader"></div>
+                                    <div className="loader" style={{ textAlign: "center" }}>
+                                        {/* <img src={loader} alt="Loading..." width={40} /> */}
+                                        <FerrisWheelSpinner size={20} color="#fff" />
+                                    </div>
                                 ) : reportData ? (
                                     <>
                                         <div>
-                                            <p className="sixtyhour">{reportData?.totalHours ? reportData?.totalHours : "0h 0m"}</p>
-                                            <p className="report-percentage">{`${reportData?.totalActivity ? Math.floor(reportData?.totalActivity) : 0} %`}</p>
-                                            {/* <p className="report-percentage">{`${reportData?.payRate ? Math.floor(reportData?.payRate) : 0} %`}</p> */}
+                                            <p className="sixtyhour">{reportData?.totalHours || "0h 0m"}</p>
+                                            <p className="report-percentage">{`${Math.floor(reportData?.totalActivity || 0)} %`}</p>
 
-                                            {/* Total PayRate Calculation */}
                                             <p className="report-percentage">
-                                                {`${reportData?.allUsers
-                                                    ? Math.floor(reportData.allUsers.reduce((acc, user) => acc + (user.payRate || 0), 0))
+                                                {`$${reportData?.allUsers
+                                                    ? Math.floor(reportData.allUsers.reduce((acc, user) => acc + (user.payRate?.usdAmount || 0), 0))
                                                     : 0
                                                     } `}
                                             </p>
 
-                                            {console.log("Reports PayRate", reportData)}
+                                            {console.log("reportData", reportData)}
                                         </div>
                                         <div className="summaryDiv">
                                             <ActivityChart reportData={reportData} />
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="loader"></div>
+                                    <p style={{ textAlign: "center", padding: "40px", color: "#888" }}>No report data available.</p>
                                 )}
                             </div>
+
                             <div id="indivisualUser">
                                 <div className="employeeDiv">
                                     <p>{"± Employees / ± Projects"}</p>
@@ -1118,7 +1063,7 @@ function OwnerReport() {
 
                                     </div>
                                 </div>
-                                {(userType === "admin" || userType === "owner" || userType === 'user' || userType === 'manager') && reportData && reportData.allUsers ? (
+                                {reportData && reportData.allUsers ? (
                                     reportData.allUsers.map((data, index) => (
                                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                                             <div className="asadMehmoodDiv" key={index}>
@@ -1126,17 +1071,16 @@ function OwnerReport() {
                                                     <p>
                                                         {/* <FaPlus /> Add */}
                                                         <p>{expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />}
-                                                            {/* <img src={expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />} alt="Toggle" /> */}
-                                                            {/* <img src={expandedEmployee === data?.employee ? crossButton : addButton} alt="Toggle" /> */}
+
                                                             <span>{data?.employee}</span>
                                                         </p>
                                                     </p>
                                                 </div>
-                                                {console.log('Report Data selectUsers', reportData)}
+
                                                 <div className="durationDiv">
                                                     <p>{data?.Duration}</p>
                                                     <p>{Math.floor(data?.Activity)} %</p>
-                                                    <p>{Math.floor(data?.payRate)} </p>
+                                                    <p>${Math.floor(data?.payRate?.usdAmount)} </p>
 
                                                 </div>
                                             </div>
@@ -1157,7 +1101,7 @@ function OwnerReport() {
                                                                 <div className="durationDiv">
                                                                     <p>{project.hours || 'No duration'}</p>
                                                                     <p>{project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                                                                    <p>{Math.floor(project.payRate)}</p>
+                                                                    <p>${Math.floor(project.payRate?.usdAmount)}</p>
                                                                 </div>
                                                             </div>
                                                         ))}
@@ -1189,7 +1133,7 @@ function OwnerReport() {
                                                             {/* <p>{Math.floor(data?.payRate)} %</p> */}
                                                             {console.log("Report Total Hours", project.hours)}
                                                             <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                                                            <p>{Math.floor(project.payRate)} %</p>
+                                                            <p>${Math.floor(project.payRate)} %</p>
 
                                                         </div>
                                                     ))}
@@ -1218,7 +1162,7 @@ function OwnerReport() {
                                                                         <div key={projectIndex} className="projectDetails">
                                                                             <p>Project Name: {project.projectname || 'No project name'}</p>
                                                                             <p>Duration: {project.hours || 'No duration'}</p>
-                                                                            <p>{Math.floor(project.payRate)} %</p>
+                                                                            <p>${Math.floor(project.payRate)} </p>
 
                                                                             <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
 
@@ -1234,49 +1178,14 @@ function OwnerReport() {
                                             </>
                                         ) : (
                                             <>
-                                                {/* <div className="container">
-                        {reportData && reportData.allUsers ? (
-                          reportData.allUsers.map(renderEmployeeData)
-                        ) : (
-                          <div>No data available</div>
-                        )}
-                      </div> */}
+
                                             </>
                                         )
                                     )
                                 )}
                             </div>
-                            {/* {filteredData.map((data, index) => {
-              return (
-                <div className="asadMehmoodDiv">
-                  <div>
-                    <p>
-                      <img src={addButton} />
-                      <span>{data.employee}</span>
-                    </p>
-                  </div>
-                  <div className="durationDiv">
-                    <p>{data.Duration}</p>
-                    <p>{Math.floor(data.Activity)} %</p>
-                  </div>
-                </div>
-              );
-            })} */}
-                            {/* {reportData?.allUsers?.map((data, index) => {
-              return (
-                <div className="asadMehmoodDiv">
-                  <div>
-                    {selectedUsers.length === 0 && (
-                      <p><img src={addButton} /><span>{data?.employee}</span></p>
-                    )}
-                  </div>
-                  <div className="durationDiv">
-                    <p>{data?.Duration}</p>
-                    <p>{Math.floor(data?.Activity)} %</p>
-                  </div>
-                </div>
-              )
-            })} */}
+
+
                         </div>
                     </div>
                 </div>

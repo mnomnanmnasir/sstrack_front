@@ -28,8 +28,9 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
             window.location.reload();
         } else {
             navigate('/dashboard');
+            window.location.reload();
         }
- 
+
     }
 
 
@@ -39,11 +40,12 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
             window.location.reload();
         } else {
             navigate('/dashboard');
+            window.location.reload();
         }
- 
+
     };
 
-    const navbarBackground = location.pathname === "/" ? "transparent" : "linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)";
+    const navbarBackground = location.pathname === "/" ? "linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)" : "linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)";
 
     return (
         <>
@@ -53,16 +55,11 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                         <img className="logo" src={logo} alt="Logo" width={150} />
                     </Navbar.Brand>
 
+                    {/* ✅ Hamburger Button for 1160px and Below */}
                     <Button
                         variant="outline-light"
-                        className="d-lg-none"
+                        className="hamburger-button d-lg-none" // Keep d-lg-none for large screens
                         onClick={() => setShowDrawer(true)}
-                        style={{
-                            position: 'fixed',
-                            top: '10px',
-                            right: '10px',
-                            zIndex: 1051, // Higher than Offcanvas
-                        }}
                     >
                         ☰
                     </Button>
@@ -72,14 +69,14 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                 <Form.Check
                                     type="switch"
                                     id="custom-switch"
-                                    label={language === 'en' ? 'English' : 'العربية'}
+                                    label={language === 'en' ? 'العربية' : 'English'}
                                     checked={language === 'ar'}
                                     onChange={handleToggleLanguage}
                                     className="text-white mx-3"
                                 />
                             )}
                             {/* <NewHeaderOptions language={language} /> */}
-                            <div className='align-items-center ownerSectionUser1'style={{ marginTop: '-20px' }}>
+                            <div className='align-items-center ownerSectionUser1' style={{ marginTop: '-20px' }}>
                                 <NewHeaderOptions language={language} />
                             </div>
                             <div className="d-lg-block d-none">
@@ -111,7 +108,7 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                             fontSize: '0.8rem',  // Text size
 
                                         }} type="button"> {language === "en" ? "Dashboard" : "لوحة القيادة"}</Button>
-                                        
+
                                         <Button onClick={() => logOut()} className="btn loginButton1" style={{
                                             marginRight: '10px',
                                             fontWeight: '400', // Sinkin Sans weight
@@ -141,27 +138,24 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
 
             {/* {showDrawer && <div className="custom-backdrop" onClick={() => setShowDrawer(false)}></div>} */}
 
-            <Offcanvas show={showDrawer} onHide={() => setShowDrawer(false)} placement="start" className="d-lg-none full-screen-drawer" // Add full-screen-drawer class
+            <Offcanvas show={showDrawer} onHide={() => setShowDrawer(false)} placement="start"
                 style={{
-                    background: 'linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)',
+                    background: navbarBackground,
                     color: 'white',
-                    zIndex: 1052,  // Above backdrop but below button
-                    // height: '200vh',
-                    // maxHeight: '150vh'
-                    // Higher than backdrop
-                }} // Lower than Navbar
+                    zIndex: 1052,
+                }}
             >
-                <Offcanvas.Header >
+                <Offcanvas.Header>
                     <img className="logo" src={logo} alt="Logo" width={150} />
                     <button
                         type="button"
                         className="btn-close"
-                        aria-label="Close"
                         onClick={() => setShowDrawer(false)}
-                        style={{ color: 'white', filter: 'invert(1)' }} // Makes 'X' white
+                        style={{ color: 'white', filter: 'invert(1)' }}
                     ></button>
-
                 </Offcanvas.Header>
+
+
 
                 <Offcanvas.Body>
                     <Nav className="d-flex flex-column align-items-start">
@@ -169,7 +163,7 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                             <Form.Check
                                 type="switch"
                                 id="custom-switch"
-                                label={language === 'en' ? 'English' : 'العربية'}
+                                label={language === 'en' ? 'العربية' : 'English'}
                                 checked={language === 'ar'}
                                 onChange={handleToggleLanguage}
                                 className="mb-3"

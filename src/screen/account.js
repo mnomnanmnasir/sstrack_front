@@ -30,6 +30,10 @@ const stripePromise = loadStripe(process.env.REACT_AP_KEY);
 function Account({ suspended }) {
 
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    // const [showTooltip, setShowTooltip] = useState(false);
+    const [isFirstTime, setIsFirstTime] = useState(true); // ✅ Track first-time password generation
+    const [firstTimeGenerated, setFirstTimeGenerated] = useState(false);
+    const [showMessage, setShowMessage] = useState(false);
     // const [showVerifyModal, setShowVerifyModal] = useState(false);
     // const [verificationCode, setVerificationCode] = useState("");
     const [responseMessage, setResponseMessage] = useState(null);
@@ -58,6 +62,7 @@ function Account({ suspended }) {
     const navigate = useNavigate('');
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const items = jwtDecode(JSON.stringify(token));
+    const [ratePerHour, setRatePerHour] = useState(null);
     // const items = JSON.parse(localStorage.getItem('items'));
     let headers = {
         Authorization: 'Bearer ' + token,
@@ -65,10 +70,179 @@ function Account({ suspended }) {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [TotalUsers, setTotalUsers] = useState(0);
     const [paycard, setpaycard] = useState();
+    const [breakStartTime, setBreakStartTime] = useState("");
+    const [breakEndTime, setBreakEndTime] = useState("");
+    const [puncStartTime, setPuncStartTime] = useState("");
+    const [puncEndTime, setPuncEndTime] = useState("");
+
+
+    // ✅ Secure Password Generator Function
+    // const generatePassword = () => {
+    //     const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?";
+    //     let password = "";
+    //     for (let i = 0; i < 12; i++) {
+    //         password += chars.charAt(Math.floor(Math.random() * chars.length));
+    //     }
+    //     setNewPassword(password);
+    //     setNewPassword2(password);
+
+    //     // ✅ Show message when password is generated
+    //     setShowMessage(true);
+
+    //     // ✅ Automatically hide message after 5 seconds (5000ms)
+    //     setTimeout(() => {
+    //         setShowMessage(false);
+    //     }, 5000);
+    // };
+    // ✅ Function to Generate Secure Password
+    const generatePassword = () => {
+        if (isFirstTime) { // ✅ Only show the message if it's the first time after opening modal
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?";
+            let password = "";
+            for (let i = 0; i < 12; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            setNewPassword(password);
+            setNewPassword2(password);
+
+            setShowMessage(true);
+            setIsFirstTime(false); // ✅ Prevent message from showing again in this session
+
+            // ✅ Hide message after 5 seconds
+            setTimeout(() => {
+                setShowMessage(false);
+            }, 5000);
+        } else {
+            // ✅ Just generate password without showing the message again
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?";
+            let password = "";
+            for (let i = 0; i < 12; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            setNewPassword(password);
+            setNewPassword2(password);
+        }
+    };
+
+    // ✅ Reset `isFirstTime` when the modal opens
+    React.useEffect(() => {
+        if (show) {
+            setIsFirstTime(true);
+        }
+    }, [show]);
+
+
+    const handleKeyPress = (e) => {
+        if (e.key === " ") {
+            e.preventDefault();
+            const newGeneratedPassword = generatePassword();
+            setNewPassword(newGeneratedPassword);
+            setNewPassword2(newGeneratedPassword);
+        }
+    };
+    // ✅ Button Click se Password Generate karne ka function
+    const handleGeneratePassword = () => {
+        const newGeneratedPassword = generatePassword();
+        setNewPassword(newGeneratedPassword);
+        setNewPassword2(newGeneratedPassword);
+    };
 
     console.log('usercompany==============', items);
     const storedPlanId = JSON.parse(localStorage.getItem('planId'))
 
+    const fetchBreakTime = async (userId) => {
+        try {
+            const response = await axios.get(
+                `https://myuniversallanguages.com:9093/api/v1/timetrack/getPunctualityDataEachUser`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                console.log("Full API Response:", response.data);
+
+                const data = response.data.data;
+                const breakData = data.breakConvertedData?.[0];
+                const rate = data.ratePerHour;
+
+                console.log("Rate Per Hour:", rate);
+                setRatePerHour(rate);
+
+                const puncStart = data.puncStartTime ? data.puncStartTime.substring(11, 16) : "";
+                const puncEnd = data.puncEndTime ? data.puncEndTime.substring(11, 16) : "";
+
+                console.log("PuncStart:", puncStart);
+                console.log("PuncEnd:", puncEnd);
+
+                // if (breakData) {
+                //     console.log("✅ breakConvertedData[0]:", breakData);
+                //     console.log("✅ breakStartTime:", breakData.breakStartTime);
+                //     console.log("✅ breakEndTime:", breakData.breakEndTime);
+
+                //     // ⛔ NO MOMENT, just plain raw string
+                //     fillModel("breakStartTime", breakData.breakStartTime);
+                //     fillModel("breakEndTime", breakData.breakEndTime);
+                // }
+                //     if (breakData) {
+                //         console.log("✅ breakConvertedData[0]:", breakData);
+                //         console.log("✅ breakStartTime:", breakData.breakStartTime);
+                //         console.log("✅ breakEndTime:", breakData.breakEndTime);
+
+                //         // Format to HH:mm for <input type="time">
+                //         fillModel("breakStartTime", moment(breakData.breakStartTime).format("HH:mm"));
+                //         fillModel("breakEndTime", moment(breakData.breakEndTime).format("HH:mm"));
+                //     }
+
+                //     fillModel("puncStartTime", puncStart);
+                //     fillModel("puncEndTime", puncEnd);
+                // }
+                // const breakData = data.breakConvertedData?.[0];
+
+                if (breakData) {
+                    const breakStart = breakData.breakStartTime
+                        ? breakData.breakStartTime.substring(11, 16)
+                        : "";
+
+                    const breakEnd = breakData.breakEndTime
+                        ? breakData.breakEndTime.substring(11, 16)
+                        : "";
+
+                    console.log("✅ Break Start Time (formatted):", breakStart);
+                    console.log("✅ Break End Time (formatted):", breakEnd);
+
+                    fillModel("breakStartTime", breakStart);
+                    fillModel("breakEndTime", breakEnd);
+                }
+
+                fillModel("puncStartTime", puncStart);
+                fillModel("puncEndTime", puncEnd);
+            }
+        } catch (error) {
+            console.error("Error fetching break time:", error);
+        }
+    };
+
+
+    // ✅ State Update Function
+    const fillModel = (field, value) => {
+        if (field === "breakStartTime") {
+            setBreakStartTime(value);
+        } else if (field === "breakEndTime") {
+            setBreakEndTime(value);
+        } else if (field === "puncStartTime") {  // ✅ Added
+            setPuncStartTime(value);
+        } else if (field === "puncEndTime") {    // ✅ Added
+            setPuncEndTime(value);
+        }
+    };
+
+    useEffect(() => {
+        // ✅ Call API to Fetch Break Time & Punctuality Time
+        fetchBreakTime(items._id);
+    }, []);
 
     const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
@@ -436,10 +610,10 @@ function Account({ suspended }) {
 
     const handleShow = () => {
         if (isArchived) {
-            setShowConfirmModal(true); 
-   
+            setShowConfirmModal(true);
+
         } else {
-            setShow(true);  
+            setShow(true);
         }
     };
 
@@ -518,7 +692,7 @@ function Account({ suspended }) {
         setShowConfirmModal(false)
 
         setTimeout(() => {
-            setShowVerifyModal(true); 
+            setShowVerifyModal(true);
             enqueueSnackbar("Please check your email for verification code.", {
                 variant: "info",
                 anchorOrigin: { vertical: "top", horizontal: "right" }
@@ -1511,7 +1685,14 @@ function Account({ suspended }) {
 
 
             <SnackbarProvider />
-            {show ? <Modal show={show} onHide={() => setShow(false)} animation={false} centered>
+            {show ? <Modal show={show} onHide={() => {
+                setUpdatePassword(false);
+                setShowMessage(false);  // ✅ Message Reset
+                setFirstTimeGenerated(false);  // ✅ First-time flag Reset
+                setCurrentPassword("");  // ✅ Current Password Reset
+                setNewPassword("");  // ✅ New Password Reset
+                setNewPassword2("");  // ✅ Confirm Password Reset
+            }} animation={false} centered>
                 <Modal.Body>
                     <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>
                         Are you sure you want to archive your account?
@@ -1536,7 +1717,16 @@ function Account({ suspended }) {
             </Modal> : null}
 
 
-            {updatePassword ? <Modal show={updatePassword} onHide={() => setShow(false)} animation={false} centered>
+            {updatePassword ? <Modal show={updatePassword} onHide={() => {
+                setUpdatePassword(false);
+                setShowMessage(false);  // ✅ Message Reset
+                setFirstTimeGenerated(false);  // ✅ First-time flag Reset
+                setCurrentPassword("");  // ✅ Current Password Reset
+                setNewPassword("");  // ✅ New Password Reset
+                setNewPassword2("");  // ✅ Confirm Password Reset
+            }}
+
+                animation={false} centered>
                 <Modal.Body onKeyPress={(e) => {
                     if (e.key === "Enter") {
                         verifyPassword()
@@ -1557,22 +1747,73 @@ function Account({ suspended }) {
                         }}
                     />
                     <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>New password</p>
-                    <input
+                    {/* <input
                         value={newPassword}
                         placeholder="New password"
-                        onChange={(e) => setNewPassword(e.target.value)} style={{
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        onKeyDown={handleKeyPress}  // ✅ Space press karein to password generate ho
+                        style={{
                             fontSize: "18px",
                             padding: "5px 10px",
                             margin: "10px 0 20px 0",
                             width: "100%",
                             border: "1px solid #cacaca"
                         }}
-                    />
+                    /> */}
+                    <div style={{ position: "relative", width: "100%" }}>
+                        <input
+                            value={newPassword}
+                            placeholder="New password"
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            // onKeyDown={handleKeyPress}
+                            style={{
+                                fontSize: "18px",
+                                padding: "10px 40px 10px 10px",
+                                width: "100%",
+                                border: "1px solid #cacaca",
+                                borderRadius: "5px",
+                                position: "relative",
+                            }}
+                        />
+                        <button
+                            onClick={() => {
+                                if (!firstTimeGenerated) {
+                                    setShowMessage(true); // ✅ Pehli baar message show hoga
+                                    setTimeout(() => setShowMessage(false), 5000); // ✅ 5s baad hide hoga
+                                    setFirstTimeGenerated(true); // ✅ Message dobara show nahi hoga jab tak modal reopen na ho
+                                }
+                                generatePassword();
+                            }}
+                            style={{
+                                position: "absolute",
+                                right: "5px",
+                                top: "50%",
+                                transform: "translateY(-50%)",
+                                backgroundColor: "#6ABB47",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "5px",
+                                cursor: "pointer",
+                                fontSize: "14px",
+                                padding: "5px 10px",
+                            }}>
+                            Auto Generate
+                        </button>
+                    </div>
+
+                    {/* ✅ Security Message Below the Input Field */}
+                    {showMessage && (
+                        <p className='text-warning' style={{ fontSize: "14px", marginTop: "5px" }}>
+                            This is a secure, randomly generated password.
+                            It is encrypted for your safety and ensures strong protection.
+                        </p>
+                    )}
                     <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>Confirm new password</p>
                     <input
                         value={newPassword2}
                         placeholder="Retype new password"
                         onChange={(e) => setNewPassword2(e.target.value)}
+                        onKeyDown={handleKeyPress}  // ✅ Space press karein to password generate ho
                         style={{
                             fontSize: "18px",
                             padding: "5px 10px",
@@ -1581,6 +1822,19 @@ function Account({ suspended }) {
                             border: "1px solid #cacaca"
                         }}
                     />
+                    {/* <button
+                        onClick={handleGeneratePassword}
+                        style={{
+                            padding: "5px 10px",
+                            backgroundColor: "#6ABB47",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "5px",
+                            cursor: "pointer",
+                            fontSize: "14px"
+                        }}>
+                        Generate
+                    </button> */}
                 </Modal.Body>
                 <Modal.Footer>
                     <button style={{ backgroundColor: (currentPassword === "" || newPassword === "" || newPassword2 === "") && "grey", borderColor: (currentPassword === "" || newPassword === "" || newPassword2 === "") && "grey" }} className="teamActionButton" disabled={(currentPassword === "" || newPassword === "" || newPassword2 === "") ? true : false} onClick={() => {
@@ -1641,6 +1895,14 @@ function Account({ suspended }) {
                             <br />
                             UTC {formattedOffset}
                         </p>
+                        {!(items?.userType === "owner") && (
+                            <p className='userEmail'><strong>Pay Rate:</strong> {ratePerHour && !isNaN(ratePerHour) ? `$${ratePerHour} / hr` : "Not Specified"}</p>
+                        )}
+
+                        {/* <p>
+                            <strong>Pay Rate:</strong> {items?.payRate ? `$${items.payRate} / hr` : "Not Available"}
+                        </p> */}
+
                         <div className="accountDiv">
                             <div onClick={() => navigate("/profile", { state: { fromAccount: true } })} className="accountEditDiv"><div><img src={edit} /></div><p>Edit Profile</p></div>
                             {/* <div onClick={() => navigate('/profile')} className="accountEditDiv"><div><img src={edit} /></div><p>Edit Profile</p></div> */}
@@ -1664,6 +1926,60 @@ function Account({ suspended }) {
                                 </>
                             )}
                         </div>
+                        {!(items?.userType === "owner") && (
+                            <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+                                <div style={{ flex: 1 }}>
+                                    <label className="countryLabel">Break Start Time</label>
+                                    <div className="countryDropdown">
+                                        <input
+                                            type="time"
+                                            value={breakStartTime || ""}
+                                            onChange={(e) => fillModel("breakStartTime", e.target.value)}
+                                            placeholder="Select Start Time"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ flex: 1 }}>
+                                    <label className="countryLabel">Break End Time</label>
+                                    <div className="countryDropdown">
+                                        <input
+                                            type="time"
+                                            value={breakEndTime || ""}
+                                            onChange={(e) => fillModel("breakEndTime", e.target.value)}
+                                            placeholder="Select End Time"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* ✅ NEW: Punctuality Start Time */}
+                                <div style={{ flex: 1 }}>
+                                    <label className="countryLabel">Punctuality Start Time</label>
+                                    <div className="countryDropdown">
+                                        <input
+                                            type="time"
+                                            value={puncStartTime || ""}
+                                            onChange={(e) => fillModel("puncStartTime", e.target.value)}
+                                            placeholder="Select Punctuality Start Time"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* ✅ NEW: Punctuality End Time */}
+                                <div style={{ flex: 1 }}>
+                                    <label className="countryLabel">Punctuality End Time</label>
+                                    <div className="countryDropdown">
+                                        <input
+                                            type="time"
+                                            value={puncEndTime || ""}
+                                            onChange={(e) => fillModel("puncEndTime", e.target.value)}
+                                            placeholder="Select Punctuality End Time"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* {show ? (
                             <Modal show={show} onHide={() => setShow(false)} animation={false} centered>
                                 <Modal.Body>

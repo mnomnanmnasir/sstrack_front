@@ -9,17 +9,19 @@ import axios from "axios";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import brushIcon from '../../images/brush.svg'
 import UserDetails from "../userDetails";
+import moment from "moment-timezone";
 
 
 
 const CompanyEmployess = (props) => {
 
+
     const [localToggleState, setLocalToggleState] = useState({}); // Manage local toggle states
     const state = useSelector((state) => state)
     const [setting, setSetting] = useState([])
-    const { Setting, loading } = props
+    const { Setting, loading, employees } = props
     const [allowBlur, setAllowBlur] = useState(false);
-    const employees = useSelector((state) => state?.adminSlice?.employess)|| []
+    // const employees = useSelector((state) => state?.adminSlice?.employess)|| []
     console.log('Employees', employees)
 
     const [timeFields, setTimeFields] = useState({})
@@ -56,9 +58,6 @@ const CompanyEmployess = (props) => {
             );
 
             if (response.status === 200) {
-                // enqueueSnackbar("Toggle updated successfully!", { variant: "success" });
-
-                // Fetch updated Break Time data if toggle is ON
                 if (isSelected) {
                     const updatedResponse = await axios.get(
                         `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${userId}`,
@@ -66,15 +65,37 @@ const CompanyEmployess = (props) => {
                     );
 
                     if (updatedResponse.status === 200) {
-                        const breakData =
-                            updatedResponse.data.data.breakConvertedData?.[0] || {};
+                        const breakData = updatedResponse.data.data.breakConvertedData?.[0] || {};
+
+                        const breakStart = breakData.breakStartTime
+                            ? new Date(breakData.breakStartTime).toISOString().split("T")[1].substring(0, 5)
+                            : "";
+
+                        // const breakEnd = breakData.breakEndTime
+                        //     ? new Date(breakData.breakEndTime).toISOString().split("T")[1].substring(0, 5)
+                        //     : "";
+                        // const breakStart = breakData.breakStartTime
+                        //     ? new Date(breakData.breakStartTime).toISOString()
+                        //     : "";
+
+                        // const breakStart = breakData.breakStartTime
+                        //     ? moment(breakData.breakStartTime).format("YYYY-MM-DDTHH:mm:ssZ")
+                        //     : "";
+                        //     const breakEnd = breakData.breakEndTime
+                        //     ? moment(breakData.breakEndTime).format("YYYY-MM-DDTHH:mm:ssZ")
+                        //     : "";
+
+                        const breakEnd = breakData.breakEndTime
+                            ? new Date(breakData.breakEndTime).toISOString().split("T")[1].substring(0, 5)
+                            : "";
+
 
                         setTimeFields((prev) => ({
                             ...prev,
                             [userId]: {
                                 showFields: true,
-                                startTime: breakData.breakStartTime?.substring(11, 16) || "",
-                                endTime: breakData.breakEndTime?.substring(11, 16) || "",
+                                startTime: breakStart,
+                                endTime: breakEnd,
                             },
                         }));
                     }
@@ -96,9 +117,11 @@ const CompanyEmployess = (props) => {
         }
     };
 
+
     const handleTimeChange = (employeeId, field, value) => {
         setTimeFields((prev) => ({
             ...prev,
+
             [employeeId]: {
                 ...prev[employeeId],
                 [field]: value,
@@ -120,21 +143,35 @@ const CompanyEmployess = (props) => {
 
             const totalHours = calculateTotalHours(startTime, endTime);
             const currentDate = new Date().toISOString().split("T")[0];
-            const breakStartUTC = new Date(`${currentDate}T${startTime}`).toISOString();
-            const breakEndUTC = new Date(`${currentDate}T${endTime}`).toISOString();
+
+            // ✅ **Subtract 2 hours before sending in request**
+            const adjustedStartTime = moment(`${currentDate}T${startTime}`).format("HH:mm");
+            const adjustedEndTime = moment(`${currentDate}T${endTime}`).format("HH:mm");
+
+
             const requestData = {
                 userId: employeeId,
                 settings: {
                     breakTime: [
                         {
                             TotalHours: totalHours,
-                            breakStartTime: `${currentDate}T${startTime}:00`,
-                            breakEndTime: `${currentDate}T${endTime}:00`,
+                            // breakStartTime: moment(`${currentDate} ${startTime}`, "YYYY-MM-DD HH:mm").format("YYYY-MM-DDTHH:mm:ss"),
+                            // breakEndTime: moment(`${currentDate} ${endTime}`, "YYYY-MM-DD HH:mm").format("YYYY-MM-DDTHH:mm:ss"),
+                            breakStartTime: new Date(`${currentDate}T${startTime}:00`),
+                            breakEndTime: new Date(`${currentDate}T${endTime}:00`),
                         },
                     ],
                     individualbreakTime: true,
                 },
             };
+
+            setTimeFields((prev) => ({
+                ...prev,
+                [employeeId]: {
+                    ...prev[employeeId],
+                    showFields: true
+                }
+            }));
 
             const response = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
@@ -148,14 +185,15 @@ const CompanyEmployess = (props) => {
             );
 
             if (response.status === 200) {
-                enqueueSnackbar("Break Time successfully submitted!", {variant: "success",
+                enqueueSnackbar("Break Time successfully submitted!", {
+                    variant: "success",
                     anchorOrigin: {
                         vertical: "top",
                         horizontal: "right",
                     },
-                })
+                });
 
-                // Fetch updated data from backend to reflect changes
+                // ✅ **Update only if API response is successful**
                 const updatedResponse = await axios.get(
                     `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
                     {
@@ -167,21 +205,21 @@ const CompanyEmployess = (props) => {
 
                 if (updatedResponse.status === 200) {
                     const updatedData = updatedResponse.data?.employeeSettings?.breakTime?.[0] || {};
+
+                    const breakStart = updatedData.breakStartTime
+                        ? new Date(updatedData.breakStartTime).toISOString().split("T")[1].substring(0, 5)
+                        : startTime;
+
+                    const breakEnd = updatedData.breakEndTime
+                        ? new Date(updatedData.breakEndTime).toISOString().split("T")[1].substring(0, 5)
+                        : endTime;
+
                     setTimeFields((prev) => ({
                         ...prev,
                         [employeeId]: {
                             showFields: true,
-                            startTime: updatedData.breakStartTime?.substring(11, 16) || "",
-                            endTime: updatedData.breakEndTime?.substring(11, 16) || "",
-                        },
-                    }));
-                    setTimeFields((prev) => ({
-                        ...prev,
-                        [employeeId]: {
-                            ...prev[employeeId],
-                            startTime,
-                            endTime,
-                            showFields: true, // Ensure the toggle stays ON
+                            startTime: breakStart,
+                            endTime: breakEnd,
                         },
                     }));
                 }
@@ -193,7 +231,6 @@ const CompanyEmployess = (props) => {
             console.error("Error submitting Break Time:", error);
         }
     };
-
 
     const calculateTotalHours = (startTime, endTime) => {
         const start = new Date(`1970-01-01T${startTime}:00`);
@@ -252,28 +289,47 @@ const CompanyEmployess = (props) => {
         const ssId = data.employee._id; // Assuming ssId should be the employee ID
 
         console.log("SSID", ssId);
-
         const settingsToUpdate = {
             breakTime: data.isSelected
                 ? [
                     {
                         TotalHours: "1h:0m",
                         breakStartTime: new Date().toISOString(),
-                        breakEndTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour later
+                        breakEndTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(),                        
                     },
                     {
                         TotalHours: "1h:30m",
-                        breakStartTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours later
-                        breakEndTime: new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString(), // 2.5 hours later
+                        breakStartTime: moment().format("YYYY-MM-DDTHH:mm:ssZ"),
+                        breakEndTime: moment().add(1, "hour").format("YYYY-MM-DDTHH:mm:ssZ"),                        
                     },
                 ]
                 : [],
-
-            individualbreakTime: data.isSelected, // Pass toggle value
-            // individualbreakTime: data.isSelected, // Pass toggle value
+            individualbreakTime: data.isSelected,
             individualPuncStart: false,
-            individualPuncEnd: false
+            individualPuncEnd: false,
         };
+
+        // const settingsToUpdate = {
+        //     breakTime: data.isSelected
+        //         ? [
+        //             {
+        //                 TotalHours: "1h:0m",
+        //                 breakStartTime: new Date().toISOString(),
+        //                 breakEndTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour later
+        //             },
+        //             {
+        //                 TotalHours: "1h:30m",
+        //                 breakStartTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours later
+        //                 breakEndTime: new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString(), // 2.5 hours later
+        //             },
+        //         ]
+        //         : [],
+
+        //     individualbreakTime: data.isSelected, // Pass toggle value
+        //     // individualbreakTime: data.isSelected, // Pass toggle value
+        //     individualPuncStart: false,
+        //     individualPuncEnd: false
+        // };
 
         try {
             const res = await axios.post(
@@ -335,6 +391,9 @@ const CompanyEmployess = (props) => {
 
     console.log('=##########=>', filteredEmployees);
 
+    const formatTime = (time) => {
+        return time ? moment.utc(time).subtract(2, "hours").local().format("HH:mm") : "";
+    };
 
     useEffect(() => {
         const fetchAllEmployeeData = async () => {
@@ -352,32 +411,28 @@ const CompanyEmployess = (props) => {
                     if (response.status === 200) {
                         const { breakConvertedData } = response.data.data;
 
-                        // Convert to UTC format using toISOString()
-                        const utcBreakStartTime = breakConvertedData?.[0]?.breakStartTime
-                            ? new Date(breakConvertedData[0].breakStartTime).toISOString().substring(11, 16)
-                            : "";
-
-                        const utcBreakEndTime = breakConvertedData?.[0]?.breakEndTime
-                            ? new Date(breakConvertedData[0].breakEndTime).toISOString().substring(11, 16)
-                            : "";
-
                         updatedFields[employee._id] = {
-                            showFields: employee.punctualityData?.individualbreakTime || false, // Toggle state
-                            startTime: utcBreakStartTime, // Converted to UTC
-                            endTime: utcBreakEndTime,     // Converted to UTC
+                            showFields: employee.punctualityData?.individualbreakTime || false,
+                            // startTime: formatTime(breakConvertedData?.[0]?.breakStartTime), // ✅ 2 hours subtracted
+                            // endTime: formatTime(breakConvertedData?.[0]?.breakEndTime), // ✅ 2 hours subtracted
+                            startTime: breakConvertedData?.[0]?.breakStartTime
+                                ? moment(breakConvertedData[0].breakStartTime).utc().format("HH:mm")
+                                : "",
+                            endTime: breakConvertedData?.[0]?.breakEndTime
+                                ? moment(breakConvertedData[0].breakEndTime).utc().format("HH:mm")
+                                : "",
+
                         };
                     }
                 }
-                setTimeFields(updatedFields); // Set the fetched values
+                setTimeFields(updatedFields);
             } catch (error) {
                 console.error("Error fetching employee data:", error);
             }
         };
 
-        // if (employees.length > 0) {
-        fetchAllEmployeeData(); // Fetch the data on mount
-        // }
-    }, [employees]); // This ensures it runs when employees change
+        fetchAllEmployeeData();
+    }, [employees]);
 
 
     return (
@@ -394,6 +449,9 @@ const CompanyEmployess = (props) => {
                                     <div style={{ display: "flex", alignItems: "center" }}>
                                         <img width={35} src={userIcon} alt="" />
                                         <p style={{ marginLeft: 10 }}>{employee?.name}</p>
+                                        <p style={{ marginLeft: 10, fontSize: 12, color: 'black' }}>
+                                            {employee?.timezone} (UTC {employee?.timezoneOffset >= 0 ? `+${employee?.timezoneOffset}` : employee?.timezoneOffset})
+                                        </p>
                                     </div>
                                     <div style={{ marginRight: 10 }}>
                                         <label className="switch">
@@ -407,7 +465,8 @@ const CompanyEmployess = (props) => {
                                     </div>
                                 </div>
                                 {timeFields[employee._id]?.showFields && (
-                                    <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: 'flex', gap: '10px' }}>
+                                    <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: "flex", gap: '10px' }}>
+
                                         <div>
                                             <label>
                                                 Break Start Time:
@@ -423,6 +482,8 @@ const CompanyEmployess = (props) => {
                                                     style={{ marginLeft: 10 }}
                                                 />
                                             </label>
+                                        </div>
+                                        <div>
                                             <label>
                                                 Break End Time:
                                                 <input
@@ -450,10 +511,10 @@ const CompanyEmployess = (props) => {
                                         >
                                             Save
                                         </button>
-                                      
+
                                     </div>
                                 )}
-                            
+
                                 {(
                                     employee?.effectiveSettings?.individualss && activeTab?.id === 1
                                 ) ? (

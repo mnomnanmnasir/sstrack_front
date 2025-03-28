@@ -6,6 +6,8 @@ import { Modal, Button, Form } from "react-bootstrap";
 import PersonIcon from "@mui/icons-material/Person";
 import jwtDecode from "jwt-decode";
 import Joyride from "react-joyride";
+import ManualLeavesModal from "./ManualLeaves";
+import { Link, useNavigate } from "react-router-dom";
 
 const OwnerTeam = () => {
     const [run, setRun] = useState(true);
@@ -27,6 +29,49 @@ const OwnerTeam = () => {
         casualLeaves: 0,
         bereavementLeaves: 0
     });
+
+    // const [allUsers, setAllUsers] = useState([]);
+    // const [selectedUserEmail, setSelectedUserEmail] = useState("");
+    const [openManualModal, setOpenManualModal] = useState(false);
+
+    // const fetchAllUsers = async () => {
+    //     try {
+    //         const userType = items?.userType;
+    //         const endpoint = userType === 'manager'
+    //             ? `${apiUrl}/manager/getAllUserLeaves`
+    //             : `${apiUrl}/superAdmin/getAllUserLeaves`;
+
+    //         const response = await axios.get(endpoint, { headers });
+    //         const users = response.data?.data || [];
+
+    //         setAllUsers(users);
+    //     } catch (error) {
+    //         console.error("Error fetching user list:", error);
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     fetchAllUsers();
+    // }, []);
+    const [allUsersList, setAllUsersList] = useState([]);
+
+    const fetchAllUsersList = async () => {
+        try {
+            const userType = items?.userType;
+            const endpoint = userType === 'manager'
+                ? `${apiUrl}/manager/getAllUserLeaves`
+                : `${apiUrl}/superAdmin/getAllUserLeaves`;
+
+            const response = await axios.get(endpoint, { headers });
+            const users = response.data?.data || [];
+
+            // Optional: Filter out "owner" type here if needed
+            setAllUsersList(users);
+        } catch (error) {
+            console.error("Error fetching all users for manual modal:", error);
+        }
+    };
+
     const [openApplyModal, setOpenApplyModal] = useState(false); // State for Apply Leave modal
     const [currentUser, setCurrentUser] = useState(null); // Store current user info
     const [loading, setLoading] = useState(true);
@@ -324,6 +369,7 @@ const OwnerTeam = () => {
     useEffect(() => {
         fetchLeaveRequests();
         fetchLeaveData();
+        fetchAllUsersList(); // 👈 Add this
     }, []);
 
     const getFilteredLeaves = (leaves, query, currentUser) => {
@@ -503,243 +549,385 @@ const OwnerTeam = () => {
         console.log("Casual Leaves Count:", userLeaveData);
 
         return (
-            <div>
-                {/* Background overlay */}
-                <div
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        zIndex: 999,
-                    }}
-                    onClick={closeModal} // Close modal on background click
-                ></div>
+            // <div>
+            //     {/* Background overlay */}
+            //     <div
+            //         style={{
+            //             position: "fixed",
+            //             top: 0,
+            //             left: 0,
+            //             width: "100%",
+            //             height: "100%",
+            //             backgroundColor: "rgba(0, 0, 0, 0.5)",
+            //             zIndex: 999,
+            //         }}
+            //         onClick={closeModal} // Close modal on background click
+            //     ></div>
 
-                {/* Modal content */}
-                <div
-                    style={{
-                        position: "fixed",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        zIndex: 1000,
-                        backgroundColor: "#FFFFFF",
-                        padding: "30px",
-                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                        borderRadius: "12px",
-                        width: "auto",
-                        border: "1px solid #E0E0E0",
-                    }}
-                >
-                    {/* Close button */}
-                    <button
-                        onClick={closeModal}
-                        style={{
-                            position: "absolute",
-                            top: "-2px",
-                            right: "8px",
-                            backgroundColor: "transparent",
-                            border: "none",
-                            color: "#888",
-                            fontSize: "24px",
-                            cursor: "pointer",
-                        }}
-                    >
-                        &times;
-                    </button>
+            //     {/* Modal content */}
+            //     <div
+            //         style={{
+            //             position: "fixed",
+            //             top: "50%",
+            //             left: "50%",
+            //             transform: "translate(-50%, -50%)",
+            //             zIndex: 1000,
+            //             backgroundColor: "#FFFFFF",
+            //             padding: "30px",
+            //             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+            //             borderRadius: "12px",
+            //             width: "auto",
+            //             border: "1px solid #E0E0E0",
+            //         }}
+            //     >
+            //         {/* Close button */}
+            //         <button
+            //             onClick={closeModal}
+            //             style={{
+            //                 position: "absolute",
+            //                 top: "-2px",
+            //                 right: "8px",
+            //                 backgroundColor: "transparent",
+            //                 border: "none",
+            //                 color: "#888",
+            //                 fontSize: "24px",
+            //                 cursor: "pointer",
+            //             }}
+            //         >
+            //             &times;
+            //         </button>
 
-                    <h3 style={{ color: "#0E4772", marginBottom: "20px" }}>
-                        User Leave Request Detail
-                    </h3>
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "15px",
-                            marginBottom: "20px",
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: "50px",
-                                height: "50px",
-                                borderRadius: "50%",
-                                backgroundColor: "#E8F4FC",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }}
-                        >
-                            <PersonIcon style={{ color: "#0E4772", fontSize: "24px" }} />
-                            {/* <FaUser style={{ color: "#0E4772", fontSize: "24px" }} /> */}
-                            {/* 👤 */}
-                        </div>
-                        <strong style={{ fontSize: "18px", color: "#4F4F4F" }}>
-                            {selectedLeave.userName}
-                        </strong>
-                    </div>
-                    <div style={{ marginBottom: "20px" }}>
-                        <div
-                            style={{
-                                display: "flex",
-                                flexDirection: "row",
-                                alignItems: "flex-start",
-                                gap: "20px", // Adds space between sections
-                                marginBottom: "20px",
-                            }}
-                        >
-                            {/* Left Side: Leave Details */}
-                            <div style={{ flex: 1 }}>
-                                <p>
-                                    <strong>Start Date:</strong>{" "}
-                                    {/* {new Date(selectedLeave.startDate).toLocaleDateString("en-GB")} */}
-                                    {selectedLeave.startDate
-                                        ? new Date(selectedLeave.startDate).toLocaleDateString("en-GB", {
-                                            day: "2-digit",
-                                            month: "2-digit",
-                                            year: "numeric",
-                                        })
-                                        : "-"}
-                                </p>
-                                <p>
-                                    <strong>End Date:</strong>{" "}
-                                    {selectedLeave.endDate
-                                        ? new Date(selectedLeave.endDate).toLocaleDateString("en-GB", {
-                                            day: "2-digit",
-                                            month: "2-digit",
-                                            year: "numeric",
-                                        })
-                                        : "-"}
-                                    {/* {new Date(selectedLeave.endDate).toLocaleDateString("en-GB")} */}
-                                </p>
-                                <p>
-                                    <strong>Request Date:</strong>{" "}
-                                    {selectedLeave.appliedAt
-                                        ? new Date(selectedLeave.appliedAt).toLocaleDateString("en-GB", {
-                                            day: "2-digit",
-                                            month: "2-digit",
-                                            year: "numeric",
-                                        })
-                                        : "-"}
-                                    {/* {new Date(selectedLeave.appliedAt).toLocaleDateString("en-GB")} */}
-                                </p>
-                                <p>
-                                    <strong>Leave Type:</strong> {selectedLeave.leaveType}
-                                </p>
-                                <p>
-                                    <strong>Approval Date:</strong>{" "}
-                                    {selectedLeave.approvedAt
-                                        ? new Date(selectedLeave.approvedAt).toLocaleDateString("en-GB", {
-                                            day: "2-digit",
-                                            month: "2-digit",
-                                            year: "numeric",
-                                        })
-                                        : "-"}
-                                </p>
-                                <p>
-                                    <strong>Reason:</strong> {selectedLeave.reason}
-                                </p>
+            //         <h3 style={{ color: "#0E4772", marginBottom: "20px" }}>
+            //             User Leave Request Detail
+            //         </h3>
+            //         <div
+            //             style={{
+            //                 display: "flex",
+            //                 alignItems: "center",
+            //                 gap: "15px",
+            //                 marginBottom: "20px",
+            //             }}
+            //         >
+            //             <div
+            //                 style={{
+            //                     width: "50px",
+            //                     height: "50px",
+            //                     borderRadius: "50%",
+            //                     backgroundColor: "#E8F4FC",
+            //                     display: "flex",
+            //                     justifyContent: "center",
+            //                     alignItems: "center",
+            //                 }}
+            //             >
+            //                 <PersonIcon style={{ color: "#0E4772", fontSize: "24px" }} />
+            //                 {/* <FaUser style={{ color: "#0E4772", fontSize: "24px" }} /> */}
+            //                 {/* 👤 */}
+            //             </div>
+            //             <strong style={{ fontSize: "18px", color: "#4F4F4F" }}>
+            //                 {selectedLeave.userName}
+            //             </strong>
+            //         </div>
+            //         <div style={{ marginBottom: "20px" }}>
+            //             <div
+            //                 style={{
+            //                     display: "flex",
+            //                     flexDirection: "row",
+            //                     alignItems: "flex-start",
+            //                     gap: "20px", // Adds space between sections
+            //                     marginBottom: "20px",
+            //                 }}
+            //             >
+            //                 {/* Left Side: Leave Details */}
+            //                 <div style={{ flex: 1 }}>
+            //                     <p>
+            //                         <strong>Start Date:</strong>{" "}
+            //                         {/* {new Date(selectedLeave.startDate).toLocaleDateString("en-GB")} */}
+            //                         {selectedLeave.startDate
+            //                             ? new Date(selectedLeave.startDate).toLocaleDateString("en-GB", {
+            //                                 day: "2-digit",
+            //                                 month: "2-digit",
+            //                                 year: "numeric",
+            //                             })
+            //                             : "-"}
+            //                     </p>
+            //                     <p>
+            //                         <strong>End Date:</strong>{" "}
+            //                         {selectedLeave.endDate
+            //                             ? new Date(selectedLeave.endDate).toLocaleDateString("en-GB", {
+            //                                 day: "2-digit",
+            //                                 month: "2-digit",
+            //                                 year: "numeric",
+            //                             })
+            //                             : "-"}
+            //                         {/* {new Date(selectedLeave.endDate).toLocaleDateString("en-GB")} */}
+            //                     </p>
+            //                     <p>
+            //                         <strong>Request Date:</strong>{" "}
+            //                         {selectedLeave.appliedAt
+            //                             ? new Date(selectedLeave.appliedAt).toLocaleDateString("en-GB", {
+            //                                 day: "2-digit",
+            //                                 month: "2-digit",
+            //                                 year: "numeric",
+            //                             })
+            //                             : "-"}
+            //                         {/* {new Date(selectedLeave.appliedAt).toLocaleDateString("en-GB")} */}
+            //                     </p>
+            //                     <p>
+            //                         <strong>Leave Type:</strong> {selectedLeave.leaveType}
+            //                     </p>
+            //                     <p>
+            //                         <strong>Approval Date:</strong>{" "}
+            //                         {selectedLeave.approvedAt
+            //                             ? new Date(selectedLeave.approvedAt).toLocaleDateString("en-GB", {
+            //                                 day: "2-digit",
+            //                                 month: "2-digit",
+            //                                 year: "numeric",
+            //                             })
+            //                             : "-"}
+            //                     </p>
+            //                     <p>
+            //                         <strong>Reason:</strong> {selectedLeave.reason}
+            //                     </p>
+            //                     <p>
+            //                         <strong>{activeTab === "rejectedLeaves" ? "Rejected By:" : "Approved By:"}</strong>{" "}
+            //                         {selectedLeave.approvedBy ? (
+            //                             <>
+            //                                 {selectedLeave.approvedBy.name}
+            //                                 <span
+            //                                     style={{
+            //                                         marginLeft: "10px",
+            //                                         fontStyle: "italic",
+            //                                         color: "#888",
+            //                                     }}
+            //                                 >
+            //                                     ({selectedLeave.approvedBy.userType})
+            //                                 </span>
+            //                             </>
+            //                         ) : (
+            //                             "-"
+            //                         )}
+            //                     </p>
+            //                 </div>
+
+            //                 {/* Center Line */}
+            //                 <div
+            //                     style={{
+            //                         width: "1px", // Thin vertical line
+            //                         backgroundColor: "#D9D9D9", // Gray color
+            //                         alignSelf: "stretch", // Ensures it stretches to the height of its parent container
+            //                     }}
+            //                 ></div>
+
+            //                 {/* Right Side: Leave Counts */}
+            //                 <div style={{ flex: 1 }}>
+            //                     <h4 style={{ color: "#0E4772", marginBottom: "10px", fontSize: "20px" }}>
+            //                         User Leave Count
+            //                     </h4>
+            //                     <p>
+            //                         {/* {userLeaveData.sickLeaves || 0} */}
+            //                         <strong>Annual Leaves:</strong> {userLeaveData?.annualLeaves || 0}
+            //                     </p>
+            //                     <p>
+
+            //                         <strong>Casual Leaves:</strong> {userLeaveData?.casualLeaves || 0}
+            //                     </p>
+            //                     <p>
+            //                         <strong>Sick Leaves:</strong> {userLeaveData?.sickLeaves || 0}
+            //                     </p>
+            //                     <p>
+            //                         <strong>Bereavement Leaves:</strong> {userLeaveData?.bereavementLeaves || 0}
+            //                     </p>
+            //                 </div>
+            //             </div>
+
+            //             {activeTab === "requestedLeaves" && (
+            //                 <>
+            //                     <p>
+            //                         <strong>Enter Reason for Rejection:</strong>
+            //                     </p>
+            // <textarea
+            //     placeholder="Enter rejection reason..."
+            //     style={{
+            //         width: "100%",
+            //         height: "100px",
+            //         padding: "10px",
+            //         border: "1px solid #E0E0E0",
+            //         borderRadius: "5px",
+            //         resize: "none",
+            //         marginBottom: "20px",
+            //     }}
+            //     value={rejectionReason} // Bind the value to the state
+            //     onChange={(e) => setRejectionReason(e.target.value)} // Update state on input
+            // ></textarea>
+            //                 </>
+            //             )}
+            //         </div>
+
+            //         {/* Conditional Buttons and Inputs */}
+            //         {selectedLeave.status.toLowerCase() === "approved" && (
+            //             <div style={{ marginTop: "20px", textAlign: "center" }}>
+            //                 <button
+            //                     style={{
+            //                         padding: "10px 20px",
+            //                         backgroundColor: "#7FC45B",
+            //                         color: "white",
+            //                         border: "none",
+            //                         borderRadius: "5px",
+            //                         fontWeight: "600",
+            //                         cursor: "pointer",
+            //                     }}
+            //                     onClick={closeModal}
+            //                 >
+            //                     Back
+            //                 </button>
+            //             </div>
+            //         )}
+
+            //         {selectedLeave.status.toLowerCase() === "rejected" && (
+            //             <div style={{ marginTop: "20px" }}>
+            //                 {/* <textarea
+            //                     placeholder="Enter rejection reason..."
+            //                     style={{
+            //                         width: "100%",
+            //                         height: "100px",
+            //                         padding: "10px",
+            //                         border: "1px solid #E0E0E0",
+            //                         borderRadius: "5px",
+            //                         resize: "none",
+            //                         marginBottom: "20px",
+            //                     }}
+            //                 ></textarea> */}
+            //                 <div style={{ textAlign: "center" }}>
+            //                     <button
+            //                         style={{
+            //                             padding: "10px 20px",
+            //                             backgroundColor: "#7FC45B",
+            //                             color: "white",
+            //                             border: "none",
+            //                             borderRadius: "5px",
+            //                             fontWeight: "600",
+            //                             cursor: "pointer",
+            //                         }}
+            //                         onClick={() => {
+            //                             // Handle submission logic if needed
+            //                             closeModal();
+            //                         }}
+            //                     >
+            //                         Done
+            //                     </button>
+            //                 </div>
+            //             </div>
+            //         )}
+            //         {selectedLeave.status.toLowerCase() === "pending" && (
+            //             <div style={{ marginTop: "20px", textAlign: "center" }}>
+            //                 <button
+            //                     style={{
+            //                         padding: "10px 20px",
+            //                         backgroundColor: "#7FC45B",
+            //                         color: "white",
+            //                         border: "none",
+            //                         borderRadius: "5px",
+            //                         fontWeight: "600",
+            //                         marginRight: "10px",
+            //                         cursor: "pointer",
+            //                     }}
+            //                     onClick={() => {
+            //                         // Handle accept logic
+            //                         handleAccept(selectedLeave.leaveId, selectedLeave.userId);
+            //                         console.log("Accepted", selectedLeave.userId, 'abdullah', selectedLeave.leaveId);
+            //                         closeModal();
+            //                     }}
+            //                 >
+            //                     Accept
+            //                 </button>
+            //                 <button
+            //                     style={{
+            //                         padding: "10px 20px",
+            //                         backgroundColor: "#FF6F6F",
+            //                         color: "white",
+            //                         border: "none",
+            //                         borderRadius: "5px",
+            //                         fontWeight: "600",
+            //                         cursor: "pointer",
+            //                     }}
+            //                     onClick={() => {
+            //                         // Handle reject logic
+            //                         handleReject(selectedLeave.leaveId, selectedLeave.userId);
+            //                         console.log("Rejected");
+            //                         closeModal();
+            //                     }}
+            //                 >
+            //                     Reject
+            //                 </button>
+            //             </div>
+            //         )}
+            //         <span
+            //             style={{
+            //                 position: "absolute",
+            //                 top: "27px",
+            //                 right: "30px",
+            //                 backgroundColor: "#FFF5F5",
+            //                 color: "#FF6F6F",
+            //                 border: "1px solid #FF6F6F",
+            //                 padding: "5px 10px",
+            //                 borderRadius: "12px",
+            //                 fontWeight: "600",
+            //             }}
+            //         >
+            //             {selectedLeave.status.toUpperCase()}
+            //         </span>
+
+            //     </div>
+            // </div >
+            <Modal show={isModalOpen} onHide={closeModal} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title style={{ color: "#0E4772" }}>User Leave Request Detail</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="d-flex justify-content-between">
+                        {/* Left Section - User Info & Leave Details */}
+                        <div style={{ flex: 1 }}>
+                            <div className="d-flex align-items-center gap-3">
+                                <div className="bg-light rounded-circle d-flex align-items-center justify-content-center" style={{ width: 50, height: 50 }}>
+                                    <PersonIcon style={{ color: "#0E4772", fontSize: "24px" }} />
+                                </div>
+                                <strong style={{ fontSize: "18px", color: "#4F4F4F" }}>{selectedLeave?.userName}</strong>
+                            </div>
+
+                            {/* Leave Details */}
+                            <div className="mt-3">
+                                <p><strong>Start Date:</strong> {selectedLeave?.startDate ? new Date(selectedLeave.startDate).toLocaleDateString("en-GB") : "-"}</p>
+                                <p><strong>End Date:</strong> {selectedLeave?.endDate ? new Date(selectedLeave.endDate).toLocaleDateString("en-GB") : "-"}</p>
+                                <p><strong>Request Date:</strong> {selectedLeave?.appliedAt ? new Date(selectedLeave.appliedAt).toLocaleDateString("en-GB") : "-"}</p>
+                                <p><strong>Leave Type:</strong> {selectedLeave?.leaveType || "-"}</p>
+                                <p><strong>Approval Date:</strong> {selectedLeave?.approvedAt ? new Date(selectedLeave.approvedAt).toLocaleDateString("en-GB") : "-"}</p>
+                                <p><strong>Reason:</strong> {selectedLeave?.reason || "-"}</p>
                                 <p>
                                     <strong>{activeTab === "rejectedLeaves" ? "Rejected By:" : "Approved By:"}</strong>{" "}
-                                    {selectedLeave.approvedBy ? (
+                                    {selectedLeave?.approvedBy ? (
                                         <>
-                                            {selectedLeave.approvedBy.name}
-                                            <span
-                                                style={{
-                                                    marginLeft: "10px",
-                                                    fontStyle: "italic",
-                                                    color: "#888",
-                                                }}
-                                            >
-                                                ({selectedLeave.approvedBy.userType})
-                                            </span>
+                                            {selectedLeave.approvedBy.name} <span className="text-muted">({selectedLeave.approvedBy.userType})</span>
                                         </>
-                                    ) : (
-                                        "-"
-                                    )}
-                                </p>
-                            </div>
-
-                            {/* Center Line */}
-                            <div
-                                style={{
-                                    width: "1px", // Thin vertical line
-                                    backgroundColor: "#D9D9D9", // Gray color
-                                    alignSelf: "stretch", // Ensures it stretches to the height of its parent container
-                                }}
-                            ></div>
-
-                            {/* Right Side: Leave Counts */}
-                            <div style={{ flex: 1 }}>
-                                <h4 style={{ color: "#0E4772", marginBottom: "10px", fontSize: "20px" }}>
-                                    User Leave Count
-                                </h4>
-                                <p>
-                                    {/* {userLeaveData.sickLeaves || 0} */}
-                                    <strong>Annual Leaves:</strong> {userLeaveData?.annualLeaves || 0}
-                                </p>
-                                <p>
-
-                                    <strong>Casual Leaves:</strong> {userLeaveData?.casualLeaves || 0}
-                                </p>
-                                <p>
-                                    <strong>Sick Leaves:</strong> {userLeaveData?.sickLeaves || 0}
-                                </p>
-                                <p>
-                                    <strong>Bereavement Leaves:</strong> {userLeaveData?.bereavementLeaves || 0}
+                                    ) : "-"}
                                 </p>
                             </div>
                         </div>
 
-                        {activeTab === "requestedLeaves" && (
-                            <>
-                                <p>
-                                    <strong>Enter Reason for Rejection:</strong>
-                                </p>
-                                <textarea
-                                    placeholder="Enter rejection reason..."
-                                    style={{
-                                        width: "100%",
-                                        height: "100px",
-                                        padding: "10px",
-                                        border: "1px solid #E0E0E0",
-                                        borderRadius: "5px",
-                                        resize: "none",
-                                        marginBottom: "20px",
-                                    }}
-                                    value={rejectionReason} // Bind the value to the state
-                                    onChange={(e) => setRejectionReason(e.target.value)} // Update state on input
-                                ></textarea>
-                            </>
-                        )}
+                        {/* Right Section - User Leave Count */}
+                        <div style={{ flex: 1, paddingLeft: "20px", marginTop: '13%', borderLeft: "1px solid #ddd" }}>
+                            <h4 style={{ color: "#0E4772", fontSize: "20px" }}>User Leave Count</h4>
+                            <p><strong>Annual Leaves:</strong> {userLeaveData?.annualLeaves || 0}</p>
+                            <p><strong>Casual Leaves:</strong> {userLeaveData?.casualLeaves || 0}</p>
+                            <p><strong>Sick Leaves:</strong> {userLeaveData?.sickLeaves || 0}</p>
+                            <p><strong>Bereavement Leaves:</strong> {userLeaveData?.bereavementLeaves || 0}</p>
+                        </div>
                     </div>
 
-                    {/* Conditional Buttons and Inputs */}
-                    {selectedLeave.status.toLowerCase() === "approved" && (
-                        <div style={{ marginTop: "20px", textAlign: "center" }}>
-                            <button
-                                style={{
-                                    padding: "10px 20px",
-                                    backgroundColor: "#7FC45B",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "5px",
-                                    fontWeight: "600",
-                                    cursor: "pointer",
-                                }}
-                                onClick={closeModal}
-                            >
-                                Back
-                            </button>
-                        </div>
-                    )}
-
-                    {selectedLeave.status.toLowerCase() === "rejected" && (
-                        <div style={{ marginTop: "20px" }}>
-                            {/* <textarea
+                    {/* Rejection Reason */}
+                    {activeTab === "requestedLeaves" && (
+                        <div className="mt-3">
+                            <p><strong>Enter Reason for Rejection:</strong></p>
+                            <textarea
                                 placeholder="Enter rejection reason..."
                                 style={{
                                     width: "100%",
@@ -750,9 +938,24 @@ const OwnerTeam = () => {
                                     resize: "none",
                                     marginBottom: "20px",
                                 }}
-                            ></textarea> */}
-                            <div style={{ textAlign: "center" }}>
-                                <button
+                                value={rejectionReason} // Bind the value to the state
+                                onChange={(e) => setRejectionReason(e.target.value)} // Update state on input
+                            ></textarea>
+                        </div>
+                    )}
+                </Modal.Body>
+
+                {/* Modal Footer with Buttons */}
+                <Modal.Footer style={{
+                    borderTop: "none",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}>
+                    {selectedLeave?.status.toLowerCase() === "pending" ? (
+                        <>
+                            <div style={{ marginTop: "0px", textAlign: "center" }}>
+                                <button variant="success"
                                     style={{
                                         padding: "10px 20px",
                                         backgroundColor: "#7FC45B",
@@ -760,21 +963,31 @@ const OwnerTeam = () => {
                                         border: "none",
                                         borderRadius: "5px",
                                         fontWeight: "600",
+                                        marginRight: "10px",
                                         cursor: "pointer",
                                     }}
-                                    onClick={() => {
-                                        // Handle submission logic if needed
-                                        closeModal();
-                                    }}
-                                >
-                                    Done
+                                    onClick={() => { handleAccept(selectedLeave.leaveId, selectedLeave.userId); closeModal(); }}>
+                                    Accept
                                 </button>
+                                <Button variant="danger" style={{
+                                    padding: "10px 20px",
+                                    backgroundColor: "#FF6F6F",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "5px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                    textAlign: 'center'
+                                }}
+                                    onClick={() => { handleReject(selectedLeave.leaveId, selectedLeave.userId); closeModal(); }}>
+                                    Reject
+                                </Button>
                             </div>
-                        </div>
-                    )}
-                    {selectedLeave.status.toLowerCase() === "pending" && (
-                        <div style={{ marginTop: "20px", textAlign: "center" }}>
-                            <button
+                        </>
+                    ) : (
+                        <div style={{ textAlign: "center", alignItems: 'center' }}>
+
+                            <Button variant="secondary"
                                 style={{
                                     padding: "10px 20px",
                                     backgroundColor: "#7FC45B",
@@ -783,56 +996,19 @@ const OwnerTeam = () => {
                                     borderRadius: "5px",
                                     fontWeight: "600",
                                     marginRight: "10px",
+                                    textAlign: 'center',
                                     cursor: "pointer",
                                 }}
-                                onClick={() => {
-                                    // Handle accept logic
-                                    handleAccept(selectedLeave.leaveId, selectedLeave.userId);
-                                    console.log("Accepted", selectedLeave.userId, 'abdullah', selectedLeave.leaveId);
-                                    closeModal();
-                                }}
-                            >
-                                Accept
-                            </button>
-                            <button
-                                style={{
-                                    padding: "10px 20px",
-                                    backgroundColor: "#FF6F6F",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "5px",
-                                    fontWeight: "600",
-                                    cursor: "pointer",
-                                }}
-                                onClick={() => {
-                                    // Handle reject logic
-                                    handleReject(selectedLeave.leaveId, selectedLeave.userId);
-                                    console.log("Rejected");
-                                    closeModal();
-                                }}
-                            >
-                                Reject
-                            </button>
+                                onClick={closeModal}>Done</Button>
                         </div>
                     )}
-                    <span
-                        style={{
-                            position: "absolute",
-                            top: "27px",
-                            right: "30px",
-                            backgroundColor: "#FFF5F5",
-                            color: "#FF6F6F",
-                            border: "1px solid #FF6F6F",
-                            padding: "5px 10px",
-                            borderRadius: "12px",
-                            fontWeight: "600",
-                        }}
-                    >
-                        {selectedLeave.status.toUpperCase()}
-                    </span>
+                </Modal.Footer>
 
-                </div>
-            </div >
+                {/* Status Badge */}
+                <span className="position-absolute top-0 end-0 m-3 px-3 py-1 border rounded text-danger bg-light">
+                    {selectedLeave?.status?.toUpperCase()}
+                </span>
+            </Modal >
 
         );
     };
@@ -1014,7 +1190,7 @@ const OwnerTeam = () => {
     // main component
     return (
         <>
-             {items?._id === "679b223b61427668c045c659" && (
+            {items?._id === "679b223b61427668c045c659" && (
                 <Joyride
                     steps={steps}
                     run={run}
@@ -1166,7 +1342,7 @@ const OwnerTeam = () => {
                         <button
                             onClick={() => setModalOpen(true)} // Opens the modal
                             style={{
-                                padding: "5px 10px",
+                                padding: "10px 10px",
                                 backgroundColor: "#7FC45B",
                                 color: "#fff",
                                 border: "none",
@@ -1195,8 +1371,26 @@ const OwnerTeam = () => {
                                 Apply Leave
                             </button>
                         )}
+                        {(items?.userType === "owner" || items?.userType === "admin") && (
+                            <Link to="/ownerManualLeave">
+                                <button
+                                    // onClick={() => setOpenManualModal(true)} // 👈 Open Manual Modal
+                                    style={{
+                                        padding: "10px 20px",
+                                        backgroundColor: "#7FC45B",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        cursor: "pointer",
+                                        fontWeight: "600",
+                                        marginLeft: "10px",
+                                    }}
+                                >
+                                    Add Manual
+                                </button>
+                            </Link>
+                        )}
                     </div>
-
                 </div>
                 <div
                     id="leaveCounts"
@@ -1427,6 +1621,25 @@ const OwnerTeam = () => {
                 </div>
                 {/* Render Modal */}
                 {isModalOpen && renderModal()}
+                {/* Render Manual Leave Modal */}
+                {/* <ManualLeavesModal
+                    show={openManualModal}
+                    handleClose={() => setOpenManualModal(false)}
+                /> */}
+                {/* <ManualLeavesModal
+                    show={openManualModal}
+                    handleClose={() => setOpenManualModal(false)}
+                    userId={items?._id}
+                    fetchLeaveRequests={fetchLeaveRequests}
+                    // fetchAllUsers={fetchAllUsers}
+                /> */}
+
+                <ManualLeavesModal
+                    show={openManualModal}
+                    handleClose={() => setOpenManualModal(false)}
+                    fetchLeaveRequests={fetchLeaveRequests}
+                    allUsers={allUsersList} // 👈 Pass users as prop
+                />
 
                 {/* Modal */}
                 <Modal show={modalOpen} onHide={() => setModalOpen(false)} centered>

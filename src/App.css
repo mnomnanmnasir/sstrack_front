@@ -398,7 +398,7 @@ nav li a {
 .inputDiv input {
   margin-left: 20px;
   border: 0px;
-  background-color: white !important;
+  background-color: white ;
   width: 100%;
 }
 
@@ -4619,7 +4619,7 @@ input.checkboxes:checked {
 }
 
 .active {
-  border: 3px solid #28659C;
+  border: 3px solid #28659C !important;
 }
 
 .active2 {
@@ -6863,5 +6863,35 @@ input[type="number"] {
   color: #7ACB59 !important;
   /* font-weight: bold; */
   font-size: 15px;
-  border: none
+  border: none !important
+}
+
+
+.link-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  /* Default: no underline */
+}
+
+.link-button:hover {
+  text-decoration: underline;
+  /* On hover: underline */
+}
+
+
+@media (max-width: 767px) {
+  .splash-card-body {
+    line-height: 1.5;
+  }
+}
+
+@media (min-width: 768px) {
+  .splash-card-body {
+    line-height: 1.6;
+  }
 }

@@ -58,7 +58,10 @@ function UserDashboardSection(params) {
         }
     };
 
-
+    const handleDismiss = () => {
+        localStorage.setItem("isAccountSetupComplete", "true");
+        window.dispatchEvent(new Event("storage")); // Notify other components
+    };
     function scrollToSection(sectionId) {
         const section = document.getElementById(sectionId);
         if (section) {
@@ -109,21 +112,16 @@ function UserDashboardSection(params) {
                                 </div> */}
 
                                 {/* ✅ This div will be hidden on /signin */}
-                                {(location.pathname !== "/signin") && (location.pathname !== "/signup") && (
-                                    <div className="ownerSectionUser1 text-white" onClick={() => navigate('/download')}>
-                                        {/* <p style={{ margin: 0 }}>Download</p> */}
-                                        <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none' }}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                if (window.location.pathname !== "/") {
-                                                    navigate("/download", { state: { scrollTo: "" } });
-                                                } else {
-                                                    scrollToSection(''); // Call the scroll function if already on homepage
-                                                }
-                                            }}>Download</Link>
-                                    </div>
-                                )}
 
+                                <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', margin: 0 }}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (window.location.pathname !== "/") {
+                                            navigate("/", { state: { scrollTo: "pricing" } });
+                                        } else {
+                                            scrollToSection('pricing'); // Call the scroll function if already on homepage
+                                        }
+                                    }}>Pricing</Link>
                                 {/* <div className=" text-white" > */}
                                 <Link
                                     to="/workCards"
@@ -141,19 +139,28 @@ function UserDashboardSection(params) {
                                 </div> */}
                                 {/* <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }}
                                 > */}
-                                {/* <Link to="/" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }} onClick={() => location.pathname === "/" ? scrollToSection('pricing') : navigate("/")}>{language === "en" ? "Pricing" : "التسعير"}
-                                    </Link> */}
+                                <Link
+                                    to="/Training"
+                                    className="ownerSectionUser1"
+                                    style={{ color: "white", textDecoration: "none", margin: 0 }}
+                                    onClick={() => handleDismiss()} // Call function on click
+                                >
+                                    Training Center
+                                </Link>
+                                {(location.pathname !== "/signin") && (location.pathname !== "/signup") && (
+
+                                    <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none' }}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            if (window.location.pathname !== "/") {
+                                                navigate("/download", { state: { scrollTo: "" } });
+                                            } else {
+                                                scrollToSection(''); // Call the scroll function if already on homepage
+                                            }
+                                        }}>Download</Link>
+                                )}
                                 <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', margin: 0 }}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        if (window.location.pathname !== "/") {
-                                            navigate("/", { state: { scrollTo: "pricing" } });
-                                        } else {
-                                            scrollToSection('pricing'); // Call the scroll function if already on homepage
-                                        }
-                                    }}>Pricing</Link>
-                                {/* <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', margin: 0 }}
-                                        onClick={handleLogin}>demo</Link> */}
+                                    onClick={handleLogin}>Demo</Link>
                                 {/* <p style={{ margin: 0, fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/aboutUs")}>{language === "en" ? "About Us" : "كيف يعمل"}</p> */}
                                 {/* </div> */}
                             </div>
@@ -162,7 +169,7 @@ function UserDashboardSection(params) {
                     </div>
                 </nav>
             </>
-        </div>
+        </div >
     )
 }
 

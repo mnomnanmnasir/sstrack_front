@@ -72,6 +72,23 @@ function Profile() {
         }
     }
 
+    // ✅ Function to Generate Secure Password
+    const generatePassword = () => {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?";
+        let password = "";
+        for (let i = 0; i < 12; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return password;
+    };
+
+    // ✅ Handle Key Press (',' Generates a New Password)
+    const handleKeyPress = (e) => {
+        if (e.key === " ") {
+            e.preventDefault(); // Stop inputting ','
+            fillModel("password", generatePassword()); // Generate new password
+        }
+    };
 
     async function updateData() {
         // Check if token is missing
@@ -106,6 +123,7 @@ function Profile() {
             fillModel("company", items?.company || null);
             fillModel("timezone", items.timezone || null);
             fillModel("timezoneOffset", items?.timezoneOffset || 5);
+            fillModel("password", generatePassword());
 
             if (items.timezone) {
                 setSelectedTimezone(items?.timezone);
@@ -309,31 +327,63 @@ function Profile() {
                                 </div>
                                 <div>
                                     <label className="countryLabel">Email</label>
-                                    <div className={(items?.userType === "owner" || items?.userType === "admin") ? "countryDropdown" : "countryDropdownDisabled"}>
+                                    <div className={(items?.userType === "owner" || items?.userType === "admin")} style={{
+                                        backgroundColor: model?.company ? "#f0f0f0" : "white",
+                                        opacity: model?.company ? 0.6 : 1,
+                                        pointerEvents: model?.company ? "none" : "auto",
+                                        padding: "10px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "8px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px",
+                                        transition: "0.3s"
+                                    }}>
+                                      
                                         <input  // Display email value here
                                             disabled={items?.userType !== "owner" ? true : false} onChange={(e) => fillModel("email", e.target.value)} style={{ borderRadius: '4px', width: '100%', height: '100%', backgroundColor: (items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager") ? "#ccc" : "#E8F4FC" }} defaultValue={items?.email} />
                                     </div>
                                 </div>
                                 <div>
                                     <label className="countryLabel">Company</label>
-                                    <div className={(items?.userType === "owner" || items?.userType === "admin") ? "countryDropdown" : "countryDropdownDisabled"}>
+
+                                    <div className={(items?.userType === "owner" || items?.userType === "admin")} style={{
+                                        backgroundColor: model?.company ? "#f0f0f0" : "white",
+                                        opacity: model?.company ? 0.6 : 1,
+                                        pointerEvents: model?.company ? "none" : "auto",
+                                        padding: "10px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "8px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px",
+                                        transition: "0.3s"
+                                    }}>
                                         <input
                                             disabled={
                                                 (items?.userType === "owner" || items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager")
                                                 && items?.company // only disable if userType matches and company field is not empty
                                             }
                                             style={{
-                                                width: '100%',
-                                                height: '100%',
-                                                borderRadius: '4px',
-                                                backgroundColor: (items?.userType === "owner" || items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager") && items?.company ? "#ccc" : "#E8F4FC"
+                                                // backgroundColor: model?.company ? "#f0f0f0" : "white",
+                                                border: "none",
+                                                outline: "none",
+                                                flex: 1,
+                                                padding: "5px",
+                                                // backgroundColor: (items?.userType === "owner" || items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager") && items?.company ? "#ccc" : "#E8F4FC"
                                             }}
+                                            // style={{
+                                            //     backgroundColor: (items?.userType === "owner" || items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager") && items?.company ? "#ccc" : "#E8F4FC"
+                                            //     border: "none",
+                                            //     outline: "none",
+                                            //     flex: 1,
+                                            //     padding: "5px"
+                                            // }}
                                             onChange={(e) => fillModel("company", e.target.value)}
                                             defaultValue={items?.company}
                                         />
                                     </div>
                                 </div>
-
                                 <div>
                                     <label className="countryLabel">Time Zone</label>
                                     <div className="dropdown">

@@ -159,9 +159,7 @@ const Project = () => {
     useEffect(() => {
         if (project1) {
             setproject(project1);
-            console.log('====================================');
-            console.log('setprooject');
-            console.log('====================================');
+        
         }
     }, [project1]);
 

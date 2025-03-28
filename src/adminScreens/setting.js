@@ -17,7 +17,7 @@ import { useLocation, Outlet } from "react-router-dom";
 function Setting() {
     const [loading, setLoading] = useState(false);
     const [settingsTabs, setSettingTabs] = useState([
-        { id: 1, name: "Screenshots", isActive: false, icon: ">" },
+        { id: 1, name: "Screenshots", isActive: true, icon: ">" },
         { id: 2, name: "Activity level tracking", isActive: false, icon: ">" },
         { id: 3, name: "App & URL tracking", isActive: false, icon: ">" },
         { id: 5, name: "Auto pause tracking after", isActive: false, icon: ">" },
@@ -62,8 +62,6 @@ function Setting() {
 
     }, []);
 
-
-
     // Function to find and set the next available tab
     const handleTabClick = (tab) => {
 
@@ -86,6 +84,22 @@ function Setting() {
         // Dispatch the active tab to the store
         dispatch(setActiveTab({ ...tab, isActive: true }));
     };
+
+    useEffect(() => {
+        const path = location.pathname;
+
+        // 👇 check for break-time or punctuality path
+        if (path.includes("/settings/break-time") || path.includes("/settings/punctuality")) {
+            setSettingTabs((prevTabs) =>
+                prevTabs.map((tab) => ({ ...tab, isActive: false }))
+            );
+        } else {
+            // If not in those routes, default to first tab active
+            setSettingTabs((prevTabs) =>
+                prevTabs.map((tab, index) => ({ ...tab, isActive: index === 0 }))
+            );
+        }
+    }, [location.pathname]);
 
     return (
         <div>

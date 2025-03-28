@@ -13,9 +13,11 @@ import useLoading from "../hooks/useLoading";
 import archiveIcon from "../images/archive.svg";
 import groupCompany from "../images/Group.webp";
 import inviteIcon from "../images/invitation.svg";
+import settingIcon from '../images/setting-icon.svg'
 import line from "../images/Line 3.webp";
 import OwnerTeamComponent from "./ownerTeamComponent";
 import Joyride from "react-joyride";
+import GroupComponent from "../screen/component/GroupComponent";
 
 function OwnerTeam() {
     const [run, setRun] = useState(true);
@@ -36,6 +38,7 @@ function OwnerTeam() {
     const [isArchived, setIsArchived] = useState(true)
     const [activeId, setActiveId] = useState(null)
     const [mainId, setMainId] = useState(null)
+    const [GroupData, setGroupData] = useState(null);
     const [users, setUsers] = useState(null);
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem('token');
@@ -46,7 +49,8 @@ function OwnerTeam() {
     };
     const user = jwtDecode(JSON.stringify(token));
     // console.log('check',user._id === "679b223b61427668c045c659");
-    
+    const [selectedGroupName, setSelectedGroupName] = useState("");
+
     const steps = [
         {
             target: '#addUserButton',
@@ -62,6 +66,10 @@ function OwnerTeam() {
         },
 
     ];
+
+    const [showGroupInput, setShowGroupInput] = useState(false);
+    const [newGroupName, setNewGroupName] = useState("");
+
     const handleJoyrideCallback = (data) => {
         const { action, index, status } = data;
 
@@ -72,6 +80,39 @@ function OwnerTeam() {
             setRun(false); // End the tour when finished
         }
     };
+
+    const [groups, setGroups] = useState([]);
+
+    const handleCreateGroup = async () => {
+        if (!newGroupName.trim()) return;
+
+        try {
+            const response = await axios.post(`${apiUrl}/userGroup/add`, {
+                name: newGroupName,
+            }, { headers });
+
+            if (response.status === 200 || response.status === 201) {
+                enqueueSnackbar("Group created successfully!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                const newGroup = response.data?.savedGroup;
+                console.log("added you group name", newGroup)
+                // Add the new group to list
+                setGroups(prev => [...prev, newGroup]);
+
+                setNewGroupName("");
+                setShowGroupInput(false);
+            }
+        } catch (error) {
+            enqueueSnackbar(error?.response?.data?.message || "Failed to create group", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+        }
+    };
+
     const getData = async () => {
         setLoading(true)
         try {
@@ -85,6 +126,15 @@ function OwnerTeam() {
                         if (a.inviteStatus !== b.inviteStatus) {
                             return a.inviteStatus ? 1 : -1;
                         }
+                        if (a.isArchived !== b.isArchived) {
+                            return a.isArchive ? 1 : -1;
+                        }
+                        return 0;
+                    });
+                })
+                setGroups(() => {
+                    return response?.data?.groupsData?.sort((a, b) => {
+
                         if (a.isArchived !== b.isArchived) {
                             return a.isArchive ? 1 : -1;
                         }
@@ -213,56 +263,102 @@ function OwnerTeam() {
         }
     }
 
-    const handleSendInvitation = async () => {
-        if (email !== "") {
-            setShow3(false)
-            setIsInviteLoading(true); // Start loading for invite button
+    // const handleSendInvitation = async () => {
+    //     if (email !== "") {
+    //         setShow3(false)
+    //         setIsInviteLoading(true); // Start loading for invite button
 
-            try {
-                const res = await axios.post(`${apiUrl}/superAdmin/email`, {
-                    toEmail: email,
-                    company: user.company,
-                }, {
-                    headers: headers,
-                })
-                if (res.status) {
-                    enqueueSnackbar(res.data.message, {
-                        variant: "success",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right"
-                        }
-                    })
-                    getData()
-                    setEmail("") // Reset the email input field
-                }
-                console.log("invitationEmail RESPONSE =====>", res);
-            } catch (error) {
-                enqueueSnackbar(error?.response?.data?.message ? error?.response?.data?.message : "Network error", {
-                    variant: "error",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right"
-                    }
-                })
-                console.log("catch error =====>", error);
-            }
-            finally {
-                setIsInviteLoading(false); // Reset loading for invite button
-            }
-        }
-        else {
-            enqueueSnackbar("Email address is required", {
+    //         try {
+    //             const res = await axios.post(`${apiUrl}/superAdmin/email`, {
+    //                 toEmail: email,
+    //                 company: user.company,
+    //             }, {
+    //                 headers: headers,
+    //             })
+    //             if (res.status) {
+    //                 enqueueSnackbar(res.data.message, {
+    //                     variant: "success",
+    //                     anchorOrigin: {
+    //                         vertical: "top",
+    //                         horizontal: "right"
+    //                     }
+    //                 })
+    //                 getData()
+    //                 setEmail("") // Reset the email input field
+    //             }
+    //             console.log("invitationEmail RESPONSE =====>", res);
+    //         } catch (error) {
+    //             enqueueSnackbar(error?.response?.data?.message ? error?.response?.data?.message : "Network error", {
+    //                 variant: "error",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             })
+    //             console.log("catch error =====>", error);
+    //         }
+    //         finally {
+    //             setIsInviteLoading(false); // Reset loading for invite button
+    //         }
+    //     }
+    //     else {
+    //         enqueueSnackbar("Email address is required", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right"
+    //             }
+    //         })
+    //     }
+
+    // }
+    const handleSendInvitation = async () => {
+        if (!email || !isValidEmail) {
+            enqueueSnackbar("Please enter a valid email address", {
                 variant: "error",
                 anchorOrigin: {
                     vertical: "top",
                     horizontal: "right"
                 }
-            })
+            });
+            return; // 🔒 Exit early if email is invalid
         }
-
-    }
-
+    
+        setShow3(false);
+        setIsInviteLoading(true);
+    
+        try {
+            const res = await axios.post(`${apiUrl}/superAdmin/email`, {
+                toEmail: email,
+                company: user.company,
+            }, {
+                headers: headers,
+            });
+    
+            if (res.status) {
+                enqueueSnackbar(res.data.message, {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                });
+                getData();
+                setEmail(""); // Reset the email input
+            }
+        } catch (error) {
+            enqueueSnackbar(error?.response?.data?.message || "Network error", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
+        } finally {
+            setIsInviteLoading(false);
+        }
+    };
+    
     return (
         <div>
             {show ? <Modal show={show} onHide={() => setShow(false)} animation={false} centered>
@@ -360,7 +456,114 @@ function OwnerTeam() {
                             <div style={{ width: "400px" }}>
                                 {user?.userType !== "manager" && (
                                     <>
-                                        {/* <p className="addUserButton" onClick={() => navigate('/company-owner-user')}>+ Create user</p> */}
+                                        <p className="addUserButton" onClick={() => setShowGroupInput(!showGroupInput)}>
+                                            {showGroupInput ? "× Close" : "+ Create user group"}
+                                        </p>
+                                        {showGroupInput && (
+                                            <div
+                                                id="addUserButton"
+                                                style={{
+                                                    marginTop: "20px",
+                                                    display: "flex",
+                                                    justifyContent: "space-between"
+                                                }}>
+                                                <input
+                                                    type="email"
+                                                    value={newGroupName}
+                                                    onChange={(e) => setNewGroupName(e.target.value)}
+                                                    placeholder="Enter new group name"
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter" && newGroupName.trim()) {
+                                                            handleCreateGroup();
+                                                        }
+                                                    }}
+                                                    style={{
+                                                        fontSize: "18px",
+                                                        padding: "6px 10px",
+                                                        width: "100%",
+                                                        border: "1px solid #cacaca",
+                                                        outline: "none",
+                                                        borderTopLeftRadius: '5px',
+                                                        borderBottomLeftRadius: '5px',
+                                                    }}
+                                                />
+                                                <button
+                                                    onClick={() => handleCreateGroup()}
+                                                    style={{
+                                                        backgroundColor: "#7acb59",
+                                                        borderTopRightRadius: "4px",
+                                                        borderBottomRightRadius: "4px",
+                                                        padding: "10px 25px",
+                                                        color: "white",
+                                                        border: "none",
+                                                    }}
+                                                    disabled={!newGroupName.trim()}
+                                                >
+                                                    Create
+                                                </button>
+                                            </div>
+                                        )}
+                                        {groups.length > 0 && (
+                                            <div style={{ marginTop: "15px" }}>
+                                                <h6 style={{ fontWeight: 600, marginBottom: "10px", color: "#0E4772" }}>
+                                                    Created Groups:
+                                                </h6>
+                                                <ul style={{ paddingLeft: "20px" }}>
+                                                    {groups?.map((e, i) => (
+                                                        <div
+
+                                                            className={`adminTeamEmployess align-items-center gap-1`} onClick={() => {
+                                                                setGroupData(e)
+                                                                setMainId(null)
+
+                                                            }}>
+                                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: '100%' }}>
+                                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                                    <div className="groupContentMainImg">
+                                                                        <p>{i + 1}</p>
+                                                                    </div>
+                                                                    <p className="groupContent">{e?.name}</p>
+                                                                </div>
+                                                                {e?.inviteStatus === true && (
+                                                                    <div
+                                                                        style={{
+                                                                            marginRight: "3px",
+                                                                            padding: "3px 10px",
+                                                                            borderRadius: "3px",
+                                                                            color: "#fff",
+                                                                            fontSize: "12px",
+                                                                            lineHeight: 1.4,
+                                                                        }}
+                                                                    >
+                                                                        <img width={30} src={inviteIcon} alt="Invite Icon" />
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Archive Icon */}
+                                                                {e?.isArchived === true && (
+                                                                    <div
+                                                                        style={{
+                                                                            marginRight: "3px",
+                                                                            padding: "3px 10px",
+                                                                            borderRadius: "3px",
+                                                                            color: "#fff",
+                                                                            fontSize: "12px",
+                                                                            lineHeight: 1.4,
+                                                                        }}
+                                                                    >
+                                                                        <img width={30} src={archiveIcon} alt="Archive Icon" />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                        </div>
+
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+
+                                        {/* <p className="addUserButton" onClick={() => navigate('/company-owner-user')}>+ Create user group</p> */}
                                         <div
                                             id="addUserButton"
                                             style={{
@@ -368,21 +571,36 @@ function OwnerTeam() {
                                                 display: "flex",
                                                 justifyContent: "space-between"
                                             }}>
-                                            <input value={email} onChange={(e) => {
-                                                const emailValue = e.target.value;
-                                                setEmail(emailValue);
-                                                setIsTypingEmail(!!emailValue); // Set isTypingEmail to true if the input field is not empty
-                                                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                                                setIsValidEmail(emailRegex.test(emailValue)); // Set isValidEmail to true if the email address is valid
-                                            }} type="text" placeholder="Add user by email" style={{
-                                                fontSize: "18px",
-                                                padding: "6px 10px",
-                                                width: "100%",
-                                                border: "1px solid #cacaca",
-                                                outline: "none",
-                                                borderTopLeftRadius: '5px',
-                                                borderBottomLeftRadius: '5px',
-                                            }} />
+                                            <input
+                                                type="email"
+                                                value={email}
+                                                onChange={(e) => {
+                                                    const emailValue = e.target.value;
+                                                    setEmail(emailValue);
+                                                    setIsTypingEmail(!!emailValue);
+
+                                                    // Regex validation for email
+                                                    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                                                    setIsValidEmail(emailRegex.test(emailValue));
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter" && isValidEmail && !isInviteLoading) {
+                                                        e.preventDefault();
+                                                        handleSendInvitation();
+                                                    }
+                                                }}
+                                                placeholder="Enter user email"
+                                                style={{
+                                                    fontSize: "18px",
+                                                    padding: "6px 10px",
+                                                    width: "100%",
+                                                    border: "1px solid #cacaca",
+                                                    outline: "none",
+                                                    borderTopLeftRadius: "5px",
+                                                    borderBottomLeftRadius: "5px",
+                                                }}
+                                            />
+
                                             <button
                                                 style={{
                                                     backgroundColor: "#7acb59",
@@ -439,6 +657,7 @@ function OwnerTeam() {
                                                     setInviteStatus(false)
                                                     setPayrate(e)
                                                     setSelectedUser(e)
+                                                    setGroupData(null)
                                                 }}>
                                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: '100%' }}>
                                                     <div style={{ display: "flex", alignItems: "center" }}>
@@ -502,20 +721,28 @@ function OwnerTeam() {
                                 <img src={line} />
                             </div>
                             <div style={{ width: "100%", display: mainId === null ? "flex" : "", justifyContent: mainId === null ? "center" : "", alignItems: mainId === null ? "center" : "" }}>
-                                <OwnerTeamComponent
-                                    fixId={mainId}
-                                    archived_unarchived_users={() => setShow2(true)}
-                                    deleteUser={() => setShow(true)}
-                                    isArchived={isArchived}
-                                    setIsArchived={setIsArchived}
-                                    isUserArchive={isUserArchive}
-                                    inviteStatus={inviteStatus}
-                                    handleSendInvitation={handleSendInvitation}
-                                    payrate={payrate}
-                                    users={users}
-                                    setUsers={setUsers}
-                                    selectedUser={selectedUser}
-                                />
+                                {mainId ? (
+                                    <OwnerTeamComponent
+                                        fixId={mainId}
+                                        archived_unarchived_users={() => setShow2(true)}
+                                        deleteUser={() => setShow(true)}
+                                        isArchived={isArchived}
+                                        setIsArchived={setIsArchived}
+                                        isUserArchive={isUserArchive}
+                                        inviteStatus={inviteStatus}
+                                        handleSendInvitation={handleSendInvitation}
+                                        payrate={payrate}
+                                        users={users}
+                                        setUsers={setUsers}
+                                        selectedUser={selectedUser}
+                                        selectedGroupName={selectedGroupName}
+                                    />
+                                ) : GroupData ? (
+                                    <GroupComponent rawData={GroupData} users={users} fetchData={getData} />
+                                ) : (
+                                    <img width={500} src={settingIcon} alt="" style={{ display: "block", margin: "auto" }} />
+                                )}
+
                             </div>
                         </div>
                     </div>

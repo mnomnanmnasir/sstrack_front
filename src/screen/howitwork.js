@@ -1,67 +1,205 @@
 import React from "react";
-import InviteEmployees from '../images/howitWorkImg1.PNG'
-import DesktopApp from '../images/howItWorkSignUp.PNG'
-import AppTimeTrack from '../images/howItWorkApptrack.PNG'
-import ManagersWebDesktop from '../images/ManagersWebDashboard.PNG'
-import DetailsTimeline from '../images/DetailsTimeline.PNG'
-import ShowReports from '../images/showReports.PNG'
-import NewHeader from './component/Header/NewHeader'
+import InviteEmployees from '../images/howitWorkImg1.PNG';
+import DesktopApp from '../images/howItWorkSignUp.PNG';
+import AppTimeTrack from '../images/howItWorkApptrack.PNG';
+import ManagersWebDesktop from '../images/ManagersWebDashboard.PNG';
+import DetailsTimeline from '../images/DetailsTimeline.PNG';
+import ShowReports from '../images/showReports.PNG';
+import NewHeader from './component/Header/NewHeader';
+import { useNavigate, Link } from 'react-router-dom';
+
 const HowItWorks = () => {
   const steps = [
     {
       id: 1,
-      title: "Manager invites employees",
-      description:
-        "After selecting a plan, a company manager invites employees to the company team. When employees accept the invitation, they can start tracking time and submitting their screenshots for that company.",
+      title: "Owner/Admin Invites Employees",
+      description: (
+        <>
+          <p>
+            After selecting a plan, the owner or admin invites employees to the company team.
+            Once assigned, managers can track the timeline of their designated employees,
+            but they cannot invite new team members.
+          </p>
+          <button
+            style={{
+              backgroundColor: "#28659C",
+              color: "#fff",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "14px",
+              marginTop: "10px"
+            }}
+            onClick={() => window.open("https://share.synthesia.io/d78499ff-425e-4927-bc36-e22b47b37820", "_blank")}
+          >
+            User Guide
+          </button>
+        </>
+      ),
       image: InviteEmployees,
     },
     {
       id: 2,
       title: "Employee runs desktop application",
-      description:
-        "Employees install the SSTRACK.IO desktop application, log in, select a project, and press the Start button to begin tracking time and screenshots. The application works even when offline, syncing data when the connection is restored.",
+      description: (
+        <>
+          Employees install the SSTRACK.IO desktop application, log in, select a project, and press the Start button to begin tracking time and screenshots.
+          The application works even when offline, syncing data when the connection is restored.{" "}
+          <Link to="/download" style={{ color: "#28659C", textDecoration: "underline", fontWeight: "bold" }}>
+            Download Desktop Application
+          </Link>
+        </>
+      ),
       image: DesktopApp
     },
     {
       id: 3,
-      title: "Application tracks time and screenshots",
-      description:
-        "The application records work time and takes screenshots at random intervals until the Stop button is pressed. If Autostart is enabled, tracking begins when employees start working and stops automatically if no activity is detected.",
-      image: AppTimeTrack
+      title: "Desktop Application tracks time and screenshots",
+      description: (
+        <>
+          <p>
+            The desktop application records work time and takes screenshots at random intervals until the Stop button is pressed.
+            If Autostart is enabled, tracking begins when employees start working and stops automatically if no activity is detected.
+          </p>
+          <button
+            style={{
+              backgroundColor: "#28659C",
+              color: "#fff",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "14px",
+              marginTop: "10px",
+            }}
+            onClick={() =>
+              window.open(
+                "https://i8is.io/wp-content/uploads/2025/03/Mastering-Your-Employee-Journey-with-SS-Track-1.mp4",
+                "_blank"
+              )
+            }
+          >
+            Desktop App Guide
+          </button>
+        </>
+      ),
+      image: AppTimeTrack,
     },
     {
       id: 4,
-      title: "Managers see it all on the web",
-      description:
-        "The desktop application continuously sends time tracking data and screenshots to the web so managers can monitor employees in real-time via the online dashboard.",
-      image: ManagersWebDesktop
+      title: "Owner, Admin and Manager can see all the users on their dashboard",
+      description: (
+        <>
+          <p>
+            "The desktop application continuously sends time tracking data and screenshots to the dashboard so Owner, Admin and Manager can monitor employees in real-time via the online dashboard.",
+          </p>
+          <button
+            style={{
+              backgroundColor: "#28659C",
+              color: "#fff",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "14px",
+              marginTop: "10px",
+            }}
+            onClick={() =>
+              window.open(
+                "https://i8is.io/wp-content/uploads/2025/03/Employers-demo-for-SS-Track-1.mp4",
+                "_blank"
+              )
+            }
+          >
+            Owner Guide
+          </button>
+        </>
+      ),
+      image: ManagersWebDesktop,
+
     },
     {
       id: 5,
       title: "Full details on the timeline",
-      description:
-        "Managers can view detailed timelines, track time spent on projects, monitor application usage, and see screenshots taken throughout the day. Employees can also add offline time manually.",
-      image: DetailsTimeline
+      description: (
+        <>
+          <p>
+            "Administrator can view detailed timelines, track time spent on projects, monitor application usage, and see screenshots taken throughout the day. Employees can also add offline time manually.",
+          </p>
+          <button
+            style={{
+              backgroundColor: "#28659C",
+              color: "#fff",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "14px",
+              marginTop: "10px",
+            }}
+            onClick={() =>
+              window.open(
+                "https://i8is.io/wp-content/uploads/2025/03/Employers-demo-for-SS-Track-1.mp4",
+                "_blank"
+              )
+            }
+          >
+            Timeline Guide
+          </button>
+        </>
+      ),
+      image: DetailsTimeline,
     },
     {
       id: 6,
       title: "Get reports you need, at a glance",
-      description:
-        "View time and cost reports, filter by employees or date range, and export detailed timesheets to Excel. Employees can also generate invoices based on their tracked time.",
+      description: (
+        <>
+          <p>
+            "View time and cost reports, filter by employees or date range, and export detailed timesheets to Excel. Employees can also generate invoices based on their tracked time.",
+          </p>
+          <button
+            style={{
+              backgroundColor: "#28659C",
+              color: "#fff",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "14px",
+              marginTop: "10px",
+            }}
+            onClick={() =>
+              window.open(
+                "https://i8is.io/wp-content/uploads/2025/03/Mastering-Your-Employee-Journey-with-SS-Track-1.mp4",
+                "_blank"
+              )
+            }
+          >
+            Reports Guide
+          </button>
+        </>
+      ),
       image: ShowReports
     },
   ];
 
   return (
-
     <>
-    <NewHeader language={'en'} show={true}/>
+      <NewHeader language={'en'} show={true} />
       <div className="mobhayat" id='section5'>
         <div className="container">
           <div className="userHeader d-flex justify-content-between align-items-center">
             <h5>How it Works</h5>
+            <a href="https://i8is.io/wp-content/uploads/2025/03/SS-Track.mp4"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#7ACB59" }}>
+              Here is the demo video Link
+            </a>
           </div>
-          
+
           <div className="howItWorksSection bg-light py-5">
             <div className="container">
               <div className="row">
@@ -81,11 +219,11 @@ const HowItWorks = () => {
                       </div>
                     </div>
                     {index !== steps.length - 1 && (
-                       <div className="row">
-                       <div className="col-12">
-                         <hr className="dotted-line my-4 d-block" style={{ borderTop: "3px dotted grey", width: "100%" }} />
-                       </div>
-                     </div>
+                      <div className="row">
+                        <div className="col-12">
+                          <hr className="dotted-line my-4 d-block" style={{ borderTop: "3px dotted grey", width: "100%" }} />
+                        </div>
+                      </div>
                     )}
                   </div>
                 ))}

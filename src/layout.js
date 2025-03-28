@@ -53,6 +53,7 @@ const Layout = () => {
           location.pathname === "/workCards" ||
           location.pathname === "/aboutUs" ||
           location.pathname === "/product" ||
+          // location.pathname === "/history" ||
           location.pathname === "/splash" ||
           location.pathname.startsWith("/update-password") ||
           location.pathname.startsWith("/create-account") ||
