@@ -58,13 +58,19 @@ const OwnerTeam = () => {
     const fetchAllUsersList = async () => {
         try {
             const userType = items?.userType;
-            const endpoint = userType === 'manager'
-                ? `${apiUrl}/manager/getAllUserLeaves`
-                : `${apiUrl}/superAdmin/getAllUserLeaves`;
+            let endpoint = "";
+            if (userType === "admin" || userType === "owner") {
+              endpoint = `${apiUrl}/superAdmin/getAllUserLeaves`; // ✅ Admin + Owner only
+            } else if (userType === "manager") {
+              endpoint = `${apiUrl}/manager/getAllUserLeaves`;    // ✅ Manager specific
+            } else {
+              // Optional: handle unknown types
+              console.warn("Unrecognized userType", userType);
+            }
 
             const response = await axios.get(endpoint, { headers });
             const users = response.data?.data || [];
-
+            console.log('Leave', response)
             // Optional: Filter out "owner" type here if needed
             setAllUsersList(users);
         } catch (error) {
@@ -372,35 +378,23 @@ const OwnerTeam = () => {
         fetchAllUsersList(); // 👈 Add this
     }, []);
 
-    const getFilteredLeaves = (leaves, query, currentUser) => {
-        return leaves
-            .filter((leave) => {
-                // Exclude leaves if the current user is an owner and it's their leave
-                if (currentUser?.userType === "owner" && leave.userId === currentUser.userId) {
-                    return false;
-                }
-                // Exclude leaves with userType as "owner"
-                return leave.userType?.toLowerCase() !== "owner";
-            })
-            .filter((leave) => {
-                // Filter based on the search query
-                const lowerCaseQuery = query.toLowerCase();
-                return (
-                    leave.userName?.toLowerCase().includes(lowerCaseQuery) ||
-                    leave.leaveType?.toLowerCase().includes(lowerCaseQuery) ||
-                    leave.reason?.toLowerCase().includes(lowerCaseQuery) ||
-                    leave.status?.toLowerCase().includes(lowerCaseQuery) ||
-                    leave.approvedBy?.name?.toLowerCase().includes(lowerCaseQuery) ||
-                    new Date(leave.startDate).toLocaleDateString("en-GB").includes(lowerCaseQuery) ||
-                    new Date(leave.endDate).toLocaleDateString("en-GB").includes(lowerCaseQuery) ||
-                    new Date(leave.appliedAt).toLocaleDateString("en-GB").includes(lowerCaseQuery)
-                );
-            });
-    };
-
+    const getFilteredLeaves = (leaves) => {
+        return leaves.filter((leave) => {
+          const type = leave.userType?.toLowerCase() || leave.userId?.userType?.toLowerCase();
+          
+          // Allow current admin to see their own leaves
+          if (type === "admin" && leave.userId === userId) return true;
+      
+          // Still hide other admins if needed
+          if (type === "admin" && leave.userId !== userId) return false;
+      
+          //  Hide owners
+          return type !== "owner";
+        });
+      };
+      
     // Usage in your component
     const filteredLeaves = getFilteredLeaves(leaveData[activeTab], searchQuery, currentUser);
-
 
     // Open modal and set selected leave
     const handleRowClick = (leave) => {
@@ -456,6 +450,7 @@ const OwnerTeam = () => {
                     horizontal: "right"
                 }
             });
+            fetchAllUsersList()
             fetchLeaveRequests(); // Refresh the leave requests data
             setRejectionReason(""); // Clear the rejection reason input
         } catch (error) {
@@ -488,6 +483,7 @@ const OwnerTeam = () => {
                     horizontal: "right"
                 }
             });
+            fetchAllUsersList()
             fetchLeaveRequests(); // Refresh the leave requests data
         } catch (error) {
             enqueueSnackbar('Error accepting leave request', {
@@ -1032,7 +1028,11 @@ const OwnerTeam = () => {
         }
 
         // Filter out owner users before rendering
-        const filteredLeaves = leaves.filter((leave) => leave.userType?.toLowerCase() !== "owner");
+        // const filteredLeaves = leaves.filter((leave) => leave.userType?.toLowerCase() !== "owner");
+        const filteredLeaves = leaves.filter((leave) => {
+            const type = leave.userType?.toLowerCase() || leave.userId?.userType?.toLowerCase();
+            return type !== "owner";
+        });
 
         if (!filteredLeaves || filteredLeaves.length === 0) {
             return (
@@ -1052,123 +1052,125 @@ const OwnerTeam = () => {
         const currentItems = filteredLeaves.slice(indexOfFirstItem, indexOfLastItem);
 
         return (
-            <tbody>
-                {currentItems.map((leave, index) => (
-                    leave.userType !== "owner" && ( // Additional check to ensure no owner leaves are displayed
-                        <tr
-                            key={index}
-                            style={{
-                                borderBottom: "1px solid #E0E0E0",
-                                backgroundColor: "#FFF",
-                                cursor: "pointer", // Indicate row is clickable
-                            }}
-                            onClick={() => handleRowClick(leave)} // Handle row click
-                        >
-                            <td style={{ padding: "10px", color: "#4F4F4F", fontWeight: "400" }}>
-                                {leave.userType !== "owner" && (
-                                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                        <span
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                                backgroundColor: "#E8F4FC",
-                                                borderRadius: "50%",
-                                                width: "30px",
-                                                height: "30px",
-                                                color: "#0E4772",
-                                                fontWeight: "bold",
-                                            }}
-                                        >
-                                            <PersonIcon style={{ color: "#0E4772", fontSize: "24px" }} />
-                                        </span>
-                                        <span style={{ flexGrow: 1, textAlign: "left" }}>
-                                            {leave.userName}
-                                        </span>
-                                    </div>
-                                )}
-                            </td>
-                            <td style={{ padding: "10px", color: "#4F4F4F" }}>
-                                {new Date(leave.startDate).toLocaleDateString("en-GB", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                })}
-                            </td>
-                            <td style={{ padding: "10px", color: "#4F4F4F" }}>
-                                {new Date(leave.endDate).toLocaleDateString("en-GB", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                })}
-                            </td>
-                            <td style={{ padding: "10px", color: "#4F4F4F" }}>
-                                {new Date(leave.appliedAt).toLocaleDateString("en-GB", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                })}
-                            </td>
-                            <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.leaveType}</td>
-                            <td style={{ padding: "10px", color: "#4F4F4F" }}>
-                                {leave.approvedAt
-                                    ? new Date(leave.approvedAt).toLocaleDateString("en-GB", {
+            <>
+                <tbody>
+                    {currentItems.map((leave, index) => (
+                        (leave?.userId?.userType || leave?.userType) !== "owner" && (
+                            <tr
+                                key={index}
+                                style={{
+                                    borderBottom: "1px solid #E0E0E0",
+                                    backgroundColor: "#FFF",
+                                    cursor: "pointer", // Indicate row is clickable
+                                }}
+                                onClick={() => handleRowClick(leave)} // Handle row click
+                            >
+                                <td style={{ padding: "10px", color: "#4F4F4F", fontWeight: "400" }}>
+                                    {leave.userType !== "owner" && (
+                                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                            <span
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "center",
+                                                    alignItems: "center",
+                                                    backgroundColor: "#E8F4FC",
+                                                    borderRadius: "50%",
+                                                    width: "30px",
+                                                    height: "30px",
+                                                    color: "#0E4772",
+                                                    fontWeight: "bold",
+                                                }}
+                                            >
+                                                <PersonIcon style={{ color: "#0E4772", fontSize: "24px" }} />
+                                            </span>
+                                            <span style={{ flexGrow: 1, textAlign: "left" }}>
+                                                {leave.userName}
+                                            </span>
+                                        </div>
+                                    )}
+                                </td>
+                                <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                                    {new Date(leave.startDate).toLocaleDateString("en-GB", {
                                         day: "2-digit",
                                         month: "2-digit",
                                         year: "numeric",
-                                    })
-                                    : "-"}
-                            </td>
-                            <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.reason}</td>
-                            <td>
-                                {leave.approvedBy ? (
-                                    <>
-                                        {leave.approvedBy.name}
-                                        <span
-                                            style={{
-                                                marginLeft: "10px",
-                                                fontStyle: "italic",
-                                                color: "#888",
-                                            }}
-                                        >
-                                            ({leave.approvedBy.userType})
-                                        </span>
-                                    </>
-                                ) : "-"}
-                            </td>
-                            <td
-                                style={{
-                                    padding: "10px",
-                                    color: "#4F4F4F",
-                                }}
-                            >
-                                <span
+                                    })}
+                                </td>
+                                <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                                    {new Date(leave.endDate).toLocaleDateString("en-GB", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric",
+                                    })}
+                                </td>
+                                <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                                    {new Date(leave.appliedAt).toLocaleDateString("en-GB", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric",
+                                    })}
+                                </td>
+                                <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.leaveType}</td>
+                                <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                                    {leave.approvedAt
+                                        ? new Date(leave.approvedAt).toLocaleDateString("en-GB", {
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                        })
+                                        : "-"}
+                                </td>
+                                <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.reason}</td>
+                                <td>
+                                    {leave.approvedBy ? (
+                                        <>
+                                            {leave.approvedBy.name}
+                                            <span
+                                                style={{
+                                                    marginLeft: "10px",
+                                                    fontStyle: "italic",
+                                                    color: "#888",
+                                                }}
+                                            >
+                                                ({leave.approvedBy.userType})
+                                            </span>
+                                        </>
+                                    ) : "-"}
+                                </td>
+                                <td
                                     style={{
-                                        padding: "5px 10px",
-                                        borderRadius: "12px",
-                                        color:
-                                            leave.status === "Approved"
-                                                ? "green"
-                                                : leave.status === "Pending"
-                                                    ? "orange"
-                                                    : "red",
-                                        border:
-                                            leave.status === "Approved"
-                                                ? "1px solid green"
-                                                : leave.status === "Pending"
-                                                    ? "1px solid orange"
-                                                    : "1px solid red",
-                                        fontWeight: "bold",
-                                        display: "inline-block",
+                                        padding: "10px",
+                                        color: "#4F4F4F",
                                     }}
                                 >
-                                    {leave.status.toUpperCase()}
-                                </span>
-                            </td>
-                        </tr>
-                    )
-                ))}
-            </tbody>
+                                    <span
+                                        style={{
+                                            padding: "5px 10px",
+                                            borderRadius: "12px",
+                                            color:
+                                                leave.status === "Approved"
+                                                    ? "green"
+                                                    : leave.status === "Pending"
+                                                        ? "orange"
+                                                        : "red",
+                                            border:
+                                                leave.status === "Approved"
+                                                    ? "1px solid green"
+                                                    : leave.status === "Pending"
+                                                        ? "1px solid orange"
+                                                        : "1px solid red",
+                                            fontWeight: "bold",
+                                            display: "inline-block",
+                                        }}
+                                    >
+                                        {leave.status.toUpperCase()}
+                                    </span>
+                                </td>
+                            </tr>
+                        )
+                    ))}
+                </tbody>
+            </>
         );
     };
 
@@ -1388,7 +1390,7 @@ const OwnerTeam = () => {
                                 >
                                     Add Manual
                                 </button>
-                            </Link>
+                         </Link>
                         )}
                     </div>
                 </div>

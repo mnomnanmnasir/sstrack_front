@@ -100,9 +100,16 @@ const OwnerTeam = () => {
     const fetchAllUsers = async () => {
         try {
             const userType = items?.userType;
-            const endpoint = userType === 'manager'
-                ? `${apiUrl}/manager/getAllUserLeaves`
-                : `${apiUrl}/superAdmin/getAllUserLeaves`;
+            let endpoint = "";
+            if (userType === "admin" || userType === "owner") {
+              endpoint = `${apiUrl}/superAdmin/getAllUserLeaves`; // ✅ Admin + Owner only
+            } else if (userType === "manager") {
+              endpoint = `${apiUrl}/manager/getAllUserLeaves`;    // ✅ Manager specific
+            } else {
+              // Optional: handle unknown types
+              console.warn("Unrecognized userType", userType);
+            }
+            
 
             const response = await axios.get(endpoint, { headers });
             const users = response.data?.data || [];
@@ -117,12 +124,12 @@ const OwnerTeam = () => {
     const fetchLeaveData = async () => {
         const response = await axios.get(apiUrlLeaves, { headers });
         const responseData = response?.data;
-    
+
         if (responseData?.success) {
             const remaining = responseData?.remainingLeaves || [];
             setRemainingLeaves(remaining);
         }
-    };    
+    };
 
     useEffect(() => {
         fetchAllUsers();
@@ -252,6 +259,57 @@ const OwnerTeam = () => {
             setFormSubmitting(false);
         }
     };
+    useEffect(() => {
+        const fetchSelectedUserLeaves = async () => {
+            if (!leaveRequest.userId) {
+                setSelectedUserLeaves({
+                    annualLeaves: 0,
+                    sickLeaves: 0,
+                    casualLeaves: 0,
+                    bereavementLeaves: 0,
+                });
+                return;
+            }
+
+            try {
+                const response = await axios.get(
+                    `${apiUrl}/superAdmin/getAllottedLeavOfUser/${leaveRequest.userId}`,
+                    { headers }
+                );
+
+                const leavesArray = response.data?.remainingLeaves;
+
+                if (Array.isArray(leavesArray) && leavesArray.length > 0) {
+                    const leaves = leavesArray[0]; // ⬅️ FIRST object of array
+
+                    setSelectedUserLeaves({
+                        annualLeaves: leaves.annualLeaves || 0,
+                        sickLeaves: leaves.sickLeaves || 0,
+                        casualLeaves: leaves.casualLeaves || 0,
+                        bereavementLeaves: leaves.bereavementLeaves || 0,
+                    });
+                } else {
+                    setSelectedUserLeaves({
+                        annualLeaves: 0,
+                        sickLeaves: 0,
+                        casualLeaves: 0,
+                        bereavementLeaves: 0,
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching user leaves:", error);
+                setSelectedUserLeaves({
+                    annualLeaves: 0,
+                    sickLeaves: 0,
+                    casualLeaves: 0,
+                    bereavementLeaves: 0,
+                });
+            }
+        };
+
+        fetchSelectedUserLeaves();
+    }, [leaveRequest.userId]);
+
 
 
     return (
@@ -359,13 +417,52 @@ const OwnerTeam = () => {
                                             <option value="" disabled>
                                                 Select a user
                                             </option>
-                                            {allUsers
+                                            {/* {allUsers
                                                 .filter((user) => user?.userId?.userType?.toLowerCase() !== "owner") // exclude owners
                                                 .map((user, index) => (
                                                     <option key={index} value={user?.userId?._id}>
                                                         {user?.userId?.name} ({user?.userId?.email})
                                                     </option>
+                                                ))} */}
+                                            {allUsers
+                                                .filter((user) => {
+                                                    const userData = user?.userId;
+                                                    const targetType = userData?.userType?.toLowerCase();
+
+                                                    // Exclude nulls
+                                                    if (!userData || !userData._id || !userData.name || !userData.email) return false;
+
+                                                    // ✅ If I'm admin, don't show myself in dropdown
+                                                    if (userType === "admin" && userData._id === userId) return false;
+
+                                                    // ✅ If I'm admin, hide ALL admins and owners (only show employees)
+                                                    if (userType === "admin" && ["admin", "owner"].includes(targetType)) return false;
+
+                                                    // ✅ If I'm owner, just hide other owners (admins should show)
+                                                    if (userType === "owner" && targetType === "owner") return false;
+
+                                                    return true;
+                                                })
+                                                .map((user, index) => (
+                                                    <option key={index} value={user.userId._id}>
+                                                        {user.userId.name} ({user.userId.email})
+                                                    </option>
                                                 ))}
+
+                                            {/* {allUsers
+                                                .filter((user) =>
+                                                    user?.userId &&
+                                                    user?.userId?.userType?.toLowerCase() !== "owner" &&
+                                                    user?.userId?._id &&
+                                                    user?.userId?.name &&
+                                                    user?.userId?.email
+                                                )
+                                                .map((user, index) => (
+                                                    <option key={index} value={user.userId._id}>
+                                                        {user.userId.name} ({user.userId.email})
+                                                    </option>
+                                                ))} */}
+
                                         </select>
                                     </div>
                                     {/* Leave Type */}
@@ -407,15 +504,76 @@ const OwnerTeam = () => {
                                     {/* <p style={{ margin: 0, gap: "5px", padding: "10px", border: "1px solid #000" }}>
                                         <b>Remaining Leaves:</b> Annual Leaves: {leaveCounts.annualLeaves}, Sick Leaves: {leaveCounts.sickLeaves}, Casual Leaves: {leaveCounts.casualLeaves}, bereavement Leaves: {leaveCounts.bereavementLeaves}
                                     </p> */}
-                                    {leaveRequest.userId && (
-                                        <p style={{ margin: 0, gap: "5px", padding: "10px", border: "1px solid #000" }}>
-                                            <b>Remaining Leaves:</b>&nbsp;
-                                            Annual: {selectedUserLeaves.annualLeaves},&nbsp;
-                                            Sick: {selectedUserLeaves.sickLeaves},&nbsp;
-                                            Casual: {selectedUserLeaves.casualLeaves},&nbsp;
-                                            Bereavement: {selectedUserLeaves.bereavementLeaves}
-                                        </p>
-                                    )}
+                                    {/* {leaveRequest.userId && ( */}
+                                    {/* <div style={{ display: "flex", alignItems: "center", gap: "15px", marginTop: "20px" }}> */}
+                                    <div style={{ display: "flex", alignItems: "flex-start", gap: "20px" }}>
+
+                                        <label style={{
+                                            width: "30%",
+                                            fontWeight: "600",
+                                            color: "#4F4F4F",
+                                            fontSize: "14px",
+                                            textAlign: "left",
+                                        }}>
+                                            REMAINING LEAVES *
+                                        </label>
+
+                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                                            <span style={{ fontWeight: "500", color: "#4F4F4F", fontSize: "14px" }}>CASUAL</span>
+                                            <input
+                                                value={selectedUserLeaves.casualLeaves}
+                                                readOnly
+                                                style={{
+                                                    width: "60px",
+                                                    padding: "8px",
+                                                    borderRadius: "8px",
+                                                    border: "1px solid #E0E0E0",
+                                                    textAlign: "center"
+                                                }}
+                                            />
+
+                                            <span style={{ fontWeight: "500", color: "#4F4F4F", fontSize: "14px" }}>SICK</span>
+                                            <input
+                                                value={selectedUserLeaves.sickLeaves}
+                                                readOnly
+                                                style={{
+                                                    width: "60px",
+                                                    padding: "8px",
+                                                    borderRadius: "8px",
+                                                    border: "1px solid #E0E0E0",
+                                                    textAlign: "center"
+                                                }}
+                                            />
+
+                                            <span style={{ fontWeight: "500", color: "#4F4F4F", fontSize: "14px" }}>ANNUAL</span>
+                                            <input
+                                                value={selectedUserLeaves.annualLeaves}
+                                                readOnly
+                                                style={{
+                                                    width: "60px",
+                                                    padding: "8px",
+                                                    borderRadius: "8px",
+                                                    border: "1px solid #E0E0E0",
+                                                    textAlign: "center"
+                                                }}
+                                            />
+
+                                            <span style={{ fontWeight: "500", color: "#4F4F4F", fontSize: "14px" }}>BEREAVEMENT</span>
+                                            <input
+                                                value={selectedUserLeaves.bereavementLeaves}
+                                                readOnly
+                                                style={{
+                                                    width: "60px",
+                                                    padding: "8px",
+                                                    borderRadius: "8px",
+                                                    border: "1px solid #E0E0E0",
+                                                    textAlign: "center"
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* )} */}
 
                                     {/* Period of Leave */}
                                     <div style={{ display: "flex", alignItems: "flex-start", gap: "20px" }}>

@@ -327,24 +327,14 @@ function Profile() {
                                 </div>
                                 <div>
                                     <label className="countryLabel">Email</label>
-                                    <div className={(items?.userType === "owner" || items?.userType === "admin")} style={{
-                                        backgroundColor: model?.company ? "#f0f0f0" : "white",
-                                        opacity: model?.company ? 0.6 : 1,
-                                        pointerEvents: model?.company ? "none" : "auto",
-                                        padding: "10px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "8px",
-                                        border: "1px solid #ccc",
-                                        borderRadius: "5px",
-                                        transition: "0.3s"
-                                    }}>
-                                      
+                                    <div className={(items?.userType === "owner" || items?.userType === "admin") ? "countryDropdown" : "countryDropdownDisabled"}>
                                         <input  // Display email value here
                                             disabled={items?.userType !== "owner" ? true : false} onChange={(e) => fillModel("email", e.target.value)} style={{ borderRadius: '4px', width: '100%', height: '100%', backgroundColor: (items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager") ? "#ccc" : "#E8F4FC" }} defaultValue={items?.email} />
                                     </div>
                                 </div>
-                                <div>
+                               <div>
+                                
+                               </div>
                                     <label className="countryLabel">Company</label>
 
                                     <div className={(items?.userType === "owner" || items?.userType === "admin")} style={{
@@ -383,7 +373,7 @@ function Profile() {
                                             defaultValue={items?.company}
                                         />
                                     </div>
-                                </div>
+
                                 <div>
                                     <label className="countryLabel">Time Zone</label>
                                     <div className="dropdown">

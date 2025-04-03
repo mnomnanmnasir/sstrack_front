@@ -158,14 +158,14 @@ function DashboardSplash() {
                         {/* <Container fluid className="px-3 px-md-5"> */}
                         <Container fluid className="bg-white text-center py-5">
                             {/* <div className="container py-5"> */}
-                            <h2 className="fw-bold" style={{ fontSize: '35px' }}>
+                            <h2 className="fw-bold" style={{ fontSize: '45px' }}>
                                 Owner
                                 <span style={{ color: "#7ACB59", marginLeft: "10px" }}>
                                     Dashboard
                                 </span>
                             </h2>
-                            <p className="text-center mb-1">Welcome to SS Track – Monitor, Manage, and Optimize</p>
-                            <p className="text-center mb-1">Gain full visibility into your team's productivity with real-time screenshot monitoring.</p>
+                            <p className="text-center mb-1 fs-2">Welcome to SS Track – Monitor, Manage, and Optimize</p>
+                            <p className="text-center mb-1 fs-4">Gain full visibility into your team's productivity with real-time screenshot monitoring.</p>
                             <div style={{ width: '100%', position: 'relative', paddingBottom: '40.25%', paddingTop: '-40%', height: 0 }}>
                                 <iframe
                                     src="https://www.youtube.com/embed/Z0QZGsRW1Pk"
@@ -175,7 +175,7 @@ function DashboardSplash() {
                                         top: '20%',
                                         left: '50%',
                                         transform: 'translate(-50%, -10%)',
-                                        width: '81.5%',
+                                        width: '82.5%',
                                         height: '95%',
                                         border: '0',
                                     }}
@@ -238,10 +238,8 @@ function DashboardSplash() {
                                         </Card>
                                     </Col>
                                 </Row>
-
                             </>
                         </Container>
-
 
                         <div className="d-flex justify-content-center container p-2">
                             <button className="btn btn-success" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59' }} onClick={goToDashboard}>
@@ -262,14 +260,14 @@ function DashboardSplash() {
 
                             <Container fluid className="bg-white text-center py-5">
                                 {/* <div className="container py-5"> */}
-                                <h2 className="fw-bold" style={{ fontSize: '35px' }}>
+                                <h2 className="fw-bold" style={{ fontSize: '45px' }}>
                                     Employee
                                     <span style={{ color: "#7ACB59", marginLeft: "10px" }}>
                                         Dashboard
                                     </span>
                                 </h2>
-                                <p className="text-center mb-1">Welcome to SS Track – Work Smarter, Not Harder!</p>
-                                <p className="text-center mb-1">SS Track helps you stay productive and transparent while working.</p>
+                                <p className="text-center mb-1 fs-2">Welcome to SS Track – Work Smarter, Not Harder!</p>
+                                <p className="text-center mb-1 fs-4">SS Track helps you stay productive and transparent while working.</p>
                                 <div className="d-flex justify-content-center mt-4">
                                     {/* <div style={{ width: '100%', maxWidth: '800px', aspectRatio: '16/9' }}>
                                         <iframe
