@@ -383,10 +383,10 @@ const OwnerTeam = () => {
           const type = leave.userType?.toLowerCase() || leave.userId?.userType?.toLowerCase();
           
           // Allow current admin to see their own leaves
-          if (type === "admin" && leave.userId === userId) return true;
+        //   if (type === "admin" && leave.userId === userId) return true;
       
-          // Still hide other admins if needed
-          if (type === "admin" && leave.userId !== userId) return false;
+        //   // Still hide other admins if needed
+        //   if (type === "admin" && leave.userId !== userId) return false;
       
           //  Hide owners
           return type !== "owner";
