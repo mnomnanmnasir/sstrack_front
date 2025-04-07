@@ -57,6 +57,7 @@ function OwnerReport() {
     const [selectedTimezone, setSelectedTimezone] = useState(
         null
     );
+    const [inputValue, setInputValue] = useState('');
     const handleTimezoneChange = (selectedOption, usersByTimezone) => {
         setSelectedTimezone(selectedOption);
 
@@ -353,8 +354,8 @@ function OwnerReport() {
                 return;
             }
 
-            // 🚀 API Call using GET
-            const response = await axios.get(url, { headers });
+            // 🚀 API Call using PATCH
+            const response = await axios.patch(url, {}, { headers });
 
             // 🛠 Check API Response
             if (response && response.status === 200) {
@@ -374,7 +375,7 @@ function OwnerReport() {
                 console.error("📌 Status Code:", error.response.status);
                 console.error("📌 Headers:", error.response.headers);
 
-                // 🚀 If `GET` fails, try `POST`
+                // 🚀 If `PATCH` fails, try `POST`
                 if (error.response.status === 405 || error.response.status === 400) {
                     try {
                         let url = ""; // ✅ Ensure URL is always defined
@@ -398,6 +399,7 @@ function OwnerReport() {
             setLoading(false);
         }
     };
+
 
 
     const handleProjectDataFetched = (data) => {
@@ -425,6 +427,7 @@ function OwnerReport() {
     const getManagerEmployees = async () => {
         try {
             const response = await axios.get(`${apiUrl}/manager/employees`, { headers });
+
             if (response.status === 200) {
                 // Assuming the response contains the list of employees for the manager
                 return response.data.convertedEmployees;
@@ -438,7 +441,8 @@ function OwnerReport() {
         }
     };
 
-    const getEmployess = async () => {
+
+    const getEmployees = async () => {
         try {
             let employees = [];
             let groups = [];
@@ -454,7 +458,10 @@ function OwnerReport() {
                     return;
                 }
             } else {
-                const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
+                const url = `${apiUrl}/owner/companies`;
+
+                const response = await axios.get(url, { headers });
+
                 if (response.status === 200) {
                     employees = response.data.employees;
                     groups = response.data.groupsData;
@@ -465,6 +472,7 @@ function OwnerReport() {
                     }
                 }
             }
+
             setUsergroups(groups);
             setUsers(employees);
         } catch (error) {
@@ -475,7 +483,7 @@ function OwnerReport() {
 
 
     useEffect(() => {
-        getEmployess();
+        getEmployees();
     }, []);
 
 
@@ -500,27 +508,33 @@ function OwnerReport() {
     }, [startDate, endDate, employeeId, userType]);
 
     const getUserReports = async () => {
-        setLoading(true);
+        setLoading(true); // Start the loader
 
         try {
+            // Format start and end dates
             const formattedStartDate = formatDate(startDate);
             const formattedEndDate = formatDate(endDate);
 
+            // Construct the API URL with the formatted dates
             const url = `${apiUrl}/timetrack/day?startDate=${formattedStartDate}&endDate=${formattedEndDate}`;
 
             console.log("🔗 User API Request URL:", url);
 
-            const response = await axios.get(url, { headers });
+            // Send a PATCH request with the headers
+            const response = await axios.patch(url, { headers });
 
+            // Check for a successful response and handle it
             if (response.status === 200) {
                 console.log("✅ User API Response:", response.data);
-                setReportData(response.data.data);
+                setReportData(response.data.data); // Set the report data
+            } else {
+                throw new Error("Failed to fetch reports");
             }
         } catch (err) {
             console.error("🚨 User API Error:", err);
+        } finally {
+            setLoading(false); // Stop the loader regardless of success or failure
         }
-
-        setLoading(false);
     };
 
 
@@ -530,16 +544,17 @@ function OwnerReport() {
             return;
         }
 
-        setLoading(true);
+        setLoading(true); // Start the loader
+
         try {
-            // const formattedStartDate = formatDate(startDate);
-            // const formattedEndDate = formatDate(endDate);
-            const formattedStartDate = new Date(startDate).toISOString().split("T")[0]; // YYYY-MM-DD
-            const formattedEndDate = new Date(endDate).toISOString().split("T")[0]; // YYYY-MM-DD
+            // Format start and end dates to 'YYYY-MM-DD' format
+            const formattedStartDate = new Date(startDate).toISOString().split("T")[0];
+            const formattedEndDate = new Date(endDate).toISOString().split("T")[0];
 
             console.log("📅 Start Date:", formattedStartDate);
             console.log("📅 End Date:", formattedEndDate);
 
+            // Construct the URL based on user type and date range
             let url = "";
             if (userType === "admin" || userType === "owner") {
                 url = `${apiUrl}/owner/day?startDate=${formattedStartDate}&endDate=${formattedEndDate}&userId=${employeeId}`;
@@ -551,70 +566,104 @@ function OwnerReport() {
 
             console.log("🔗 API Request URL:", url);
 
-            const response = await axios.get(url, { headers });
+            // Send a PATCH request with the headers
+            const response = await axios.patch(url, {}, { headers });
 
             if (response.status === 200) {
                 console.log("✅ API Response:", response.data);
-                setReportData(response.data.data);
+                setReportData(response.data.data); // Set the report data
+            } else {
+                throw new Error('Failed to fetch reports');
             }
         } catch (err) {
             console.error("🚨 API Error:", err);
+        } finally {
+            setLoading(false); // Stop the loader
         }
-        setLoading(false);
     };
+
 
     const fetchDailyReports = async (type) => {
+        setLoading(true); // ✅ Start loader
 
-        let response;
-        if (userType === 'admin' || userType === 'owner') {
-            if (employeeId) {
-                response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}&userId=${employeeId}`, { headers });
+        try {
+            let response;
+            const body = {}; // Optional body payload
+            let url = "";
+
+            if (userType === 'admin' || userType === 'owner') {
+                url = employeeId
+                    ? `${apiUrl}/owner/day?daySpecifier=${type}&userId=${employeeId}`
+                    : `${apiUrl}/owner/day?daySpecifier=${type}`;
+            } else if (userType === 'manager') {
+                url = employeeId
+                    ? `${apiUrl}/manager/day?daySpecifier=${type}&userId=${employeeId}`
+                    : `${apiUrl}/manager/day?daySpecifier=${type}`;
+            } else {
+                url = `${apiUrl}/timetrack/day?daySpecifier=${type}&userId=${items._id}`;
             }
-            else {
-                response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}`, { headers });
+
+            console.log("🔗 Daily API URL:", url);
+
+            // 🚀 Make PATCH request
+            response = await axios.patch(url, body, { headers });
+
+            if (response.status === 200) {
+                console.log("✅ Daily Report Response:", response);
+                setReportData(response.data.data); // Set report data
+                return response.data.data;
+            } else {
+                throw new Error('Failed to fetch daily reports');
             }
-        }
-        else if (userType === 'manager') {
-            if (employeeId) {
-                response = await axios.get(`${apiUrl}/manager/day?daySpecifier=${type}&userId=${employeeId}`, { headers });
-            }
-            else {
-                response = await axios.get(`${apiUrl}/manager/day?daySpecifier=${type}`, { headers });
-            }
-        }
-        else {
-            response = await axios.get(`${apiUrl}/timetrack/day?daySpecifier=${type}&userId=${items._id}`, { headers });
-        }
-        if (response.status === 200) {
-            console.log(response);
-            setReportData(response.data.data);
-        }
-        if (response.status === 200) {
-            return response.data.data;
-        } else {
-            throw new Error('Failed to fetch reports');
+        } catch (error) {
+            console.error("🚨 Daily Report API Error:", error); // Handle errors
+        } finally {
+            setLoading(false); // ✅ Stop loader regardless of success/failure
         }
     };
+
 
     const fetchYearlyReports = async (type) => {
         setLoading(true); // ✅ Start loader
 
         try {
             let response;
+            const config = { headers }; // Ensure headers are passed correctly
+
             if (userType === 'admin' || userType === 'owner') {
                 if (employeeId) {
-                    response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+                    response = await axios.patch(
+                        `${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`,
+                        {}, // PATCH request body (empty object if not sending data)
+                        config
+                    );
                 } else {
-                    response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
+                    response = await axios.patch(
+                        `${apiUrl}/owner/year?yearSpecifier=${type}`,
+                        {}, // PATCH request body (empty object if not sending data)
+                        config
+                    );
                 }
             } else if (userType === 'manager') {
                 if (employeeId) {
-                    response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+                    response = await axios.patch(
+                        `${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`,
+                        {}, // PATCH request body (empty object if not sending data)
+                        config
+                    );
                 } else {
-                    response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}`, { headers });
+                    response = await axios.patch(
+                        `${apiUrl}/manager/year?yearSpecifier=${type}`,
+                        {}, // PATCH request body (empty object if not sending data)
+                        config
+                    );
                 }
             } else {
-                response = await axios.get(`${apiUrl}/timetrack/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
+                response = await axios.patch(
+                    `${apiUrl}/timetrack/year?yearSpecifier=${type}&userId=${items._id}`,
+                    {}, // PATCH request body (empty object if not sending data)
+                    config
+                );
             }
 
             if (response.status === 200) {
@@ -633,37 +682,46 @@ function OwnerReport() {
 
 
     const getWeeklyReports = async (type) => {
+        setLoading(true); // ✅ Start loader
 
-        let response;
-        if (userType === 'admin' || userType === 'owner') {
-            if (employeeId) {
-                response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}&userId=${employeeId}`, { headers });
+        try {
+            let response;
+            const body = {}; // Optional body payload
+            let url = "";
+
+            // Handle different user types and construct the appropriate URL
+            if (userType === 'admin' || userType === 'owner') {
+                url = employeeId
+                    ? `${apiUrl}/owner/week?weekSpecifier=${type}&userId=${employeeId}`
+                    : `${apiUrl}/owner/week?weekSpecifier=${type}`;
+            } else if (userType === 'manager') {
+                url = employeeId
+                    ? `${apiUrl}/manager/week?weekSpecifier=${type}&userId=${employeeId}`
+                    : `${apiUrl}/manager/week?weekSpecifier=${type}`;
+            } else {
+                url = `${apiUrl}/timetrack/week?weekSpecifier=${type}&userId=${items._id}`;
             }
-            else {
-                response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}`, { headers });
+
+            console.log("🔗 Weekly API URL:", url);
+
+            // 🚀 PATCH request with body and headers
+            response = await axios.patch(url, body, { headers });
+
+            // Check response status
+            if (response.status === 200) {
+                console.log("✅ Weekly Report Response:", response);
+                setReportData(response.data.data); // Set report data
+                return response.data.data;
+            } else {
+                throw new Error('Failed to fetch weekly reports');
             }
-        }
-        else if (userType === 'manager') {
-            if (employeeId) {
-                response = await axios.get(`${apiUrl}/manager/week?weekSpecifier=${type}&userId=${employeeId}`, { headers });
-            }
-            else {
-                response = await axios.get(`${apiUrl}/manager/week?weekSpecifier=${type}`, { headers });
-            }
-        }
-        else {
-            response = await axios.get(`${apiUrl}/timetrack/week?weekSpecifier=${type}&userId=${items._id}`, { headers });
-        }
-        if (response.status === 200) {
-            console.log(response);
-            setReportData(response.data.data);
-        }
-        if (response.status === 200) {
-            return response.data.data;
-        } else {
-            throw new Error('Failed to fetch reports');
+        } catch (error) {
+            console.error("🚨 Weekly Report API Error:", error); // Handle errors
+        } finally {
+            setLoading(false); // ✅ Stop loader regardless of success/failure
         }
     };
+
 
     const getDailyReports = async (type) => {
         if (employeeId) {
@@ -698,69 +756,87 @@ function OwnerReport() {
         }
     }
 
-    const getYearlyReports = async (type) => {
+    const Notessearch = async (type, note) => {
+        setLoading(true); // ✅ Start loader
+        console.log('Request Headers:', headers); // Log headers to check if they're correct
 
-        let response;
-        if (userType === 'admin' || userType === 'owner') {
-            if (employeeId) {
-                response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+        try {
+            let response;
+            const body = { notes: note }; // Send the note as { notes: "data from the input" }
+
+            // Define the appropriate URL based on user type
+            let url = '';
+            if (userType === 'admin' || userType === 'owner') {
+                url = `${apiUrl}/owner/year?yearSpecifier=${type}`;
+            } else if (userType === 'manager') {
+                url = `${apiUrl}/manager/year?yearSpecifier=${type}`;
+            } else {
+                url = `${apiUrl}/timetrack/year?yearSpecifier=${type}&userId=${items._id}`;
             }
-            else {
-                response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
+
+            // Log the final URL for debugging
+            console.log("API Request URL:", url);
+
+            // 🚀 Make the PATCH request
+            response = await axios.patch(url, body, { headers }); // Sending body and headers
+
+            if (response.status === 200) {
+                console.log(response); // Check response
+                setReportData(response.data.data); // Set report data
+                return response.data.data;
+            } else {
+                throw new Error('Failed to fetch reports');
             }
-        }
-        else if (userType === 'manager') {
-            if (employeeId) {
-                response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
-            }
-            else {
-                response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}`, { headers });
-            }
-        }
-        else {
-            response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
-        }
-        if (response.status === 200) {
-            console.log(response);
-            setReportData(response.data.data);
-        }
-        if (response.status === 200) {
-            return response.data.data;
-        } else {
-            throw new Error('Failed to fetch reports');
+        } catch (error) {
+            console.error("Yearly Report API Error:", error); // Handle errors
+        } finally {
+            setLoading(false); // ✅ Stop loader regardless of success/failure
         }
     };
 
+
     const getMonthlyReports = async (type) => {
+        setLoading(true); // ✅ Start loader
 
         let response;
-        if (userType === 'admin' || userType === 'owner') {
-            if (employeeId) {
-                response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}&userId=${employeeId}`, { headers });
+        const body = {}; // You can add additional data to the body if required.
+
+        try {
+            // URL Construction based on user type and employeeId
+            let url = '';
+            if (userType === 'admin' || userType === 'owner') {
+                if (employeeId) {
+                    url = `${apiUrl}/owner/month?monthSpecifier=${type}&userId=${employeeId}`;
+                } else {
+                    url = `${apiUrl}/owner/month?monthSpecifier=${type}`;
+                }
+            } else if (userType === 'manager') {
+                if (employeeId) {
+                    url = `${apiUrl}/manager/month?monthSpecifier=${type}&userId=${employeeId}`;
+                } else {
+                    url = `${apiUrl}/manager/month?monthSpecifier=${type}`;
+                }
+            } else {
+                url = `${apiUrl}/owner/month?monthSpecifier=${type}&userId=${items._id}`;
             }
-            else {
-                response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}`, { headers });
+
+            console.log("API Request URL:", url); // Log the URL for debugging
+
+            // Sending PATCH request with URL, body, and headers
+            response = await axios.patch(url, body, { headers });
+
+            // Handling the response
+            if (response.status === 200) {
+                console.log(response); // Check response
+                setReportData(response.data.data); // Set report data
+                return response.data.data;
+            } else {
+                throw new Error('Failed to fetch reports');
             }
-        }
-        else if (userType === 'manager') {
-            if (employeeId) {
-                response = await axios.get(`${apiUrl}/manager/month?monthSpecifier=${type}&userId=${employeeId}`, { headers });
-            }
-            else {
-                response = await axios.get(`${apiUrl}/manager/month?monthSpecifier=${type}`, { headers });
-            }
-        }
-        else {
-            response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}&userId=${items._id}`, { headers });
-        }
-        if (response.status === 200) {
-            console.log(response);
-            setReportData(response.data.data);
-        }
-        if (response.status === 200) {
-            return response.data.data;
-        } else {
-            throw new Error('Failed to fetch reports');
+        } catch (error) {
+            console.error("Monthly Report API Error:", error); // Handle errors
+        } finally {
+            setLoading(false); // ✅ Stop loader regardless of success/failure
         }
     };
 
@@ -814,13 +890,8 @@ function OwnerReport() {
         isGroup: true,
         allowedEmployees: group.allowedEmployees,
     })) || [];
-    
-
 
     const defaultValue = user.length > 0 ? [{ value: user[0].value }] : [];
-
-    console.log('groupsss', Usergroups);
-
 
     const allUsers = [...user, ...groupOptions];
 
@@ -836,7 +907,11 @@ function OwnerReport() {
         }));
     };
     const [projectData, setProjectData] = useState(null);
-
+    const handleSearch = () => {
+        const type = 'this'; // Set the type as per your requirement
+        Notessearch(type, inputValue);
+        console.log("handleSearch called with inputValue:", inputValue);
+    };
 
     return (
         <>
@@ -1043,28 +1118,82 @@ function OwnerReport() {
                                 </div>
                             </div>
 
-                            <div className="crossButtonDiv">
-                                <p className="settingScreenshotIndividual"> Select user</p>
-                                <SelectBox
-                                    onChange={(e) =>
+                            {userType !== 'user' && (
+                                <div className="crossButtonDiv">
+                                    <p className="settingScreenshotIndividual"> Select user</p>
+                                    <SelectBox
+                                        onChange={(e) => handleSelectUsers(e)}
+                                        options={allUsers
+                                            .filter(user => user.label)
+                                            .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
+                                        }
+                                        closeMenuOnSelect={true}
+                                        components={animatedComponents}
+                                        defaultValue={defaultValue}
+                                        isMulti={true}
+                                    />
+                                    {console.log("User Details", allUsers)}
+                                </div>
+                            )}
 
-                                        handleSelectUsers(e)
-                                    }
-                                    options={allUsers
-                                        .filter(user => user.label)
-                                        .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
-                                    }
-                                    closeMenuOnSelect={true}
-                                    components={animatedComponents}
-                                    defaultValue={defaultValue}
-                                    isMulti={true}
-
-                                />
-                                {console.log("User Detials", allUsers)}
-                            </div>
                             <ProjectFilter usersData={reportData} onProjectDataFetched={handleProjectDataFetched} />
-                            <div>
+                            <div style={{ padding: '2px', fontFamily: 'sans-serif', marginTop: '20px' }}>
+                                <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: '#003e6b', marginBottom: '16px' }}>
+                                    Notes filter
+                                </h2>
 
+                                <div
+                                    style={{
+                                        position: 'relative',
+                                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                        borderRadius: '10px',
+                                        overflow: 'hidden',
+                                        backgroundColor: '#fff',
+                                    }}
+                                >
+                                    <input
+                                        type="text"
+                                        placeholder="Type notes here"
+                                        style={{
+                                            width: '100%',
+                                            padding: '16px 50px 16px 16px', // extra right padding for button space
+                                            fontSize: '16px',
+                                            color: '#666',
+                                            border: 'none',
+                                            outline: 'none',
+                                            backgroundColor: 'transparent',
+                                        }}
+                                        value={inputValue}
+                                        onChange={(e) => setInputValue(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                handleSearch(); // Call your search function
+                                            }
+                                        }}
+                                    />
+
+                                    <button
+                                        onClick={handleSearch} // Trigger search on button click
+                                        style={{
+                                            position: 'absolute',
+                                            right: '8px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            backgroundColor: '#7ACB59',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            padding: '8px 12px',
+                                            fontSize: '14px',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        Search
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
                             </div>
 
                             <div id="activityChart" className="adminReport4" style={{ backgroundColor: '#F5F5F5' }}>

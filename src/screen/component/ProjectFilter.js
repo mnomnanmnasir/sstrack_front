@@ -34,7 +34,9 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
         if (!token) return;
 
         const headers = { Authorization: `Bearer ${token}` };
-        const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/superAdmin/getProjects`, { headers });
+        const url = `https://myuniversallanguages.com:9093/api/v1/superAdmin/getProjects`;
+
+        const response = await axios.patch(url, {}, { headers }); // Changed to PATCH with empty body
 
         console.log("Projects API Response:", response.data);
 
@@ -50,7 +52,7 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
             projects.map((project) => [project.name, { label: project.name, value: project._id }])
           ).values()
         ).sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase())); // Sorting alphabetically
-    
+
         setProjectOptions(uniqueProjects);
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -58,6 +60,7 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
         setLoading(false);
       }
     };
+
 
     fetchProjects();
   }, []);
@@ -69,32 +72,33 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
         onProjectDataFetched?.(undefined);
         return;
       }
-
+    
       const token = localStorage.getItem("token");
       if (!token || !userType) {
         console.error("User type or token is missing");
         return;
       }
-
+    
       try {
         const apiUrl =
           userType === "manager"
             ? `https://myuniversallanguages.com:9093/api/v1/manager/day?daySpecifier=this&projectId=${selectedProject.value}`
             : `https://myuniversallanguages.com:9093/api/v1/owner/day?daySpecifier=this&projectId=${selectedProject.value}`;
-
+    
         console.log(`Fetching project data from: ${apiUrl}`);
-
-        const response = await axios.get(apiUrl, {
-          headers: { Authorization: `Bearer ${token}` },
+    
+        const response = await axios.patch(apiUrl, {}, {
+          headers: { Authorization: `Bearer ${token}` }, // ✅ Correct placement
         });
-
+    
         console.log("Project API Response:", response.data);
-
+    
         onProjectDataFetched?.(response.data);
       } catch (error) {
         console.error("Error fetching project data:", error);
       }
     };
+    
 
     fetchProjectData();
   }, [selectedProject, userType]);

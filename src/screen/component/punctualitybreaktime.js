@@ -281,23 +281,23 @@ const CompanyEmployess = (props) => {
 
             const currentDate = new Date().toISOString().split("T")[0];
 
-            // const requestData = {
-            //     userId: employeeId,
-            //     settings: {
-            //         puncStartTime: `${currentDate}T${puncStartTime}:00`,
-            //         puncEndTime: `${currentDate}T${puncEndTime}:00`,
-            //         individualPuncStart: true,
-            //     },
-            // };
             const requestData = {
                 userId: employeeId,
                 settings: {
-                  ...currentSettings,
-                  individualPuncStart: isSelected,
-                  puncStartTime: isSelected ? "" : null,
-                  puncEndTime: isSelected ? "" : null,
+                    puncStartTime: `${currentDate}T${puncStartTime}:00`,
+                    puncEndTime: `${currentDate}T${puncEndTime}:00`,
+                    individualPuncStart: true,
                 },
-              };
+            };
+            // const requestData = {
+            //     userId: employeeId,
+            //     settings: {
+            //     //   ...currentSettings,
+            //       individualPuncStart: isSelected,
+            //       puncStartTime: isSelected ? "" : null,
+            //       puncEndTime: isSelected ? "" : null,
+            //     },
+            //   };
               
             const response = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
