@@ -48,14 +48,14 @@ const CompanyEmployess = (props) => {
                             },
                         }
                     );
-    
+
                     if (response.status === 200) {
                         const { puncStartTime, puncEndTime } = response.data.data;
-    
+
                         updatedFields[employee._id] = {
                             showFields: employee.punctualityData?.individualPuncStart || false,
-                            puncStartTime: puncStartTime ? puncStartTime.split("T")[1].substring(0, 5) : "",
-                            puncEndTime: puncEndTime ? puncEndTime.split("T")[1].substring(0, 5) : "",
+                            puncStartTime: (puncStartTime && !puncStartTime.includes("00:00")) ? puncStartTime.split("T")[1].substring(0, 5) : "",
+                            puncEndTime: (puncEndTime && !puncEndTime.includes("00:00")) ? puncEndTime.split("T")[1].substring(0, 5) : "",
                         };
                     }
                 }
@@ -65,11 +65,11 @@ const CompanyEmployess = (props) => {
                 console.error("Error fetching employee data:", error);
             }
         };
-    
+
         fetchAllEmployeeData();
     }, [employees]);
-    
-    
+
+
 
     useEffect(() => {
         const persistedTimeFields = JSON.parse(localStorage.getItem("timeFields")) || {};
@@ -85,10 +85,6 @@ const CompanyEmployess = (props) => {
 
         setTimeFields(updatedTimeFields);
     }, [employees]);
-
-
-
-
 
     useEffect(() => {
         // Synchronize `timeFields` state with `employees` data on mount or update
@@ -111,11 +107,20 @@ const CompanyEmployess = (props) => {
 
     const handleToggleChange = async (employee, isSelected) => {
 
+        // setTimeFields((prev) => ({
+        //     ...prev,
+        //     [employee._id]: {
+        //         ...prev[employee._id],
+        //         showFields: isSelected,
+        //     },
+        // }));
         setTimeFields((prev) => ({
             ...prev,
             [employee._id]: {
                 ...prev[employee._id],
                 showFields: isSelected,
+                puncStartTime: isSelected ? "" : "00:00",
+                puncEndTime: isSelected ? "" : "00:00",
             },
         }));
 
@@ -172,10 +177,14 @@ const CompanyEmployess = (props) => {
                     [employee._id]: {
                         ...timeFields[employee._id],
                         showFields: isSelected,
+                        puncStartTime: isSelected ? "" : "00:00",
+                        puncEndTime: isSelected ? "" : "00:00",
                     },
                 };
+
                 setTimeFields(updatedState);
                 localStorage.setItem("timeFields", JSON.stringify(updatedState));
+
             } else {
                 throw new Error("Failed to update punctuality setting.");
             }
@@ -183,13 +192,23 @@ const CompanyEmployess = (props) => {
             console.error("Error updating punctuality setting:", error);
 
             // Revert the UI state if the API call fails
+            // setTimeFields((prev) => ({
+            //     ...prev,
+            //     [employee._id]: {
+            //         ...prev[employee._id],
+            //         showFields: !isSelected, // Revert to the previous state
+            //     },
+            // }));
             setTimeFields((prev) => ({
                 ...prev,
                 [employee._id]: {
                     ...prev[employee._id],
-                    showFields: !isSelected, // Revert to the previous state
+                    showFields: isSelected,
+                    puncStartTime: isSelected ? "" : "00:00",
+                    puncEndTime: isSelected ? "" : "00:00",
                 },
             }));
+
             enqueueSnackbar("An error occurred while updating punctuality setting.", {
                 variant: "error",
                 anchorOrigin: {
@@ -217,6 +236,7 @@ const CompanyEmployess = (props) => {
 
 
     useEffect(() => {
+        localStorage.setItem("isUsehasVisitedPuncutlity", "true");
         const persistedTimeFields = JSON.parse(localStorage.getItem("timeFields")) || {};
         const updatedTimeFields = employees.reduce((fields, employee) => {
             fields[employee._id] = {
@@ -245,83 +265,88 @@ const CompanyEmployess = (props) => {
 
 
 
- // ✅ Function to Save Punctuality Time
-// ✅ Function to Save Punctuality Time
-const handleSave = async (employeeId) => {
-    try {
-        const { puncStartTime, puncEndTime } = timeFields[employeeId];
+    // ✅ user visited this component
+    // ✅ user visited this component
+    const handleSave = async (employeeId) => {
+        try {
+            const { puncStartTime, puncEndTime } = timeFields[employeeId];
 
-        if (!puncStartTime || !puncEndTime) {
-            enqueueSnackbar("Both Punctuality Start Time and End Time are required.", {
-                variant: "error",
-                anchorOrigin: { vertical: "top", horizontal: "right" },
-            });
-            return;
-        }
-
-        const currentDate = new Date().toISOString().split("T")[0];
-
-        // ✅ Backend ko bilkul wahi time bhejna jo user ne dala hai
-        const requestData = {
-            userId: employeeId,
-            settings: {
-                puncStartTime: `${currentDate}T${puncStartTime}:00`,
-                puncEndTime: `${currentDate}T${puncEndTime}:00`,
-                individualPuncStart: true,
-            },
-        };
-
-        const response = await axios.post(
-            "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
-            requestData,
-            {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    "Content-Type": "application/json",
-                },
+            if (!puncStartTime || !puncEndTime) {
+                enqueueSnackbar("Both Punctuality Start Time and End Time are required.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+                return;
             }
-        );
 
-        if (response.status === 200) {
-            enqueueSnackbar("Punctuality successfully saved!", {
-                variant: "success",
-                anchorOrigin: { vertical: "top", horizontal: "right" },
-            });
+            const currentDate = new Date().toISOString().split("T")[0];
 
-            // ✅ Backend se jo time aaya hai usko bilkul waisa ka waisa state mein save karein
-            const updatedResponse = await axios.get(
-                `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+            // const requestData = {
+            //     userId: employeeId,
+            //     settings: {
+            //         puncStartTime: `${currentDate}T${puncStartTime}:00`,
+            //         puncEndTime: `${currentDate}T${puncEndTime}:00`,
+            //         individualPuncStart: true,
+            //     },
+            // };
+            const requestData = {
+                userId: employeeId,
+                settings: {
+                  ...currentSettings,
+                  individualPuncStart: isSelected,
+                  puncStartTime: isSelected ? "" : null,
+                  puncEndTime: isSelected ? "" : null,
+                },
+              };
+              
+            const response = await axios.post(
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                requestData,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
                     },
                 }
             );
 
-            if (updatedResponse.status === 200) {
-                const updatedData = updatedResponse.data?.data;
-                setTimeFields((prev) => ({
-                    ...prev,
-                    [employeeId]: {
-                        ...prev[employeeId],
-                        showFields: true,
-                        puncStartTime: updatedData.puncStartTime.split("T")[1].substring(0, 5),
-                        puncEndTime: updatedData.puncEndTime.split("T")[1].substring(0, 5),
-                    },
-                }));
+            if (response.status === 200) {
+                enqueueSnackbar("Punctuality successfully saved!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                // ✅ Backend se jo time aaya hai usko bilkul waisa ka waisa state mein save karein
+                const updatedResponse = await axios.get(
+                    `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    }
+                );
+
+                if (updatedResponse.status === 200) {
+                    const updatedData = updatedResponse.data?.data;
+                    setTimeFields((prev) => ({
+                        ...prev,
+                        [employeeId]: {
+                          ...prev[employeeId],
+                          showFields: true,
+                          puncStartTime: updatedData.puncStartTime.split("T")[1].substring(0, 5),
+                          puncEndTime: updatedData.puncEndTime.split("T")[1].substring(0, 5),
+                        },
+                      }));
+                      
+                }
+            } else {
+                enqueueSnackbar("Failed to save Punctuality data.", { variant: "error" });
             }
-        } else {
-            enqueueSnackbar("Failed to save Punctuality data.", { variant: "error" });
+        } catch (error) {
+            console.error("Error saving Punctuality data:", error);
+            enqueueSnackbar("Error saving Punctuality data.", { variant: "error" });
         }
-    } catch (error) {
-        console.error("Error saving Punctuality data:", error);
-        enqueueSnackbar("Error saving Punctuality data.", { variant: "error" });
-    }
-};
-
-
-
-
+    };
 
     useEffect(() => {
         // Set allowBlur based on the Redux store
@@ -342,104 +367,6 @@ const handleSave = async (employeeId) => {
             (employee) => employee.effectiveSettings?.individualPuncStart
         );
     }, [employees]);
-
-
-
-
-
-
-
-    async function handlePunctualitySetting(data) {
-        console.log("Punctuality Data:", data);
-
-        const findUser = employees.find((employee) => employee._id === data.employee._id);
-
-        if (!findUser) {
-            console.error("User not found!");
-            enqueueSnackbar("User not found!", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right",
-                },
-            });
-            return;
-        }
-
-        const ssId = data.employee._id; // Assuming ssId should be the employee ID
-
-        console.log("SSID", ssId);
-
-        const settingsToUpdate = {
-            breakTime: data.isSelected
-                ? [
-                    {
-                        TotalHours: "1h:0m",
-                        breakStartTime: new Date().toISOString(),
-                        breakEndTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour later
-                    },
-                    {
-                        TotalHours: "1h:30m",
-                        breakStartTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours later
-                        breakEndTime: new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString(), // 2.5 hours later
-                    },
-                ]
-                : [],
-
-
-            individualPuncStart: data.isSelected,
-
-        };
-
-        try {
-            const res = await axios.post(
-                `https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality`,
-                {
-                    userId: ssId,
-                    settings: settingsToUpdate,
-                },
-                {
-                    headers,
-                }
-            );
-
-            if (res.status === 200) {
-                enqueueSnackbar("Punctuality settings updated successfully!", {
-                    variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right",
-                    },
-                });
-
-                // Update Redux state after successful API call
-                dispatch(
-                    setPunctualitySettings({
-                        id: ssId,
-                        isSelected: data.isSelected,
-                        key: "individualPuncStart",
-                    })
-                );
-            } else {
-                enqueueSnackbar("Failed to update punctuality settings.", {
-                    variant: "error",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right",
-                    },
-                });
-            }
-        } catch (error) {
-            console.error("Error updating punctuality settings:", error);
-            enqueueSnackbar("An error occurred while updating punctuality settings.", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right",
-                },
-            });
-        }
-    }
 
 
     const userCount = employees !== null && employees !== undefined ? employees.filter(employee => employee !== null && Object.keys(employee).length > 0).length : 0;
@@ -501,7 +428,6 @@ const handleSave = async (employeeId) => {
                                                     <input
                                                         type="time"
                                                         value={timeFields[employee._id]?.puncStartTime === "00:00" ? "" : timeFields[employee._id]?.puncStartTime}
-
                                                         onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                                         onChange={(e) => handleTimeChange(employee._id, "puncStartTime", e.target.value)}
                                                         style={{ marginLeft: 10 }}

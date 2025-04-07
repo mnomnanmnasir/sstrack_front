@@ -49,7 +49,7 @@ import ActivityLevel from "../adminScreens/settingScreenComponent/activitylevel"
 import UrlTracking from "../adminScreens/settingScreenComponent/url";
 import History from '../screen/historyLogs'
 import OwnerManualLeave from '../companyOwner/owner-setting-components/ownerManualLeave'
-import TrainingPage from "../screen/TrainingPage";
+import TrainingPage from "../screen/Training/TrainingPage";
 
 export default function AppRouter() {
 
@@ -108,6 +108,7 @@ export default function AppRouter() {
     }
   }, [token]);
 
+  const userInfo = token ? jwtDecode(token) : null;
 
   return (
     <>
@@ -119,7 +120,15 @@ export default function AppRouter() {
             <Route path="/download" element={<Download />} />
             <Route path="/aboutUs" element={<AboutUs />} />
             <Route path="/product" element={<Product />} />
-            <Route path="/splash" element={<DashboardSplash />} />
+            {/* <Route path="/splash" element={<DashboardSplash />} /> */}
+            <Route
+              path="/splash"
+              element={
+                userInfo?.userType === 'admin' || userInfo?.userType === 'manager'
+                  ? <Navigate to="/dashboard" />
+                  : <DashboardSplash />
+              }
+            />
             <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
             <Route path="/account" element={token ? <Account suspended={suspended} /> : <Navigate to="/signup" />} />
             <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/dashboard" />} />
@@ -150,6 +159,18 @@ export default function AppRouter() {
             <Route path="/Training" element={token ? (suspended ? <Navigate to="/account" /> : <TrainingPage />) : <Navigate to="/" />} />
 
             <Route path="/team" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerTeam />) : <Navigate to="/" />} />
+            {/* <Route
+              path="/team"
+              element={
+                token
+                  ? suspended
+                    ? <Navigate to="/account" />
+                    : userInfo?.userType === 'user'
+                      ? <Navigate to="/dashboard" />
+                      : <OwnerTeam />
+                  : <Navigate to="/" />
+              }
+            /> */}
             <Route path="/reports" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerReport />) : <Navigate to="/" />} />
             <Route path="/Projects" element={token ? (suspended ? <Navigate to="/account" /> : <Project />) : <Navigate to="/" />} />
             <Route path="/company-owner-user" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserSignup />) : <Navigate to="/" />} />

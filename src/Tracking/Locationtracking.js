@@ -393,7 +393,7 @@ const LocaitonTracking = () => {
                                             </h4>
                                         </div>
                                         <p style={{ fontSize: "24px", fontWeight: "bold", color: "#2C5282", margin: "0" }}>
-                                            {totalDistance}
+                                            {totalDistance} KM
                                         </p>
                                     </div>
 

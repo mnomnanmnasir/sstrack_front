@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import Modal from 'react-bootstrap/Modal';
 import { AiFillStar, AiOutlineUser } from 'react-icons/ai';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FerrisWheelSpinner } from 'react-spinner-overlay';
 import '../../node_modules/sweetalert2/src/sweetalert2.scss';
 import useLoading from "../hooks/useLoading";
@@ -47,6 +47,57 @@ function OwnerTeam() {
     const headers = {
         Authorization: "Bearer " + token,
     };
+
+
+    // import { useEffect } from "react";
+
+    // useEffect(() => {
+    //     if (window.location.hash === "#team") {
+    //         setTimeout(() => {
+    //             const section = document.getElementById("team");
+    //             if (section) {
+    //                 section.scrollIntoView({ behavior: "smooth" });
+    //             }
+    //         }, 300); // delay to allow page to render
+    //     }
+    // }, []);
+    // const location = useLocation();
+
+    // useEffect(() => {
+    //     const scrollTo = location?.state?.scrollTo || window.location.hash?.replace("#", "");
+    //     if (scrollTo === "team") {
+    //         setTimeout(() => {
+    //             const section = document.getElementById("team");
+    //             if (section) {
+    //                 section.scrollIntoView({ behavior: "smooth" });
+    //             }
+    //         }, 300); // Delay ensures DOM is ready
+    //     }
+    // }, [location]);    
+
+    useEffect(() => {
+        if (user?.userType === "manager") {
+            getManagerTeam();
+        } else {
+            getData();
+        }
+
+        // ✅ Scroll if hash or query exists
+        const hash = window.location.hash;
+        const params = new URLSearchParams(window.location.search);
+        const scrollToId = hash ? hash.substring(1) : params.get('scrollTo');
+
+        if (scrollToId) {
+            setTimeout(() => {
+                const section = document.getElementById(scrollToId);
+                if (section) {
+                    section.scrollIntoView({ behavior: "smooth" });
+                }
+            }, 500); // small delay for rendering
+        }
+    }, []);
+
+
     const user = jwtDecode(JSON.stringify(token));
     // console.log('check',user._id === "679b223b61427668c045c659");
     const [selectedGroupName, setSelectedGroupName] = useState("");
@@ -119,6 +170,7 @@ function OwnerTeam() {
             setLoading2(true)
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers })
             if (response.status) {
+                localStorage.setItem("is1stUser", "true");
                 setLoading(false)
                 setLoading2(false)
                 setUsers(() => {
@@ -323,10 +375,10 @@ function OwnerTeam() {
             });
             return; // 🔒 Exit early if email is invalid
         }
-    
+
         setShow3(false);
         setIsInviteLoading(true);
-    
+
         try {
             const res = await axios.post(`${apiUrl}/superAdmin/email`, {
                 toEmail: email,
@@ -334,7 +386,7 @@ function OwnerTeam() {
             }, {
                 headers: headers,
             });
-    
+
             if (res.status) {
                 enqueueSnackbar(res.data.message, {
                     variant: "success",
@@ -344,7 +396,8 @@ function OwnerTeam() {
                     }
                 });
                 getData();
-                setEmail(""); // Reset the email input
+                setEmail(""); 
+               
             }
         } catch (error) {
             enqueueSnackbar(error?.response?.data?.message || "Network error", {
@@ -358,7 +411,7 @@ function OwnerTeam() {
             setIsInviteLoading(false);
         }
     };
-    
+
     return (
         <div>
             {show ? <Modal show={show} onHide={() => setShow(false)} animation={false} centered>
@@ -443,7 +496,8 @@ function OwnerTeam() {
                 />
             )}
             <SnackbarProvider />
-            <div className="container">
+
+            <div className="container" id='team'>
                 <div className="userHeader">
                     <div className="d-flex align-items-center gap-3">
                         <div><img src={groupCompany} /></div>
@@ -512,9 +566,10 @@ function OwnerTeam() {
                                                     {groups?.map((e, i) => (
                                                         <div
 
-                                                            className={`adminTeamEmployess align-items-center gap-1`} onClick={() => {
+                                                            className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center gap-1`} onClick={() => {
                                                                 setGroupData(e)
                                                                 setMainId(null)
+                                                                setActiveId(e._id)
 
                                                             }}>
                                                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: '100%' }}>
@@ -720,7 +775,14 @@ function OwnerTeam() {
                             <div>
                                 <img src={line} />
                             </div>
-                            <div style={{ width: "100%", display: mainId === null ? "flex" : "", justifyContent: mainId === null ? "center" : "", alignItems: mainId === null ? "center" : "" }}>
+                            <div
+                                style={{
+                                    width: "100%",
+                                    display: mainId == null && GroupData == null ? "flex" : "",
+                                    justifyContent: mainId == null && GroupData == null ? "center" : "",
+                                    alignItems: mainId == null && GroupData == null ? "center" : "",
+                                }}
+                            >
                                 {mainId ? (
                                     <OwnerTeamComponent
                                         fixId={mainId}

@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { FaProjectDiagram, FaUserPlus, FaClock, FaCheckCircle, FaCalendarCheck } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import dashboard from "../../images/dashboard.webp";
 import logout from "../../images/logout.webp";
 import account from "../../images/myaccount.webp";
@@ -80,8 +80,15 @@ function UserHeader() {
     useEffect(() => {
         // Function to check localStorage and update state
         const checkSetupStatus = () => {
-            const isSetupComplete = localStorage.getItem("isAccountSetupComplete");
-            setShowMessage(isSetupComplete !== "true");
+            const isSetupComplete =
+                localStorage.getItem("isUsehasVisitedPuncutlity") === "true" &&
+                localStorage.getItem("isUsehasVisitedLeave") === "true" &&
+                localStorage.getItem("is1stUser") === "true" &&
+                localStorage.getItem("is1stProjectisCreated") === "true" &&
+                localStorage.getItem("isUsehasVisitedbreak") === "true" &&
+                localStorage.getItem("TrainingisCompleted") === "true";
+
+            setShowMessage(!isSetupComplete);
         };
 
         checkSetupStatus(); // Initial check
@@ -519,15 +526,38 @@ function UserHeader() {
                                     gap: 8,
                                     width: '95.2%',
                                     marginRight: 10,
-                                    textAlign:'center',
+                                    textAlign: 'center',
                                 }}
                             >
                                 {/* <FaCheckCircle style={{ color: 'white' }} /> */}
                                 <span>
-                                    Complete your account setup by adding a project, inviting users,
-                                    setting break times, ensuring punctuality, and configuring leaves.
-                                    please click Training center.
+                                    Complete your account setup by adding a{' '}
+                                    <Link to="/Projects" style={{ color: '#007438', textDecoration: 'underline' }}>
+                                        project
+                                    </Link>
+                                    , inviting{' '}
+                                    <Link to="/team" style={{ color: '#007438', textDecoration: 'underline' }}>
+                                        users
+                                    </Link>
+                                    , setting{' '}
+                                    <Link to="/settings/break-time" style={{ color: '#007438', textDecoration: 'underline' }}>
+                                        break times
+                                    </Link>
+                                    , ensuring{' '}
+                                    <Link to="/settings/punctuality" style={{ color: '#007438', textDecoration: 'underline' }}>
+                                        punctuality
+                                    </Link>
+                                    , and configuring{' '}
+                                    <Link to="/leave-management" style={{ color: '#007438', textDecoration: 'underline' }}>
+                                        leaves
+                                    </Link>
+                                    . Please click{' '}
+                                    <Link to="/Training" style={{ color: '#007438', textDecoration: 'underline' }}>
+                                        Training center
+                                    </Link>
+                                    .
                                 </span>
+
                             </div>
                         </div>)}
 

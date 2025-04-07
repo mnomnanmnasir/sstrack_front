@@ -204,9 +204,7 @@ function Screenshot() {
                     },
                 });
 
-                // Preserve fields after saving
-                // setPuncStartTime(puncStartTime);
-                // setPuncEndTime(puncEndTime);
+
 
             } else {
                 enqueueSnackbar("Failed to submit punctuality rule.", {

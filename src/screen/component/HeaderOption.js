@@ -58,10 +58,10 @@ function UserDashboardSection(params) {
         }
     };
 
-    const handleDismiss = () => {
-        localStorage.setItem("isAccountSetupComplete", "true");
-        window.dispatchEvent(new Event("storage")); // Notify other components
-    };
+    // const handleDismiss = () => {
+    //     localStorage.setItem("isAccountSetupComplete", "true");
+    //     window.dispatchEvent(new Event("storage")); // Notify other components
+    // };
     function scrollToSection(sectionId) {
         const section = document.getElementById(sectionId);
         if (section) {
@@ -143,7 +143,7 @@ function UserDashboardSection(params) {
                                     to="/Training"
                                     className="ownerSectionUser1"
                                     style={{ color: "white", textDecoration: "none", margin: 0 }}
-                                    onClick={() => handleDismiss()} // Call function on click
+                                    // onClick={() => handleDismiss()} // Call function on click
                                 >
                                     Training Center
                                 </Link>

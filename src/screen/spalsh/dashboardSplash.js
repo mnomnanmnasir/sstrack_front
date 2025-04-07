@@ -80,7 +80,6 @@ function DashboardSplash() {
         }
     };
 
-
     const handleDownload = async (type) => {
         console.log(type);
         setLoading1(type === "WIN" ? true : false);
@@ -144,6 +143,26 @@ function DashboardSplash() {
         window.location.reload();
 
     }
+
+    const scrollToTeamSection = () => {
+        const teamSection = document.getElementById("team");
+        if (teamSection) {
+            teamSection.scrollIntoView({ behavior: "smooth" });
+        }
+    };
+
+    function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            window.scrollTo({
+                top: section.offsetTop - 50, // Adjust scroll position
+                behavior: "smooth",
+            });
+        }
+    }
+
+
+
     return (
         <>
 
@@ -164,11 +183,11 @@ function DashboardSplash() {
                                     Dashboard
                                 </span>
                             </h2>
-                            <p className="text-center mb-1 fs-2">Welcome to SS Track – Monitor, Manage, and Optimize</p>
-                            <p className="text-center mb-1 fs-4">Gain full visibility into your team's productivity with real-time screenshot monitoring.</p>
-                            <div style={{ width: '100%', position: 'relative', paddingBottom: '40.25%', paddingTop: '-40%', height: 0 }}>
+                            <p className="text-center fs-2" >Welcome to SS Track – Monitor, Manage, and Optimize</p>
+                            <p className="text-center fs-4" style={{marginTop: '-0.5%'}}>Gain full visibility into your team's productivity with real-time screenshot monitoring.</p>
+                            <div style={{ width: '100%', position: 'relative', paddingBottom: '40.25%', marginTop: '-4%', height: 0 }}>
                                 <iframe
-                                    src="https://www.youtube.com/embed/Z0QZGsRW1Pk"
+                                    src="https://www.youtube.com/embed/9jxJfVXtlDc?si=fVZgJsXmek6EE4lz"
                                     title="SS Track Overview"
                                     style={{
                                         position: 'absolute',
@@ -230,7 +249,21 @@ function DashboardSplash() {
                                                 style={{ maxHeight: '420px', objectFit: 'contain', width: '75%', margin: 'auto', paddingTop: '1rem' }}
                                             />
                                             <Card.Body className="text-start d-flex flex-column justify-content-between px-3">
-                                                <h3 className="" style={{ color: "#7ACB59" }}>Invite Employees</h3>
+                                                {/* <h3
+                                                    onClick={scrollToTeamSection}
+                                                    style={{ color: "#7ACB59", textDecoration: 'underline', cursor: 'pointer' }}
+                                                >
+                                                    Invite Employees
+                                                </h3> */}
+                                                <h3
+                                                    className="invite-heading"
+                                                    onClick={() => {
+                                                        navigate("/team", { state: { scrollTo: "team" } });
+                                                    }}
+                                                >
+                                                    Invite Employees
+                                                </h3>
+
                                                 <p className="text-muted">
                                                     Owners can invite employees to join the team and assign them specific roles as Admin, Manager, or User. This enables seamless time tracking, productivity monitoring, and screenshot submissions.
                                                 </p>
@@ -239,13 +272,12 @@ function DashboardSplash() {
                                     </Col>
                                 </Row>
                             </>
+                            <div className="d-flex justify-content-center container p-0 py-3">
+                                <button className="btn btn-success" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59' }} onClick={goToDashboard}>
+                                    Dashboard →
+                                </button>
+                            </div>
                         </Container>
-
-                        <div className="d-flex justify-content-center container p-2">
-                            <button className="btn btn-success" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59' }} onClick={goToDashboard}>
-                                Dashboard →
-                            </button>
-                        </div>
 
                         {/* </div> */}
                     </div >
@@ -267,8 +299,8 @@ function DashboardSplash() {
                                     </span>
                                 </h2>
                                 <p className="text-center mb-1 fs-2">Welcome to SS Track – Work Smarter, Not Harder!</p>
-                                <p className="text-center mb-1 fs-4">SS Track helps you stay productive and transparent while working.</p>
-                                <div className="d-flex justify-content-center mt-4">
+                                <p className="text-center mb-1 fs-4" >SS Track helps you stay productive and transparent while working.</p>
+                                <div className="d-flex justify-content-center" style={{ marginTop: '-2%' }}>
                                     {/* <div style={{ width: '100%', maxWidth: '800px', aspectRatio: '16/9' }}>
                                         <iframe
                                             width="100%"
@@ -441,14 +473,14 @@ function DashboardSplash() {
                                         </Col>
                                     </Row>
                                 </>
+
+                                <div className="d-flex justify-content-center container p-0 py-3">
+                                    <button className="btn btn-success" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59' }} onClick={goToDashboard}>
+                                        Dashboard →
+                                    </button>
+                                </div>
                             </Container>
 
-
-                            <div className="d-flex justify-content-center container p-2">
-                                <button className="btn btn-success" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59' }} onClick={goToDashboard}>
-                                    Dashboard →
-                                </button>
-                            </div>
 
                             {/* </div> */}
                         </div >

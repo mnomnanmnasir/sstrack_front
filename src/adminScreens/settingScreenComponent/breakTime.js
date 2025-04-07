@@ -407,6 +407,7 @@ function Screenshot() {
   const [breakTimes, setBreakTimes] = useState([]);
 
   useEffect(() => {
+    localStorage.setItem("isUsehasVisitedbreak", "true");
     localStorage.setItem("breakTimes", JSON.stringify(breakTimes));
   }, [breakTimes]);
 

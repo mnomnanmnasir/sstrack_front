@@ -64,7 +64,7 @@ function NewHome({ isAuthenticated }) {
     if (isAuthenticated) {
       navigate("/dashboard");
     } else {
-      navigate("/signup");
+      navigate("/signup", { state: { email } });
     }
   };
 
@@ -100,25 +100,7 @@ function NewHome({ isAuthenticated }) {
         // direction: language === 'ar' ? 'rtl' : 'ltr',
       }}>
         <div style={{ position: 'sticky', top: '0', width: '100%', zIndex: '10' }}>
-          {/* <NavigationBar /> */}
-          {/* <button
-            onClick={handleToggleLanguage}
-            style={{
-              position: 'absolute',
-              top: '70px',
-              right: language === 'ar' ? 'auto' : '20px',
-              left: language === 'ar' ? '20px' : 'auto',
-              padding: '5px 10px',
-              backgroundColor: '#7ACB59',
-              border: 'none',
-              color: 'white',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              borderRadius: '5px'
-            }}
-          >
-            {language === 'en' ? 'العربية' : 'English'}
-          </button> */}
+         
         </div>
         <div
           className="background-container"

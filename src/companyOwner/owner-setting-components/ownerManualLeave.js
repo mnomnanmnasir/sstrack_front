@@ -102,14 +102,14 @@ const OwnerTeam = () => {
             const userType = items?.userType;
             let endpoint = "";
             if (userType === "admin" || userType === "owner") {
-              endpoint = `${apiUrl}/superAdmin/getAllUserLeaves`; // ✅ Admin + Owner only
+                endpoint = `${apiUrl}/superAdmin/getAllUserLeaves`; // ✅ Admin + Owner only
             } else if (userType === "manager") {
-              endpoint = `${apiUrl}/manager/getAllUserLeaves`;    // ✅ Manager specific
+                endpoint = `${apiUrl}/manager/getAllUserLeaves`;    // ✅ Manager specific
             } else {
-              // Optional: handle unknown types
-              console.warn("Unrecognized userType", userType);
+                // Optional: handle unknown types
+                console.warn("Unrecognized userType", userType);
             }
-            
+
 
             const response = await axios.get(endpoint, { headers });
             const users = response.data?.data || [];
@@ -424,7 +424,7 @@ const OwnerTeam = () => {
                                                         {user?.userId?.name} ({user?.userId?.email})
                                                     </option>
                                                 ))} */}
-                                            {allUsers
+                                            {/* {allUsers
                                                 .filter((user) => {
                                                     const userData = user?.userId;
                                                     const targetType = userData?.userType?.toLowerCase();
@@ -439,6 +439,30 @@ const OwnerTeam = () => {
                                                     if (userType === "admin" && ["admin", "owner"].includes(targetType)) return false;
 
                                                     // ✅ If I'm owner, just hide other owners (admins should show)
+                                                    if (userType === "owner" && targetType === "owner") return false;
+
+                                                    return true;
+                                                })
+                                                .map((user, index) => (
+                                                    <option key={index} value={user.userId._id}>
+                                                        {user.userId.name} ({user.userId.email})
+                                                    </option>
+                                                ))} */}
+                                            {allUsers
+                                                .filter((user) => {
+                                                    const userData = user?.userId;
+                                                    const targetType = userData?.userType?.toLowerCase();
+
+                                                    // ❌ Skip if data is incomplete
+                                                    if (!userData || !userData._id || !userData.name || !userData.email) return false;
+
+                                                    // 🔒 Exclude the logged-in user (safe string check)
+                                                    if (userData._id.toString() === userId.toString()) return false;
+
+                                                    // ✅ Admin: hide owners
+                                                    if (userType === "admin" && targetType === "owner") return false;
+
+                                                    // ✅ Owner: hide other owners
                                                     if (userType === "owner" && targetType === "owner") return false;
 
                                                     return true;

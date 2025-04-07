@@ -26,7 +26,7 @@ const Layout = () => {
     setLanguage(language === 'en' ? 'ar' : 'en');
   };
   const contactSectionRef = useRef(null); // Create a ref for ContactSection
-  
+
   const scrollToContactSection = () => {
     if (contactSectionRef.current) {
       contactSectionRef.current.scrollIntoView({ behavior: 'smooth' });

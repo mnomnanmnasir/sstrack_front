@@ -72,3 +72,16 @@ how it works
 rearrange reports filter
 splashScreen
 splash Upadted
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+direct login
+video change
+do not disturb
+>>>>>>> 0676206a742ccca7a90b500b18027f52ef0e0444
+profile field disabled
+>>>>>>> e6b06c4aed4e139f92b54734339531ac994ddfb6
+missing component
+Update by Abdullah
+group filter in reports

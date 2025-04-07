@@ -31,6 +31,26 @@ const DownloadSection = () => {
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 
+
+    useEffect(() => {
+        const dropdownBtn = document.getElementById("dropdownMenuButton");
+
+        const handleShow = () => setIsOpen(true);
+        const handleHide = () => setIsOpen(false);
+
+        if (dropdownBtn) {
+            dropdownBtn.addEventListener("show.bs.dropdown", handleShow);
+            dropdownBtn.addEventListener("hide.bs.dropdown", handleHide);
+        }
+
+        return () => {
+            if (dropdownBtn) {
+                dropdownBtn.removeEventListener("show.bs.dropdown", handleShow);
+                dropdownBtn.removeEventListener("hide.bs.dropdown", handleHide);
+            }
+        };
+    }, []);
+
     const handleDownloadMac = async (type) => {
         console.log(type);
         // setLoading1(type === "Intel" ? true : false);
@@ -214,40 +234,13 @@ const DownloadSection = () => {
                                     alignItems: "center", // Items vertically center hon
                                 }}
                             >
-                                {/* Chrome Extension Button */}
-                                <button
-                                    style={{
-                                        backgroundColor: 'black', // Loading state removed
-                                        padding: '2%',
-                                        width: '30%',
-                                        fontSize: '75%',
-                                        marginLeft: '0%',
-                                    }}
-                                    className="download-button" // Loading class removed
-                                    onClick={handleClick} // Directly calls handleClick without checking loading state
-                                >
-                                    <>
-                                        <img
-                                            src={chromeImg}
-                                            alt="Chrome Icon"
-                                            style={{
-                                                width: "20px",
-                                                height: "20px",
-                                                margin: "-5px 10px 0 0",
-                                            }}
-                                        />
-                                        <span style={{ color: 'white', fontSize: '-15%' }}>
-                                            {isArabic ? "إضافة كروم" : "Chrome Extension"}
-                                        </span>
-                                    </>
-                                </button>
 
 
                                 {/* Windows Download Button 1 */}
                                 <button
                                     style={{
                                         backgroundColor: loading1 ? '#6c757d' : 'black',
-                                        padding: '2%',
+                                        padding: '1.9%',
                                         width: '32%',
                                         fontSize: '75%',
                                         cursor: loading1 ? 'not-allowed' : 'pointer',
@@ -289,6 +282,7 @@ const DownloadSection = () => {
                                     )}
                                 </button> */}
 
+
                                 {/* Mac OS Dropdown */}
                                 <div style={{ width: "185px", height: "42px" }}>
                                     <button
@@ -308,7 +302,7 @@ const DownloadSection = () => {
                                             justifyContent: "center",
                                             fontSize: "14px",
                                             fontWeight: "bold",
-                                            marginLeft: '-4%'
+                                            marginLeft: '-5%'
                                         }}
                                     >
                                         <BsApple color="#fff" size={20} style={{ marginRight: "10px" }} />
@@ -354,6 +348,33 @@ const DownloadSection = () => {
                                         </li>
                                     </ul>
                                 </div>
+                                {/* Chrome Extension Button */}
+                                <button
+                                    style={{
+                                        backgroundColor: 'black', // Loading state removed
+                                        padding: '1.9%',
+                                        width: '30%',
+                                        fontSize: '75%',
+                                        marginLeft: '0%',
+                                    }}
+                                    className="download-button" // Loading class removed
+                                    onClick={handleClick} // Directly calls handleClick without checking loading state
+                                >
+                                    <>
+                                        <img
+                                            src={chromeImg}
+                                            alt="Chrome Icon"
+                                            style={{
+                                                width: "20px",
+                                                height: "20px",
+                                                margin: "-5px 10px 0 0",
+                                            }}
+                                        />
+                                        <span style={{ color: 'white', fontSize: '-15%' }}>
+                                            {isArabic ? "إضافة كروم" : "Chrome Extension"}
+                                        </span>
+                                    </>
+                                </button>
 
                             </div>
 

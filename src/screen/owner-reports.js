@@ -105,15 +105,36 @@ function OwnerReport() {
 
     // const handleSelectUsers = (e) => { setSelectedUsers(e); const userIds = e.map(user => user.id); setEmployeeId(userIds);
     // }
-    const handleSelectUsers = (selectedUsers) => {
-        console.log("selectedUsers", selectedUsers);
+    const handleSelectUsers = (selectedOptions) => {
+        console.log("selectedOptions", selectedOptions);
+
+        const selectedUserMap = new Map();
+
+        selectedOptions.forEach(option => {
+            if (option.isGroup) {
+                // Group selected – expand into users
+                const groupMembers = user.filter(u => option.allowedEmployees.includes(u.id));
+                groupMembers.forEach(member => {
+                    if (!selectedUserMap.has(member.id)) {
+                        selectedUserMap.set(member.id, member);
+                    }
+                });
+            } else {
+                // Individual user selected
+                if (!selectedUserMap.has(option.id)) {
+                    selectedUserMap.set(option.id, option);
+                }
+            }
+        });
+
+        const selectedUsers = Array.from(selectedUserMap.values());
 
         setSelectedUsers(selectedUsers);
-        const userIds = selectedUsers?.map((user) => user.id);
+        const userIds = selectedUsers.map((user) => user.id);
         setEmployeeId(userIds);
 
         // Calculate total hours of selected users
-        const totalHours = selectedUsers?.reduce(
+        const totalHours = selectedUsers.reduce(
             (acc, user) => {
                 const hours = acc.hours + Math.floor(user.totalHours || 0);
                 const minutes = acc.minutes + ((user.totalHours || 0) % 1) * 60;
@@ -138,13 +159,15 @@ function OwnerReport() {
             ? reportData.totalHours.split("h ").map((val) => parseInt(val.replace("m", ""), 10))
             : [0, 0];
 
-        // Calculate new total hours
         const newHours = existingHours + totalHours.hours;
         const newMinutes = existingMinutes + totalHours.minutes;
 
-        const totalActivity = 0;
+        const totalActivity = selectedUsers.reduce((acc, user) => {
+            const activity = user.activity || 0;
+            const projectActivity = user.projects?.reduce((a, p) => a + (p.projectActivity || 0), 0) || 0;
+            return acc + activity + projectActivity;
+        }, 0);
 
-        // Update reportData state with total hours of selected users
         setReportData({
             ...reportData,
             totalHours:
@@ -194,7 +217,7 @@ function OwnerReport() {
             }),
         });
 
-        console.log("Set Report Data", reportData);
+        console.log("Final Report Data", reportData);
     };
 
 
@@ -213,6 +236,7 @@ function OwnerReport() {
         lastYear: false,
     })
     const [users, setUsers] = useState([]);
+    const [Usergroups, setUsergroups] = useState([]);
     const [reportData, setReportData] = useState(null);
     const [loading, setLoading] = useState(false);
     let headers = {
@@ -417,6 +441,7 @@ function OwnerReport() {
     const getEmployess = async () => {
         try {
             let employees = [];
+            let groups = [];
 
             const user = items?.userType || "user"; // Assuming userType is stored in localStorage
             setUserType(user);
@@ -432,6 +457,7 @@ function OwnerReport() {
                 const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
                 if (response.status === 200) {
                     employees = response.data.employees;
+                    groups = response.data.groupsData;
 
                     if (user !== "admin" && user !== "owner") {
                         const userByEmail = employees.find(employee => items.email === employee.email);
@@ -439,7 +465,7 @@ function OwnerReport() {
                     }
                 }
             }
-
+            setUsergroups(groups);
             setUsers(employees);
         } catch (error) {
             console.log("Error fetching employees:", error);
@@ -756,8 +782,16 @@ function OwnerReport() {
         const totalProjectHours = user.projects?.reduce((acc, project) => acc + (project.projectHours || 0), 0) || 0;
         const totalProjectActivity = user.projects?.reduce((acc, project) => acc + (project.projectActivity || 0), 0) || 0;
 
-        const userDuration = user.duration !== null && user.duration !== undefined ? user.duration : 0;
-        const userActivity = user.activity !== null && user.activity !== undefined ? user.activity : 0;
+        const userDuration = user.duration ?? 0;
+        const userActivity = user.activity ?? 0;
+
+        // Match user to groups based on allowedEmployees
+        const userGroups = Usergroups?.filter(group =>
+            group.allowedEmployees.includes(user._id)
+        ).map(group => ({
+            groupId: group._id,
+            groupName: group.name,
+        })) || [];
 
         return {
             label: user.name,
@@ -765,6 +799,7 @@ function OwnerReport() {
             id: user._id,
             duration: userDuration + totalProjectHours,
             activity: userActivity + totalProjectActivity,
+            groups: userGroups, // added group info
             projects: user.projects?.map(project => ({
                 projectname: project.projectname,
                 projectHours: `${Math.floor(project.projectHours || 0)}h ${(project.projectHours || 0) % 1 * 60}m`,
@@ -772,14 +807,23 @@ function OwnerReport() {
             })),
         };
     });
+    const groupOptions = Usergroups?.map(group => ({
+        label: `👥 ${group.name}`, // Group emoji before name
+        value: `group-${group._id}`,
+        id: group._id,
+        isGroup: true,
+        allowedEmployees: group.allowedEmployees,
+    })) || [];
+    
 
 
     const defaultValue = user.length > 0 ? [{ value: user[0].value }] : [];
 
-    // console.log(dateFilter);
+    console.log('groupsss', Usergroups);
 
 
-    const allUsers = user; // assuming 'user' is the original array of users
+    const allUsers = [...user, ...groupOptions];
+
     const filteredUsers = user.filter(user => user.value !== null);
 
     const transformEmployeeData = (employees) => {
@@ -1003,7 +1047,7 @@ function OwnerReport() {
                                 <p className="settingScreenshotIndividual"> Select user</p>
                                 <SelectBox
                                     onChange={(e) =>
-                                        // console.log('chekkking123', e)
+
                                         handleSelectUsers(e)
                                     }
                                     options={allUsers

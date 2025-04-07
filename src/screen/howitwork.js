@@ -31,7 +31,7 @@ const HowItWorks = () => {
               fontSize: "14px",
               marginTop: "10px"
             }}
-            onClick={() => window.open("https://share.synthesia.io/d78499ff-425e-4927-bc36-e22b47b37820", "_blank")}
+            onClick={() => window.open("https://www.youtube.com/embed/tqR7rCIzgxM", "_blank")}
           >
             User Guide
           </button>
@@ -75,7 +75,7 @@ const HowItWorks = () => {
             }}
             onClick={() =>
               window.open(
-                "https://i8is.io/wp-content/uploads/2025/03/Mastering-Your-Employee-Journey-with-SS-Track-1.mp4",
+                "https://www.youtube.com/embed/1fyVTr4T2sI",
                 "_blank"
               )
             }
@@ -107,7 +107,7 @@ const HowItWorks = () => {
             }}
             onClick={() =>
               window.open(
-                "https://i8is.io/wp-content/uploads/2025/03/Employers-demo-for-SS-Track-1.mp4",
+                "https://www.youtube.com/embed/tqR7rCIzgxM",
                 "_blank"
               )
             }
@@ -140,7 +140,7 @@ const HowItWorks = () => {
             }}
             onClick={() =>
               window.open(
-                "https://i8is.io/wp-content/uploads/2025/03/Employers-demo-for-SS-Track-1.mp4",
+                "https://www.youtube.com/embed/tqR7rCIzgxM",
                 "_blank"
               )
             }
@@ -172,7 +172,7 @@ const HowItWorks = () => {
             }}
             onClick={() =>
               window.open(
-                "https://i8is.io/wp-content/uploads/2025/03/Mastering-Your-Employee-Journey-with-SS-Track-1.mp4",
+                "https://www.youtube.com/embed/6fz2IMH71UM",
                 "_blank"
               )
             }
@@ -192,7 +192,7 @@ const HowItWorks = () => {
         <div className="container">
           <div className="userHeader d-flex justify-content-between align-items-center">
             <h5>How it Works</h5>
-            <a href="https://i8is.io/wp-content/uploads/2025/03/SS-Track.mp4"
+            <a href="https://youtu.be/9YuYgp7BAzU?feature=shared"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: "#7ACB59" }}>

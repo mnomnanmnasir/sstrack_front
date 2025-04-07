@@ -40,6 +40,7 @@
     "leaflet": "^1.9.4",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
+    "lottie-react": "^2.4.1",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.44",
     "notistack": "^3.0.1",

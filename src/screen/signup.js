@@ -30,8 +30,16 @@ function Signup() {
         timezoneOffset: "",
         userType: "owner"
     });
+    
+    // const emailfromlink = location.state?.email;
 
     const [showSuccessMessage, setShowSuccessMessage] = useState(false); // To toggle success message
+
+    useEffect(() => {
+        if (emailfromlink) {
+          fillModel("email", emailfromlink); // ✅ Autofill email in the input
+        }
+      }, [location]);
 
     const [showModal, setShowModal] = useState(false);
     const [err, setErr] = useState("");

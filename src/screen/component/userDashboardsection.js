@@ -186,7 +186,7 @@ function UserDashboardSection({ settingsTabs }) {
                 borderBottomRightRadius: "10px",
                 margin: "0px 30px 0 30px",
             }}>
-                <div className="d-flex align-items-center" style={{ width: '50%', gap: '0.05' }}>
+                <div className="d-flex align-items-center flex-wrap gap-2">
                     <div className={location.pathname === "/dashboard" ? "active-tab" : "ownerSectionUser"} onClick={() => {
                         navigate('/dashboard')
                     }} >
@@ -295,7 +295,6 @@ function UserDashboardSection({ settingsTabs }) {
                         >
                             <p style={{ margin: 0 }}>Location</p>
                             <span>
-
                                 Tracking
                             </span>
 
@@ -414,20 +413,21 @@ function UserDashboardSection({ settingsTabs }) {
                     )}
 
                     {/* ✅ Render BreakTime Component When "Break Time" is Selected */}
-                    <div className=" container">
+                    {/* <div className=" container">
 
-                    </div>
+                    </div> */}
                 </div>
-                <div className="d-flex justify-content-end align-items-center w-100 flex-nowrap info-container">
+                <div className="d-flex justify-content-end align-items-center flex-nowrap info-container">
 
-                    {/* {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
+                {/* {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
                         <div className="break-time-container">
                             <p className="" style={{ textAlign: 'center', width: '50%' }}>
                                 Break Time {remainingBreakTime || '0h 0m'}
                             </p>
                         </div>
                     )} */}
-                    {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
+
+                {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
                         <div className="company-name-container1">
                             <div>
 
@@ -438,14 +438,14 @@ function UserDashboardSection({ settingsTabs }) {
                         </div>
                     )}
 
-                    <div className="company-name-container1">
-                        <div>
-                            <img src={circle} className="company-logo" alt="Company Logo" />
-                        </div>
-                        <p className="m-0 fw-bold">
-                            {items?.company}
-                        </p>
+                <div className="company-name-container1">
+                    <div>
+                        <img src={circle} className="company-logo" alt="Company Logo" />
                     </div>
+                    <p className="m-0 fw-bold">
+                        {items?.company}
+                    </p>
+                </div>
                 </div>
             </div>
         </div >

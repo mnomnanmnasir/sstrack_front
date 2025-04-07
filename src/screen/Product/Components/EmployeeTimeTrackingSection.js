@@ -53,7 +53,7 @@ const EmployeeTimeTrackingSection = ({ language, isAuthenticated }) => {
     if (isAuthenticated) {
       navigate("/dashboard");
     } else {
-      navigate("/signup");
+      navigate("/signup", { state: { email } });
     }
   };
 

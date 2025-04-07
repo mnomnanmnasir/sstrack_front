@@ -6751,7 +6751,7 @@ input[type="number"] {
   justify-content: flex-end;
   gap: 8px;
   /* ✅ Space between elements */
-  width: 100%;
+  /* width: 100%; */
   flex-wrap: nowrap;
   /* ✅ Prevents wrapping */
   overflow: hidden;
@@ -6818,7 +6818,7 @@ input[type="number"] {
   border-radius: 5px;
   color: #7ACB59;
   /* ✅ Text color */
-  min-width: 100px;
+  /* min-width: 100px; */
   max-width: 150px;
 }
 
@@ -6894,4 +6894,16 @@ input[type="number"] {
   .splash-card-body {
     line-height: 1.6;
   }
+}
+
+
+.invite-heading {
+  color: #7ACB59;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.invite-heading:hover {
+  color: #28659C; /* 👈 your desired hover color */
 }

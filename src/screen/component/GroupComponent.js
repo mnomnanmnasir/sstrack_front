@@ -15,7 +15,7 @@ function GroupComponent({ rawData, users, fetchData }) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     // const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteType, setDeleteType] = useState("");
-    
+
     useEffect(() => {
         if (users) {
             setItems(
@@ -36,14 +36,27 @@ function GroupComponent({ rawData, users, fetchData }) {
                 )
             );
 
+            // Get token from localStorage or state
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                console.error("No token found.");
+                return;
+            }
             // API request to assign/unassign employee
             const { data } = await axios.patch(
                 `https://myuniversallanguages.com:9093/api/v1/userGroup/addEmployeesToGroup/${rawData._id}`,
                 {
                     isAssign: isChecked,
                     userIds: [id]
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
                 }
             );
+
 
             console.log(`User ${id} ${isChecked ? "assigned" : "removed"} successfully`);
             enqueueSnackbar(data?.message || "Action successful", {
@@ -137,12 +150,12 @@ function GroupComponent({ rawData, users, fetchData }) {
 
 
     return (
-        <div style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "flex-start", textAlign: "left", padding: "10px" }}>
+        <div style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "flex-start", textAlign: "left", padding: "10px", }}>
             <SnackbarProvider />
             <div
                 style={{
                     display: "flex",
-                    alignItems: "center",
+                    // alignItems: "center",
                     gap: "15px",
                     marginBottom: "10px",
                     fontSize: "24px",
@@ -174,7 +187,7 @@ function GroupComponent({ rawData, users, fetchData }) {
             <div className="employeeDetailName" style={{ fontSize: '20px' }}>Group Members:</div>
             <div style={{ marginTop: 10 }}>
                 {items
-                    .filter(f => f.userType !== "owner")
+                    .filter(f => f.userType !== "owner" && f.name) // 👈 Check name exists
                     .map(f => (
                         <div key={f._id} style={{ display: "flex", marginBottom: 10 }}>
                             <input
@@ -216,7 +229,7 @@ function GroupComponent({ rawData, users, fetchData }) {
                             Are you sure you want to delete <span style={{ color: "#428BCA" }}>{rawData?.name}</span>?
                         </p>
                         <p>
-                        Deleting this group is a <b>permanent action</b>. Please type <b>DELETE</b> in the box below to confirm deletion of this group.
+                            Deleting this group is a <b>permanent action</b>. Please type <b>DELETE</b> in the box below to confirm deletion of this group.
                         </p>
                         <input
                             value={deleteType}

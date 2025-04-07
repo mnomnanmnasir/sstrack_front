@@ -30,29 +30,10 @@ const OwnerTeam = () => {
         bereavementLeaves: 0
     });
 
-    // const [allUsers, setAllUsers] = useState([]);
-    // const [selectedUserEmail, setSelectedUserEmail] = useState("");
+
     const [openManualModal, setOpenManualModal] = useState(false);
 
-    // const fetchAllUsers = async () => {
-    //     try {
-    //         const userType = items?.userType;
-    //         const endpoint = userType === 'manager'
-    //             ? `${apiUrl}/manager/getAllUserLeaves`
-    //             : `${apiUrl}/superAdmin/getAllUserLeaves`;
-
-    //         const response = await axios.get(endpoint, { headers });
-    //         const users = response.data?.data || [];
-
-    //         setAllUsers(users);
-    //     } catch (error) {
-    //         console.error("Error fetching user list:", error);
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     fetchAllUsers();
-    // }, []);
+   
     const [allUsersList, setAllUsersList] = useState([]);
 
     const fetchAllUsersList = async () => {
@@ -60,12 +41,12 @@ const OwnerTeam = () => {
             const userType = items?.userType;
             let endpoint = "";
             if (userType === "admin" || userType === "owner") {
-              endpoint = `${apiUrl}/superAdmin/getAllUserLeaves`; // ✅ Admin + Owner only
+                endpoint = `${apiUrl}/superAdmin/getAllUserLeaves`; // ✅ Admin + Owner only
             } else if (userType === "manager") {
-              endpoint = `${apiUrl}/manager/getAllUserLeaves`;    // ✅ Manager specific
+                endpoint = `${apiUrl}/manager/getAllUserLeaves`;    // ✅ Manager specific
             } else {
-              // Optional: handle unknown types
-              console.warn("Unrecognized userType", userType);
+                // Optional: handle unknown types
+                console.warn("Unrecognized userType", userType);
             }
 
             const response = await axios.get(endpoint, { headers });
@@ -278,9 +259,10 @@ const OwnerTeam = () => {
             //     bereavementLeaves: "",
             //     annualLeaves: "",
             // });
+      
             setModalOpen(false); // Close the modal
         } catch (error) {
-            // console.error("Error setting leave allowance:", error);
+
             alert("Failed to set leave allowance. Please try again.");
         } finally {
             setIsSubmitting(false); // Stop loading
@@ -322,7 +304,15 @@ const OwnerTeam = () => {
     // Fetch leave data from API
     const fetchLeaveData = async () => {
         try {
+            // const userType = items?.userType;
+
             const userType = items?.userType;
+            // ❌ Owner: skip fetching/displaying their leaves
+            if (userType === "owner") {
+                setLoading(false);
+                return;
+            }
+
             const apiUrlForLeaves = userType === 'manager'
                 ? "https://myuniversallanguages.com:9093/api/v1/manager/getAllUserLeaves"
                 : "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAllUserLeaves";
@@ -330,18 +320,16 @@ const OwnerTeam = () => {
             const response = await axios.get(apiUrlForLeaves, { headers });
             const usersData = response.data?.data || [];
 
-            // Assuming the API returns data for multiple users, filter for the current user
-            const currentUser = jwtDecode(JSON.stringify(token)); // Current user data from localStorage
+            const currentUser = jwtDecode(token);
             const userId = currentUser?.id || currentUser?._id;
 
-            // Find the current user's leave data
-            const userData = usersData.find((user) => user.userId?._id === userId);
-
+            const userData = usersData.find((user) =>
+                String(user.userId?._id || user.userId) === String(userId)
+            );
 
             if (userData) {
-                const { allottedLeaves } = userData;
-
-                // Extract leave counts
+                // Set allotted leave counts
+                const { allottedLeaves = [] } = userData;
                 const {
                     sickLeaves = 0,
                     casualLeaves = 0,
@@ -349,52 +337,107 @@ const OwnerTeam = () => {
                     bereavementLeaves = 0,
                 } = allottedLeaves[0] || {};
 
-                // Set leave counts to state or display directly in the UI
-                setLeaveCounts({
-                    annualLeaves,
-                    sickLeaves,
-                    casualLeaves,
-                    bereavementLeaves,
-                });
-                setLeavemodalCounts({
-                    annualLeaves,
-                    sickLeaves,
-                    casualLeaves,
-                    bereavementLeaves,
-                });
-            } else {
-                console.warn("No data found for the current user.");
+                setLeaveCounts({ annualLeaves, sickLeaves, casualLeaves, bereavementLeaves });
+                setLeavemodalCounts({ annualLeaves, sickLeaves, casualLeaves, bereavementLeaves });
+
+                // ✅ Check for leaveHistory (in case of admin where leave requests not stored in leaveData)
+                const leaveHistory = userData?.leaveHistory || [];
+
+                if (leaveHistory.length > 0) {
+                    const formattedLeaves = leaveHistory.map((leave) => ({
+                        userId: userId,
+                        userName: userData.userId.name,
+                        leaveType: leave.leaveType || "N/A",
+                        startDate: leave.startDate,
+                        endDate: leave.endDate,
+                        appliedAt: leave.appliedAt,
+                        approvedAt: leave.approvedAt,
+                        reason: leave.reason || "-",
+                        approvedBy: {
+                            name: leave.approvedBy?.name || "-",
+                            userType: leave.approvedBy?.userType || "-"
+                        },
+                        status: leave.status || "Approved"
+                    }));
+
+                    setLeaveData((prev) => ({
+                        ...prev,
+                        approvedLeaves: [...prev.approvedLeaves, ...formattedLeaves],
+                    }));
+                } else {
+                    // Inject dummy row if no history
+                    const dummyLeave = {
+                        userId: userId,
+                        userName: userData.userId.name,
+                        leaveType: "N/A",
+                        startDate: "-",
+                        endDate: "-",
+                        appliedAt: "-",
+                        approvedAt: "-",
+                        reason: "No leave history found",
+                        approvedBy: null,
+                        status: "Approved",
+                    };
+
+                    setLeaveData((prev) => ({
+                        ...prev,
+                        approvedLeaves: [...prev.approvedLeaves, dummyLeave],
+                    }));
+                }
             }
         } catch (error) {
-            console.error("Error fetching leave data:", error);
+            console.error("❌ Error fetching leave data:", error);
         } finally {
             setLoading(false);
         }
     };
 
+
+
     useEffect(() => {
+        localStorage.setItem("isUsehasVisitedLeave", "true");
         fetchLeaveRequests();
         fetchLeaveData();
         fetchAllUsersList(); // 👈 Add this
     }, []);
 
+    // const getFilteredLeaves = (leaves) => {
+    //     return leaves.filter((leave) => {
+    //       const type = leave.userType?.toLowerCase() || leave.userId?.userType?.toLowerCase();
+
+    //       // Allow current admin to see their own leaves
+    //     //   if (type === "admin" && leave.userId === userId) return true;
+
+    //     //   // Still hide other admins if needed
+    //     //   if (type === "admin" && leave.userId !== userId) return false;
+
+    //       //  Hide owners
+    //       return type !== "owner";
+    //     });
+    //   };
     const getFilteredLeaves = (leaves) => {
+        const loggedInUser = jwtDecode(token);
+        const loggedInUserId = loggedInUser?.id || loggedInUser?._id;
+
         return leaves.filter((leave) => {
-          const type = leave.userType?.toLowerCase() || leave.userId?.userType?.toLowerCase();
-          
-          // Allow current admin to see their own leaves
-        //   if (type === "admin" && leave.userId === userId) return true;
-      
-        //   // Still hide other admins if needed
-        //   if (type === "admin" && leave.userId !== userId) return false;
-      
-          //  Hide owners
-          return type !== "owner";
+            const type = leave.userType?.toLowerCase() || leave.userId?.userType?.toLowerCase();
+            const leaveUserId = leave.userId?._id || leave.userId;
+
+            const isOwnLeave = String(leaveUserId) === String(loggedInUserId);
+
+            if (isOwnLeave) return true; // ✅ Show admin's own leave
+
+            if (type === "owner") return false; // ❌ Hide owner
+
+            return true; // ✅ Show others
         });
-      };
-      
+    };
+
+
+
     // Usage in your component
     const filteredLeaves = getFilteredLeaves(leaveData[activeTab], searchQuery, currentUser);
+    // const filteredLeaves = getFilteredLeaves(leaveData[activeTab]);
 
     // Open modal and set selected leave
     const handleRowClick = (leave) => {
@@ -463,6 +506,7 @@ const OwnerTeam = () => {
             console.error("Error accepting leave request:", error);
         }
     }
+
     // Accept the leave request
     const handleAccept = async (leaveId, userId) => {
         try {
@@ -545,336 +589,7 @@ const OwnerTeam = () => {
         console.log("Casual Leaves Count:", userLeaveData);
 
         return (
-            // <div>
-            //     {/* Background overlay */}
-            //     <div
-            //         style={{
-            //             position: "fixed",
-            //             top: 0,
-            //             left: 0,
-            //             width: "100%",
-            //             height: "100%",
-            //             backgroundColor: "rgba(0, 0, 0, 0.5)",
-            //             zIndex: 999,
-            //         }}
-            //         onClick={closeModal} // Close modal on background click
-            //     ></div>
-
-            //     {/* Modal content */}
-            //     <div
-            //         style={{
-            //             position: "fixed",
-            //             top: "50%",
-            //             left: "50%",
-            //             transform: "translate(-50%, -50%)",
-            //             zIndex: 1000,
-            //             backgroundColor: "#FFFFFF",
-            //             padding: "30px",
-            //             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-            //             borderRadius: "12px",
-            //             width: "auto",
-            //             border: "1px solid #E0E0E0",
-            //         }}
-            //     >
-            //         {/* Close button */}
-            //         <button
-            //             onClick={closeModal}
-            //             style={{
-            //                 position: "absolute",
-            //                 top: "-2px",
-            //                 right: "8px",
-            //                 backgroundColor: "transparent",
-            //                 border: "none",
-            //                 color: "#888",
-            //                 fontSize: "24px",
-            //                 cursor: "pointer",
-            //             }}
-            //         >
-            //             &times;
-            //         </button>
-
-            //         <h3 style={{ color: "#0E4772", marginBottom: "20px" }}>
-            //             User Leave Request Detail
-            //         </h3>
-            //         <div
-            //             style={{
-            //                 display: "flex",
-            //                 alignItems: "center",
-            //                 gap: "15px",
-            //                 marginBottom: "20px",
-            //             }}
-            //         >
-            //             <div
-            //                 style={{
-            //                     width: "50px",
-            //                     height: "50px",
-            //                     borderRadius: "50%",
-            //                     backgroundColor: "#E8F4FC",
-            //                     display: "flex",
-            //                     justifyContent: "center",
-            //                     alignItems: "center",
-            //                 }}
-            //             >
-            //                 <PersonIcon style={{ color: "#0E4772", fontSize: "24px" }} />
-            //                 {/* <FaUser style={{ color: "#0E4772", fontSize: "24px" }} /> */}
-            //                 {/* 👤 */}
-            //             </div>
-            //             <strong style={{ fontSize: "18px", color: "#4F4F4F" }}>
-            //                 {selectedLeave.userName}
-            //             </strong>
-            //         </div>
-            //         <div style={{ marginBottom: "20px" }}>
-            //             <div
-            //                 style={{
-            //                     display: "flex",
-            //                     flexDirection: "row",
-            //                     alignItems: "flex-start",
-            //                     gap: "20px", // Adds space between sections
-            //                     marginBottom: "20px",
-            //                 }}
-            //             >
-            //                 {/* Left Side: Leave Details */}
-            //                 <div style={{ flex: 1 }}>
-            //                     <p>
-            //                         <strong>Start Date:</strong>{" "}
-            //                         {/* {new Date(selectedLeave.startDate).toLocaleDateString("en-GB")} */}
-            //                         {selectedLeave.startDate
-            //                             ? new Date(selectedLeave.startDate).toLocaleDateString("en-GB", {
-            //                                 day: "2-digit",
-            //                                 month: "2-digit",
-            //                                 year: "numeric",
-            //                             })
-            //                             : "-"}
-            //                     </p>
-            //                     <p>
-            //                         <strong>End Date:</strong>{" "}
-            //                         {selectedLeave.endDate
-            //                             ? new Date(selectedLeave.endDate).toLocaleDateString("en-GB", {
-            //                                 day: "2-digit",
-            //                                 month: "2-digit",
-            //                                 year: "numeric",
-            //                             })
-            //                             : "-"}
-            //                         {/* {new Date(selectedLeave.endDate).toLocaleDateString("en-GB")} */}
-            //                     </p>
-            //                     <p>
-            //                         <strong>Request Date:</strong>{" "}
-            //                         {selectedLeave.appliedAt
-            //                             ? new Date(selectedLeave.appliedAt).toLocaleDateString("en-GB", {
-            //                                 day: "2-digit",
-            //                                 month: "2-digit",
-            //                                 year: "numeric",
-            //                             })
-            //                             : "-"}
-            //                         {/* {new Date(selectedLeave.appliedAt).toLocaleDateString("en-GB")} */}
-            //                     </p>
-            //                     <p>
-            //                         <strong>Leave Type:</strong> {selectedLeave.leaveType}
-            //                     </p>
-            //                     <p>
-            //                         <strong>Approval Date:</strong>{" "}
-            //                         {selectedLeave.approvedAt
-            //                             ? new Date(selectedLeave.approvedAt).toLocaleDateString("en-GB", {
-            //                                 day: "2-digit",
-            //                                 month: "2-digit",
-            //                                 year: "numeric",
-            //                             })
-            //                             : "-"}
-            //                     </p>
-            //                     <p>
-            //                         <strong>Reason:</strong> {selectedLeave.reason}
-            //                     </p>
-            //                     <p>
-            //                         <strong>{activeTab === "rejectedLeaves" ? "Rejected By:" : "Approved By:"}</strong>{" "}
-            //                         {selectedLeave.approvedBy ? (
-            //                             <>
-            //                                 {selectedLeave.approvedBy.name}
-            //                                 <span
-            //                                     style={{
-            //                                         marginLeft: "10px",
-            //                                         fontStyle: "italic",
-            //                                         color: "#888",
-            //                                     }}
-            //                                 >
-            //                                     ({selectedLeave.approvedBy.userType})
-            //                                 </span>
-            //                             </>
-            //                         ) : (
-            //                             "-"
-            //                         )}
-            //                     </p>
-            //                 </div>
-
-            //                 {/* Center Line */}
-            //                 <div
-            //                     style={{
-            //                         width: "1px", // Thin vertical line
-            //                         backgroundColor: "#D9D9D9", // Gray color
-            //                         alignSelf: "stretch", // Ensures it stretches to the height of its parent container
-            //                     }}
-            //                 ></div>
-
-            //                 {/* Right Side: Leave Counts */}
-            //                 <div style={{ flex: 1 }}>
-            //                     <h4 style={{ color: "#0E4772", marginBottom: "10px", fontSize: "20px" }}>
-            //                         User Leave Count
-            //                     </h4>
-            //                     <p>
-            //                         {/* {userLeaveData.sickLeaves || 0} */}
-            //                         <strong>Annual Leaves:</strong> {userLeaveData?.annualLeaves || 0}
-            //                     </p>
-            //                     <p>
-
-            //                         <strong>Casual Leaves:</strong> {userLeaveData?.casualLeaves || 0}
-            //                     </p>
-            //                     <p>
-            //                         <strong>Sick Leaves:</strong> {userLeaveData?.sickLeaves || 0}
-            //                     </p>
-            //                     <p>
-            //                         <strong>Bereavement Leaves:</strong> {userLeaveData?.bereavementLeaves || 0}
-            //                     </p>
-            //                 </div>
-            //             </div>
-
-            //             {activeTab === "requestedLeaves" && (
-            //                 <>
-            //                     <p>
-            //                         <strong>Enter Reason for Rejection:</strong>
-            //                     </p>
-            // <textarea
-            //     placeholder="Enter rejection reason..."
-            //     style={{
-            //         width: "100%",
-            //         height: "100px",
-            //         padding: "10px",
-            //         border: "1px solid #E0E0E0",
-            //         borderRadius: "5px",
-            //         resize: "none",
-            //         marginBottom: "20px",
-            //     }}
-            //     value={rejectionReason} // Bind the value to the state
-            //     onChange={(e) => setRejectionReason(e.target.value)} // Update state on input
-            // ></textarea>
-            //                 </>
-            //             )}
-            //         </div>
-
-            //         {/* Conditional Buttons and Inputs */}
-            //         {selectedLeave.status.toLowerCase() === "approved" && (
-            //             <div style={{ marginTop: "20px", textAlign: "center" }}>
-            //                 <button
-            //                     style={{
-            //                         padding: "10px 20px",
-            //                         backgroundColor: "#7FC45B",
-            //                         color: "white",
-            //                         border: "none",
-            //                         borderRadius: "5px",
-            //                         fontWeight: "600",
-            //                         cursor: "pointer",
-            //                     }}
-            //                     onClick={closeModal}
-            //                 >
-            //                     Back
-            //                 </button>
-            //             </div>
-            //         )}
-
-            //         {selectedLeave.status.toLowerCase() === "rejected" && (
-            //             <div style={{ marginTop: "20px" }}>
-            //                 {/* <textarea
-            //                     placeholder="Enter rejection reason..."
-            //                     style={{
-            //                         width: "100%",
-            //                         height: "100px",
-            //                         padding: "10px",
-            //                         border: "1px solid #E0E0E0",
-            //                         borderRadius: "5px",
-            //                         resize: "none",
-            //                         marginBottom: "20px",
-            //                     }}
-            //                 ></textarea> */}
-            //                 <div style={{ textAlign: "center" }}>
-            //                     <button
-            //                         style={{
-            //                             padding: "10px 20px",
-            //                             backgroundColor: "#7FC45B",
-            //                             color: "white",
-            //                             border: "none",
-            //                             borderRadius: "5px",
-            //                             fontWeight: "600",
-            //                             cursor: "pointer",
-            //                         }}
-            //                         onClick={() => {
-            //                             // Handle submission logic if needed
-            //                             closeModal();
-            //                         }}
-            //                     >
-            //                         Done
-            //                     </button>
-            //                 </div>
-            //             </div>
-            //         )}
-            //         {selectedLeave.status.toLowerCase() === "pending" && (
-            //             <div style={{ marginTop: "20px", textAlign: "center" }}>
-            //                 <button
-            //                     style={{
-            //                         padding: "10px 20px",
-            //                         backgroundColor: "#7FC45B",
-            //                         color: "white",
-            //                         border: "none",
-            //                         borderRadius: "5px",
-            //                         fontWeight: "600",
-            //                         marginRight: "10px",
-            //                         cursor: "pointer",
-            //                     }}
-            //                     onClick={() => {
-            //                         // Handle accept logic
-            //                         handleAccept(selectedLeave.leaveId, selectedLeave.userId);
-            //                         console.log("Accepted", selectedLeave.userId, 'abdullah', selectedLeave.leaveId);
-            //                         closeModal();
-            //                     }}
-            //                 >
-            //                     Accept
-            //                 </button>
-            //                 <button
-            //                     style={{
-            //                         padding: "10px 20px",
-            //                         backgroundColor: "#FF6F6F",
-            //                         color: "white",
-            //                         border: "none",
-            //                         borderRadius: "5px",
-            //                         fontWeight: "600",
-            //                         cursor: "pointer",
-            //                     }}
-            //                     onClick={() => {
-            //                         // Handle reject logic
-            //                         handleReject(selectedLeave.leaveId, selectedLeave.userId);
-            //                         console.log("Rejected");
-            //                         closeModal();
-            //                     }}
-            //                 >
-            //                     Reject
-            //                 </button>
-            //             </div>
-            //         )}
-            //         <span
-            //             style={{
-            //                 position: "absolute",
-            //                 top: "27px",
-            //                 right: "30px",
-            //                 backgroundColor: "#FFF5F5",
-            //                 color: "#FF6F6F",
-            //                 border: "1px solid #FF6F6F",
-            //                 padding: "5px 10px",
-            //                 borderRadius: "12px",
-            //                 fontWeight: "600",
-            //             }}
-            //         >
-            //             {selectedLeave.status.toUpperCase()}
-            //         </span>
-
-            //     </div>
-            // </div >
+      
             <Modal show={isModalOpen} onHide={closeModal} centered>
                 <Modal.Header closeButton>
                     <Modal.Title style={{ color: "#0E4772" }}>User Leave Request Detail</Modal.Title>
@@ -1029,9 +744,30 @@ const OwnerTeam = () => {
 
         // Filter out owner users before rendering
         // const filteredLeaves = leaves.filter((leave) => leave.userType?.toLowerCase() !== "owner");
+        // const filteredLeaves = leaves.filter((leave) => {
+        //     const type = leave.userType?.toLowerCase() || leave.userId?.userType?.toLowerCase();
+        //     const leaveUserId = leave.userId?._id || leave.userId; // covers both object or string
+        //     const isOwnLeave = String(leaveUserId) === String(items?._id); // current admin match
+
+        //     // ✅ show if not owner OR if it's current user's own leave
+        //     return type !== "owner" || isOwnLeave;
+        // });
+        // const filteredLeaves = leaves.filter((leave) => {
+        //     const leaveUserType = (leave?.userType || leave?.userId?.userType || "").toLowerCase();
+        //     const leaveUserId = leave?.userId?._id || leave?.userId;
+        //     const loggedInUserId = items?._id;
+
+        //     const isOwnLeave = String(leaveUserId) === String(loggedInUserId);
+        //     return leaveUserType !== "owner" && (leaveUserType !== "admin" || isOwnLeave);
+        // });        
         const filteredLeaves = leaves.filter((leave) => {
-            const type = leave.userType?.toLowerCase() || leave.userId?.userType?.toLowerCase();
-            return type !== "owner";
+            const leaveUserType = (leave?.userType || leave?.userId?.userType || "").toLowerCase();
+            const leaveUserId = leave?.userId?._id || leave?.userId;
+            const loggedInUserId = items?.id || items?._id;
+
+            const isOwnLeave = String(leaveUserId) === String(loggedInUserId);
+
+            return isOwnLeave || (leaveUserType !== "owner" && leaveUserType !== "admin");
         });
 
         if (!filteredLeaves || filteredLeaves.length === 0) {
@@ -1390,7 +1126,7 @@ const OwnerTeam = () => {
                                 >
                                     Add Manual
                                 </button>
-                         </Link>
+                            </Link>
                         )}
                     </div>
                 </div>
@@ -1522,7 +1258,6 @@ const OwnerTeam = () => {
                     </Modal.Footer>
                 </Modal>
 
-
                 <div className="mainwrapper ownerTeamContainer" style={{ marginTop: "-2px" }}>
                     <div
 
@@ -1573,7 +1308,9 @@ const OwnerTeam = () => {
                                 </tr>
                             </thead>
                             {/* {renderLeaves(leaveData[activeTab])} */}
+                            {/* {renderLeaves(filteredLeaves)} */}
                             {renderLeaves(filteredLeaves)}
+
                         </table>
 
                         <div

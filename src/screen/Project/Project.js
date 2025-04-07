@@ -159,7 +159,7 @@ const Project = () => {
     useEffect(() => {
         if (project1) {
             setproject(project1);
-        
+            localStorage.setItem("is1stProjectisCreated", "true");
         }
     }, [project1]);
 
@@ -184,6 +184,7 @@ const Project = () => {
                         }
                     });
                 }
+                
                 console.log("addproject RESPONSE =====>", res);
             } catch (error) {
                 enqueueSnackbar(error?.response?.data?.message ? error?.response?.data?.message : "Network error", {
