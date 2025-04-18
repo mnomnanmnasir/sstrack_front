@@ -396,8 +396,8 @@ function OwnerTeam() {
                     }
                 });
                 getData();
-                setEmail(""); 
-               
+                setEmail("");
+
             }
         } catch (error) {
             enqueueSnackbar(error?.response?.data?.message || "Network error", {

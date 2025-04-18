@@ -1,68 +1,3 @@
-// import React from "react";
-// import menu from "../../images/menu.webp";
-// import loader from "../../images/Rectangle.webp";
-// import check from "../../images/check.webp";
-// import circle from "../../images/circle.webp";
-// import { Link, useLocation, useNavigate } from "react-router-dom";
-
-// function UserDashboardSection() {
-//     const navigate = useNavigate();
-//     const location = useLocation();
-//     const items = JSON.parse(localStorage.getItem('items'));
-//     return (
-//         <div>
-//             <section>
-//                 <div className="listDiv container">
-//                     <div>
-//                         <ul className="lists">
-//                             <li className={location.pathname === "/userdashboard" ? "active-tab-2" : "user-active-tabs"} onClick={() => navigate('/userdashboard')}>Dashboard</li>
-//                             <li className={location.pathname === "/userdetail" ? "active-tab-2" : "user-active-tabs"} onClick={() => navigate('/userdetail')}><img src={check} /><span>{items?.name.charAt(0).toUpperCase() + items?.name.slice(1)}</span></li>
-//                             <li className={location.pathname === "/usersummary" ? "active-tab-2" : "user-active-tabs"} onClick={() => navigate('/usersummary')}>Reports</li>
-//                             {/* <li style={{backgroundColor:"#00000"}}>
-//                     <select className="dropdown">
-//                         <option style={{backgroundColor:"#00000"}}>Reports</option>
-//                         <option style={{backgroundColor:"#00000"}}>Summary</option>
-//                         <option style={{backgroundColor:"#00000"}}>Detailed</option>
-//                         <option style={{backgroundColor:"#00000"}}>Weekly Report</option>
-//                         <option style={{backgroundColor:"#00000"}}> Saved Report</option>
-//                     </select>
-//                 </li> */}
-//                             {/* <li><img src={menu} /></li>
-//                             <li><img src={loader} /></li> */}
-//                         </ul>
-//                     </div>
-//                     <div>
-
-//                         <ul>
-//                             <div className="btn-group">
-//                                 <button className="btn  y8hr btn-secondary  btn-lg " type="button" aria-expanded="false">
-//                                     <img src={circle} /> {items?.company}
-//                                 </button>
-//                                 {/* <ul className="dropdown-menu menuitem ">
-
-//                                     <li>
-//                                         <Link to="/summary" onClick={() => navigate("/summary")}>
-//                                             Summary
-//                                         </Link>
-//                                     </li>
-//                                     <li><a className="dropdown-item" href="#">Detailed</a></li>
-//                                     <li><hr className="dropdown-divider" /></li>
-//                                     <li><a className="dropdown-item" href="#">Weekly Report</a></li>
-//                                     <li><a className="dropdown-item" href="#">Saved Report</a></li>
-
-//                                 </ul> */}
-//                             </div>
-//                         </ul>
-
-
-//                     </div>
-//                 </div>
-//             </section>
-//         </div>
-//     )
-// }
-
-// export default UserDashboardSection;
 
 import React from "react";
 import menu from "../../images/menu.webp";
@@ -75,7 +10,7 @@ function UserDashboardSection(params) {
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
     const location = useLocation();
-    // const items = JSON.parse(localStorage.getItem('items'));
+    const items = JSON.parse(localStorage.getItem('items'));
 
     // console.log(items);
 

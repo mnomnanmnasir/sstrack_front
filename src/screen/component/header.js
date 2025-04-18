@@ -46,7 +46,7 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
 
                 <Container fluid>
                     <Navbar.Brand onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                        <img className="logo" src={logo} alt="Logo" />
+                        {/* <img className="logo" src={logo} alt="Logo" /> */}
                     </Navbar.Brand>
 
                     <Navbar.Toggle aria-controls="navbarSupportedContent" className="custom-toggler" style={{ color: 'white' }}>
@@ -61,9 +61,9 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
 
                         </Form>
 
-                        <div className='align-items-center' style={{ marginTop: '-20px' }}>
+                        {/* <div className='align-items-center' style={{ marginTop: '-20px' }}>
                             <HeaderOption />
-                        </div>
+                        </div> */}
                         <div className="d-flex flex-column flex-lg-row align-items-start gap-2">
                             <div className="d-lg-block d-none">
                                 {/* <Button style={{ marginRight: token ? 10 : 50 }} onClick={() => navigate('/download')} className="signUpButton" type="button">Download</Button> */}

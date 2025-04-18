@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { BsWindows, BsApple, BsGoogle } from 'react-icons/bs'
-import appScreenshot from "../images/downloadImage.png"; // Replace with your actual image path
+import download_image from "../images/download_image.png"; // Replace with your actual image path
 import Header from '../screen/component/Header/NewHeader';
 // import appStore from '../../images/SplashM.svg';
 import appStore from '../images/SplashM.svg'
@@ -12,6 +12,8 @@ import chrome from '../images/SplashC.svg';
 import { AiFillWindows } from 'react-icons/ai';
 import chromeImg from '../images/Mic Logo 2 2.png'
 import { useNavigate, Link } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 const DownloadSection = () => {
 
@@ -29,8 +31,6 @@ const DownloadSection = () => {
     // const [loading, setLoading2] = useState(false)
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
-
-
 
     useEffect(() => {
         const dropdownBtn = document.getElementById("dropdownMenuButton");
@@ -479,13 +479,13 @@ const DownloadSection = () => {
                         {/* Right Content */}
                         <Col md={6} className="text-center">
                             <img
-                                src={appScreenshot} // Replace with the actual image path
+                                src={download_image} // Replace with the actual image path
                                 alt={isArabic ? "لقطة شاشة لتطبيق SS Track.io" : "SS Track.io Application Screenshot"}
                                 style={{
                                     width: "90%",
                                     maxWidth: "500px",
                                     borderRadius: "10px",
-                                    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+                                    // boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
                                 }}
                             />
                             <Button

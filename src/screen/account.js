@@ -165,7 +165,7 @@ function Account({ suspended }) {
                 console.log("Full API Response:", response.data);
 
                 const data = response.data.data;
-                const breakData = data.breakConvertedData?.[0];
+                const breakData = data.convertedBreakTimes?.[0];
                 const rate = data.ratePerHour;
 
                 console.log("Rate Per Hour:", rate);

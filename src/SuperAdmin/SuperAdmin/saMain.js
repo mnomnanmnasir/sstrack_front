@@ -5,6 +5,7 @@ import TotalCompanies from './component/TotalCompanies/TotalCompanies';
 import RequestContent from './component/RequestsContent/RequestsContent';
 import Financials from './component/FinancialsContent/FinancialsContent';
 import Reports from './component/ReportsContent/ReportsContent';
+import PuncReports from './component/PunctualityReports/puncReports';
 import { useNavigate } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
 
@@ -32,6 +33,7 @@ const SaMain = () => {
           alert('Access denied. Redirecting to home.');
           navigate('/'); // Redirect to home
         }
+
       } catch (error) {
         console.error('Error parsing items from localStorage:', error);
         alert('Failed to retrieve user type. Redirecting to home.');
@@ -46,10 +48,6 @@ const SaMain = () => {
   }, [navigate]);
 
 
-
-
-
-
   const renderContent = () => {
     switch (selectedContent) {
       case 'Dashboard':
@@ -60,8 +58,8 @@ const SaMain = () => {
         return <RequestContent />;
       case 'Financials':
         return <Financials />;
-      // case 'Reports':
-      //   return <Reports/>;
+      // case 'Punctuality Reports':
+      //   return <PuncReports/>;
       default:
         return <Dashboard onNavigate={setSelectedContent} />;
     }

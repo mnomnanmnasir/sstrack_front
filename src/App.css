@@ -6896,7 +6896,6 @@ input[type="number"] {
   }
 }
 
-
 .invite-heading {
   color: #7ACB59;
   text-decoration: underline;
@@ -6906,4 +6905,11 @@ input[type="number"] {
 
 .invite-heading:hover {
   color: #28659C; /* 👈 your desired hover color */
+}
+
+
+.active-period-button {
+  background-color: #000000 !important;
+  color: white !important;
+  /* border-color: #1d5b8a !important; */
 }

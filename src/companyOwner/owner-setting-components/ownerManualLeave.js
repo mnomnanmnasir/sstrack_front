@@ -10,8 +10,8 @@ const OwnerTeam = () => {
     const [leaveRequest, setLeaveRequest] = useState({
         userId: "",
         leaveType: "",
-        startDate: "",
-        endDate: "",
+        startDate: "Start date",
+        endDate: "End Date",
         reason: "",
     });
 
@@ -201,9 +201,9 @@ const OwnerTeam = () => {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         setFormSubmitting(true);
-
+    
         const { leaveType, startDate, endDate, reason, userId } = leaveRequest;
-
+    
         if (!leaveType || !startDate || !endDate || !reason.trim() || !userId) {
             enqueueSnackbar('Please fill in all fields before submitting', {
                 variant: 'error',
@@ -215,14 +215,27 @@ const OwnerTeam = () => {
             setFormSubmitting(false);
             return;
         }
-
+    
+        // Ensure startDate is before endDate
+        if (new Date(startDate) > new Date(endDate)) {
+            enqueueSnackbar('Start date must be before end date', {
+                variant: 'error',
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
+            setFormSubmitting(false);
+            return;
+        }
+    
         try {
             const response = await axios.post(
                 `${apiUrl}/superAdmin/addmanualLeave`,
                 leaveRequest,
                 { headers }
             );
-
+    
             if (response.status === 200 || response.status === 201) {
                 enqueueSnackbar('Manual leave submitted successfully', {
                     variant: 'success',
@@ -231,7 +244,7 @@ const OwnerTeam = () => {
                         horizontal: "right"
                     }
                 });
-
+    
                 // Clear the form
                 setLeaveRequest({
                     leaveType: "",
@@ -240,7 +253,7 @@ const OwnerTeam = () => {
                     reason: "",
                     userId: ""
                 });
-
+    
                 // Refresh user leaves list
                 fetchAllUsers();
             } else {
@@ -259,6 +272,7 @@ const OwnerTeam = () => {
             setFormSubmitting(false);
         }
     };
+    
     useEffect(() => {
         const fetchSelectedUserLeaves = async () => {
             if (!leaveRequest.userId) {
@@ -612,37 +626,48 @@ const OwnerTeam = () => {
                                         >
                                             PERIOD OF LEAVE *
                                         </label>
-                                        <div style={{ width: "70%", display: "flex", gap: "10px" }}>
-                                            <input
-                                                type="date"
-                                                name="startDate"
-                                                value={leaveRequest.startDate}
-                                                onChange={handleInputChange}
-                                                style={{
-                                                    flex: "1",
-                                                    padding: "10px",
-                                                    border: "1px solid #E0E0E0",
-                                                    borderRadius: "8px",
-                                                    fontSize: " 14px",
-                                                    color: "#4F4F4F",
-                                                }}
-                                            />
-                                            <input
-                                                type="date"
-                                                name="endDate"
-                                                value={leaveRequest.endDate}
-                                                onChange={handleInputChange}
-                                                style={{
-                                                    flex: "1",
-                                                    padding: "10px",
-                                                    border: "1px solid #E0E0E0",
-                                                    borderRadius: "8px",
-                                                    fontSize: "14px",
-                                                    color: "#4F4F4F",
-                                                }}
-                                            />
+                                        <div style={{ width: "70%", display: "flex", flexDirection: "column", gap: "5px" }}>
+                                            <div style={{ display: "flex", gap: "10px" }}>
+                                                <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "5px" }}>
+                                                    <label style={{ fontSize: "12px", color: "#4F4F4F", fontWeight: "500" }}>Start Date</label>
+                                                    <input
+                                                        type="date"
+                                                        name="startDate"
+                                                        value={leaveRequest.startDate}
+                                                        onChange={handleInputChange}
+                                                        style={{
+                                                            padding: "10px",
+                                                            border: "1px solid #E0E0E0",
+                                                            borderRadius: "8px",
+                                                            fontSize: "14px",
+                                                            color: "#4F4F4F",
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "5px" }}>
+                                                    <label style={{ fontSize: "12px", color: "#4F4F4F", fontWeight: "500" }}>End Date</label>
+                                                    <input
+                                                        type="date"
+                                                        name="endDate"
+                                                        value={leaveRequest.endDate}
+                                                        onChange={handleInputChange}
+                                                        style={{
+                                                            padding: "10px",
+                                                            border: "1px solid #E0E0E0",
+                                                            borderRadius: "8px",
+                                                            fontSize: "14px",
+                                                            color: "#4F4F4F",
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                            {/* <small style={{ color: "#828282", fontSize: "12px", marginTop: "4px" }}>
+                                                Please be careful that the start date should be before the end date.
+                                            </small> */}
                                         </div>
                                     </div>
+
+
 
                                     {/* Leave Reason */}
                                     <div style={{ display: "flex", alignItems: "flex-start", gap: "20px" }}>

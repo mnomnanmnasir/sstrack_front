@@ -1,6 +1,6 @@
 import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import productivityImage from "../../../images/break.png"; // Replace with your image path
+import productivity_image from "../../../images/productivity_image.png"; // Replace with your image path
 import { useNavigate, Link } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -97,7 +97,7 @@ function ProductivitySection({ language }) {
                     {/* Right Column (Image Section) */}
                     <Col xs={12} md={6} lg={5} className="d-flex justify-content-center align-items-center mb-4">
                         <img
-                            src={productivityImage}
+                            src={productivity_image}
                             alt="Productivity Illustration"
                             className="img-fluid rounded"
                             style={{ maxWidth: "100%", height: "auto" }}

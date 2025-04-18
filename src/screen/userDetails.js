@@ -976,51 +976,63 @@ function UserDetails() {
     };
 
     const handleAddOfflineTime = async () => {
-        setShowOfflineTime(false)
-        setShowSplitActivity(false)
-        setShowTrimActivity(false)
-        console.log('Add Offline time', {
-            startTime: formattedDate + " " + offlineTime?.startTime,
-            endTime: formattedDate + " " + offlineTime?.endTime,
-            projectId: "643fb528272a1877e4fcf30e",
-            notes: note
-        });
-        if (!isValidTimeFormat(offlineTime.startTime) || !isValidTimeFormat(offlineTime.endTime)) {
-            setShowOfflineTime(true)
-            enqueueSnackbar("Invalid time format", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right"
-                }
-            })
+        setShowOfflineTime(false);
+        setShowSplitActivity(false);
+        setShowTrimActivity(false);
+
+        const userId = items?.userType === "user" ? items._id : params?.id;
+
+        if (!userId) {
+            enqueueSnackbar("User ID missing!", { variant: "error" });
             return;
         }
+
+        const startTime = formattedDate + " " + offlineTime?.startTime;
+        const endTime = formattedDate + " " + offlineTime?.endTime;
+
+        console.log('Submitting Offline Time:', {
+            startTime,
+            endTime,
+            projectId: "643fb528272a1877e4fcf30e",
+            notes: note,
+            userId
+        });
+
+        if (!isValidTimeFormat(offlineTime?.startTime) || !isValidTimeFormat(offlineTime?.endTime)) {
+            setShowOfflineTime(true);
+            enqueueSnackbar("Invalid time format", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+            return;
+        }
+
         try {
-            const response = await axios.post(`${apiUrl}/superAdmin/offline-time/${params.id}`, {
+            const response = await axios.post(`${apiUrl}/superAdmin/offline-time/${userId}`, {
                 startTime: formattedDate + " " + offlineTime?.startTime,
                 endTime: formattedDate + " " + offlineTime?.endTime,
                 projectId: "643fb528272a1877e4fcf30e",
                 notes: note
             }, {
-                headers: {
-                    Authorization: 'Bearer ' + token
-                }
-            })
+                headers: { Authorization: 'Bearer ' + token }
+            });
+
             if (response.status === 200) {
-                enqueueSnackbar("offline time added", {
+                enqueueSnackbar("Offline time added", {
                     variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right"
-                    }
-                })
-                console.log("Api response addedd offline time", response);
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
+                });
+                console.log("Success:", response.data);
             }
         } catch (error) {
-            console.log(error);
+            console.error("API Error:", error?.response?.data || error);
+            enqueueSnackbar("Failed to add offline time", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
         }
-    }
+    };
+
 
     const handleDivClick = () => {
         setDeleteActivity(!deleteActivity);
@@ -1142,6 +1154,7 @@ function UserDetails() {
     // // Get the first day of the new month for display
     // const formattedDate = `${currentYear}-${currentMonth + 1 < 10 ? "0" : ""}${currentMonth + 1}-01`;
     const currentWeekDay = date.getDay();
+    const selectedDayIndex = new Date(formattedDate).getDay(); // 0-6 (Sun-Sat)
 
     return (
         <>
@@ -1319,7 +1332,13 @@ function UserDetails() {
                                     <option>I8IS</option>
                                 </select>
                             </div>
-                            <textarea placeholder="Note (optional)" rows="5"></textarea>
+                            <textarea
+                                placeholder="Note (optional)"
+                                rows="5"
+                                value={note}
+                                onChange={handleInputChange}
+                            />
+                            {/* <textarea placeholder="Note (optional)" rows="5"></textarea> */}
                         </div>
                     </Modal.Body>
 
@@ -1459,18 +1478,14 @@ function UserDetails() {
                                     <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
                                         {/* Weekday */}
                                         <p className="weekDayTimer">
-                                            {/* Show the current day of the week */}
-                                            {days[currentWeekDay]}
+                                            {days[selectedDayIndex]}
                                         </p>
+
                                         {/* <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]}  </p> */}
 
                                         {/* Current Day of the month */}
                                         <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
-                                        {/* Current Month */}
-                                        <p className="weekDateTimer">
-                                            {/* Display the current month */}
-                                            {/* {months[currentMonth]} */}
-                                        </p>
+                                     
                                         <p className="weekDateTimer">
                                             {months[month || currentMonth]}
                                         </p>

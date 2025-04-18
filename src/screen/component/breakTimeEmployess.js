@@ -22,21 +22,24 @@ const CompanyEmployess = (props) => {
     const { Setting, loading, employees } = props
     const [allowBlur, setAllowBlur] = useState(false);
     // const employees = useSelector((state) => state?.adminSlice?.employess)|| []
-    console.log('Employees', employees)
+
 
     const [timeFields, setTimeFields] = useState({})
 
-
     useEffect(() => {
-        const initialFields = employees.reduce((acc, employee) => {
-            acc[employee._id] = {
-                showFields: employee?.punctualityData?.individualbreakTime || false,
-                startTime: timeFields[employee._id]?.startTime || "",
-                endTime: timeFields[employee._id]?.endTime || "",
-            };
-            return acc;
-        }, {});
-        setTimeFields(initialFields);
+        if (Array.isArray(employees)) {
+            const initialFields = employees.reduce((acc, employee) => {
+                acc[employee?._id] = {
+                    showFields: employee?.punctualityData?.individualbreakTime || false,
+                    startTime: timeFields[employee?._id]?.startTime || "",
+                    endTime: timeFields[employee?._id]?.endTime || "",
+                };
+                return acc;
+            }, {});
+            setTimeFields(initialFields);
+        } else {
+            setTimeFields({});
+        }
     }, [employees]);
 
     const handleToggleChange = async (employee, isSelected) => {
@@ -88,7 +91,13 @@ const CompanyEmployess = (props) => {
                         const breakEnd = breakData.breakEndTime
                             ? new Date(breakData.breakEndTime).toISOString().split("T")[1].substring(0, 5)
                             : "";
+                        // const startTime = breakConvertedData?.[0]?.breakStartTime
+                        //     ? moment(breakConvertedData[0].breakStartTime).format("HH:mm")
+                        //     : "";
 
+                        // const endTime = breakConvertedData?.[0]?.breakEndTime
+                        //     ? moment(breakConvertedData[0].breakEndTime).format("HH:mm")
+                        //     : "";
 
                         setTimeFields((prev) => ({
                             ...prev,
@@ -157,11 +166,16 @@ const CompanyEmployess = (props) => {
                             TotalHours: totalHours,
                             // breakStartTime: moment(`${currentDate} ${startTime}`, "YYYY-MM-DD HH:mm").format("YYYY-MM-DDTHH:mm:ss"),
                             // breakEndTime: moment(`${currentDate} ${endTime}`, "YYYY-MM-DD HH:mm").format("YYYY-MM-DDTHH:mm:ss"),
-                            breakStartTime: new Date(`${currentDate}T${startTime}:00`),
-                            breakEndTime: new Date(`${currentDate}T${endTime}:00`),
+                            // breakStartTime: new Date(`${currentDate}T${startTime}:00`),
+                            // breakEndTime: new Date(`${currentDate}T${endTime}:00`),
+                            // breakStartTime: moment.tz(`${currentDate}T${startTime}`, moment.tz.guess()).format(),
+                            // breakEndTime: moment.tz(`${currentDate}T${endTime}`, moment.tz.guess()).format(),
+                            breakStartTime: moment.tz(`${currentDate}T${startTime}`, moment.tz.guess()).format(),
+                            breakEndTime: moment.tz(`${currentDate}T${endTime}`, moment.tz.guess()).format(),
+
                         },
                     ],
-                    individualbreakTime: true,
+                    // individualbreakTime: true,
                 },
             };
 
@@ -240,10 +254,16 @@ const CompanyEmployess = (props) => {
         const minutes = totalMinutes % 60;
         return `${hours}h:${minutes}m`; // Return in "Xh:Ym" format
     };
+    // useEffect(() => {
+    //     // Set allowBlur based on the Redux store
+    //     const employeeWithBlur = employees.find(employee => employee.effectiveSettings?.screenshots?.allowBlur);
+    //     setAllowBlur(!!employeeWithBlur); // Use double negation to convert to boolean
+    // }, [employees]);
     useEffect(() => {
-        // Set allowBlur based on the Redux store
-        const employeeWithBlur = employees.find(employee => employee.effectiveSettings?.screenshots?.allowBlur);
-        setAllowBlur(!!employeeWithBlur); // Use double negation to convert to boolean
+        if (Array.isArray(employees)) {
+            const employeeWithBlur = employees.find(employee => employee?.effectiveSettings?.screenshots?.allowBlur);
+            setAllowBlur(!!employeeWithBlur);
+        }
     }, [employees]);
 
     const activeTab = useSelector((state) => state?.adminSlice?.activeTab)
@@ -252,16 +272,27 @@ const CompanyEmployess = (props) => {
     const headers = {
         Authorization: "Bearer " + token,
     };
-
     useEffect(() => {
-        // Set local toggle state based on Redux state
-        const employeeWithToggleOn = employees.find(
-            (employee) => employee.effectiveSettings?.individualbreakTime
-        );
-        if (employeeWithToggleOn) {
-            setAllowBlur(true); // Example: Update a local state based on Redux
+        if (Array.isArray(employees)) {
+            const employeeWithToggleOn = employees.find(
+                (employee) => employee?.effectiveSettings?.individualbreakTime
+            );
+            if (employeeWithToggleOn) {
+                setAllowBlur(true);
+            }
+        } else {
+            console.warn("employees is not an array:", employees);
         }
     }, [employees]);
+    // useEffect(() => {
+    //     // Set local toggle state based on Redux state
+    //     const employeeWithToggleOn = employees.find(
+    //         (employee) => employee.effectiveSettings?.individualbreakTime
+    //     );
+    //     if (employeeWithToggleOn) {
+    //         setAllowBlur(true); // Example: Update a local state based on Redux
+    //     }
+    // }, [employees]);
 
 
     const updateAllowBlur = (allowBlur) => {
@@ -269,127 +300,21 @@ const CompanyEmployess = (props) => {
     };
 
 
-    async function handlePunctualitySetting(data) {
-        console.log("Punctuality Data:", data);
-
-        const findUser = employees.find((employee) => employee._id === data.employee._id);
-
-        if (!findUser) {
-            console.error("User not found!");
-            enqueueSnackbar("User not found!", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right",
-                },
-            });
-            return;
-        }
-
-        const ssId = data.employee._id; // Assuming ssId should be the employee ID
-
-        console.log("SSID", ssId);
-        const settingsToUpdate = {
-            breakTime: data.isSelected
-                ? [
-                    {
-                        TotalHours: "1h:0m",
-                        breakStartTime: new Date().toISOString(),
-                        breakEndTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(),                        
-                    },
-                    {
-                        TotalHours: "1h:30m",
-                        breakStartTime: moment().format("YYYY-MM-DDTHH:mm:ssZ"),
-                        breakEndTime: moment().add(1, "hour").format("YYYY-MM-DDTHH:mm:ssZ"),                        
-                    },
-                ]
-                : [],
-            individualbreakTime: data.isSelected,
-            individualPuncStart: false,
-            individualPuncEnd: false,
-        };
-
-        // const settingsToUpdate = {
-        //     breakTime: data.isSelected
-        //         ? [
-        //             {
-        //                 TotalHours: "1h:0m",
-        //                 breakStartTime: new Date().toISOString(),
-        //                 breakEndTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour later
-        //             },
-        //             {
-        //                 TotalHours: "1h:30m",
-        //                 breakStartTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours later
-        //                 breakEndTime: new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString(), // 2.5 hours later
-        //             },
-        //         ]
-        //         : [],
-
-        //     individualbreakTime: data.isSelected, // Pass toggle value
-        //     // individualbreakTime: data.isSelected, // Pass toggle value
-        //     individualPuncStart: false,
-        //     individualPuncEnd: false
-        // };
-
-        try {
-            const res = await axios.post(
-                `https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality`,
-                {
-                    userId: ssId,
-                    settings: settingsToUpdate,
-                },
-                {
-                    headers,
-                }
-            );
-
-            if (res.status === 200) {
-                enqueueSnackbar("Break Time settings updated successfully!", {
-                    variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right",
-                    },
-                });
-
-                // Update Redux state after successful API call
-                dispatch(
-                    setPunctualitySettings({
-                        id: ssId,
-                        isSelected: data.isSelected,
-                        key: "individualbreakTime",
-                    })
-                );
-            } else {
-                enqueueSnackbar("Failed to update punctuality settings.", {
-                    variant: "error",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right",
-                    },
-                });
-            }
-        } catch (error) {
-            console.error("Error updating punctuality settings:", error);
-            enqueueSnackbar("An error occurred while updating punctuality settings.", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right",
-                },
-            });
-        }
-    }
-
     const userCount = employees !== null && employees !== undefined ? employees.filter(employee => employee !== null && Object.keys(employee).length > 0).length : 0;
 
-    console.log(activeTab);
-
-    console.log('=============>', employees);
     // const filteredEmployees = employees.filter(employee => employee.name);
-    const filteredEmployees = employees.filter(employee => employee.name && employee.userType !== "owner");
 
-    console.log('=##########=>', filteredEmployees);
+    // const filteredEmployees = employees.filter(employee => employee.name && employee.userType !== "owner");
+    const filteredEmployees = Array.isArray(employees)
+        ? employees.filter(
+            (employee) =>
+                employee &&
+                typeof employee === "object" &&
+                Object.keys(employee).length > 0 &&
+                employee.name &&
+                employee.userType !== "owner"
+        )
+        : [];
 
     const formatTime = (time) => {
         return time ? moment.utc(time).subtract(2, "hours").local().format("HH:mm") : "";
@@ -399,6 +324,7 @@ const CompanyEmployess = (props) => {
         const fetchAllEmployeeData = async () => {
             try {
                 const updatedFields = {};
+
                 for (const employee of employees) {
                     const response = await axios.get(
                         `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
@@ -408,23 +334,22 @@ const CompanyEmployess = (props) => {
                             },
                         }
                     );
+
                     if (response.status === 200) {
-                        const { breakConvertedData } = response.data.data;
+                        const breakData = response.data.data?.convertedBreakTimes?.[0]; // ✅ Correct name & safe access
 
                         updatedFields[employee._id] = {
                             showFields: employee.punctualityData?.individualbreakTime || false,
-                            // startTime: formatTime(breakConvertedData?.[0]?.breakStartTime), // ✅ 2 hours subtracted
-                            // endTime: formatTime(breakConvertedData?.[0]?.breakEndTime), // ✅ 2 hours subtracted
-                            startTime: breakConvertedData?.[0]?.breakStartTime
-                                ? moment(breakConvertedData[0].breakStartTime).utc().format("HH:mm")
+                            startTime: breakData?.breakStartTime
+                                ? moment(breakData.breakStartTime).format("HH:mm") // ✅ NO .utc() here
                                 : "",
-                            endTime: breakConvertedData?.[0]?.breakEndTime
-                                ? moment(breakConvertedData[0].breakEndTime).utc().format("HH:mm")
+                            endTime: breakData?.breakEndTime
+                                ? moment(breakData.breakEndTime).format("HH:mm")
                                 : "",
-
                         };
                     }
                 }
+
                 setTimeFields(updatedFields);
             } catch (error) {
                 console.error("Error fetching employee data:", error);
@@ -433,6 +358,7 @@ const CompanyEmployess = (props) => {
 
         fetchAllEmployeeData();
     }, [employees]);
+
 
 
     return (

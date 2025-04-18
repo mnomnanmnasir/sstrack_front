@@ -210,7 +210,7 @@
 
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import tabletMockup from "../../../images/tablet.png"; // Replace with your image path
+import tablet_mockup from "../../../images/tablet_mockup.png"; // Replace with your image path
 
 function FeaturesSection({ language }) {
     return (
@@ -221,15 +221,21 @@ function FeaturesSection({ language }) {
             }}
         >
             <Container>
-            <h2 className="fw-bold text-dark mb-3">
+                {/* <h2 className="fw-bold text-dark mb-3">
             {language === 'en' ? 'Empower Your Team with' : 'مكن فريقك باستخدام '}
             <span style={{ color: '#7ACB59' }}>
                     {language === 'en' ? ' SSTRACK.IO' : 'مكان واحد'}
                 </span>
-            </h2>
+            </h2> */}
                 <Row className="align-items-center">
                     {/* Left Column (Features) */}
                     <Col xs={12} md={6} className="mb-4 mb-md-0" dir={language === "ar" ? "rtl" : "ltr"}>
+                        <h2 className="fw-bold text-dark mb-3">
+                            {language === 'en' ? 'Empower Your Team with' : 'مكن فريقك باستخدام '}
+                            <span style={{ color: '#7ACB59' }}>
+                                {language === 'en' ? ' SSTRACK.IO' : 'مكان واحد'}
+                            </span>
+                        </h2>
                         {/* Vertical Line */}
                         {/* <div
                             style={{
@@ -307,7 +313,7 @@ function FeaturesSection({ language }) {
                     {/* Right Column (Image) */}
                     <Col xs={12} md={6} className="text-center">
                         <img
-                            src={tabletMockup}
+                            src={tablet_mockup}
                             alt="Tablet Mockup"
                             className="img-fluid"
                             style={{

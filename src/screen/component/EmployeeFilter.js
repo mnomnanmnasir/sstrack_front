@@ -10,8 +10,8 @@ const EmployeeFilter = ({ employees, onFilter, showLabel = true }) => {
     //     }])
     // ).values()];
     // ✅ Filter out employees with undefined or null timezone
-    const filteredTimezones = employees
-        .filter(emp => emp.timezone && emp.timezoneOffset !== undefined) // ✅ Remove undefined/null values
+    const filteredTimezones = (employees || [])
+        .filter(emp => emp?.timezone && emp?.timezoneOffset !== undefined)
         .map(emp => ({
             value: emp.timezone,
             label: `${emp.timezone} (UTC ${emp.timezoneOffset >= 0 ? `+${emp.timezoneOffset}` : emp.timezoneOffset})`
@@ -26,8 +26,13 @@ const EmployeeFilter = ({ employees, onFilter, showLabel = true }) => {
 
     // Filter employees efficiently using useMemo
     const filteredEmployees = useMemo(() => {
-        return employees.filter(emp => emp.timezone === selectedTimezone?.value);
-    }, [selectedTimezone, employees]);
+        if (!selectedTimezone) return employees || [];
+        return (employees || []).filter(emp => emp?.timezone === selectedTimezone?.value);
+    }, [selectedTimezone, employees]);    
+    
+    // const filteredEmployees = useMemo(() => {
+    //     return employees.filter(emp => emp.timezone === selectedTimezone?.value);
+    // }, [selectedTimezone, employees]);
 
     // Call onFilter only when filteredEmployees change
     useEffect(() => {

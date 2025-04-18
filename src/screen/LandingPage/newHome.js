@@ -100,7 +100,7 @@ function NewHome({ isAuthenticated }) {
         // direction: language === 'ar' ? 'rtl' : 'ltr',
       }}>
         <div style={{ position: 'sticky', top: '0', width: '100%', zIndex: '10' }}>
-         
+
         </div>
         <div
           className="background-container"
@@ -214,9 +214,19 @@ function NewHome({ isAuthenticated }) {
 
           {/* Platforms Logos */}
           <Row className="justify-content-center text-center">
-            <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
+            {/* <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
               <Link to='/download'>
                 <img src={microsoftlogo} alt="Microsoft" className="img-fluid platform-icon" style={{ height: "auto" }} />
+              </Link>
+            </Col> */}
+            <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
+              <Link to="https://apps.microsoft.com/detail/9N0C5QDB1LM7?hl=en-us&gl=PK&ocid=pdpshare" target="_blank" rel="noopener noreferrer">
+                <img
+                  src={microsoftlogo}
+                  alt="Microsoft"
+                  className="img-fluid platform-icon"
+                  style={{ height: "auto" }}
+                />
               </Link>
             </Col>
             <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
@@ -225,7 +235,7 @@ function NewHome({ isAuthenticated }) {
               </Link>
             </Col>
             <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
-              <a href="https://play.google.com/store/apps/details?id=com.SSTRACK&pcampaignid=web_share">
+              <a href="https://play.google.com/store/apps/details?id=com.SSTRACK&pcampaignid=web_share" target="_blank">
                 <img src={playstore} alt="Google Play" className="img-fluid platform-icon" style={{ height: "auto" }} />
               </a>
             </Col>

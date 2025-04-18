@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react"; // Include useRef
 import menu from "../../images/menu.webp";
 import loader from "../../images/Rectangle.webp";
 import check from "../../images/check.webp";
@@ -9,6 +9,7 @@ import jwtDecode from "jwt-decode";
 import Joyride from "react-joyride";
 import BreakTime from '../../adminScreens/settingScreenComponent/breakTime';
 import { FaChevronDown } from "react-icons/fa"; // 🛠 Import Professional Arrow Icon
+import { FaBell } from "react-icons/fa";
 
 function UserDashboardSection({ settingsTabs }) {
     const [run, setRun] = useState(true);
@@ -19,6 +20,25 @@ function UserDashboardSection({ settingsTabs }) {
     const location = useLocation();
     const [attendanceDropdownOpen, setAttendanceDropdownOpen] = useState(false);
     const [items, setItems] = useState(getitems);
+    const [notificationCount, setNotificationCount] = useState(0);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [notifications, setNotifications] = useState([]); // store fetched notifications
+    const [prevNotificationIds, setPrevNotificationIds] = useState([]);
+    const notificationRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                setShowNotifications(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
     const [selectedTab, setSelectedTab] = useState(null); // Track selected tab
     const steps = [
         {
@@ -58,6 +78,80 @@ function UserDashboardSection({ settingsTabs }) {
             continuous: true,
         },
     ];
+
+    useEffect(() => {
+        let intervalId;
+
+        const fetchNotifications = async () => {
+            const apiUrl =
+                items?.userType === "user"
+                    ? "https://myuniversallanguages.com:9093/api/v1/timetrack/getUserNotifications"
+                    : items?.userType === "manager"
+                        ? "https://myuniversallanguages.com:9093/api/v1/manager/getManagerNotifications"
+                        : "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAdminNotifications";
+
+            try {
+                const response = await axios.get(apiUrl, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
+
+                if (response.status === 200) {
+                    let fetchedNotifications = [];
+
+                    if (items?.userType === "user") {
+                        fetchedNotifications =
+                            response.data.userNotifications ||
+                            response.data.notifications ||
+                            response.data.data?.notifications ||
+                            [];
+                    } else if (items?.userType === "manager") {
+                        fetchedNotifications =
+                            response.data.managerNotifications ||
+                            response.data.notifications ||
+                            response.data.data?.notifications ||
+                            [];
+                    } else {
+                        fetchedNotifications = response.data.adminNotifications || [];
+                    }
+
+                    console.log("📦 Total Notifications:", fetchedNotifications.length);
+                    // console.table(fetchedNotifications.map(n => ({
+                    //     ID: n._id,
+                    //     Title: n.title,
+                    //     Message: n.message
+                    // })));
+
+                    // 🔄 Track notifications
+                    const currentIds = fetchedNotifications.map((n) => n._id);
+                    setPrevNotificationIds(currentIds);
+
+                    // ✅ Show total notifications count
+                    setNotificationCount(fetchedNotifications.length);
+                    setNotifications(fetchedNotifications);
+
+                } else {
+                    console.error("Notification fetch failed", response);
+                }
+            } catch (error) {
+                console.error("Notification error:", error);
+            }
+        };
+
+        if (items?._id) {
+            fetchNotifications(); // Initial fetch
+            intervalId = setInterval(fetchNotifications, 20000); // ⏱ Poll every 20 seconds
+        }
+
+        return () => {
+            clearInterval(intervalId); // ✅ Cleanup on unmount
+        };
+
+    }, [items]);
+
+
+
     useEffect(() => {
         const updatedItems = getitems
         setItems(updatedItems);
@@ -186,7 +280,7 @@ function UserDashboardSection({ settingsTabs }) {
                 borderBottomRightRadius: "10px",
                 margin: "0px 30px 0 30px",
             }}>
-                <div className="d-flex align-items-center flex-wrap gap-2">
+                <div className="d-flex align-items-center flex-wrap">
                     <div className={location.pathname === "/dashboard" ? "active-tab" : "ownerSectionUser"} onClick={() => {
                         navigate('/dashboard')
                     }} >
@@ -208,16 +302,95 @@ function UserDashboardSection({ settingsTabs }) {
                     {items?.userType === "user" || items?.userType === "manager" && <div className={location.pathname.includes("/timeline") ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
                         <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate(`/timeline/${items?._id}`)}>Timeline</p>
                     </div>}
-                    {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
-                        <>
-                            <div id="team" className={location.pathname === "/team" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/team')}>
-                                <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate('/team')}>Team</p>
+                
+                    {/* {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin") && ( */}
+                    <div
+                        id="Attendence"
+                        className={location.pathname.startsWith("/reports") ? "active-tab" : "ownerSectionUser"}
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            cursor: "pointer",
+                            position: "relative",
+                            // backgroundColor: "#F5F5F5", // ✅ Background color
+                            // padding: "10px 15px",
+                            borderRadius: "5px",
+                        }}
+                        onClick={() => navigate("/reports")}
+                    >
+                        {/* ✅ Attendance Management Text */}
+
+
+                        <div
+                            className="dropdown1"
+                            onMouseEnter={() => setDropdownOpen(true)}
+                            onMouseLeave={() => setDropdownOpen(false)}
+                            style={{ position: "relative" }}
+                        >
+                            <div
+                                className=""
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between", // 
+                                    gap: "15px",
+                                    cursor: "pointer",
+                                    position: "relative",
+                                    // backgroundColor: "#F5F5F5", // ✅ Background color
+                                    // padding: "10px 15px",
+                                    borderRadius: "5px",
+                                    // width: items?.userType === "manager" ? "190px" : "80px",
+
+                                }}
+                            >
+                                <span style={{ textAlign: 'center' }}>
+                                    Reports
+                                    {/* ✅ Manager ke liye dropdown icon hide karein */}
+                                    {/* {items?.userType !== "manager" && ( */}
+                                    <FaChevronDown size={14} color="#000" style={{ marginLeft: "5px" }} />
+                                    {/* )} */}
+                                </span>
+                                {/* <FaChevronDown size={14} color="#000" style={{ marginLeft: "5px" }} /> ✅ Icon ko Padding di */}
                             </div>
-                        </>
-                    )}
-                    <div id="Reports" className={location.pathname === "/reports" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/reports')}>
-                        <p style={{ margin: 0 }} onClick={() => navigate('/reports')}>Reports</p>
+                            {/* {items?.userType !== "manager" && ( */}
+                            <>
+                                {dropdownOpen && (
+                                    <div className="dropdown-content1">
+                                        <Link
+                                            to="/reports"
+                                            state={{ activateTabs: true }}
+                                            style={{
+                                                color: '#28659C', textDecoration: 'none', fontSize: '15px',
+                                                display: 'block',
+                                                padding: '5px 10px'
+                                            }}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            Detailed Reports
+                                        </Link>
+                                        <Link
+                                            to="/punctuality-reports"
+                                            state={{ deactivateTabs: true }}
+                                            style={{
+                                                color: '#28659C', textDecoration: 'none', fontSize: '15px',
+
+                                                display: 'block',
+                                                padding: '10px 12px'
+                                            }}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            Punctuality Reports
+                                        </Link>
+                                    </div>
+                                )}
+                            </>
+                            {/* )} */}
+                        </div>
+
                     </div>
+                    {/* )} */}
+
                     {!(items?.userType === "user") && (
                         <>
                             <div id="Projects" className={location.pathname === "/Projects" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/Projects')}>
@@ -225,6 +398,7 @@ function UserDashboardSection({ settingsTabs }) {
                             </div>
                         </>
                     )}
+
                     {/* Leave Tab with Count */}
                     {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin") && (
                         <div
@@ -417,9 +591,59 @@ function UserDashboardSection({ settingsTabs }) {
 
                     </div> */}
                 </div>
-                <div className="d-flex justify-content-end align-items-center flex-nowrap info-container">
+                {/* <FaBell
+                    size={20}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setShowNotifications(!showNotifications)}
+                /> */}
 
-                {/* {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
+                {/* <div className="dropdown" style={{ position: "relative", marginRight: "15px" }}>
+                    <button
+                        className="btn btn-light position-relative dropdown-toggle"
+                        type="button"
+                        id="notificationDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        onClick={() => setShowNotifications(!showNotifications)}
+                    >
+                        <FaBell />
+                        {notificationCount > 0 && (
+                            <span
+                                className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style={{ fontSize: "10px" }}
+                            >
+                                {notificationCount}
+                            </span>
+                        )}
+                    </button>
+
+                    <ul
+                        className={`dropdown-menu dropdown-menu-end p-2 shadow ${showNotifications ? 'show' : ''}`}
+                        aria-labelledby="notificationDropdown"
+                        style={{ width: "300px", maxHeight: "300px", overflowY: "auto" }}
+                    >
+                        {notifications.length === 0 ? (
+                            <li className="text-center text-muted" style={{ fontSize: "13px" }}>
+                                No notifications
+                            </li>
+                        ) : (
+                            notifications.map((notif, index) => (
+                                <li
+                                    key={notif._id || index}
+                                    className="mb-2 p-2 border-start border-3 border-primary rounded bg-light"
+                                >
+                                    <div className="fw-bold">{notif.title}</div>
+                                    <div className="small text-muted">{notif.message}</div>
+                                </li>
+                            ))
+                        )}
+                    </ul>
+                </div> */}
+
+
+                <div className="d-flex justify-content-end align-items-center flex-nowrap">
+
+                    {/* {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
                         <div className="break-time-container">
                             <p className="" style={{ textAlign: 'center', width: '50%' }}>
                                 Break Time {remainingBreakTime || '0h 0m'}
@@ -427,28 +651,128 @@ function UserDashboardSection({ settingsTabs }) {
                         </div>
                     )} */}
 
-                {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
+
+                    <div style={{ position: "relative", marginRight: "15px" }} ref={notificationRef}>
+                        <button
+                            className="btn position-relative"
+                            type="button"
+                            onClick={() => setShowNotifications(!showNotifications)} // Toggle manually
+                            style={{ background: "transparent", border: "none" }}
+                        >
+                            <FaBell size={20} style={{ color: '#28659C' }} />
+
+                            {(notificationCount >= 0) && (
+                                <sup
+                                    style={{
+                                        position: "absolute",
+                                        top: "-4px",
+                                        right: "-8px",
+                                        backgroundColor: "#7CCB58",
+                                        color: "white",
+                                        borderRadius: "50%",
+                                        padding: "2px 6px",
+                                        fontSize: "10px",
+                                        fontWeight: "bold",
+                                        lineHeight: "1",
+                                    }}
+                                >
+                                    {notificationCount > 10 ? "10+" : notificationCount}
+                                </sup>
+                            )}
+                        </button>
+
+                        {showNotifications && ( // 🧠 Conditionally render dropdown
+                            <ul
+                                className="shadow"
+                                style={{
+                                    position: "absolute",
+                                    top: "100%",
+                                    right: "0",
+                                    width: "300px",
+                                    maxHeight: "350px",
+                                    overflowY: "auto",
+                                    backgroundColor: "#fff",
+                                    padding: "10px",
+                                    borderRadius: "8px",
+                                    zIndex: 1000,
+                                }}
+                            >
+                                {notifications.length === 0 ? (
+                                    <li className="text-center text-muted" style={{ fontSize: "13px" }}>
+                                        No notifications
+                                    </li>
+                                ) : (
+                                    <>
+                                        {notifications.slice(0, 3).map((notif, index) => (
+                                            <li key={notif._id || index}>
+                                                <div
+                                                    style={{
+                                                        padding: "10px",
+                                                        marginBottom: "8px",
+                                                        backgroundColor: "#fff",
+                                                        borderRadius: "6px",
+                                                        borderLeft: "4px solid #28659C",
+                                                        fontSize: "13px",
+                                                        lineHeight: "1.4",
+                                                    }}
+                                                >
+                                                    <div style={{ fontWeight: "600", color: "#28659C", marginBottom: "4px" }}>
+                                                        {notif.title || "Untitled"}
+                                                    </div>
+                                                    <div style={{ color: "#333" }}>
+                                                        {notif.message || "No message provided."}
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))}
+
+                                        <li className="text-center">
+                                            <Link to="/notification">
+                                                <button
+                                                    className="btn btn-primary btn-sm"
+                                                    style={{
+                                                        backgroundColor: "#28659C",
+                                                        borderColor: "#28659C",
+                                                        borderRadius: "5px",
+                                                        fontSize: "13px"
+                                                    }}
+                                                >
+                                                    View All
+                                                </button>
+                                            </Link>
+                                        </li>
+                                    </>
+                                )}
+                            </ul>
+                        )}
+                    </div>
+
+
+                    <div className="d-flex justify-content-end align-items-center flex-nowrap info-container">
+                        {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
+                            <div className="company-name-container1">
+                                <div>
+
+                                </div>
+                                <p className="m-0 fw-bold">
+                                    Break Time {remainingBreakTime || '0h 0m'}
+                                </p>
+                            </div>
+                        )}
+
                         <div className="company-name-container1">
                             <div>
-
+                                <img src={circle} className="company-logo" alt="Company Logo" />
                             </div>
                             <p className="m-0 fw-bold">
-                                Break Time {remainingBreakTime || '0h 0m'}
+                                {items?.company}
                             </p>
                         </div>
-                    )}
-
-                <div className="company-name-container1">
-                    <div>
-                        <img src={circle} className="company-logo" alt="Company Logo" />
                     </div>
-                    <p className="m-0 fw-bold">
-                        {items?.company}
-                    </p>
-                </div>
                 </div>
             </div>
-        </div >
+        </div>
+        // </div>
     )
 }
 

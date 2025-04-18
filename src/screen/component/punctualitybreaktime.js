@@ -163,15 +163,7 @@ const CompanyEmployess = (props) => {
             );
 
             if (updateResponse.status === 200) {
-                // enqueueSnackbar("Punctuality setting updated successfully!", {
-                //     variant: "success",
-                //     anchorOrigin: {
-                //         vertical: "top",
-                //         horizontal: "right",
-                //     },
-                // });
 
-                // Sync the local state and update `localStorage` for cross-tab visibility
                 const updatedState = {
                     ...timeFields,
                     [employee._id]: {
@@ -191,14 +183,7 @@ const CompanyEmployess = (props) => {
         } catch (error) {
             console.error("Error updating punctuality setting:", error);
 
-            // Revert the UI state if the API call fails
-            // setTimeFields((prev) => ({
-            //     ...prev,
-            //     [employee._id]: {
-            //         ...prev[employee._id],
-            //         showFields: !isSelected, // Revert to the previous state
-            //     },
-            // }));
+
             setTimeFields((prev) => ({
                 ...prev,
                 [employee._id]: {
@@ -284,21 +269,19 @@ const CompanyEmployess = (props) => {
             const requestData = {
                 userId: employeeId,
                 settings: {
+                    // puncStartTime: `${puncStartTime}:00`,
+                    // puncEndTime: `${puncEndTime}:00`,
+                    // puncStartTime: new Date(`${currentDate}T${puncStartTime}:00`),
+                    // puncEndTime: new Date(`${currentDate}T${puncEndTime}:00`),                    
+                    // puncStartTime:new Date(`${new Date().toISOString().split('T')[0]}T${puncStartTime}:00`),
                     puncStartTime: `${currentDate}T${puncStartTime}:00`,
                     puncEndTime: `${currentDate}T${puncEndTime}:00`,
-                    individualPuncStart: true,
+                    // puncEndTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`),
+                    // individualPuncStart: true,
                 },
             };
-            // const requestData = {
-            //     userId: employeeId,
-            //     settings: {
-            //     //   ...currentSettings,
-            //       individualPuncStart: isSelected,
-            //       puncStartTime: isSelected ? "" : null,
-            //       puncEndTime: isSelected ? "" : null,
-            //     },
-            //   };
-              
+
+
             const response = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
                 requestData,
@@ -331,13 +314,13 @@ const CompanyEmployess = (props) => {
                     setTimeFields((prev) => ({
                         ...prev,
                         [employeeId]: {
-                          ...prev[employeeId],
-                          showFields: true,
-                          puncStartTime: updatedData.puncStartTime.split("T")[1].substring(0, 5),
-                          puncEndTime: updatedData.puncEndTime.split("T")[1].substring(0, 5),
+                            ...prev[employeeId],
+                            showFields: true,
+                            puncStartTime: updatedData.puncStartTime.split("T")[1].substring(0, 5),
+                            puncEndTime: updatedData.puncEndTime.split("T")[1].substring(0, 5),
                         },
-                      }));
-                      
+                    }));
+
                 }
             } else {
                 enqueueSnackbar("Failed to save Punctuality data.", { variant: "error" });
@@ -371,14 +354,7 @@ const CompanyEmployess = (props) => {
 
     const userCount = employees !== null && employees !== undefined ? employees.filter(employee => employee !== null && Object.keys(employee).length > 0).length : 0;
 
-
-
-    console.log('=============>', employees);
-    // const filteredEmployees = employees.filter(employee => employee.name);
     const filteredEmployees = employees.filter(employee => employee.name && employee.userType !== "owner");
-
-    console.log('=#####filteredEmployeesbyutc#####=>', filteredEmployeesbyutc);
-    console.log('=##########=>', filteredEmployees);
 
     return (
         <>

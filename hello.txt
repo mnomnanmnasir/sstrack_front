@@ -85,3 +85,39 @@ profile field disabled
 missing component
 Update by Abdullah
 group filter in reports
+<<<<<<< HEAD
+=======
+added training video link
+updation
+reports patch
+update reports
+tick mark
+>>>>>>> d79ef4994662be14dbf23da881aa7271099591ab
+empty users
+image issue
+offline time added
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+punctuality issue fixed
+demo account model
+>>>>>>> 8369af42bc91f7a1f33d917048587daca702049c
+punctuality Report
+>>>>>>> abc9a4a389f8035869d58ea1f1f30c832b79e24b
+punc report fix
+userDashboard section
+>>>>>>> 0f1c06c49dc597dddb16ca73964399a35c9c6528
+punctuality report upadte
+punc report fix
+pucn report issue fix
+>>>>>>> 7d4980ccb328042138ef361ac191c47d57bc3265
+issue fix
+new pages by abdullah
+again new update
+add
+againnn

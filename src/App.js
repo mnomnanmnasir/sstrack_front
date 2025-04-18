@@ -7,6 +7,7 @@ import './index.css';
 import { SocketProvider } from './io';
 import { store } from './store/store';
 import { SnackbarProvider } from "notistack"; // ✅ Import SnackbarProvider
+// import AnalyticsTracker from "./sc";
 
 
 function App() {

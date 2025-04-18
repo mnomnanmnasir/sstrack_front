@@ -308,10 +308,10 @@ const OwnerTeam = () => {
 
             const userType = items?.userType;
             // ❌ Owner: skip fetching/displaying their leaves
-            if (userType === "owner") {
-                setLoading(false);
-                return;
-            }
+            // if (userType === "owner") {
+            //     setLoading(false);
+            //     return;
+            // }
 
             const apiUrlForLeaves = userType === 'manager'
                 ? "https://myuniversallanguages.com:9093/api/v1/manager/getAllUserLeaves"
@@ -630,10 +630,10 @@ const OwnerTeam = () => {
                             <p><strong>Annual Leaves:</strong> {userLeaveData?.annualLeaves || 0}</p>
                             <p><strong>Casual Leaves:</strong> {userLeaveData?.casualLeaves || 0}</p>
                             <p><strong>Sick Leaves:</strong> {userLeaveData?.sickLeaves || 0}</p>
-                            <p><strong>Bereavement Leaves:</strong> {userLeaveData?.bereavementLeaves || 0}</p>
+                            <p><strong>Breavement Leaves:</strong> {userLeaveData?.bereavementLeaves || 0}</p>
                         </div>
                     </div>
-
+                    
                     {/* Rejection Reason */}
                     {activeTab === "requestedLeaves" && (
                         <div className="mt-3">
@@ -1158,7 +1158,7 @@ const OwnerTeam = () => {
                         }}
                     >
                         <div style={{ fontWeight: '500', color: "#28659C", fontSize: '17px', }}>
-                            Total Alloted leaves:
+                            Total Alloted leaves (by company):
                         </div>
                         <div>Sick leaves: {leaveCounts.sickLeaves}</div>
                         <div>Annual leaves: {leaveCounts.annualLeaves}</div>

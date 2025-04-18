@@ -175,7 +175,7 @@ function Screenshot() {
     getData();
   }, []);
 
-  console.log("screenshot employess =====>", employees);
+
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
 
 
@@ -271,8 +271,8 @@ function Screenshot() {
       // Format the break times in UTC
       const formattedBreakTimes = breakTimes.map((slot) => {
         const currentDate = new Date().toISOString().split("T")[0]; // Get today's date
-        const breakStartTime = new Date(`${currentDate}T${slot.start}:00Z`).toISOString();
-        const breakEndTime = new Date(`${currentDate}T${slot.end}:00Z`).toISOString();
+        const breakStartTime = new Date(`${currentDate}T${slot.start}:00`).toISOString();
+        const breakEndTime = new Date(`${currentDate}T${slot.end}:00`).toISOString();
 
         // Calculate total hours and minutes
         const durationMinutes =
@@ -295,11 +295,11 @@ function Screenshot() {
         userId,
         settings: {
           breakTime: formattedBreakTimes,
-          puncStartTime: "2024-11-21T09:00:00.000Z", // Example time
-          puncEndTime: "2024-11-21T17:00:00.000Z",
+          // puncStartTime: "2024-11-21T09:00:00.000Z", // Example time
+          // puncEndTime: "2024-11-21T17:00:00.000Z",
         },
       }));
-
+     console.log('breaktimeDta===>',requestData)
       // API call to update break time for selected userIds
       const response = await axios.post(
         "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
@@ -574,7 +574,7 @@ function Screenshot() {
                   gap: "10px", // Adds spacing between rows
                 }}
               >
-                {console.log("meee yaha hn bhai aap ka breakTime", breakTime)}
+
                 {/* {breakTimes.map((breakTime, index) => ( */}
                 {breakTimes.map((breakTime, index) =>
                   <div

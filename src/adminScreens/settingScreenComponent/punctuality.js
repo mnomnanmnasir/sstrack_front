@@ -3,10 +3,8 @@ import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useDispatch, useSelector } from "react-redux";
-import CompanyEmployess from "../../screen/component/punctualitybreaktime";
-import { setEmployessSetting, setEmployessSetting2, setEmployessSetting4 } from "../../store/adminSlice";
-import UserTimezoneDropdown from "../../screen/component/UserTimezoneDropdown";
 import EmployeeFilter from "../../screen/component/EmployeeFilter";
+import CompanyEmployess from "../../screen/component/punctualitybreaktime";
 
 function Screenshot() {
 
@@ -132,8 +130,6 @@ function Screenshot() {
                 const punctualityData = employeesData[0]?.punctualityData || {};
                 setPuncStartTime(punctualityData.puncStartTime);
                 setPuncEndTime(punctualityData.puncEndTime);
-
-
             } else {
                 console.warn("No employee data found.");
             }
@@ -149,15 +145,9 @@ function Screenshot() {
         }
     }
 
-
     useEffect(() => {
-
         getData()
     }, [])
-
-    console.log("screenshot employess =====>", employees);
-
-
 
     const handleSubmit = async () => {
         try {
@@ -176,12 +166,12 @@ function Screenshot() {
             const requestData = userIds.map((userId) => ({
                 userId,
                 settings: {
-                    puncStartTime: puncStartTime, // Send as HH:MM
-                    puncEndTime: puncEndTime, // Send as HH:MM
-                    individualPuncStart: true, // Ensure toggle is ON
+                    puncStartTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncStartTime}:00`),
+                    puncEndTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`),
+                    // individualPuncStart: true, // Ensure toggle is ON
                 },
             }));
-
+            console.log('request====>', requestData)
             // Make the API call
             const response = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
@@ -253,6 +243,7 @@ function Screenshot() {
                                 value={puncStartTime}
                                 onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                 onChange={(e) => setPuncStartTime(e.target.value)}
+                                // onChange={(e) => console.log(e.target.value)}
                             />
                         </div>
 
@@ -263,6 +254,7 @@ function Screenshot() {
                                 value={puncEndTime}
                                 onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                 onChange={(e) => setPuncEndTime(e.target.value)}
+                                // onChange={(e) => console.log(e.target.value)}
                             />
                         </div>
                     </div>

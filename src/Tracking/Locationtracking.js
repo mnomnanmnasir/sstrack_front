@@ -83,14 +83,14 @@ const LocaitonTracking = () => {
             const apiUrl = items?.userType === "user"
                 ? `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerData?date=${formattedDate}`
                 : `https://myuniversallanguages.com:9093/api/v1/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
-                const response = await fetch(apiUrl, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-        
+            const response = await fetch(apiUrl, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
 
             if (!response.ok) {
                 // const error = await response.json();
@@ -211,10 +211,16 @@ const LocaitonTracking = () => {
                 let formattedUsers = [];
 
                 if (user === "admin" || user === "owner") {
-                    formattedUsers = response.data.employees.map(emp => ({
-                        value: emp._id,  // Use a unique identifier
-                        label: emp.name  // Use the name as the label
-                    }));
+                    // formattedUsers = response.data.employees.map(emp => ({
+                    //     value: emp._id,  // Use a unique identifier
+                    //     label: emp.name  // Use the name as the label
+                    // }));
+                    formattedUsers = response.data.employees
+                        .filter(emp => emp && emp.name && emp._id) // ✅ filter null/invalid entries
+                        .map(emp => ({
+                            value: emp._id,
+                            label: emp.name
+                        }));
                 } else if (user === "manager") {
                     const managerEmployees = await getManagerEmployees();
                     formattedUsers = managerEmployees.map(emp => ({
@@ -239,72 +245,6 @@ const LocaitonTracking = () => {
     useEffect(() => {
         getEmployess();
     }, []);
-
-    // // Default to San Francisco if no polylines are available
-    // const defaultCenter = { lat: 37.7749, lng: -122.4194 };
-
-    // Extract the initial center based on the polyline path
-    // const initialCenter =
-    //     polylinePath.length > 0 && polylinePath[0].length > 0
-    //         ? { lat: polylinePath[0][0][0], lng: polylinePath[0][0][1] }
-    //         : defaultCenter;
-
-    // // Polyline data conversion (Leaflet uses [lat, lng], Google Maps uses { lat, lng })
-    // const convertedPolylines = polylinePath.map((polyline) =>
-    //     polyline.map(([lat, lng]) => ({ lat, lng }))
-    // );
-    // const mapContainerStyle = {
-    //     width: "100%",
-    //     height: "500px",
-    // };
-
-    //google map
-    // useEffect(() => {
-    //     const loadGoogleMapsScript = (callback) => {
-    //         const existingScript = document.getElementById("googleMaps");
-
-    //         if (!existingScript) {
-    //             const script = document.createElement("script");
-    //             script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY`;
-    //             script.id = "googleMaps";
-    //             script.async = true;
-    //             script.defer = true;
-    //             script.onload = () => callback();
-    //             document.body.appendChild(script);
-    //         } else {
-    //             existingScript.onload = () => callback();
-    //         }
-    //     };
-
-    //     const initMap = () => {
-    //         const mapCenter =
-    //             polylinePath.length > 0 && polylinePath[0].length > 0
-    //                 ? { lat: polylinePath[0][0][0], lng: polylinePath[0][0][1] }
-    //                 : { lat: 37.7749, lng: -122.4194 }; // Default to San Francisco
-
-    //         const map = new window.google.maps.Map(document.getElementById("map"), {
-    //             center: mapCenter,
-    //             zoom: 19,
-    //         });
-
-    //         // Add polylines
-    //         polylinePath.forEach((polyline) => {
-    //             const googlePolyline = new window.google.maps.Polyline({
-    //                 path: polyline.map(([lat, lng]) => ({ lat, lng })),
-    //                 geodesic: true,
-    //                 strokeColor: "#0000FF",
-    //                 strokeOpacity: 1.0,
-    //                 strokeWeight: 4,
-    //             });
-    //             googlePolyline.setMap(map);
-    //         });
-    //     };
-
-    //     loadGoogleMapsScript(() => {
-    //         initMap();
-    //     });
-    // }, [polylinePath]);
-    //google map
 
     return (
         <>
@@ -433,108 +373,7 @@ const LocaitonTracking = () => {
                                         </p>
                                     </div>
                                 </div>
-
                             </div>
-
-                            {/* Latest Tracking Session */}
-                            {/* <div
-                                style={{
-                                    flex: "1",
-                                    marginLeft: "10px",
-                                    padding: "20px",
-                                    borderLeft: "1px solid #E5E5E5",
-                                    borderRadius: "12px",
-                                    // boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                                    textAlign: "left",
-                                    backgroundColor: "#FFFFFF",
-                                }}
-                            >
-                                <h3 style={{ color: "#2C5282", fontSize: "20px", fontWeight: "bold", marginBottom: "15px" }}>
-                                    Latest Tracking Sessions
-                                </h3>
-                                <div style={{ border: "1px solid #E5E5E5", padding: "20px", }}>
-                                    <p style={{ fontSize: "16px", color: "#4A5568", fontWeight: "500", marginBottom: "10px" }}>
-                                        {latestSession.timeRange}
-                                    </p>
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            alignItems: "center",
-                                            marginBottom: "10px",
-
-                                        }}
-                                    >
-                                        <div style={{ flex: "1", display: 'flex', flexDirection: 'Row', }}>
-                                            <div
-                                                style={{
-                                                    width: "50px",
-                                                    height: "50px",
-                                                    marginRight: "10px",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    backgroundColor: "#E6F4EA",
-                                                    borderRadius: "50%",
-                                                    marginBottom: "10px",
-
-                                                }}
-                                            >
-                                                <span style={{ fontSize: "24px", color: "#4A90E2" }}>⏲</span>
-                                            </div>
-                                            <div style={{ flexDirection: 'Column', }}>
-
-                                                <h4 style={{ color: "#32CD32", fontSize: "14px", fontWeight: "600", marginBottom: "5px" }}>
-                                                    Total Time
-                                                </h4>
-                                                <p style={{ fontSize: "18px", fontWeight: "bold", color: "#2C5282" }}>
-                                                    {latestSession.totalTime}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div style={{ flex: "1", display: 'flex', flexDirection: 'Row', }}>
-                                            <div
-                                                style={{
-                                                    width: "50px",
-                                                    height: "50px",
-                                                    // margin: "0 auto",
-                                                    marginRight: "10px",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    backgroundColor: "#E6F4EA",
-                                                    borderRadius: "50%",
-                                                    marginBottom: "10px",
-                                                }}
-                                            >
-                                                <span style={{ fontSize: "24px", color: "#4A90E2" }}>📍</span>
-                                            </div>
-                                            <div style={{ flexDirection: 'Column', }}>
-                                                <h4 style={{ color: "#32CD32", fontSize: "14px", fontWeight: "600", marginBottom: "5px" }}>
-                                                    Total Distance
-                                                </h4>
-                                                <p style={{ fontSize: "18px", fontWeight: "bold", color: "#2C5282" }}>
-                                                    {latestSession.totalDistance}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div style={{ textAlign: "center", marginTop: "10px" }}>
-                                        <span
-                                            style={{
-                                                color: "#32CD32",
-                                                fontSize: "14px",
-                                                fontWeight: "600",
-                                                cursor: "pointer",
-                                                display: "inline-flex",
-                                                alignItems: "center",
-                                            }}
-                                        >
-                                            Show More ▼
-                                        </span>
-                                    </div>
-                                </div>
-                            </div> */}
                         </div>
 
                         {/* Calendar Picker */}

@@ -39,7 +39,9 @@ function SaSidebar({ selectedItem, onSelectItem }) {
     { label: 'Dashboard', icon: <DashboardIcon /> },
     { label: 'Total Companies', icon: <BusinessIcon /> },
     { label: 'Requests', icon: <PeopleIcon /> },
+    // { label: 'Punctuality Reports', icon: <BarChartIcon /> },
     { label: 'Financials', icon: <BarChartIcon /> },
+
   ];
 
   return (

@@ -1,10 +1,10 @@
 import React from "react";
-import InviteEmployees from '../images/howitWorkImg1.PNG';
-import DesktopApp from '../images/howItWorkSignUp.PNG';
-import AppTimeTrack from '../images/howItWorkApptrack.PNG';
-import ManagersWebDesktop from '../images/ManagersWebDashboard.PNG';
-import DetailsTimeline from '../images/DetailsTimeline.PNG';
-import ShowReports from '../images/showReports.PNG';
+import Invite_employees from '../images/Invite_employees.PNG';
+import desktop_app from '../images/how_It_Work_SignUp.PNG';
+import app_time_track from '../images/how_It_Work_Apptrack.png';
+import ManagersWebDesktop from '../images/User_Dashboard.png';
+import details_timeline from '../images/detail_timeline.png';
+import show_reports from '../images/show_Reports.png';
 import NewHeader from './component/Header/NewHeader';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -31,13 +31,13 @@ const HowItWorks = () => {
               fontSize: "14px",
               marginTop: "10px"
             }}
-            onClick={() => window.open("https://www.youtube.com/embed/tqR7rCIzgxM", "_blank")}
+            onClick={() => window.open("https://youtu.be/pesUBUnT0iA?feature=shared", "_blank")}
           >
             User Guide
           </button>
         </>
       ),
-      image: InviteEmployees,
+      image: Invite_employees,
     },
     {
       id: 2,
@@ -51,7 +51,7 @@ const HowItWorks = () => {
           </Link>
         </>
       ),
-      image: DesktopApp
+      image: desktop_app
     },
     {
       id: 3,
@@ -75,7 +75,7 @@ const HowItWorks = () => {
             }}
             onClick={() =>
               window.open(
-                "https://www.youtube.com/embed/1fyVTr4T2sI",
+                "https://youtu.be/W1Xbvu-i_qI?feature=shared",
                 "_blank"
               )
             }
@@ -84,7 +84,7 @@ const HowItWorks = () => {
           </button>
         </>
       ),
-      image: AppTimeTrack,
+      image: app_time_track,
     },
     {
       id: 4,
@@ -92,7 +92,7 @@ const HowItWorks = () => {
       description: (
         <>
           <p>
-            "The desktop application continuously sends time tracking data and screenshots to the dashboard so Owner, Admin and Manager can monitor employees in real-time via the online dashboard.",
+            "The desktop application continuously sends time tracking data and screenshots to the dashboard so Owner, Admin and Manager can monitor employees in real-time via the online dashboard."
           </p>
           <button
             style={{
@@ -117,7 +117,6 @@ const HowItWorks = () => {
         </>
       ),
       image: ManagersWebDesktop,
-
     },
     {
       id: 5,
@@ -125,7 +124,7 @@ const HowItWorks = () => {
       description: (
         <>
           <p>
-            "Administrator can view detailed timelines, track time spent on projects, monitor application usage, and see screenshots taken throughout the day. Employees can also add offline time manually.",
+            "Administrator can view detailed timelines, track time spent on projects, monitor application usage, and see screenshots taken throughout the day. Employees can also add offline time manually."
           </p>
           <button
             style={{
@@ -149,7 +148,7 @@ const HowItWorks = () => {
           </button>
         </>
       ),
-      image: DetailsTimeline,
+      image: details_timeline,
     },
     {
       id: 6,
@@ -157,7 +156,7 @@ const HowItWorks = () => {
       description: (
         <>
           <p>
-            "View time and cost reports, filter by employees or date range, and export detailed timesheets to Excel. Employees can also generate invoices based on their tracked time.",
+            "View time and cost reports, filter by employees or date range, and export detailed timesheets to Excel. Employees can also generate invoices based on their tracked time."
           </p>
           <button
             style={{
@@ -172,7 +171,7 @@ const HowItWorks = () => {
             }}
             onClick={() =>
               window.open(
-                "https://www.youtube.com/embed/6fz2IMH71UM",
+                "https://youtu.be/aBz6tGF_Dg4?feature=shared",
                 "_blank"
               )
             }
@@ -181,7 +180,7 @@ const HowItWorks = () => {
           </button>
         </>
       ),
-      image: ShowReports
+      image: show_reports
     },
   ];
 
@@ -192,7 +191,7 @@ const HowItWorks = () => {
         <div className="container">
           <div className="userHeader d-flex justify-content-between align-items-center">
             <h5>How it Works</h5>
-            <a href="https://youtu.be/9YuYgp7BAzU?feature=shared"
+            <a href="https://youtu.be/85UxhEv90BU?feature=shared"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: "#7ACB59" }}>

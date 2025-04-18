@@ -3,10 +3,10 @@
 
 import React from 'react';
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
-import step1 from '../../../images/step1.png';
-import step2 from '../../../images/step2.png';
-import step3 from '../../../images/step3.png';
-import step4 from '../../../images/step4.png';
+import step_1 from '../../../images/step1.png';
+import step_2 from '../../../images/step_2.png';
+import step_3 from '../../../images/step_3.png';
+import step_4 from '../../../images/step_4.png';
 import 'bootstrap/dist/css/bootstrap.min.css';
 // import { useNavigate } from 'react-router-dom';
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -59,7 +59,7 @@ function NewHIW({ language }) {
                 <Col xs={12} md={6} lg={4} className="p-0 mt-lg-5 d-flex justify-content-center">
                     <StepCard
                         stepNumber="01"
-                        image={step1}
+                        image={step_1}
                         title={language === 'en' ? 'Sign Up' : 'اشترك'}
                         description={language === 'en'
                             ? 'Create your SSTRACK.IO account. It’s quick and easy—just enter your details, and you’re in.'
@@ -70,7 +70,7 @@ function NewHIW({ language }) {
                 <Col xs={12} md={6} lg={4} className="p-1 d-flex justify-content-center second-card">
                     <StepCard
                         stepNumber="02"
-                        image={step2}
+                        image={step_2}
                         title={language === 'en' ? 'Go to Your Dashboard' : 'انتقل إلى لوحة التحكم'}
                         description={language === 'en'
                             ? 'Add team members, define user roles, and set up your projects. This central hub gives you full control and visibility.'
@@ -84,7 +84,7 @@ function NewHIW({ language }) {
                 <Col xs={12} md={6} lg={4} className="p-0 mt-lg-5 d-flex justify-content-center">
                     <StepCard
                         stepNumber="03"
-                        image={step3}
+                        image={step_3}
                         title={language === 'en' ? 'Download the App & Start Tracking' : 'قم بتنزيل التطبيق وابدأ التتبع'}
                         description={language === 'en'
                             ? 'Have each team member install the SSTRACK.IO application on their device. Once they begin working, their time and activity data syncs to your dashboard in real time.'
@@ -95,7 +95,7 @@ function NewHIW({ language }) {
                 <Col xs={12} md={6} lg={4} className="p-1 d-flex justify-content-center second-card">
                     <StepCard
                         stepNumber="04"
-                        image={step4}
+                        image={step_4}
                         title={language === 'en' ? 'Analyze & Optimize' : 'حلل وحسّن الأداء'}
                         description={language === 'en'
                             ? 'Use built-in reports and analytics to review performance, spot trends, and optimize workflows. Make data-driven decisions to boost productivity.'

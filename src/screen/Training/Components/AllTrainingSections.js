@@ -145,10 +145,10 @@ const AllTrainingSections = () => {
   const [language, setLanguage] = useState("en");
   const t = translations[language];
   const videoData = [
-    { id: "tqR7rCIzgxM", start: 0 },
+    { id: "pesUBUnT0iA", start: 0 },
     { id: "n_0Ckc5JXE8", start: 0 },
-    { id: "6fz2IMH71UM", start: 0 },
-    { id: "1fyVTr4T2sI", start: 0 },
+    { id: "aBz6tGF_Dg4", start: 0 },
+    { id: "W1Xbvu-i_qI", start: 0 },
     { id: "exbP3WgSyBE", start: 0 },
     // { id: "7_yMLGrLsoI", start: 0 },
     { id: "To_7qKsb4BE", start: 0 }  // ✅ updated for Step 6

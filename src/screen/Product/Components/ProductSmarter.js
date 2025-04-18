@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FaClock } from "react-icons/fa";
-import trackingImage from "../../../images/product-smartImage.png"; // Replace with your image path
+import tracking_image from "../../../images/product-smartImage.png"; // Replace with your image path
 import { useNavigate,Link } from 'react-router-dom';
 
 const BenefitsSection = ({ language }) => {
@@ -79,7 +79,7 @@ const BenefitsSection = ({ language }) => {
             <div style={{ position: "relative", display: "inline-block" }}>
               {/* Main Image */}
               <img
-                src={trackingImage} // Replace with the actual image path
+                src={tracking_image} // Replace with the actual image path
                 alt="Tracking Tool"
                 style={{
                   width: "100%",

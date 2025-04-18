@@ -447,6 +447,7 @@ function UserDashboard() {
   
     return (
         <>
+        {/* <Sidebar /> */}
             <div className="mobhayat">
                 {user?._id === "679b223b61427668c045c659" && (
                     <Joyride
@@ -624,8 +625,8 @@ function UserDashboard() {
                         <div className="container" style={{ borderRadius: '5%' }}>
                             <div className="userDashboardContainer1 d-flex gap-3 text-center align-items-center justify-content-center">
                                 <h4 className="fw-bold text-dark mb-0">Want to add team members?</h4>
-                                <Link
-                                    to="/team"
+                                <a
+                                    href="/team"
                                     className="btn btn-primary"
                                     style={{
                                         backgroundColor: "#7ACB59",
@@ -639,7 +640,7 @@ function UserDashboard() {
                                     }}
                                 >
                                     Click here
-                                </Link>
+                                </a>
                             </div>
                         </div>
                     </div>
