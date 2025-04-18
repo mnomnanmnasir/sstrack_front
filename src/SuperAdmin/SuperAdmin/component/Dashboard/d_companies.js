@@ -7,6 +7,14 @@ function DCompanies() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [companies, setCompanies] = useState([]);
+    const [selectedCompany, setSelectedCompany] = useState(null);
+
+
+    // Function to handle "View" button click
+    const handleViewClick = (company) => {
+
+        setSelectedCompany(company); // Set the entire company object, including its users
+    };
 
     const fetchCompanies = async () => {
         try {
@@ -140,6 +148,22 @@ function DCompanies() {
                                     </Typography>
                                 </Box>
                             </CardContent>
+                            <Button
+                                variant="contained"
+                                onClick={() => handleViewClick(company)}
+                                sx={{
+                                    backgroundColor: '#4caf50',
+                                    color: '#fff',
+                                    borderRadius: '20px',
+                                    textTransform: 'none',
+                                    fontWeight: 'bold',
+                                    boxShadow: 'none',
+                                    width: '85%',
+                                    '&:hover': { backgroundColor: '#43a047' },
+                                }}
+                            >
+                                View
+                            </Button>
                         </Card>
                     </Grid>
                 ))}

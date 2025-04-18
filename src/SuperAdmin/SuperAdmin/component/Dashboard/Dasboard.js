@@ -12,10 +12,7 @@ function Dashboard({ onNavigate }) {
   const [error, setError] = useState(null);
   const [totalCompaniesUsers, setTotalCompaniesUsers] = useState(null);
   const [newCompaniesUsers, setNewCompaniesUsers] = useState(null);
-
-
-
-
+  
   const fetchTotalCompaniesUsers = async () => {
     const token = localStorage.getItem('token_for_sa');
     if (!token) {
@@ -179,8 +176,9 @@ function Dashboard({ onNavigate }) {
                   <Typography variant="h5">{card.value}</Typography>
                   <Typography color="textSecondary">{card.label}</Typography>
                 </Box>
-                <Avatar sx={{ bgcolor: '#e0f7fa' }}>{card.icon}</Avatar>
+                {/* <Avatar sx={{ bgcolor: '#e0f7fa' }}>{card.icon}</Avatar> */}
               </CardContent>
+  
             </Card>
           </Grid>
         ))}

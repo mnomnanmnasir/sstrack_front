@@ -7,6 +7,8 @@ import UserHeader from './screen/component/userHeader';
 import NewHeader from './screen/component/Header/NewHeader';
 import Sidebar from './userSidebar/Sidebar';
 import { useSocket } from './io'; // Correct import
+import jwtDecode from "jwt-decode";
+import axios from "axios";
 
 const Layout = () => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
