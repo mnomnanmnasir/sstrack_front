@@ -123,186 +123,12 @@ function DCompanies() {
     };
 
     return (
-        // <Box>
-        <>
-            {!selectedCompany ? (
-                <Grid container spacing={2}>
-                    {companies.slice(0, 4).map((company, index) => (
-                        <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                            <Card
-                                sx={{
-                                    borderRadius: '12px',
-                                    boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)',
-                                    position: 'relative',
-                                    padding: '16px',
-                                    border: '1px solid #e0e0e0',
-                                    minWidth: '200px',
-                                    maxWidth: '100%',
-                                    height: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'space-between',
-                                }}
-                            >
-                                {/* Badge */}
-                                <Box
-                                    sx={{
-                                        position: 'absolute',
-                                        top: 8,
-                                        right: 8,
-                                        backgroundColor: company.type === 'suspended' ? '#ff9800' : '#4caf50',
-                                        color: '#fff',
-                                        borderRadius: '8px',
-                                        padding: '4px 8px',
-                                        fontSize: '12px',
-                                        fontWeight: 'bold',
-                                    }}
-                                >
-                                    {company.type}
-                                </Box>
-
-                                <CardContent sx={{ textAlign: 'center', padding: 0, marginTop: '20%' }}>
-
-                                    <Typography variant="h6" fontWeight="bold">{company.name}</Typography>
-                                    <Box
-                                        sx={{
-                                            backgroundColor: '#f7f9fc',
-                                            borderRadius: '8px',
-                                            padding: '12px',
-                                            marginTop: '20%',
-                                            textAlign: 'left',
-                                            color: '#555',
-                                        }}
-                                    >
-                                        <Typography variant="body2" sx={{ fontSize: '14px', marginBottom: '4px' }}>
-                                            📧 {company.ownerEmail}
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
-                                            {/* Left Section */}
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <PersonIcon sx={{ color: '#555' }} />
-                                                <Typography variant="body2" sx={{ color: '#555' }}>
-                                                    {company.ownerName}
-                                                </Typography>
-                                            </Box>
-
-                                            {/* Right Section */}
-                                            <Box sx={{ textAlign: 'right' }}>
-                                                <Typography variant="caption" sx={{ color: '#888' }}>
-                                                    Created Date
-                                                </Typography>
-                                                <Typography variant="body2" sx={{ color: '#555', fontWeight: 600 }}>
-                                                    {company.companyCreatedAt ? new Date(company.companyCreatedAt).toISOString().split("T")[0] : 'N/A'}
-                                                </Typography>
-                                            </Box>
-                                        </Box>
-                                    </Box>
-                                </CardContent>
-
-                                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                                    <Button
-                                        variant="contained"
-                                        onClick={() => handleViewClick(company)}
-                                        sx={{
-                                            backgroundColor: '#4caf50',
-                                            color: '#fff',
-                                            borderRadius: '20px',
-                                            textTransform: 'none',
-                                            fontWeight: 'bold',
-                                            boxShadow: 'none',
-                                            width: '85%',
-                                            '&:hover': { backgroundColor: '#43a047' },
-                                        }}
-                                    >
-                                        View
-                                    </Button>
-                                </Box>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
-            ) : (
-                <Box>
-                    {/* Back Button */}
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            marginBottom: '24px',
-                            cursor: 'pointer',
-                        }}
-                        onClick={handleBackClick} // Trigger the back function when clicked
-                    >
-                        {/* Left Arrow Icon */}
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            style={{
-                                color: '#333',
-                            }}
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                        </svg>
-
-                        {/* Header Text */}
-                        <Typography
-                            variant="h6"
-                            fontWeight="bold"
-                            sx={{
-                                color: '#2E3A59',
-                                fontSize: '18px',
-                            }}
-                        >
-                            Company Details
-                        </Typography>
-                    </Box>
-                    {/* Company Info */}
-                    <Box
-                        sx={{
-                            backgroundColor: '#fff',
-                            border: '1px solid #e0e0e0',
-                            borderRadius: '12px',
-                            padding: 2,
-                            marginBottom: 3,
-                            boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)'
-                        }}
-                    >
-                        {/* <Typography variant="h6" fontWeight="bold" gutterBottom>
-                            {selectedCompany.name}
-                        </Typography> */}
-                        {/* <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#4caf50', mt: 1 }}>
-                            {selectedCompany.name} – Total Hours: {calculateCompanyTotalHours(selectedCompany.id)}
-                        </Typography>
- */}
-                        <Typography
-                            variant="h6"
-                            fontWeight="bold"
-                            sx={{
-                                color: '#2E3A59',
-                                marginBottom: '4px',
-                            }}>
-                            {/* 📧 {selectedCompany.email} */}
-                            {selectedCompany.name} – Total Hours: {calculateCompanyTotalHours(selectedCompany.id)}
-                        </Typography>
-                        <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
-                            Total Users: {selectedCompany.users.length}
-                        </Typography>
-                        <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
-                            Created At: {selectedCompany.companyCreatedAt ? new Date(selectedCompany.companyCreatedAt).toLocaleDateString() : 'N/A'}
-                        </Typography>
-                    </Box>
-
-                    {/* Users */}
-                    <Typography variant="h6" fontWeight="bold" marginBottom={2}>Total Users</Typography>
+        <Box>
+            <>
+                {!selectedCompany ? (
                     <Grid container spacing={2}>
-                        {selectedCompany.users.map((user, idx) => (
-                            <Grid item xs={12} sm={6} md={4} key={idx}>
+                        {companies.slice(0, 4).map((company, index) => (
+                            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
                                 <Card
                                     sx={{
                                         borderRadius: '12px',
@@ -310,69 +136,237 @@ function DCompanies() {
                                         position: 'relative',
                                         padding: '16px',
                                         border: '1px solid #e0e0e0',
+                                        minWidth: '200px',
+                                        maxWidth: '100%',
+                                        height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         justifyContent: 'space-between',
-                                        height: '180px',
                                     }}
                                 >
-                                    <Box>
-                                        <Typography variant="h6" fontWeight="bold">{user.name}</Typography>
-                                        <Typography variant="body2" sx={{ color: '#555' }}>📧 {user.email}</Typography>
-                                        {/* <Typography variant="body2" sx={{ color: '#555' }}>📞 {user.phone}</Typography> */}
-                                        <Typography variant="body2" sx={{ color: '#888' }}>
-                                            Created At: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-                                        </Typography>
-                                    </Box>
-
-                                    {/* Role Badge */}
+                                    {/* Badge */}
                                     <Box
                                         sx={{
                                             position: 'absolute',
-                                            top: '16px',
-                                            right: '16px',
-                                            backgroundColor: user.role === 'owner' ? '#e6f5e9' : '#f3f3f3',
-                                            color: user.role === 'owner' ? '#4caf50' : '#999',
-                                            padding: '4px 12px',
-                                            borderRadius: '12px',
+                                            top: 8,
+                                            right: 8,
+                                            backgroundColor: company.type === 'suspended' ? '#ff9800' : '#4caf50',
+                                            color: '#fff',
+                                            borderRadius: '8px',
+                                            padding: '4px 8px',
                                             fontSize: '12px',
-                                            fontWeight: '600',
+                                            fontWeight: 'bold',
                                         }}
                                     >
-                                        {user.role.toUpperCase()}
+                                        {company.type}
                                     </Box>
-                                    <Box
-                                        sx={{
-                                            position: 'absolute',
-                                            top: '56px',
-                                            right: '16px',
-                                            backgroundColor: 'transparent',
-                                            color: '#4CAF50',
-                                            borderRadius: '16px',
-                                            fontSize: '11px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '6px',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        {user.lastActiveUser === 'just now' ? (
-                                            <span style={{ fontSize: '16px', color: '#4CAF50' }}>●</span>
-                                        ) : (
-                                            user.lastActiveUser
-                                        )}
-                                    </Box>
-                                    <Typography variant="body2" sx={{ color: '#4CAF50', fontWeight: 600, mt: 1 }}>
-                                        Weekly Hours: {companyHours[selectedCompany.id]?.[user.id] || '0h 0m'}
-                                    </Typography>
 
+                                    <CardContent sx={{ textAlign: 'center', padding: 0, marginTop: '20%' }}>
+
+                                        <Typography variant="h6" fontWeight="bold">{company.name}</Typography>
+                                        <Box
+                                            sx={{
+                                                backgroundColor: '#f7f9fc',
+                                                borderRadius: '8px',
+                                                padding: '12px',
+                                                marginTop: '20%',
+                                                textAlign: 'left',
+                                                color: '#555',
+                                            }}
+                                        >
+                                            <Typography variant="body2" sx={{ fontSize: '14px', marginBottom: '4px' }}>
+                                                📧 {company.ownerEmail}
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                                                {/* Left Section */}
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <PersonIcon sx={{ color: '#555' }} />
+                                                    <Typography variant="body2" sx={{ color: '#555' }}>
+                                                        {company.ownerName}
+                                                    </Typography>
+                                                </Box>
+
+                                                {/* Right Section */}
+                                                <Box sx={{ textAlign: 'right' }}>
+                                                    <Typography variant="caption" sx={{ color: '#888' }}>
+                                                        Created Date
+                                                    </Typography>
+                                                    <Typography variant="body2" sx={{ color: '#555', fontWeight: 600 }}>
+                                                        {company.companyCreatedAt ? new Date(company.companyCreatedAt).toISOString().split("T")[0] : 'N/A'}
+                                                    </Typography>
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    </CardContent>
+
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                                        <Button
+                                            variant="contained"
+                                            onClick={() => handleViewClick(company)}
+                                            sx={{
+                                                backgroundColor: '#4caf50',
+                                                color: '#fff',
+                                                borderRadius: '20px',
+                                                textTransform: 'none',
+                                                fontWeight: 'bold',
+                                                boxShadow: 'none',
+                                                width: '85%',
+                                                '&:hover': { backgroundColor: '#43a047' },
+                                            }}
+                                        >
+                                            View
+                                        </Button>
+                                    </Box>
                                 </Card>
                             </Grid>
                         ))}
                     </Grid>
-                </Box>
-            )}
-        </>
+                ) : (
+                    <Box>
+                        {/* Back Button */}
+                        <Box
+                            onClick={handleBackClick} // Trigger the back function when clicked
+                        >
+                            {/* Left Arrow Icon */}
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                style={{
+                                    color: '#333',
+                                }}
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+
+                            {/* Header Text */}
+                            <Typography
+                                variant="h6"
+                                fontWeight="bold"
+                                sx={{
+                                    color: '#2E3A59',
+                                    fontSize: '18px',
+                                }}
+                            >
+                                Company Details
+                            </Typography>
+                        </Box>
+                        {/* Company Info */}
+                        <Box
+                            sx={{
+                                backgroundColor: '#fff',
+                                border: '1px solid #e0e0e0',
+                                borderRadius: '12px',
+                                padding: 2,
+                                marginBottom: 3,
+                                boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)'
+                            }}
+                        >
+                            {/* <Typography variant="h6" fontWeight="bold" gutterBottom>
+                            {selectedCompany.name}
+                        </Typography> */}
+                            {/* <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#4caf50', mt: 1 }}>
+                            {selectedCompany.name} – Total Hours: {calculateCompanyTotalHours(selectedCompany.id)}
+                        </Typography>
+ */}
+                            <Typography
+                                variant="h6"
+                                fontWeight="bold"
+                                sx={{
+                                    color: '#2E3A59',
+                                    marginBottom: '4px',
+                                }}>
+                                {/* 📧 {selectedCompany.email} */}
+                                {selectedCompany.name} – Total Hours: {calculateCompanyTotalHours(selectedCompany.id)}
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
+                                Total Users: {selectedCompany.users.length}
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
+                                Created At: {selectedCompany.companyCreatedAt ? new Date(selectedCompany.companyCreatedAt).toLocaleDateString() : 'N/A'}
+                            </Typography>
+                        </Box>
+
+                        {/* Users */}
+                        <Typography variant="h6" fontWeight="bold" marginBottom={2}>Total Users</Typography>
+                        <Grid container spacing={2}>
+                            {selectedCompany.users.map((user, idx) => (
+                                <Grid item xs={12} sm={6} md={4} key={idx}>
+                                    <Card
+                                        sx={{
+                                            borderRadius: '12px',
+                                            boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)',
+                                            position: 'relative',
+                                            padding: '16px',
+                                            border: '1px solid #e0e0e0',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            justifyContent: 'space-between',
+                                            height: '180px',
+                                        }}
+                                    >
+                                        <Box>
+                                            <Typography variant="h6" fontWeight="bold">{user.name}</Typography>
+                                            <Typography variant="body2" sx={{ color: '#555' }}>📧 {user.email}</Typography>
+                                            {/* <Typography variant="body2" sx={{ color: '#555' }}>📞 {user.phone}</Typography> */}
+                                            <Typography variant="body2" sx={{ color: '#888' }}>
+                                                Created At: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                                            </Typography>
+                                        </Box>
+
+                                        {/* Role Badge */}
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                top: '16px',
+                                                right: '16px',
+                                                backgroundColor: user.role === 'owner' ? '#e6f5e9' : '#f3f3f3',
+                                                color: user.role === 'owner' ? '#4caf50' : '#999',
+                                                padding: '4px 12px',
+                                                borderRadius: '12px',
+                                                fontSize: '12px',
+                                                fontWeight: '600',
+                                            }}
+                                        >
+                                            {user.role.toUpperCase()}
+                                        </Box>
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                top: '56px',
+                                                right: '16px',
+                                                backgroundColor: 'transparent',
+                                                color: '#4CAF50',
+                                                borderRadius: '16px',
+                                                fontSize: '11px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '6px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            {user.lastActiveUser === 'just now' ? (
+                                                <span style={{ fontSize: '16px', color: '#4CAF50' }}>●</span>
+                                            ) : (
+                                                user.lastActiveUser
+                                            )}
+                                        </Box>
+                                        <Typography variant="body2" sx={{ color: '#4CAF50', fontWeight: 600, mt: 1 }}>
+                                            Weekly Hours: {companyHours[selectedCompany.id]?.[user.id] || '0h 0m'}
+                                        </Typography>
+
+                                    </Card>
+                                </Grid>
+                            ))}
+                        </Grid>
+                    </Box>
+                )}
+            </>
+        </Box>
     );
 }
 

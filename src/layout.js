@@ -8,6 +8,7 @@ import NewHeader from './screen/component/Header/NewHeader';
 import Sidebar from './userSidebar/Sidebar';
 import { useSocket } from './io'; // Correct import
 import jwtDecode from "jwt-decode";
+import axios from 'axios';
 
 const Layout = () => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
@@ -63,36 +64,7 @@ const Layout = () => {
       return null;
     }
   });
-  
-  useEffect(() => {
-    if (!socket) return;
 
-    const handleRoleUpdate = async () => {
-      try {
-        const response = await axios.patch("https://myuniversallanguages.com:9093/api/v1/signin/users/Update", {}, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json"
-          }
-        });
-
-        if (response.data?.token) {
-          localStorage.setItem("token", response.data.token);
-          setToken(response.data.token); // also update main token
-          const newUserType = jwtDecode(response.data.token).userType;
-          setUserType(newUserType);
-          console.log("Layout received role_update, userType set to:", newUserType);
-        }
-      } catch (error) {
-        console.error("Failed to update userType after role_update", error);
-      }
-    };
-
-    socket.on("role_update", handleRoleUpdate);
-    return () => {
-      socket.off("role_update", handleRoleUpdate);
-    };
-  }, [socket]);
 
   useEffect(() => {
     if (token) {

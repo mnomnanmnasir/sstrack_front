@@ -198,7 +198,7 @@ function Dashboard({ onNavigate }) {
                 New Companies
                 <br />
                 <span style={{ fontSize: '12px', color: '#888' }}>Last 7 Days</span>
-              </>
+                </>
             ),
             value: `${newCompaniesUsers?.newCompanies || 0}`,
             icon: <TrendingUpIcon color="success" />,
