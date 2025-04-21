@@ -14,6 +14,29 @@ function TotalCompanies() {
   const [error, setError] = useState(null); // State to track selected company
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
+  const [companyHours, setCompanyHours] = useState({});
+
+
+  const calculateCompanyTotalHours = (companyId) => {
+    const usersMap = companyHours[companyId];
+    if (!usersMap) return '0h 0m';
+
+    let totalMinutes = 0;
+
+    Object.values(usersMap).forEach((timeStr) => {
+      const match = timeStr.match(/(\d+)h\s*(\d+)m/);
+      if (match) {
+        const hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        totalMinutes += hours * 60 + minutes;
+      }
+    });
+
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+
+    return `${totalHours}h ${remainingMinutes}m`;
+  };
 
   const fetchCompanies = async () => {
     try {
@@ -37,13 +60,16 @@ function TotalCompanies() {
           accessBlock: company.accessBlock,
           name: company.companyName,
           lastActiveCompany: company.lastActiveCompany || 'No last active company',
-          phone: company.users[0]?.name || 'no user name found⚠️', // Company phone with default value
-          email: company.users[0]?.email || 'No email',
+          companyCreatedAt: company.companyCreatedAt || '-',
+          companyHours: company.companyHours || '-',
+          ownerEmail: company.users.find(u => u.userType === 'owner')?.email || 'No email',
+          ownerName: company.users.find(u => u.userType === 'owner')?.name || 'No Owner',
           type: 'suspended', // Indicate that it's a suspended company
           users: company.users.map((user) => ({
             lastActiveUser: user.lastActiveUser || 'No last active user',
             name: user.name || 'Unknown', // Placeholder if name is missing
             email: user.email || 'No email',
+            createdAt: user.createdAt || '-',
             role: user.userType || 'User', // Add role if available
             phone: user.phone || '(123) 456-7890', // Placeholder if phone is missing
           })),
@@ -53,13 +79,18 @@ function TotalCompanies() {
           name: company.companyName,
           accessBlock: company.accessBlock,
           lastActiveCompany: company.lastActiveCompany || 'No last active company',
-          phone: company.users[0]?.name || 'no user name found⚠️', // Company phone with default value
-          email: company.users[0]?.email || 'No email',
+          companyCreatedAt: company.companyCreatedAt || '-', // ✅ Add this line
+          companyHours: company.companyHours || '-',
+          createdAt: company.createdAt || '-', // ✅ Add this line
+          ownerEmail: company.users.find(u => u.userType === 'owner')?.email || 'No email',
+          ownerName: company.users.find(u => u.userType === 'owner')?.name || 'No Owner',
           type: 'other', // Indicate that it's another company
           users: company.users.map((user) => ({
+            id: user._id, // ✅ required to reference totalHours correctly
             lastActiveUser: user.lastActiveUser || 'No last active user',
             name: user.name || 'Unknown', // Placeholder if name is missing
             email: user.email || 'No email',
+            createdAt: user.createdAt || '-',
             role: user.userType || 'User', // Add role if available
             phone: user.phone || '(123) 456-7890', // Placeholder if phone is missing
           })),
@@ -69,6 +100,8 @@ function TotalCompanies() {
           name: company.companyName,
           accessBlock: company.accessBlock,
           lastActiveCompany: company.lastActiveCompany || 'No last active company',
+          companyCreatedAt: company.companyCreatedAt || '-', // ✅ Add this line
+          companyHours: company.companyHours || '0h 0m',  // ✅ Add this line
           phone: company.users[0]?.name || 'no user name found⚠️', // Company phone with default value
           email: company.users[0]?.email || 'No email',
           type: 'archive', // Indicate that it's another company
@@ -82,7 +115,7 @@ function TotalCompanies() {
         }));
         // Combine both arrays if needed
         // const transformedCompanies = [...transformedSuspendedCompanies, ...transformedOtherCompanies,...transformedArchiveCompanies];
-        const transformedCompanies = [...transformedSuspendedCompanies, ...transformedOtherCompanies];
+        const transformedCompanies = [...transformedSuspendedCompanies, ...transformedOtherCompanies, ...transformedArchiveCompanies];
         setCompanies(transformedCompanies);
         setFilteredCompanies(transformedOtherCompanies)
       } else {
@@ -267,10 +300,42 @@ function TotalCompanies() {
     setCurrentPage(1);
   };
 
+  const fetchCompanyHours = async () => {
+    try {
+      const token = localStorage.getItem('token_for_sa');
+      if (!token) return;
 
+      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/companiesHours', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.success) {
+        const hoursData = response.data.otherCompanies;
+
+        // Create a map: companyId -> userId -> totalHours
+        const hoursMap = {};
+
+        hoursData.forEach((company) => {
+          if (!company._id || !Array.isArray(company.users)) return;
+
+          if (!hoursMap[company._id]) hoursMap[company._id] = {};
+
+          company.users.forEach((user) => {
+            hoursMap[company._id][user._id] = user.totalHours || '0h 0m';
+          });
+        });
+
+        console.log("✅ Final Hours Map:", hoursMap);
+        setCompanyHours(hoursMap); // Set it in state
+      }
+    } catch (err) {
+      console.error('❌ Error fetching company hours:', err);
+    }
+  };
 
   useEffect(() => {
     fetchCompanies();
+    fetchCompanyHours();
   }, []);
 
 
@@ -291,6 +356,9 @@ function TotalCompanies() {
 
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
+
+
+
   return (
     <Box sx={{ padding: 3, fontFamily: 'Arial, sans-serif', alignSelf: 'start', width: '98%' }}>
       <TopBar />
@@ -381,7 +449,7 @@ function TotalCompanies() {
                           position: 'absolute',
                           top: '16px',
                           left: '16px',
-                          backgroundColor: 'transparent' ,
+                          backgroundColor: 'transparent',
                           color: '#4CAF50',
                           borderRadius: '16px',
                           fontSize: '10px',
@@ -396,6 +464,7 @@ function TotalCompanies() {
                         ) : (
                           company.lastActiveCompany
                         )}
+
                       </Box>
 
                       <CardContent sx={{ textAlign: 'center', padding: 0, marginTop: '20%' }}>
@@ -416,12 +485,27 @@ function TotalCompanies() {
                           }}
                         >
                           <Typography variant="body2" sx={{ fontSize: '14px', marginBottom: '4px' }}>
-                            📧 {company.email}
+                            📧 {company.ownerEmail}
                           </Typography>
-                          <Typography variant="body2" sx={{ color: '#555', display: 'flex', alignItems: 'center' }}>
-                            <PersonIcon sx={{ marginRight: 1 }} />
-                            {company.phone}
-                          </Typography>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                            {/* Left Section */}
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <PersonIcon sx={{ color: '#555' }} />
+                              <Typography variant="body2" sx={{ color: '#555' }}>
+                                {company.ownerName}
+                              </Typography>
+                            </Box>
+
+                            {/* Right Section */}
+                            <Box sx={{ textAlign: 'right' }}>
+                              <Typography variant="caption" sx={{ color: '#888' }}>
+                                Created Date
+                              </Typography>
+                              <Typography variant="body2" sx={{ color: '#555', fontWeight: 600 }}>
+                                {company.companyCreatedAt ? new Date(company.companyCreatedAt).toISOString().split("T")[0] : 'N/A'}
+                              </Typography>
+                            </Box>
+                          </Box>
                         </Box>
                       </CardContent>
 
@@ -528,8 +612,9 @@ function TotalCompanies() {
                       marginBottom: '4px',
                     }}
                   >
-                    {selectedCompany.name}
+                    {selectedCompany.name} – Total Hours: {calculateCompanyTotalHours(selectedCompany.id)}
                   </Typography>
+
                   <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
                     Total Users: {selectedCompany.users.length}
                   </Typography>
@@ -542,56 +627,13 @@ function TotalCompanies() {
                       gap: '8px',
                     }}
                   >
-                    {/* Location and Time Info */}
-                    {/* <Box
-                    component="span"
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      style={{ width: '16px', height: '16px', color: '#999' }}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 2c4.418 0 8 3.582 8 8 0 4.418-3.582 8-8 8s-8-3.582-8-8c0-4.418 3.582-8 8-8zm0 0v4m-2 2h4"
-                      />
-                    </svg>
-                    Ontario, Canada
-                  </Box> */}
-                    {/* <Box
-                    component="span"
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      style={{ width: '16px', height: '16px', color: '#999' }}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 8c1.657 0 3 1.343 3 3v6h1a2 2 0 110 4H8a2 2 0 110-4h1v-6c0-1.657 1.343-3 3-3z"
-                      />
-                    </svg>
-                    (GMT-8:00) Pacific Time
-                  </Box> */}
                   </Typography>
+
+                  <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
+                    {/* Total Users: {selectedCompany.users.length} */}
+                    Created At: {selectedCompany.companyCreatedAt ? new Date(selectedCompany.companyCreatedAt).toLocaleDateString() : 'N/A'}
+                  </Typography>
+
                 </Box>
 
                 {/* Right Section with Buttons */}
@@ -668,12 +710,13 @@ function TotalCompanies() {
                         position: 'relative',
                         padding: '16px',
                         border: '1px solid #e0e0e0',
+                        height: '100%', // Let MUI Grid control height
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
-                        height: '180px',
                       }}
                     >
+
                       {/* User Details */}
                       <Box>
                         <Typography variant="h6" fontWeight="bold" sx={{ marginBottom: '8px' }}>
@@ -683,6 +726,9 @@ function TotalCompanies() {
                           📧 {user.email}
                         </Typography>
 
+                        <Typography variant="body2" sx={{ color: '#888' }}>
+                          Created At: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                        </Typography>
                       </Box>
                       {/* Role Badge */}
                       <Box
@@ -705,7 +751,7 @@ function TotalCompanies() {
                           position: 'absolute',
                           top: '56px',
                           right: '16px',
-                          backgroundColor: 'transparent' ,
+                          backgroundColor: 'transparent',
                           color: '#4CAF50',
                           borderRadius: '16px',
                           fontSize: '11px',
@@ -721,6 +767,11 @@ function TotalCompanies() {
                           user.lastActiveUser
                         )}
                       </Box>
+
+                      <Typography variant="body2" sx={{ color: '#4CAF50', fontWeight: 600, mt: 1 }}>
+                        Weekly Hours: {companyHours[selectedCompany.id]?.[user.id] || '0h 0m'}
+                      </Typography>
+
                     </Card>
                   </Grid>
                 ))}
@@ -728,21 +779,21 @@ function TotalCompanies() {
 
               {/* Back to Companies Button */}
               {/* <Box sx={{ marginTop: '24px', textAlign: 'right' }}>
-              <Button
-                variant="contained"
-                onClick={handleBackClick}
-                sx={{
-                  backgroundColor: '#007bff',
-                  color: '#fff',
-                  borderRadius: '20px',
-                  textTransform: 'none',
-                  fontWeight: 'bold',
-                  '&:hover': { backgroundColor: '#0056b3' },
-                }}
-              >
-                Back to Companies
-              </Button>
-            </Box> */}
+                <Button
+                  variant="contained"
+                  onClick={handleBackClick}
+                  sx={{
+                    backgroundColor: '#007bff',
+                    color: '#fff',
+                    borderRadius: '20px',
+                    textTransform: 'none',
+                    fontWeight: 'bold',
+                    '&:hover': { backgroundColor: '#0056b3' },
+                  }}
+                >
+                  Back to Companies
+                </Button>
+              </Box> */}
             </Box>
           )}
         </>

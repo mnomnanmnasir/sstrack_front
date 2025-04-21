@@ -28,7 +28,7 @@ function SaSidebar({ selectedItem, onSelectItem }) {
   const handleLogout = () => {
     localStorage.removeItem('token_for_sa'); // Clear authentication token
     navigate('/'); // Redirect to login page
-    window.location.reload(); 
+    window.location.reload();
   };
 
   const handleDrawerToggle = () => {
@@ -72,15 +72,20 @@ function SaSidebar({ selectedItem, onSelectItem }) {
 
         {/* User Info */}
         <Avatar
-          src="/assets/images/profile.jpg"
-          alt="User Profile"
           style={{
             width: '80px',
             height: '80px',
             marginBottom: '10px',
             border: '2px solid #ffffff',
+            backgroundColor: '#6DBB48',
+            fontSize: '28px',
+            fontWeight: 'bold',
+            color: 'white',
           }}
-        />
+        >
+          KT
+        </Avatar>
+
         <Typography variant="h6" style={{ color: 'white', marginBottom: '5px' }}>
           Kamran Tariq
         </Typography>

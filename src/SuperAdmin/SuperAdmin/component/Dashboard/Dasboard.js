@@ -12,7 +12,10 @@ function Dashboard({ onNavigate }) {
   const [error, setError] = useState(null);
   const [totalCompaniesUsers, setTotalCompaniesUsers] = useState(null);
   const [newCompaniesUsers, setNewCompaniesUsers] = useState(null);
-  
+
+
+
+
   const fetchTotalCompaniesUsers = async () => {
     const token = localStorage.getItem('token_for_sa');
     if (!token) {
@@ -63,7 +66,6 @@ function Dashboard({ onNavigate }) {
       setLoading(false);
     }
   };
-
 
   // const fetchInvoices = async () => {
   //   const token = localStorage.getItem('token_for_sa');
@@ -125,7 +127,7 @@ function Dashboard({ onNavigate }) {
       </Typography>
 
       {/* Summary Cards */}
-      <Grid container spacing={2} mb={4}>
+      {/* <Grid container spacing={2} mb={4}>
         {[
           {
             label: 'Total Companies',
@@ -176,13 +178,73 @@ function Dashboard({ onNavigate }) {
                   <Typography variant="h5">{card.value}</Typography>
                   <Typography color="textSecondary">{card.label}</Typography>
                 </Box>
-                {/* <Avatar sx={{ bgcolor: '#e0f7fa' }}>{card.icon}</Avatar> */}
+                <Avatar sx={{ bgcolor: '#e0f7fa' }}>{card.icon}</Avatar>
               </CardContent>
-  
             </Card>
           </Grid>
         ))}
-      </Grid>
+      </Grid> */}
+
+      <div className="row g-3 mb-4">
+        {[
+          {
+            label: 'New Users',
+            value: `${newCompaniesUsers?.newUsers || 0}`,
+            icon: <TrendingUpIcon color="success" />,
+          },
+          {
+            label: (
+              <>
+                New Companies
+                <br />
+                <span style={{ fontSize: '12px', color: '#888' }}>Last 7 Days</span>
+              </>
+            ),
+            value: `${newCompaniesUsers?.newCompanies || 0}`,
+            icon: <TrendingUpIcon color="success" />,
+          },
+          {
+            label: 'Total Companies',
+            value: `${totalCompaniesUsers?.totalCompanies || 0}`,
+            icon: <TrendingUpIcon color="success" />,
+            onClick: () => onNavigate('Total Companies'),
+          },
+          {
+            label: 'Total Users',
+            value: `${totalCompaniesUsers?.totalUsers || 0}`,
+            icon: <TrendingUpIcon color="success" />,
+          },
+          {
+            label: 'Active Users',
+            value: `${newCompaniesUsers?.activeUsers || 0}`,
+            icon: <TrendingUpIcon color="success" />,
+          },
+          {
+            label: 'Active Companies',
+            value: `${newCompaniesUsers?.activeCompanies || 0}`,
+            icon: <TrendingUpIcon color="success" />,
+          }
+        ].map((card, index) => (
+          <div className="col-xl-2 col-lg-2_4 col-md-3 col-sm-6 col-12" key={index}>
+            <div
+              className="card h-100 shadow-sm"
+              style={{ cursor: card.onClick ? 'pointer' : 'default' }}
+              onClick={card.onClick}
+            >
+              <div className="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 className="mb-1">{card.value}</h5>
+                  <p className="text-muted mb-0">{card.label}</p>
+                </div>
+                {/* Optional icon */}
+                {/* <div>{card.icon}</div> */}
+                <Avatar sx={{ bgcolor: '#e0f7fa' }}>{card.icon}</Avatar>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
 
       <Box
         sx={{

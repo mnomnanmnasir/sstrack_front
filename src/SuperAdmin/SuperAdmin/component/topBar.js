@@ -80,8 +80,21 @@ function TopBar() {
         </Select> */}
 
         {/* Profile Avatar */}
-        <Avatar src="/assets/images/profile.jpg" alt="User Profile" sx={{ width: 32, height: 32 }} />
-
+        {/* <Avatar src="/assets/images/profile.jpg" alt="User Profile" sx={{ width: 32, height: 32 }} /> */}
+        <Avatar
+          style={{
+            width: 32,
+            height: 32,
+            // marginBottom: '10px',
+            border: '2px solid #ffffff',
+            backgroundColor: '#6DBB48',
+            fontSize: '15px',
+            // fontWeight: 'bold',
+            // color: 'white',
+          }}
+        >
+          KT
+        </Avatar>
         {/* Date and Time */}
         <Typography variant="body2" color="textSecondary">
           {currentDateTime}

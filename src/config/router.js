@@ -48,7 +48,7 @@
   import ActivityLevel from "../adminScreens/settingScreenComponent/activitylevel";
   import UrlTracking from "../adminScreens/settingScreenComponent/url";
   import History from '../screen/historyLogs'
-  import Notification from '../screen/Notification/notification'
+  import Notification from '../screen/Notification/notificationHistory'
 
   import OwnerManualLeave from '../companyOwner/owner-setting-components/ownerManualLeave'
   import TrainingPage from "../screen/Training/TrainingPage";

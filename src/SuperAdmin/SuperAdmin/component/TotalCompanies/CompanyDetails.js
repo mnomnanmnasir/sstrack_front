@@ -10,7 +10,7 @@ function CompanyDetails() {
   return (
     <Box sx={{ padding: 3 }}>
       <Typography variant="h4" fontWeight="bold" marginBottom={3}>
-        Company Details
+        Company Det
       </Typography>
       <Typography variant="h6">Name: {companyName}</Typography>
       <Typography variant="body1">Email: {company.email}</Typography>

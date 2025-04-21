@@ -8,7 +8,6 @@ import NewHeader from './screen/component/Header/NewHeader';
 import Sidebar from './userSidebar/Sidebar';
 import { useSocket } from './io'; // Correct import
 import jwtDecode from "jwt-decode";
-import axios from "axios";
 
 const Layout = () => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
@@ -23,6 +22,14 @@ const Layout = () => {
       });
     }
   };
+
+  // const [user, setUser] = useState(() => {
+  //   try {
+  //     return token ? jwtDecode(token) : null;
+  //   } catch {
+  //     return null;
+  //   }
+  // });
 
   const [language, setLanguage] = useState('en');
 
@@ -39,7 +46,16 @@ const Layout = () => {
 
   const socket = useSocket();
 
-  // const [token, setToken] = useState(localStorage.getItem("token") || null);
+  // const [token, setToken] = useState(localStorage.getItem('token') || null);
+
+  const [user, setUser] = useState(() => {
+    try {
+      return token ? jwtDecode(token) : null;
+    } catch {
+      return null;
+    }
+  });
+  
   const [userType, setUserType] = useState(() => {
     try {
       return token ? jwtDecode(token)?.userType : null;
@@ -47,7 +63,7 @@ const Layout = () => {
       return null;
     }
   });
-
+  
   useEffect(() => {
     if (!socket) return;
 
@@ -77,6 +93,19 @@ const Layout = () => {
       socket.off("role_update", handleRoleUpdate);
     };
   }, [socket]);
+
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded);
+        setUserType(decoded.userType);  // ✅ make sure this runs
+      } catch {
+        setUser(null);
+        setUserType(null);
+      }
+    }
+  }, [token]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -113,20 +142,20 @@ const Layout = () => {
             <>
               <div className="d-flex" style={{ minHeight: '100vh', overflow: 'hidden' }}>
 
-                <Sidebar userType={userType} />
+                <Sidebar key={userType} userType={userType} />
                 {/* <Sidebar /> */}
 
                 <div className="flex-grow-1 d-flex flex-column" style={{ overflowX: 'hidden', overflowY: 'auto', maxHeight: '100vh' }}>
                   <UserHeader />
                   <div className="flex-grow-1">
                     <Outlet />
+                    <Footer
+                      onContactButtonClick={scrollToContactSection}
+                      language={language}
+                      handleToggleLanguage={handleToggleLanguage}
+                      scrollToSection={scrollToSection}
+                    />
                   </div>
-                  <Footer
-                    onContactButtonClick={scrollToContactSection}
-                    language={language}
-                    handleToggleLanguage={handleToggleLanguage}
-                    scrollToSection={scrollToSection}
-                  />
                 </div>
               </div>
             </>

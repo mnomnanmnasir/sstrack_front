@@ -18,7 +18,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import jwtDecode from "jwt-decode";
 import HeaderOption from './HeaderOption';
 import circle from "../../images/circle.webp";
-import NotificationBell from "../Notification/notication";
+import NotificationBell from "../Notification/noticationBell";
 
 
 function UserHeader() {
@@ -37,7 +37,7 @@ function UserHeader() {
 
     const [showContent, setShowContent] = useState(false);
     const [userType, setUserType] = useState(user?.userType);
-    
+
     const navigate = useNavigate("");
     const dispatch = useDispatch()
     const socket = useSocket()
@@ -712,66 +712,57 @@ function UserHeader() {
                                 </div>
                             </div>
                         </nav>
-                        {showMessage && (<div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                // height: '100vh',
-                                width: '100vw'
-                            }}
-                        >
-                            <div
-                                style={{
-                                    backgroundColor: 'orange',
-                                    padding: 10,
-                                    // borderRadius: 8,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: 8,
-                                    width: '95.2%',
-                                    marginRight: 10,
-                                    textAlign: 'center',
-                                }}
-                            >
-                                {/* <FaCheckCircle style={{ color: 'white' }} /> */}
-                                <span>
-                                    Complete your account setup by adding a{' '}
-                                    <Link to="/Projects" style={{ color: '#007438', textDecoration: 'underline' }}>
-                                        project
-                                    </Link>
-                                    , inviting{' '}
-                                    <Link to="/team" style={{ color: '#007438', textDecoration: 'underline' }}>
-                                        users
-                                    </Link>
-                                    , setting{' '}
-                                    {(userType === 'admin' || userType === 'owner') && (
-                                        <Link to="/settings/break-time" style={{ color: '#007438', textDecoration: 'underline' }}>
-                                            break times
+                        {/* {showMessage && ( */}
+                        {showMessage && (
+                            <div className="container px-3"> {/* Restrict width and center using Bootstrap container */}
+                                <div
+                                    className="alert d-flex justify-content-center align-items-center text-center mb-3"
+                                    style={{
+                                        backgroundColor: 'orange',
+                                        color: 'white',
+                                        fontWeight: 500,
+                                        borderRadius: '0.375rem', // Optional: smooth corners
+                                        margin: '0 auto', // Center horizontally
+                                        width: '100%',
+                                    }}
+                                    role="alert"
+                                >
+                                    <span>
+                                        Complete your account setup by adding a{' '}
+                                        <Link to="/Projects" className="text-success text-decoration-underline">
+                                            project
                                         </Link>
-                                    )}
-
-                                    , ensuring{' '}
-                                    {(userType === 'admin' || userType === 'owner') && (
-                                        <Link to="/settings/punctuality" style={{ color: '#007438', textDecoration: 'underline' }}>
-                                            punctuality
+                                        , inviting{' '}
+                                        <Link to="/team" className="text-success text-decoration-underline">
+                                            users
                                         </Link>
-                                    )}
-                                    , and configuring{' '}
-                                    <Link to="/leave-management" style={{ color: '#007438', textDecoration: 'underline' }}>
-                                        leaves
-                                    </Link>
-                                    . Please click{' '}
-                                    <Link to="/Training" style={{ color: '#007438', textDecoration: 'underline' }}>
-                                        Training center
-                                    </Link>
-                                    .
-                                </span>
-
+                                        , setting{' '}
+                                        {(userType === 'admin' || userType === 'owner') && (
+                                            <Link to="/settings/break-time" className="text-success text-decoration-underline">
+                                                break times
+                                            </Link>
+                                        )}
+                                        , ensuring{' '}
+                                        {(userType === 'admin' || userType === 'owner') && (
+                                            <Link to="/settings/punctuality" className="text-success text-decoration-underline">
+                                                punctuality
+                                            </Link>
+                                        )}
+                                        , and configuring{' '}
+                                        <Link to="/leave-management" className="text-success text-decoration-underline">
+                                            leaves
+                                        </Link>
+                                        , Please click{' '}
+                                        <Link to="/Training" className="text-success text-decoration-underline">
+                                            Training center
+                                        </Link>
+                                        .
+                                    </span>
+                                </div>
                             </div>
-                        </div>)}
+                        )}
 
+                        {/* )} */}
 
                         {/* {token && (
                             < UserDashboardSection key={forceUpdate} />
