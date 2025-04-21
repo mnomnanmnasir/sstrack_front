@@ -361,7 +361,7 @@ function UserHeader() {
 
     return (
         <>
-            <div className="cursor-pointer">
+            <div className="px-3">
                 {/* <Header /> */}
                 {user?.userType === "user" ? (
                     <>
@@ -714,53 +714,50 @@ function UserHeader() {
                         </nav>
                         {/* {showMessage && ( */}
                         {showMessage && (
-                            <div className="container px-3"> {/* Restrict width and center using Bootstrap container */}
-                                <div
-                                    className="alert d-flex justify-content-center align-items-center text-center mb-3"
-                                    style={{
-                                        backgroundColor: 'orange',
-                                        color: 'white',
-                                        fontWeight: 500,
-                                        borderRadius: '0.375rem', // Optional: smooth corners
-                                        margin: '0 auto', // Center horizontally
-                                        width: '100%',
-                                    }}
-                                    role="alert"
-                                >
-                                    <span>
-                                        Complete your account setup by adding a{' '}
-                                        <Link to="/Projects" className="text-success text-decoration-underline">
-                                            project
-                                        </Link>
-                                        , inviting{' '}
-                                        <Link to="/team" className="text-success text-decoration-underline">
-                                            users
-                                        </Link>
-                                        , setting{' '}
-                                        {(userType === 'admin' || userType === 'owner') && (
-                                            <Link to="/settings/break-time" className="text-success text-decoration-underline">
-                                                break times
-                                            </Link>
-                                        )}
-                                        , ensuring{' '}
-                                        {(userType === 'admin' || userType === 'owner') && (
-                                            <Link to="/settings/punctuality" className="text-success text-decoration-underline">
-                                                punctuality
-                                            </Link>
-                                        )}
-                                        , and configuring{' '}
-                                        <Link to="/leave-management" className="text-success text-decoration-underline">
-                                            leaves
-                                        </Link>
-                                        , Please click{' '}
-                                        <Link to="/Training" className="text-success text-decoration-underline">
-                                            Training center
-                                        </Link>
-                                        .
-                                    </span>
-                                </div>
-                            </div>
-                        )}
+                        <div
+                            className="alert d-flex justify-content-center align-items-center text-center mb-3 mx-3 mx-sm-4 mx-md-5"
+                            style={{
+                                backgroundColor: 'orange',
+                                color: 'white',
+                                fontWeight: 500,
+                                borderRadius: '0 0 8px 8px',
+                            }}
+                            role="alert"
+                        >
+                            <span>
+                                Complete your account setup by adding a{' '}
+                                <Link to="/Projects" className="text-success text-decoration-underline">
+                                    project
+                                </Link>
+                                , inviting{' '}
+                                <Link to="/team" className="text-success text-decoration-underline">
+                                    users
+                                </Link>
+                                , setting{' '}
+                                {(userType === 'admin' || userType === 'owner') && (
+                                    <Link to="/settings/break-time" className="text-success text-decoration-underline">
+                                        break times
+                                    </Link>
+                                )}
+                                , ensuring{' '}
+                                {(userType === 'admin' || userType === 'owner') && (
+                                    <Link to="/settings/punctuality" className="text-success text-decoration-underline">
+                                        punctuality
+                                    </Link>
+                                )}
+                                , and configuring{' '}
+                                <Link to="/leave-management" className="text-success text-decoration-underline">
+                                    leaves
+                                </Link>
+                                , Please click{' '}
+                                <Link to="/Training" className="text-success text-decoration-underline">
+                                    Training center
+                                </Link>
+                                .
+                            </span>
+                        </div>
+
+                         )}
 
                         {/* )} */}
 

@@ -114,8 +114,8 @@ const Layout = () => {
             <>
               <div className="d-flex" style={{ minHeight: '100vh', overflow: 'hidden' }}>
 
-                <Sidebar key={userType} userType={userType} />
                 {/* <Sidebar /> */}
+                <Sidebar key={userType} userType={userType} />
 
                 <div className="flex-grow-1 d-flex flex-column" style={{ overflowX: 'hidden', overflowY: 'auto', maxHeight: '100vh' }}>
                   <UserHeader />

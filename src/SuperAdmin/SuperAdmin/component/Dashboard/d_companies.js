@@ -225,6 +225,13 @@ function DCompanies() {
                     <Box>
                         {/* Back Button */}
                         <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                marginBottom: '24px',
+                                cursor: 'pointer',
+                            }}
                             onClick={handleBackClick} // Trigger the back function when clicked
                         >
                             {/* Left Arrow Icon */}
