@@ -291,15 +291,36 @@ function Screenshot() {
       const specificUserIds = employees.map((employee) => employee._id);
 
       // API payload: send only userIds and breakTime settings
-      const requestData = specificUserIds.map((userId) => ({
-        userId,
-        settings: {
-          breakTime: formattedBreakTimes,
-          // puncStartTime: "2024-11-21T09:00:00.000Z", // Example time
-          // puncEndTime: "2024-11-21T17:00:00.000Z",
-        },
-      }));
-     console.log('breaktimeDta===>',requestData)
+      const requestData = employees.map((employee) => {
+        const currentDate = new Date().toISOString().split("T")[0];
+        const userTimezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const userTimezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
+
+        const formattedBreakTimes = breakTimes.map((slot) => {
+          const breakStartTime = new Date(`${currentDate}T${slot.start}:00`).toISOString();
+          const breakEndTime = new Date(`${currentDate}T${slot.end}:00`).toISOString();
+
+          const durationMinutes = (new Date(breakEndTime) - new Date(breakStartTime)) / (1000 * 60);
+          const hours = Math.floor(durationMinutes / 60);
+          const minutes = durationMinutes % 60;
+
+          return {
+            TotalHours: `${hours}h:${minutes}m`,
+            breakStartTime,
+            breakEndTime,
+          };
+        });
+
+        return {
+          userId: employee._id,
+          settings: {
+            breakTime: formattedBreakTimes,
+            timezone: userTimezone,
+            timezoneOffset: userTimezoneOffset,
+          },
+        };
+      });
+      console.log('breaktimeDta===>', requestData)
       // API call to update break time for selected userIds
       const response = await axios.post(
         "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
@@ -543,9 +564,9 @@ function Screenshot() {
         </p>
       </div>
       <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} />
-     
+
       {/* Total Duration */}
-      { (
+      {(
         <>
           <div>
             <h3 style={{ marginTop: 20 }}>Total Break Time:</h3>
@@ -622,7 +643,7 @@ function Screenshot() {
                   </div>
                 )}
               </div>
-  
+
             </div>
           </div>
 
@@ -669,9 +690,9 @@ function Screenshot() {
           If enabled, the individual setting will be used instead of the team
           setting
         </p>
-     
-        <CompanyEmployess Setting={Setting} employees={filter.length > 0 ? filter : employees}/>
-   
+
+        <CompanyEmployess Setting={Setting} employees={filter.length > 0 ? filter : employees} />
+
       </div>
     </div>
   );
