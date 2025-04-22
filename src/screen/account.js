@@ -171,8 +171,8 @@ function Account({ suspended }) {
                 console.log("Rate Per Hour:", rate);
                 setRatePerHour(rate);
 
-                const puncStart = data.puncStartTime ? data.puncStartTime.substring(11, 16) : "";
-                const puncEnd = data.puncEndTime ? data.puncEndTime.substring(11, 16) : "";
+                const puncStart = data.convertedpuncStartTime ? data.convertedpuncStartTime.substring(11, 16) : "";
+                const puncEnd = data.convertedpuncEndTime ? data.convertedpuncEndTime.substring(11, 16) : "";
 
                 console.log("PuncStart:", puncStart);
                 console.log("PuncEnd:", puncEnd);

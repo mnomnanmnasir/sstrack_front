@@ -31,6 +31,7 @@ import WorkCards from "../screen/howitwork";
 import { GoogleLogin } from '@react-oauth/google';
 import OwnerLeaveManagement from '../companyOwner/owner-setting-components/ownerLeaveManagement'
 import SaLogin from '../SuperAdmin/SuperAdmin/saLogin'
+import PrivateRoute from './PrivateRoutes'
 import SaMain from '../SuperAdmin/SuperAdmin/saMain'
 import UserSettings from '../companyOwner/owner-setting-components/userSetting'
 import ApplyForLeave from '../companyOwner/owner-setting-components/ApplyForLeave'
@@ -169,7 +170,6 @@ export default function AppRouter() {
             <Route path="/timeline/:id" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
             <Route path="/account" element={token ? <Account /> : <Navigate to="/" />} />
             <Route path="/effective-settings" element={token ? (suspended ? <Navigate to="/account" /> : <Setting />) : <Navigate to="/" />} />
-
             <Route path="/user-setting" element={token ? (suspended ? <Navigate to="/account" /> : <UserSettings />) : <Navigate to="/" />} />
             <Route path="/Training" element={token ? (suspended ? <Navigate to="/account" /> : <TrainingPage />) : <Navigate to="/" />} />
             <Route path="/notification" element={token ? (suspended ? <Navigate to="/account" /> : <Notification />) : <Navigate to="/" />} />
@@ -218,9 +218,7 @@ export default function AppRouter() {
             <Route path="/settings" element={<Setting />}>
               <Route path="break-time" element={< BreakTime />} />
               <Route path="punctuality" element={<Punctuality />} />
-
-              <Route path="*" element={<NotFound />} />
-
+              
             </Route>
             {/* <Route
                 path="/profile"
@@ -240,6 +238,7 @@ export default function AppRouter() {
             {/* <Route path="/privacy-policy1" element={<PrivacyPolicy1/>} />
               <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} /> */}
           </Route>
+          
           {/* <Route path="*" element={<Navigate to="/signin" />} /> */}
           {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
           {/* Catch-all route */}
