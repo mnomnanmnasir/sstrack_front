@@ -12,6 +12,8 @@ import user from '../images/user.webp';
 import verifyImge from '../images/verfiyImage.png';
 import Header from '../screen/component/header';
 import { FaEnvelope, FaGoogle } from "react-icons/fa"; // Import Email Icon
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/bootstrap.css';
 
 
 function Signup() {
@@ -26,20 +28,21 @@ function Signup() {
         company: "",
         email: "",
         // password: "",
+        phoneNumber: "", // ✅ Add this line
         timezone: "",
         timezoneOffset: "",
         userType: "owner"
     });
-    
+
     // const emailfromlink = location.state?.email;
 
     const [showSuccessMessage, setShowSuccessMessage] = useState(false); // To toggle success message
 
     useEffect(() => {
         if (emailfromlink) {
-          fillModel("email", emailfromlink); // ✅ Autofill email in the input
+            fillModel("email", emailfromlink); // ✅ Autofill email in the input
         }
-      }, [location]);
+    }, [location]);
 
     const [showModal, setShowModal] = useState(false);
     const [err, setErr] = useState("");
@@ -79,6 +82,7 @@ function Signup() {
                     name: model?.name,
                     // password: model?.password,
                     timezone: model?.timezone,
+                    phoneNumber: model?.phoneNumber,
                     timezoneOffset: model?.timezoneOffset,
                     userType: model?.userType,
                 })
@@ -156,7 +160,7 @@ function Signup() {
 
             <SnackbarProvider />
             <section>
-                <div className="container" id='signUp-btn'
+                <div className="" id='signUp-btn'
                 >
                     {showSuccessMessage ? (
                         <div className="container">
@@ -232,7 +236,7 @@ function Signup() {
                                         follow the instructions to activate your account.
                                     </span>
                                     {/* </p> */}
-                                    <p className="text-muted" style={{ marginTop: '2%', fontSize: "14px"}}>
+                                    <p className="text-muted" style={{ marginTop: '2%', fontSize: "14px" }}>
                                         If you don’t see it, check your spam or junk folder.
                                     </p>
                                     {/* <span className="d-block" style={{ marginTop: '10%', fontSize: "14px", marginTop: "-2%" }}>Please check your inbox and
@@ -259,39 +263,61 @@ function Signup() {
                     ) : (
                         <>
                             {/* <p className="freePera" >Try it Free for 14 days</p> */}
-                            <p className="freePera" >Sign Up Now</p>
+
+                            <p className="freePera">Sign Up Now</p>
 
                             {/* <p className="mainFont">Maintain it Free always on the Free Plan.</p> */}
-                            <div className="maininputdivs" id='signUp-btn'>
-                                <div className="mainInputDiv">
-                                    <p className="account">Create an account</p>
-                                    <div className="inputDiv">
-                                        <div><img src={user} alt="User Icon" /></div>
-                                        <input value={model?.name} onChange={(e) => fillModel("name", e.target.value)} placeholder="Your full name" />
+                            {/* <div className="maininputdivs" id='signUp-btn'> */}
+                            <div className="container my-5">
+                                <div className="row justify-content-center">
+                                    <div className="col-6 col-sm-10 col-md-8 col-lg-6">
+                                        <div className="card p-4 shadow">
+                                            {/* <div className="mainInputDiv"> */}
+                                            <p className="account">Create an account</p>
+                                            <div className="inputDiv">
+                                                <div><img src={user} alt="User Icon" /></div>
+                                                <input value={model?.name} onChange={(e) => fillModel("name", e.target.value)} placeholder="Your full name" />
+                                            </div>
+                                            <div className="inputDiv">
+                                                <div><img src={account} alt="Company Icon" /></div>
+                                                <input value={model?.company} onChange={(e) => fillModel("company", e.target.value)} placeholder="Company" />
+                                            </div>
+                                            <div className="inputDiv">
+                                                <div><img src={email} alt="Email Icon" /></div>
+                                                <input className="autofill" value={model?.email} onChange={(e) => fillModel("email", e.target.value)} placeholder="Email" />
+                                            </div>
+                                            <div className="inputDiv2">
+                                                <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
+                                            </div>
+
+                                            <div className="mb-3">
+                                                <PhoneInput
+                                                    country={'us'}
+                                                    value={model.phoneNumber}
+                                                    onChange={(value) => fillModel('phoneNumber', `+${value}`)} // ✅ Add "+"
+                                                    inputClass="form-control"
+                                                    inputStyle={{ width: "100%" }}
+                                                    placeholder="Enter phone number"
+                                                    enableSearch
+                                                />
+                                            </div>
+
+
+                                            <button disabled={loading} onClick={handleCreateAccount} className={loading ? "disabledAccountButton" : "accountButton"}>
+                                                {loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Create Account"}
+                                            </button>
+                                            {/* </div> */}
+                                        </div>
+                                        <p className="loginFont">Already have an account? <span
+                                            style={{
+                                                color: "#7ACB59",
+                                                textDecoration: "underline",
+                                                cursor: "pointer",
+                                            }}
+                                            onClick={() => navigate('/signin')}>Login</span></p>
                                     </div>
-                                    <div className="inputDiv">
-                                        <div><img src={account} alt="Company Icon" /></div>
-                                        <input value={model?.company} onChange={(e) => fillModel("company", e.target.value)} placeholder="Company" />
-                                    </div>
-                                    <div className="inputDiv">
-                                        <div><img src={email} alt="Email Icon" /></div>
-                                        <input className="autofill" value={model?.email} onChange={(e) => fillModel("email", e.target.value)} placeholder="Email" />
-                                    </div>
-                                    <div className="inputDiv2">
-                                        <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
-                                    </div>
-                                    <button disabled={loading} onClick={handleCreateAccount} className={loading ? "disabledAccountButton" : "accountButton"}>
-                                        {loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Create Account"}
-                                    </button>
                                 </div>
                             </div>
-                            <p className="loginFont">Already have an account? <span
-                                style={{
-                                    color: "#7ACB59",
-                                    textDecoration: "underline",
-                                    cursor: "pointer",
-                                }}
-                                onClick={() => navigate('/signin')}>Login</span></p>
                         </>
                     )}
                 </div>
