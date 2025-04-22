@@ -270,7 +270,7 @@ function Signup() {
                             {/* <div className="maininputdivs" id='signUp-btn'> */}
                             <div className="container my-5">
                                 <div className="row justify-content-center">
-                                    <div className="col-6 col-sm-10 col-md-8 col-lg-6">
+                                    <div className="col-12 col-sm-10 col-md-8 col-lg-6">
                                         <div className="card p-4 shadow">
                                             {/* <div className="mainInputDiv"> */}
                                             <p className="account">Create an account</p>
@@ -290,7 +290,7 @@ function Signup() {
                                                 <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
                                             </div>
 
-                                            <div className="mb-3">
+                                            {/* <div className="mb-3">
                                                 <PhoneInput
                                                     country={'us'}
                                                     value={model.phoneNumber}
@@ -300,9 +300,29 @@ function Signup() {
                                                     placeholder="Enter phone number"
                                                     enableSearch
                                                 />
+                                            </div> */}
+
+                                            <div className="phoneNumber">
+                                                {/* <div><img src={email} alt="Phone Icon" /></div> */}
+                                                <PhoneInput
+                                                    country={'us'}
+                                                    value={model.phoneNumber}
+                                                    onChange={(value) => fillModel('phoneNumber', `+${value}`)}
+                                                    inputClass="phoneInputInner"
+                                                    inputStyle={{
+                                                        border: 'none',
+                                                        outline: 'none',
+                                                        width: '100%',
+                                                        fontSize: '14px',
+                                                        background: 'transparent'
+                                                    }}
+                                                    containerStyle={{ width: '100%' }}
+                                                    buttonStyle={{ background: 'transparent', border: 'none' }}
+                                                    enableSearch
+                                                    placeholder="Phone Number"
+                                                />
                                             </div>
-
-
+                                
                                             <button disabled={loading} onClick={handleCreateAccount} className={loading ? "disabledAccountButton" : "accountButton"}>
                                                 {loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Create Account"}
                                             </button>

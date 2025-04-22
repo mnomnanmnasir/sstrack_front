@@ -382,6 +382,20 @@ nav li a {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
+.phoneNumber {
+  background-color: white;
+  display: flex;
+  /* justify-content: center; */
+  margin: 0px auto;
+  width: 100%;
+  height: 55px;
+  align-items: center;
+  padding: 0 0px;
+  border: 1px solid #F8F8F8;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
 .inputDiv2 {
   /* background-color: white; */
   /* display: flex; */
@@ -398,7 +412,7 @@ nav li a {
 .inputDiv input {
   margin-left: 20px;
   border: 0px;
-  background-color: white ;
+  background-color: white;
   width: 100%;
 }
 
@@ -6905,7 +6919,8 @@ input[type="number"] {
 }
 
 .invite-heading:hover {
-  color: #28659C; /* 👈 your desired hover color */
+  color: #28659C;
+  /* 👈 your desired hover color */
 }
 
 
