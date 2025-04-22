@@ -162,15 +162,35 @@ function Screenshot() {
 
             const userIds = employees.map((employee) => employee._id);
 
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const timezoneOffset = new Date().getTimezoneOffset(); // in minutes
+
             // Prepare the API payload for each user
-            const requestData = userIds.map((userId) => ({
-                userId,
-                settings: {
-                    puncStartTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncStartTime}:00`),
-                    puncEndTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`),
-                    // individualPuncStart: true, // Ensure toggle is ON
-                },
-            }));
+            // const requestData = userIds.map((userId) => ({
+            //     userId,
+            //     settings: {
+            //         puncStartTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncStartTime}:00`),
+            //         puncEndTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`),
+            //         timezone: timezone,
+            //         timezoneOffset: timezoneOffset,
+            //         // individualPuncStart: true, // Ensure toggle is ON
+            //     },
+            // }));
+            const requestData = employees.map((employee) => {
+                const userTimezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const userTimezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
+
+                return {
+                    userId: employee._id,
+                    settings: {
+                        puncStartTime: `${new Date().toISOString().split('T')[0]}T${puncStartTime}:00`,
+                        puncEndTime: `${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`,
+                        timezone: userTimezone,
+                        timezoneOffset: userTimezoneOffset,
+                    },
+                };
+            });
+
             console.log('request====>', requestData)
             // Make the API call
             const response = await axios.post(
@@ -232,7 +252,7 @@ function Screenshot() {
                 <p>You can set the timeout duration to control how frequently screenshots are taken, with captures occurring at random intervals.</p>
             </div>
             <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} />
-           
+
             {(
                 <>
                     <div className="takeScreenShotDiv">
@@ -243,7 +263,7 @@ function Screenshot() {
                                 value={puncStartTime}
                                 onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                 onChange={(e) => setPuncStartTime(e.target.value)}
-                                // onChange={(e) => console.log(e.target.value)}
+                            // onChange={(e) => console.log(e.target.value)}
                             />
                         </div>
 
@@ -254,7 +274,7 @@ function Screenshot() {
                                 value={puncEndTime}
                                 onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                 onChange={(e) => setPuncEndTime(e.target.value)}
-                                // onChange={(e) => console.log(e.target.value)}
+                            // onChange={(e) => console.log(e.target.value)}
                             />
                         </div>
                     </div>
