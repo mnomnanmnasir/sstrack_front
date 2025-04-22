@@ -265,7 +265,13 @@ const CompanyEmployess = (props) => {
             }
 
             const currentDate = new Date().toISOString().split("T")[0];
+            // Retrieve the specific employee's data
+            const employee = employees.find(emp => emp._id === employeeId);
 
+            // Extract timezone and offset from the employee's data
+            const timezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
+            
             const requestData = {
                 userId: employeeId,
                 settings: {
@@ -276,6 +282,8 @@ const CompanyEmployess = (props) => {
                     // puncStartTime:new Date(`${new Date().toISOString().split('T')[0]}T${puncStartTime}:00`),
                     puncStartTime: `${currentDate}T${puncStartTime}:00`,
                     puncEndTime: `${currentDate}T${puncEndTime}:00`,
+                    timezone: timezone,
+                    timezoneOffset: timezoneOffset
                     // puncEndTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`),
                     // individualPuncStart: true,
                 },
@@ -372,7 +380,7 @@ const CompanyEmployess = (props) => {
                                     <div style={{ display: "flex", alignItems: "center" }}>
                                         <img width={35} src={userIcon} alt="" />
                                         <p style={{ marginLeft: 10 }}>{employee?.name}</p>
-    
+
                                         <p style={{ marginLeft: 10, fontSize: 12, color: 'black' }}>
                                             {employee?.timezone} (UTC {employee?.timezoneOffset >= 0 ? `+${employee?.timezoneOffset}` : employee?.timezoneOffset})
                                             {timeFields[employee._id]?.puncStartTime && timeFields[employee._id]?.puncEndTime && (
@@ -401,8 +409,6 @@ const CompanyEmployess = (props) => {
                                 </div>
                                 {timeFields[employee._id]?.showFields && (
                                     <>
-
-
                                         <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: 'flex', gap: '10px' }}>
                                             <div>
                                                 <label>

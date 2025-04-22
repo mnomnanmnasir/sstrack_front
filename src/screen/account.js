@@ -267,9 +267,6 @@ function Account({ suspended }) {
         setActiveTab(tab);
     };
 
-
-
-
     const getBase64Image = (imgUrl, callback) => {
         const img = new Image();
         img.crossOrigin = 'Anonymous';
