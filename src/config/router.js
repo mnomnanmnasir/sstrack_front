@@ -59,6 +59,8 @@
   import Windows from "../screen/Windows";
   import Macos from "../screen/Macos";
   import AnalyticsTracker from "../screen/component/AnalyticsTracker"; // ✅ Add this at top
+  import Contact from "../screen/ContactUS/Contact"; // ✅ Add this at top
+
 
 
 
@@ -132,6 +134,7 @@
               <Route path="/download" element={<Download />} />
               <Route path="/aboutUs" element={<AboutUs />} />
               <Route path="/product" element={<Product />} />
+            <Route path="/contact" element={<Contact />} />
               {/* <Route path="/splash" element={<DashboardSplash />} /> */}
               <Route
                 path="/splash"
@@ -242,6 +245,8 @@
             <Route path="/play_store" element={<PlayStore />} />
             <Route path="/windows" element={<Windows />} />
             <Route path="/macos" element={<Macos />} />
+            {/* <Route path="/contact-us" element={<Contact />} /> */}
+
           </Routes>
         </Router>
       </>

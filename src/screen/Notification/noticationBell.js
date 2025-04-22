@@ -20,6 +20,7 @@ const NotificationBell = ({ userType, userId }) => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    
     useEffect(() => {
         const fetchNotifications = async () => {
             let apiUrl = "";
@@ -38,7 +39,17 @@ const NotificationBell = ({ userType, userId }) => {
                     },
                 });
 
-                let fetchedNotifications = response.data.userNotifications || response.data.notifications || response.data.data?.notifications || response.data.adminNotifications || [];
+                // let fetchedNotifications = response.data.userNotifications || response.data.managerNotifications || response.data.data?.notifications || response.data.adminNotifications || [];
+                let fetchedNotifications = [];
+
+                if (userType === "user") {
+                    fetchedNotifications = response.data.userNotifications || [];
+                } else if (userType === "manager") {
+                    fetchedNotifications = response.data.managerNotifications || [];
+                } else {
+                    fetchedNotifications = response.data.adminNotifications || response.data.data?.notifications || [];
+                }
+
                 setNotifications(fetchedNotifications);
                 setNotificationCount(fetchedNotifications.length);
             } catch (error) {

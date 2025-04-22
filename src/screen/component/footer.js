@@ -153,15 +153,12 @@ function Footer() {
                                 </Link> */}
                             </li>
                             <li style={{ marginBottom: '0.6rem' }}>
-                                <a href="/#" style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        if (window.location.pathname !== "/") {
-                                            navigate("/", { state: { scrollTo: "section3" } });
-                                        } else {
-                                            scrollToSection('section3'); // Call the scroll function if already on homepage
-                                        }
-                                    }}>Contact Us</a>
+                                <Link
+                                    to="/contact"
+                                    state={{ scrollTo: "section5" }}
+                                    style={{ color: 'white', textDecoration: 'none', fontSize: '12px' }}
+                                >Contact Us
+                                </Link>
                             </li>
                             <li style={{ marginBottom: '0.6rem' }}>
                                 <Link

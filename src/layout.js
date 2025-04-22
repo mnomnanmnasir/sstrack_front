@@ -56,7 +56,7 @@ const Layout = () => {
       return null;
     }
   });
-  
+
   const [userType, setUserType] = useState(() => {
     try {
       return token ? jwtDecode(token)?.userType : null;
@@ -96,6 +96,7 @@ const Layout = () => {
           location.pathname === "/privacy-policy2" ||
           location.pathname === "/workCards" ||
           location.pathname === "/aboutUs" ||
+          location.pathname === "/contact" ||
           location.pathname === "/product" ||
           location.pathname === "/splash" ||
           location.pathname.startsWith("/update-password") ||
@@ -115,7 +116,7 @@ const Layout = () => {
               <div className="d-flex" style={{ minHeight: '100vh', overflow: 'hidden' }}>
 
                 {/* <Sidebar /> */}
-                <Sidebar key={userType} userType={userType} />
+                <Sidebar userType={userType} />
 
                 <div className="flex-grow-1 d-flex flex-column" style={{ overflowX: 'hidden', overflowY: 'auto', maxHeight: '100vh' }}>
                   <UserHeader />

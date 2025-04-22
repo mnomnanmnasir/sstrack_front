@@ -372,9 +372,17 @@ const CompanyEmployess = (props) => {
                                     <div style={{ display: "flex", alignItems: "center" }}>
                                         <img width={35} src={userIcon} alt="" />
                                         <p style={{ marginLeft: 10 }}>{employee?.name}</p>
+    
                                         <p style={{ marginLeft: 10, fontSize: 12, color: 'black' }}>
                                             {employee?.timezone} (UTC {employee?.timezoneOffset >= 0 ? `+${employee?.timezoneOffset}` : employee?.timezoneOffset})
+                                            {timeFields[employee._id]?.puncStartTime && timeFields[employee._id]?.puncEndTime && (
+                                                <>
+                                                    &nbsp;|&nbsp;
+                                                    Punctuality: {convertTo12HourFormat(timeFields[employee._id]?.puncStartTime)} - {convertTo12HourFormat(timeFields[employee._id]?.puncEndTime)}
+                                                </>
+                                            )}
                                         </p>
+
                                     </div>
 
 
@@ -388,8 +396,6 @@ const CompanyEmployess = (props) => {
                                             <span className="slider round"></span>
                                         </label>
                                     </div>
-
-
 
 
                                 </div>

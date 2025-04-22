@@ -633,7 +633,6 @@ function TotalCompanies() {
                     {/* Total Users: {selectedCompany.users.length} */}
                     Created At: {selectedCompany.companyCreatedAt ? new Date(selectedCompany.companyCreatedAt).toLocaleDateString() : 'N/A'}
                   </Typography>
-
                 </Box>
 
                 {/* Right Section with Buttons */}
@@ -710,10 +709,10 @@ function TotalCompanies() {
                         position: 'relative',
                         padding: '16px',
                         border: '1px solid #e0e0e0',
-                        height: '100%', // Let MUI Grid control height
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
+                        height: '180px',
                       }}
                     >
 
@@ -800,7 +799,6 @@ function TotalCompanies() {
       )}
     </Box>
   );
-
 
 }
 

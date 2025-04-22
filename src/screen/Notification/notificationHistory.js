@@ -32,7 +32,7 @@ const History = () => {
                 : "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAdminNotifications";
 
 
-    useEffect(() => {
+    useEffect(() => {                                                                                   
         const fetchNotifications = async () => {
             try {
                 const response = await fetch(apiUrl, {

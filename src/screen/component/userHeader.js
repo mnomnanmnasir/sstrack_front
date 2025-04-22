@@ -210,7 +210,7 @@ function UserHeader() {
         const handleUpdateData = () => {
             console.log('Received updateData event===========SOCKET');
             updateData();
-            setForceUpdate(prev => prev + 1); // 🔹 Just update state to trigger re-render
+            // setForceUpdate(prev => prev + 1); // 🔹 Just update state to trigger re-render
 
             // Window ko reload karne ke liye
         }

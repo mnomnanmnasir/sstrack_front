@@ -46,7 +46,7 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
 
                 <Container fluid>
                     <Navbar.Brand onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                        {/* <img className="logo" src={logo} alt="Logo" /> */}
+                        <img className="logo" src={logo} alt="Logo" />
                     </Navbar.Brand>
 
                     <Navbar.Toggle aria-controls="navbarSupportedContent" className="custom-toggler" style={{ color: 'white' }}>

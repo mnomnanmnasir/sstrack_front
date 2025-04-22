@@ -27,15 +27,26 @@ import logo from '../images/sloganLogo.png';
 const drawerWidth = 250;
 const collapsedWidth = 70;
 
-const Sidebar = ({ userType }) => {
+const Sidebar = () => {
     const [collapsed, setCollapsed] = useState(false);
-    // const [userType, setUserType] = useState(null);
+    const [userType, setUserType] = useState(null);
     const [reportsOpen, setReportsOpen] = useState(false);
     const [attendanceOpen, setAttendanceOpen] = useState(false);
 
     const navigate = useNavigate();
     const location = useLocation();
 
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                setUserType(decoded?.userType);
+            } catch (err) {
+                console.error("Token decode error", err);
+            }
+        }
+    }, []);
 
     const sidebarItems = [
         { text: 'Dashboard', icon: <DashboardIcon />, route: '/dashboard' },
@@ -61,11 +72,6 @@ const Sidebar = ({ userType }) => {
 
         return true;
     });
-
-    useEffect(() => {
-        console.log("Sidebar re-rendered with userType:", userType);
-      }, [userType]);
-      
 
     return (
         <Drawer
