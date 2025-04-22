@@ -5,6 +5,7 @@ import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import TopBar from '../topBar'
 import axios from 'axios';
 import Dcompanies from './d_companies';
+import * as XLSX from 'xlsx';
 
 function Dashboard({ onNavigate }) {
   // const [invoices, setInvoices] = useState([]);
@@ -12,9 +13,6 @@ function Dashboard({ onNavigate }) {
   const [error, setError] = useState(null);
   const [totalCompaniesUsers, setTotalCompaniesUsers] = useState(null);
   const [newCompaniesUsers, setNewCompaniesUsers] = useState(null);
-
-
-
 
   const fetchTotalCompaniesUsers = async () => {
     const token = localStorage.getItem('token_for_sa');
@@ -112,6 +110,42 @@ function Dashboard({ onNavigate }) {
     }
   };
 
+  const handleDownloadFile = async () => {
+    try {
+      const token = localStorage.getItem('token_for_sa');
+      if (!token) {
+        console.error('Authentication token not found');
+        return;
+      }
+
+      const response = await axios.get(
+        'https://myuniversallanguages.com:9093/api/v1/SystemAdmin/export/companies',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          },
+          responseType: 'blob',
+        }
+      );
+
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'companies.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading the file:', error);
+    }
+  };
+
 
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
@@ -122,9 +156,29 @@ function Dashboard({ onNavigate }) {
       {/* TopBar */}
       <TopBar />
 
-      <Typography variant="h4" gutterBottom>
-        Dashboard
-      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 2,
+        }}
+      >
+        <Typography variant="h4" gutterBottom>
+          Dashboard
+        </Typography>
+        <Button
+          variant="contained"
+          // color="primary"
+          onClick={handleDownloadFile}
+          style={{
+            backgroundColor: '#6DBB48'
+          }}
+        >
+          Export CSV
+        </Button>
+      </Box>
+
 
       {/* Summary Cards */}
       {/* <Grid container spacing={2} mb={4}>
@@ -198,7 +252,7 @@ function Dashboard({ onNavigate }) {
                 New Companies
                 <br />
                 <span style={{ fontSize: '12px', color: '#888' }}>Last 7 Days</span>
-                </>
+              </>
             ),
             value: `${newCompaniesUsers?.newCompanies || 0}`,
             icon: <TrendingUpIcon color="success" />,
@@ -272,49 +326,6 @@ function Dashboard({ onNavigate }) {
       {/* Summary Cards */}
       <Dcompanies />
 
-      {/* Invoices Overview Table */}
-      {/* <Box sx={{ backgroundColor: '#fff', borderRadius: 2, padding: 2 }}>
-        <Typography variant="h6" mb={2}>
-          Invoices Overview
-        </Typography>
-        <TableContainer component={Paper} elevation={0}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Invoice</TableCell>
-                <TableCell>Owner Name</TableCell>
-                <TableCell>Company Name</TableCell>
-                <TableCell>Plan</TableCell>
-                <TableCell>Price</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Status</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {invoices.map((invoice) => (
-                <TableRow key={invoice._id}>
-                  <TableCell>{invoice.invoiceNumber}</TableCell>
-                  <TableCell>{invoice.ownerName}</TableCell>
-                  <TableCell>{invoice.company}</TableCell>
-                  <TableCell>{invoice.planId}</TableCell>
-                  <TableCell>${invoice.balance.toFixed(2)} USD</TableCell>
-                  <TableCell>
-                    {new Date(invoice.invoiceDate).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <Typography color={getStatusColor(invoice.status)}>
-                      {capitalizeFirstLetter(invoice.status)}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-     
-       
-      </Box> */}
     </Box>
   );
 }

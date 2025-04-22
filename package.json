@@ -73,7 +73,8 @@
     "stream-browserify": "^3.0.0",
     "sweetalert2": "^11.7.27",
     "swr": "^2.2.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

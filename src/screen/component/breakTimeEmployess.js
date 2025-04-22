@@ -42,88 +42,13 @@ const CompanyEmployess = (props) => {
         }
     }, [employees]);
 
-    const handleToggleChange = async (employee, isSelected) => {
+    const handleToggleChange = (employee, isSelected) => {
         const userId = employee._id;
 
-        // Optimistic Update
         setTimeFields((prev) => ({
             ...prev,
             [userId]: { ...prev[userId], showFields: isSelected },
         }));
-
-        try {
-            // Update toggle state via API
-            const payload = { userId, settings: { individualbreakTime: isSelected } };
-            const response = await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
-                payload,
-                { headers }
-            );
-
-            if (response.status === 200) {
-                if (isSelected) {
-                    const updatedResponse = await axios.get(
-                        `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${userId}`,
-                        { headers }
-                    );
-
-                    if (updatedResponse.status === 200) {
-                        const breakData = updatedResponse.data.data.breakConvertedData?.[0] || {};
-
-                        const breakStart = breakData.breakStartTime
-                            ? new Date(breakData.breakStartTime).toISOString().split("T")[1].substring(0, 5)
-                            : "";
-
-                        // const breakEnd = breakData.breakEndTime
-                        //     ? new Date(breakData.breakEndTime).toISOString().split("T")[1].substring(0, 5)
-                        //     : "";
-                        // const breakStart = breakData.breakStartTime
-                        //     ? new Date(breakData.breakStartTime).toISOString()
-                        //     : "";
-
-                        // const breakStart = breakData.breakStartTime
-                        //     ? moment(breakData.breakStartTime).format("YYYY-MM-DDTHH:mm:ssZ")
-                        //     : "";
-                        //     const breakEnd = breakData.breakEndTime
-                        //     ? moment(breakData.breakEndTime).format("YYYY-MM-DDTHH:mm:ssZ")
-                        //     : "";
-
-                        const breakEnd = breakData.breakEndTime
-                            ? new Date(breakData.breakEndTime).toISOString().split("T")[1].substring(0, 5)
-                            : "";
-                        // const startTime = breakConvertedData?.[0]?.breakStartTime
-                        //     ? moment(breakConvertedData[0].breakStartTime).format("HH:mm")
-                        //     : "";
-
-                        // const endTime = breakConvertedData?.[0]?.breakEndTime
-                        //     ? moment(breakConvertedData[0].breakEndTime).format("HH:mm")
-                        //     : "";
-
-                        setTimeFields((prev) => ({
-                            ...prev,
-                            [userId]: {
-                                showFields: true,
-                                startTime: breakStart,
-                                endTime: breakEnd,
-                            },
-                        }));
-                    }
-                }
-            } else {
-                throw new Error("Failed to update toggle");
-            }
-        } catch (error) {
-            console.error("Error updating toggle:", error);
-            enqueueSnackbar("Error updating toggle. Please try again.", {
-                variant: "error",
-            });
-
-            // Revert state on failure
-            setTimeFields((prev) => ({
-                ...prev,
-                [userId]: { ...prev[userId], showFields: !isSelected },
-            }));
-        }
     };
 
 
@@ -153,10 +78,13 @@ const CompanyEmployess = (props) => {
             const totalHours = calculateTotalHours(startTime, endTime);
             const currentDate = new Date().toISOString().split("T")[0];
 
+            const employee = employees.find(emp => emp._id === employeeId);
+
             // ✅ **Subtract 2 hours before sending in request**
             const adjustedStartTime = moment(`${currentDate}T${startTime}`).format("HH:mm");
             const adjustedEndTime = moment(`${currentDate}T${endTime}`).format("HH:mm");
-
+            const timezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
 
             const requestData = {
                 userId: employeeId,
@@ -172,9 +100,10 @@ const CompanyEmployess = (props) => {
                             // breakEndTime: moment.tz(`${currentDate}T${endTime}`, moment.tz.guess()).format(),
                             breakStartTime: moment.tz(`${currentDate}T${startTime}`, moment.tz.guess()).format(),
                             breakEndTime: moment.tz(`${currentDate}T${endTime}`, moment.tz.guess()).format(),
-
                         },
                     ],
+                    timezone: timezone,
+                    timezoneOffset: timezoneOffset
                     // individualbreakTime: true,
                 },
             };
@@ -375,8 +304,14 @@ const CompanyEmployess = (props) => {
                                     <div style={{ display: "flex", alignItems: "center" }}>
                                         <img width={35} src={userIcon} alt="" />
                                         <p style={{ marginLeft: 10 }}>{employee?.name}</p>
+                                        {/* <p style={{ marginLeft: 10, fontSize: 12, color: 'black' }}>
+                                            {employee?.timezone} (UTC {employee?.timezoneOffset >= 0 ? `+${employee?.timezoneOffset}` : employee?.timezoneOffset})
+                                        </p> */}
                                         <p style={{ marginLeft: 10, fontSize: 12, color: 'black' }}>
                                             {employee?.timezone} (UTC {employee?.timezoneOffset >= 0 ? `+${employee?.timezoneOffset}` : employee?.timezoneOffset})
+                                            {timeFields[employee._id]?.startTime && timeFields[employee._id]?.endTime && (
+                                                <> | Break: {timeFields[employee._id].startTime} to {timeFields[employee._id].endTime}</>
+                                            )}
                                         </p>
                                     </div>
                                     <div style={{ marginRight: 10 }}>
