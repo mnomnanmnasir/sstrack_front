@@ -506,9 +506,9 @@ function OwnerTeam() {
                 </div>
                 <div className="mainwrapper">
                     <div className="ownerTeamContainer">
-                        <div className="d-flex gap-3">
-                            <div style={{ width: "400px" }}>
-                                {user?.userType !== "manager" && (
+                        <div className="row">
+                        <div className="col-12 col-lg-4">
+                        {user?.userType !== "manager" && (
                                     <>
                                         <p className="addUserButton" onClick={() => setShowGroupInput(!showGroupInput)}>
                                             {showGroupInput ? "× Close" : "+ Create user group"}
@@ -772,39 +772,43 @@ function OwnerTeam() {
                                 </div>
 
                             </div>
-                            <div>
+                            {/* <div>
                                 <img src={line} />
-                            </div>
-                            <div
-                                style={{
-                                    width: "100%",
-                                    display: mainId == null && GroupData == null ? "flex" : "",
-                                    justifyContent: mainId == null && GroupData == null ? "center" : "",
-                                    alignItems: mainId == null && GroupData == null ? "center" : "",
-                                }}
-                            >
-                                {mainId ? (
-                                    <OwnerTeamComponent
-                                        fixId={mainId}
-                                        archived_unarchived_users={() => setShow2(true)}
-                                        deleteUser={() => setShow(true)}
-                                        isArchived={isArchived}
-                                        setIsArchived={setIsArchived}
-                                        isUserArchive={isUserArchive}
-                                        inviteStatus={inviteStatus}
-                                        handleSendInvitation={handleSendInvitation}
-                                        payrate={payrate}
-                                        users={users}
-                                        setUsers={setUsers}
-                                        selectedUser={selectedUser}
-                                        selectedGroupName={selectedGroupName}
-                                    />
-                                ) : GroupData ? (
-                                    <GroupComponent rawData={GroupData} users={users} fetchData={getData} />
-                                ) : (
-                                    <img width={500} src={settingIcon} alt="" style={{ display: "block", margin: "auto" }} />
-                                )}
+                            </div> */}
+                            <div className="d-none d-lg-block" style={{ width: "10px", backgroundColor: "#ccc", margin: "0 0 0 60px" }}></div>
 
+                            <div className="col-12 col-lg-6">
+                            <div
+                                    style={{
+
+                                        display: mainId == null && GroupData == null ? "flex" : "",
+                                        justifyContent: mainId == null && GroupData == null ? "center" : "",
+                                        alignItems: mainId == null && GroupData == null ? "center" : "",
+                                    }}
+                                >
+                                    {mainId ? (
+                                        <OwnerTeamComponent
+                                            fixId={mainId}
+                                            archived_unarchived_users={() => setShow2(true)}
+                                            deleteUser={() => setShow(true)}
+                                            isArchived={isArchived}
+                                            setIsArchived={setIsArchived}
+                                            isUserArchive={isUserArchive}
+                                            inviteStatus={inviteStatus}
+                                            handleSendInvitation={handleSendInvitation}
+                                            payrate={payrate}
+                                            users={users}
+                                            setUsers={setUsers}
+                                            selectedUser={selectedUser}
+                                            selectedGroupName={selectedGroupName}
+                                        />
+                                    ) : GroupData ? (
+                                        <GroupComponent rawData={GroupData} users={users} fetchData={getData} />
+                                    ) : (
+                                        <img width={500} src={settingIcon} alt="" style={{ display: "block", margin: "auto" }} />
+                                    )}
+
+                                </div>
                             </div>
                         </div>
                     </div>

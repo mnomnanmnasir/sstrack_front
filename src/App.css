@@ -6350,6 +6350,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     overflow-x: hidden;
   }
 
+
   /* Screenshot & cards: Stack vertically and scale */
   .screenShotPreview {
     max-width: 100%;
@@ -6416,8 +6417,47 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     font-size: 14px;
     text-align: center;
   }
+
+
+
 }
 
+
+/* Default font size for desktop */
+.dashheadingtop.heading-col {
+  font-size: 18px;
+  color: #0D3756;
+  font-weight: 400;
+  cursor: pointer;
+  margin-bottom: 5px;
+  text-align: center;
+
+}
+
+.dashheading-wrapper {
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Adjust layout and font size on smaller screens */
+@media (max-width: 900px) {
+  .dashheading-wrapper {
+    display: flex;
+    flex-wrap: nowrap; /* ❗ Prevent breaking to next line */
+    justify-content: space-between;
+    overflow-x: auto;  /* 🧠 Allow horizontal scroll if needed */
+    /* gap: 6px; */
+    /* padding: 0 5px; */
+  }
+
+  .dashheadingtop.heading-col {
+    flex: 0 0 auto; /* ❗ Prevent shrink, allow as-is */
+    font-size: 12px;
+    min-width: 90px; /* ✅ Minimum space per heading */
+    text-align: center;
+    padding: 6px 4px;
+    white-space: nowrap; /* ❗ Prevent wrapping inside the item */
+  }
+}
 
 /* @media (max-width: 1000px) and (min-width: 300px) {
 

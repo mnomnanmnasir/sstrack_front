@@ -1,0 +1,123 @@
+ pushhello Nim
+splash screen
+done
+signin issue
+timeline issue
+test fixies
+some changes
+double header
+report fixed
+date issue fixed on timeline
+token issue
+user reports
+team section remove create user
+useraleaves for manager
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+download buttons
+auth issue fixed
+links u[dated
+landing page update
+>>>>>>> 9bcd9e59e8e68aa9afa19d5bcb46164e97e3072a
+>>>>>>> 9a4b82e2d2728e6c069faa9788038b41af3a401d
+
+payrate update
+Abdullah commit
+report issue
+updated
+timeline issue
+pricing  section
+auth issue
+new updates
+update links
+demo push
+faq content
+email issue
+fix issues
+attendance update
+url issues ressolveed
+nomaan
+location isses ressolved
+App.css and trackingFile updated
+trackingFile updated
+user headers
+new commit
+history Logs
+again try
+again by abdullah
+strong password geenration
+history upadted
+historydata 
+projectfilter by abdullah
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+addManual 
+fixed
+some errors
+fixed
+>>>>>>> fe895c81f7f4b08e20fa3bb896306ec9228abd4c
+>>>>>>> 7585ef875622eb617c5d9a0368942d41c1b338df
+>>>>>>> 130819c57379cee698b24d289cb44fa60a089ae2
+add manual leaves
+>>>>>>> f138453933c0e831051b0c2e7cddf284e5668a22
+how it works 
+rearrange reports filter
+splashScreen
+splash Upadted
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+direct login
+video change
+do not disturb
+>>>>>>> 0676206a742ccca7a90b500b18027f52ef0e0444
+profile field disabled
+>>>>>>> e6b06c4aed4e139f92b54734339531ac994ddfb6
+missing component
+Update by Abdullah
+group filter in reports
+<<<<<<< HEAD
+=======
+added training video link
+updation
+reports patch
+update reports
+tick mark
+>>>>>>> d79ef4994662be14dbf23da881aa7271099591ab
+empty users
+image issue
+offline time added
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+punctuality issue fixed
+demo account model
+>>>>>>> 8369af42bc91f7a1f33d917048587daca702049c
+punctuality Report
+>>>>>>> abc9a4a389f8035869d58ea1f1f30c832b79e24b
+punc report fix
+userDashboard section
+>>>>>>> 0f1c06c49dc597dddb16ca73964399a35c9c6528
+punctuality report upadte
+punc report fix
+pucn report issue fix
+>>>>>>> 7d4980ccb328042138ef361ac191c47d57bc3265
+issue fix
+new pages by abdullah
+again new update
+add
+againnn

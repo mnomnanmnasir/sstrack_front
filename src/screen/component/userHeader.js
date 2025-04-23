@@ -261,6 +261,16 @@ function UserHeader() {
         setShowContent(false)
     }
 
+    // function logOut() {
+    //     localStorage.removeItem("items");
+    //     localStorage.removeItem("token");
+    //     dispatch(setLogout())
+    //     navigate("/")
+    //     setTimeout(() => {
+    //         window.location.reload()
+    //     }, 1000);
+    //     setShowContent(false)
+    // }
 
     function takeToDashboard() {
         setShowContent(false)
@@ -293,6 +303,39 @@ function UserHeader() {
     const wordsAfterSpace = user?.name?.split(" ")[1] ? user?.name?.split(" ")[1].charAt(0).toUpperCase() : "";
     const capitalizedWord = user?.name?.charAt(0).toUpperCase();
 
+    // function logOut() {
+    //     localStorage.removeItem("items");
+    //     localStorage.removeItem("token");
+    //     dispatch(setLogout())
+    //     navigate("/signin")
+    // }
+
+    // console.log(items);
+
+    // function takeToDashboard() {
+    //     if (items?.userType === "admin" || items?.userType === "manager") {
+    //         navigate("/admindashboard")
+    //     }
+    //     else if (items?.userType === "user") {
+    //         navigate("/userdashboard");
+    //     }
+    //     else if (items?.userType === "owner") {
+    //         navigate("/company-owner");
+    //     }
+    // }
+
+    // function takeToAdmin() {
+    //     if (items?.userType === "admin" || items?.userType === "manager") {
+    //         navigate("/adminaccount")
+    //     }
+    //     else if (items?.userType === "user") {
+    //         navigate("/account");
+    //     }
+    //     else if (items?.userType === "owner") {
+    //         navigate('/account')
+    //     }
+    // }
+
     useEffect(() => {
         if (socket) {
             socket.on('role_update', (data) => {
@@ -323,23 +366,43 @@ function UserHeader() {
                 {user?.userType === "user" ? (
                     <>
                         <HeaderOption />
-                        {/* <nav className="navbar navbar-expand-lg navbar-dark" style={{
+                        <nav className="navbar navbar-expand-lg navbar-dark" style={{
+                            // backgroundColor: "#0d3756",
+                            // padding: "10px 15px",
+                            // // borderTopLeftRadius: "10px",
+                            // // borderTopRightRadius: "10px",
+                            // margin: "0px 30px 0 30px",
                             backgroundColor: "#0d3756",
                             padding: "10px 15px",
+                            // borderTopLeftRadius: "10px",
+                            // borderTopRightRadius: "10px",
                             margin: "0px 30px 0 30px",
                             marginTop: '-15px'
-                        }}> */}
-                        <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3 py-2">
-                            {/* <div className="d-flex flex-column flex-lg-row justify-content-between align-items-center w-100"> */}
-                            <div className="container-fluid d-flex flex-column flex-lg-row align-items-center justify-content-between">
-
-                                {/* <div className="d-flex align-items-center mb-2 mb-lg-0"> */}
+                        }}>
+                            <div className="d-flex flex-column flex-lg-row justify-content-between align-items-center w-100">
+                                <div className="d-flex align-items-center mb-2 mb-lg-0">
                                     <img onClick={() => navigate('/')} className="logo1" src={logo} />
-
-                                {/* </div> */}
-                                {/* <div ref={logoutDivRef}> */}
-                                <div className="d-flex flex-wrap align-items-center gap-2" ref={logoutDivRef}>
+                                    {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span className="navbar-toggler-icon"></span>
+                            </button> */}
+                                </div>
+                                <div ref={logoutDivRef}>
                                     <div className="d-flex amButton" role="search">
+                                        {/* <h1>
+                                            Hello
+                                        </h1> */}
+                                        {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
+                                            <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p> */}
+                                        {/* {token && user && (
+                                                <>
+                                                    <p>
+                                                        {user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)} ({userType})
+                                                    </p>
+                                                    <button onClick={() => setShowContent(!showContent)} className="userName">
+                                                        {capitalizedWord + wordsAfterSpace}
+                                                    </button>
+                                                </>
+                                            )} */}
                                         <div style={{ position: "relative", marginRight: "15px" }} ref={notificationRef}>
                                             <button
                                                 className="btn position-relative"
@@ -476,6 +539,15 @@ function UserHeader() {
                                             </div>
                                             <p>My Account</p>
                                         </div>
+
+                                        {/* {user?.userType === "user" && (
+                                            <div onClick={userSettings}>
+                                                <div style={{ marginLeft: '-5px' }}>
+                                                    <BeachAccessIcon style={{ fontSize: '24px', color: '#fff' }} />
+                                                </div>
+                                                <p>Leaves</p>
+                                            </div>
+                                        )} */}
                                         <div onClick={takeToHistory}>
                                             <div style={{ marginLeft: '-4%' }}>
                                                 <AiOutlineHistory size={24} color="#fff" /> {/* 🛠 Icon Added Here */}
@@ -525,6 +597,9 @@ function UserHeader() {
                                 <div>
                                     <img onClick={() => navigate('/')} className="logo1" src={logo} />
 
+                                    {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                    <span className="navbar-toggler-icon"></span>
+                                </button> */}
                                 </div>
                                 <div ref={logoutDivRef}>
 
@@ -536,6 +611,9 @@ function UserHeader() {
                                             <NotificationBell userType={items?.userType} userId={items?._id} />
                                         </div>
 
+                                        {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
+                                                <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p>
+                                                <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/workCards")}>How It Work</p> */}
                                         {token && user && (
                                             <>
                                                 <div className="d-flex justify-content-end align-items-center flex-nowrap info-container">
@@ -572,27 +650,25 @@ function UserHeader() {
                                     </button> */}
                                     </div>
                                     {showContent && <div className="logoutDiv">
-                                        {/* <div className="text-white p-3 mt-2 rounded"> */}
-                                        <div className="d-flex flex-column gap-2">
-                                            <div onClick={takeToDashboard}>
-                                                <div>
-                                                    <img src={dashboard} />
-                                                </div>
-                                                <p>Dashboard</p>
+                                        <div onClick={takeToDashboard}>
+                                            <div>
+                                                <img src={dashboard} />
                                             </div>
-                                            {/* <div onClick={leaveManagement}>
+                                            <p>Dashboard</p>
+                                        </div>
+                                        {/* <div onClick={leaveManagement}>
                                             <div>
                                                 <img src={dashboard} />
                                             </div>
                                             <p>Leave Management</p>
                                         </div> */}
-                                            <div onClick={takeToAdmin}>
-                                                <div>
-                                                    <img src={account} />
-                                                </div>
-                                                <p>My Account</p>
+                                        <div onClick={takeToAdmin}>
+                                            <div>
+                                                <img src={account} />
                                             </div>
-                                            {/* <div onClick={takeToHistory}>
+                                            <p>My Account</p>
+                                        </div>
+                                        {/* <div onClick={takeToHistory}>
                                             <div>
                                                 <img src={account} />
                                             </div>
@@ -603,87 +679,92 @@ function UserHeader() {
                                                 </p>
                                         </div> */}
 
-                                            <div onClick={takeToHistory}>
-                                                <div style={{ marginLeft: '-4%' }}>
-                                                    <AiOutlineHistory size={24} color="#fff" /> {/* 🛠 Icon Added Here */}
-                                                </div>
-                                                <p>History
-                                                    <span style={{ marginLeft: '5%' }}>
-                                                        Logs
-                                                    </span>
-                                                </p>
+                                        <div onClick={takeToHistory}>
+                                            <div style={{ marginLeft: '-4%' }}>
+                                                <AiOutlineHistory size={24} color="#fff" /> {/* 🛠 Icon Added Here */}
                                             </div>
-                                            {(user?.userType === "user") || (user?.userType === "manager") ? null : (
-                                                <div onClick={takeToSettings}>
-                                                    <div style={{ marginLeft: '-5px' }}>
-                                                        <SettingsIcon style={{ fontSize: '24px', color: '#fff' }} />
-                                                    </div>
-                                                    <p>Settings</p>
+                                            <p>History
+                                                <span style={{ marginLeft: '5%' }}>
+                                                    Logs
+                                                </span>
+                                            </p>
+                                        </div>
+                                        {(user?.userType === "user") || (user?.userType === "manager") ? null : (
+                                            <div onClick={takeToSettings}>
+                                                <div style={{ marginLeft: '-5px' }}>
+                                                    <SettingsIcon style={{ fontSize: '24px', color: '#fff' }} />
                                                 </div>
-                                            )}
-
-
-
-                                            <div onClick={logOut}>
-                                                <div>
-                                                    <img src={logout} />
-                                                </div>
-                                                <p>Logout</p>
+                                                <p>Settings</p>
                                             </div>
+                                        )}
+
+
+
+                                        <div onClick={logOut}>
+                                            <div>
+                                                <img src={logout} />
+                                            </div>
+                                            <p>Logout</p>
                                         </div>
                                     </div>
-                                        // </div>
+
                                     }
                                 </div>
                             </div>
-
                         </nav>
                         {/* {showMessage && ( */}
                         {showMessage && (
-                            <div
-                                className="alert d-flex justify-content-center align-items-center text-center mb-3 mx-3 mx-sm-4 mx-md-5"
-                                style={{
-                                    backgroundColor: 'orange',
-                                    color: 'white',
-                                    fontWeight: 500,
-                                    borderRadius: '0 0 8px 8px',
-                                }}
-                                role="alert"
-                            >
-                                <span>
-                                    Complete your account setup by adding a{' '}
-                                    <Link to="/Projects" className="text-success text-decoration-underline">
-                                        project
+                        <div
+                            className="alert d-flex justify-content-center align-items-center text-center mb-3 mx-3 mx-sm-4 mx-md-5"
+                            style={{
+                                backgroundColor: 'orange',
+                                color: 'white',
+                                fontWeight: 500,
+                                borderRadius: '0 0 8px 8px',
+                            }}
+                            role="alert"
+                        >
+                            <span>
+                                Complete your account setup by adding a{' '}
+                                <Link to="/Projects" className="text-success text-decoration-underline">
+                                    project
+                                </Link>
+                                , inviting{' '}
+                                <Link to="/team" className="text-success text-decoration-underline">
+                                    users
+                                </Link>
+                                , setting{' '}
+                                {(userType === 'admin' || userType === 'owner') && (
+                                    <Link to="/settings/break-time" className="text-success text-decoration-underline">
+                                        break times
                                     </Link>
-                                    , inviting{' '}
-                                    <Link to="/team" className="text-success text-decoration-underline">
-                                        users
+                                )}
+                                , ensuring{' '}
+                                {(userType === 'admin' || userType === 'owner') && (
+                                    <Link to="/settings/punctuality" className="text-success text-decoration-underline">
+                                        punctuality
                                     </Link>
-                                    , setting{' '}
-                                    {(userType === 'admin' || userType === 'owner') && (
-                                        <Link to="/settings/break-time" className="text-success text-decoration-underline">
-                                            break times
-                                        </Link>
-                                    )}
-                                    , ensuring{' '}
-                                    {(userType === 'admin' || userType === 'owner') && (
-                                        <Link to="/settings/punctuality" className="text-success text-decoration-underline">
-                                            punctuality
-                                        </Link>
-                                    )}
-                                    , and configuring{' '}
-                                    <Link to="/leave-management" className="text-success text-decoration-underline">
-                                        leaves
-                                    </Link>
-                                    , Please click{' '}
-                                    <Link to="/Training" className="text-success text-decoration-underline">
-                                        Training center
-                                    </Link>
-                                    .
-                                </span>
-                            </div>
+                                )}
+                                , and configuring{' '}
+                                <Link to="/leave-management" className="text-success text-decoration-underline">
+                                    leaves
+                                </Link>
+                                , Please click{' '}
+                                <Link to="/Training" className="text-success text-decoration-underline">
+                                    Training center
+                                </Link>
+                                .
+                            </span>
+                        </div>
 
-                        )}
+                         )}
+
+                        {/* )} */}
+
+                        {/* {token && (
+                            < UserDashboardSection key={forceUpdate} />
+                        )} */}
+                        {/* <img className="line" src={line} /> */}
                     </>
                 )}
             </div>

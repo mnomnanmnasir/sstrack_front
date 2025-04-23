@@ -1,0 +1,56 @@
+/* .sidebar {
+    width: 60px;
+    height: 100vh;
+    background-color: #2c3e50;
+    color: white;
+    transition: width 0.3s ease-in-out;
+    position: fixed;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+} */
+
+/* ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    cursor: pointer;
+    position: relative;
+    width: 100%;
+}
+
+.icon {
+    font-size: 22px;
+} */
+
+/* Sidebar Text Appears Outside (Left Default) */
+/* .sidebar-text {
+    position: absolute;
+    left: 70px;
+
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 1;
+    transform: translateX(10px);
+
+    transition: all 0.3s ease-in-out;
+} */
+
+/* Settings Text Appears on Right */
+/* .settings-text {
+    left: auto;
+    right: -100px;
+  
+} */

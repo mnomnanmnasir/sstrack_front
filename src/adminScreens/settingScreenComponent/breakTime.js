@@ -5,13 +5,14 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { useDispatch, useSelector } from "react-redux";
 import CompanyEmployess from "../../screen/component/breakTimeEmployess";
 import EmployeeFilter from "../../screen/component/EmployeeFilter";
+import moment from "moment-timezone";
+
 
 function Screenshot() {
   let token = localStorage.getItem("token");
   let headers = {
     Authorization: "Bearer " + token,
   };
-
 
   const [number, setNumber] = useState(null);
   const ids = useSelector((state) => state.adminSlice.ids);
@@ -267,61 +268,43 @@ function Screenshot() {
           throw new Error(`Please fill both start and end time for Break ${index + 1}.`);
         }
       });
-
-      // Format the break times in UTC
-      const formattedBreakTimes = breakTimes.map((slot) => {
-        const currentDate = new Date().toISOString().split("T")[0]; // Get today's date
-        const breakStartTime = new Date(`${currentDate}T${slot.start}:00`).toISOString();
-        const breakEndTime = new Date(`${currentDate}T${slot.end}:00`).toISOString();
-
-        // Calculate total hours and minutes
-        const durationMinutes =
-          (new Date(breakEndTime) - new Date(breakStartTime)) / (1000 * 60);
-        const hours = Math.floor(durationMinutes / 60);
-        const minutes = durationMinutes % 60;
-
-        return {
-          TotalHours: `${hours}h:${minutes}m`,
-          breakStartTime,
-          breakEndTime,
-        };
-      });
-
-      // Prepare only the specific userIds (do not update global allUsers)
-      const specificUserIds = employees.map((employee) => employee._id);
-
-      // API payload: send only userIds and breakTime settings
+  
+      const currentDate = new Date().toISOString().split("T")[0];
+      const forcedTimezone = 'Asia/Karachi'; // This ensures +05:00
+  
       const requestData = employees.map((employee) => {
-        const currentDate = new Date().toISOString().split("T")[0];
-        const userTimezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const userTimezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
-
+        const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
+  
         const formattedBreakTimes = breakTimes.map((slot) => {
-          const breakStartTime = new Date(`${currentDate}T${slot.start}:00`).toISOString();
-          const breakEndTime = new Date(`${currentDate}T${slot.end}:00`).toISOString();
-
-          const durationMinutes = (new Date(breakEndTime) - new Date(breakStartTime)) / (1000 * 60);
+          const breakStartRaw = `${currentDate}T${slot.start}`;
+          const breakEndRaw = `${currentDate}T${slot.end}`;
+  
+          const breakStartTime = moment.tz(breakStartRaw, forcedTimezone).format(); // 👈 +05:00 always
+          const breakEndTime = moment.tz(breakEndRaw, forcedTimezone).format();
+  
+          const durationMinutes = (moment(breakEndTime).toDate() - moment(breakStartTime).toDate()) / (1000 * 60);
           const hours = Math.floor(durationMinutes / 60);
           const minutes = durationMinutes % 60;
-
+  
           return {
             TotalHours: `${hours}h:${minutes}m`,
             breakStartTime,
             breakEndTime,
           };
         });
-
+  
         return {
           userId: employee._id,
           settings: {
             breakTime: formattedBreakTimes,
-            timezone: userTimezone,
-            timezoneOffset: userTimezoneOffset,
+            timezone: forcedTimezone,
+            timezoneOffset: timezoneOffset,
           },
         };
       });
-      console.log('breaktimeDta===>', requestData)
-      // API call to update break time for selected userIds
+  
+      console.log("breaktimeDta ===>", requestData);
+  
       const response = await axios.post(
         "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
         requestData,
@@ -332,7 +315,7 @@ function Screenshot() {
           },
         }
       );
-
+  
       if (response.status === 200) {
         enqueueSnackbar("Break Time rule successfully submitted!", {
           variant: "success",
@@ -342,7 +325,6 @@ function Screenshot() {
         enqueueSnackbar("Failed to submit punctuality rule.", { variant: "error" });
       }
     } catch (error) {
-      // Handle errors without affecting global states
       enqueueSnackbar(
         error.message || "Error submitting punctuality rule. Please try again later.",
         { variant: "error", anchorOrigin: { vertical: "top", horizontal: "right" } }
@@ -350,8 +332,9 @@ function Screenshot() {
       console.error("Error submitting punctuality rule:", error);
     }
   };
-
-
+  
+  
+  
 
   const handleRemoveBreakTime = (index) => {
     if (breakTimes.length > 0) {

@@ -472,50 +472,27 @@ function UserDashboard() {
                     </div>
                     <div className="mainwrapper">
                         <div className="userDashboardContainer">
-                            <div className="dashheadings">
-                                <p
-                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                    className="dashheadingtop"
-                                    onClick={handleSort}
-                                >
+                            <div className="dashheadings dashheading-wrapper">
+                                <p className="dashheadingtop heading-col" onClick={handleSort}>
                                     Employee {sortOrder === 'asc' ? '↑' : '↓'}
                                 </p>
-                                <p
-                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                    className="dashheadingtop textalign"
-                                    onClick={handleLastActiveSort}
-                                >
+                                <p className="dashheadingtop heading-col" onClick={handleLastActiveSort}>
                                     Last active {lastActiveSortOrder === 'asc' ? '↑' : '↓'}
                                 </p>
-                                <p
-                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                    className="dashheadingtop textalign"
-                                    onClick={handleTodaySort}
-                                >
+                                <p className="dashheadingtop heading-col" onClick={handleTodaySort}>
                                     Today {todaySortOrder === 'asc' ? '↑' : '↓'}
                                 </p>
-                                <p
-                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                    className="dashheadingtop textalign"
-                                    onClick={handleYesterdaySort}
-                                >
+                                <p className="dashheadingtop heading-col" onClick={handleYesterdaySort}>
                                     Yesterday {yesterdaySortOrder === 'asc' ? '↑' : '↓'}
                                 </p>
-                                <p
-                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                    className="dashheadingtop textalign"
-                                    onClick={handleThisWeekSort}
-                                >
+                                <p className="dashheadingtop heading-col" onClick={handleThisWeekSort}>
                                     This week {thisWeekSortOrder === 'asc' ? '↑' : '↓'}
                                 </p>
-                                <p
-                                    style={{ fontSize: "18px", color: "#0D3756", cursor: "pointer" }}
-                                    className="dashheadingtop textalign"
-                                    onClick={handleThisMonthSort}
-                                >
+                                <p className="dashheadingtop heading-col" onClick={handleThisMonthSort}>
                                     This month {thisMonthSortOrder === 'asc' ? '↑' : '↓'}
                                 </p>
                             </div>
+
                             <div className="my-first-step">
                                 {isLoading ? (
                                     <>
