@@ -180,9 +180,8 @@ function Signup() {
                                     {/* 🔹 Resend Verification Email Button */}
                                     {/* 🔹 Resend Verification Email Button */}
                                     {/* <div className="alig"> */}
-                                    {/* <button> */}
-                                    <div className="d-flex align-items-center gap-3">
-                                        <a
+                                    {/* <button> */} <div className="d-flex flex-column flex-md-row align-items-center gap-3">
+                                    <a
                                             href="https://mail.google.com/"
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -226,6 +225,7 @@ function Signup() {
                                         </a>
 
                                     </div>
+                                   
                                     {/* </button> */}
                                     {/* 🔹 Text with Different Font Sizes */}
                                     {/* <p className=" flex-end text-center" style={{ marginTop: '5%', fontSize: "18px", fontWeight: "bold" }}> */}

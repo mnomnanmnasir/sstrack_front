@@ -355,7 +355,7 @@ function UserDashboard() {
 
     // const items = jwtDecode(JSON.stringify(token));
     let items;
-    console.log('data for dashboard filter',data2)
+    console.log('data for dashboard filter', data2)
     if (token) {
         items = jwtDecode(JSON.stringify(token));
     } else {
@@ -444,10 +444,10 @@ function UserDashboard() {
         setData2(sorted);
         setThisMonthSortOrder(thisMonthSortOrder === 'asc' ? 'desc' : 'asc');
     };
-  
+
     return (
         <>
-        {/* <Sidebar /> */}
+            {/* <Sidebar /> */}
             <div className="mobhayat">
                 {user?._id === "679b223b61427668c045c659" && (
                     <Joyride
