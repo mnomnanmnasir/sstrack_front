@@ -118,11 +118,12 @@
 
                   {/* <Sidebar /> */}
                   {/* <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} /> */}
-                  <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+                  <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
                   <div className="flex-grow-1 d-flex flex-column" style={{ overflowX: 'hidden', overflowY: 'auto', maxHeight: '100vh' }}>
-                    <UserHeader />
-                    <div className="flex-grow-1">
+                  <UserHeader setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} />
+                  {/* <UserHeader setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} /> */}
+                  <div className="flex-grow-1">
                       <Outlet />
                       <Footer
                         onContactButtonClick={scrollToContactSection}

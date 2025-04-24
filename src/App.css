@@ -333,12 +333,20 @@ nav li a {
 }
 
 .logo1 {
-  width: 215px;
+  width: 200px;
   cursor: pointer;
   margin-left: 10px;
-  margin-top: -50px;
-  /* margin-bottom: -30%;
-  z-index: 40px !important; */
+  margin-top: -10px;
+}
+
+/* 👇 Override width for mobile screens */
+@media screen and (max-width: 767px) {
+  .logo1 {
+    width: auto;
+    /* or use 100px or any desired size */
+    margin-left: 0;
+    margin-top: 0;
+  }
 }
 
 
@@ -6435,27 +6443,33 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .dashheading-wrapper {
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Adjust layout and font size on smaller screens */
 @media (max-width: 900px) {
   .dashheading-wrapper {
     display: flex;
-    flex-wrap: nowrap; /* ❗ Prevent breaking to next line */
+    flex-wrap: nowrap;
+    /* ❗ Prevent breaking to next line */
     justify-content: space-between;
-    overflow-x: auto;  /* 🧠 Allow horizontal scroll if needed */
+    overflow-x: auto;
+    /* 🧠 Allow horizontal scroll if needed */
     /* gap: 6px; */
     /* padding: 0 5px; */
   }
 
   .dashheadingtop.heading-col {
-    flex: 0 0 auto; /* ❗ Prevent shrink, allow as-is */
+    flex: 0 0 auto;
+    /* ❗ Prevent shrink, allow as-is */
     font-size: 12px;
-    min-width: 90px; /* ✅ Minimum space per heading */
+    min-width: 90px;
+    /* ✅ Minimum space per heading */
     text-align: center;
     padding: 6px 4px;
-    white-space: nowrap; /* ❗ Prevent wrapping inside the item */
+    white-space: nowrap;
+    /* ❗ Prevent wrapping inside the item */
   }
 }
 
@@ -7030,4 +7044,30 @@ input[type="number"] {
   background-color: #000000 !important;
   color: white !important;
   /* border-color: #1d5b8a !important; */
+}
+
+
+.custom-header-navbar {
+  background-color: #0d3756;
+  /* padding: 10px 15px; */
+  margin: 0px 30px;
+  /* border-radius: 10px; */
+}
+
+/* ✅ Remove margin and radius on small screens (mobile) */
+@media (max-width: 576px) {
+  .custom-header-navbar {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+  }
+}
+
+.mobile-header {
+  text-align: left;
+  padding-top: 10px;
+}
+
+.desktop-header {
+  justify-content: flex-end;
 }

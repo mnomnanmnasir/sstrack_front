@@ -272,8 +272,6 @@
 
 // export default Sidebar;
 
-
-
 import React, { useState, useEffect } from 'react';
 import {
     Drawer, List, ListItemButton, ListItemIcon, ListItemText,
@@ -303,7 +301,7 @@ import logo from '../images/sloganLogo.png';
 const drawerWidth = 250;
 const collapsedWidth = 70;
 
-const Sidebar = () => {
+const Sidebar = ({ open, onClose }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [userType, setUserType] = useState(null);
     const [reportsOpen, setReportsOpen] = useState(false);
@@ -330,6 +328,12 @@ const Sidebar = () => {
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
+
+    useEffect(() => {
+        if (isMobile && open) {
+            setCollapsed(false); // Always expand the sidebar on mobile
+        }
+    }, [isMobile, open]);
 
     const handleNavigate = (route) => {
         navigate(route);
@@ -359,10 +363,14 @@ const Sidebar = () => {
                 {!collapsed && (
                     <img src={logo} alt="Logo" className="logo" style={{ height: 50, marginRight: 'auto' }} />
                 )}
-                <IconButton onClick={() => setCollapsed(!collapsed)} sx={{ color: 'white' }}>
-                    {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                </IconButton>
+                {/* ✅ Hide arrow on mobile */}
+                {!isMobile && (
+                    <IconButton onClick={() => setCollapsed(!collapsed)} sx={{ color: 'white' }}>
+                        {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                    </IconButton>
+                )}
             </div>
+
             <List>
                 {filteredSidebarItems.map((item, index) => {
                     if (item.isDropdown === 'reports') {
@@ -452,25 +460,26 @@ const Sidebar = () => {
                     <ChevronRightIcon />
                 </IconButton>
             )} */}
-            {isMobile && !mobileOpen && (
+
+            {!isMobile && (
                 <IconButton
-                    onClick={handleDrawerToggle}
-                    sx={{ position: 'fixed', top: 10, left: 10, zIndex: 2000, color: 'white' }}
+                    onClick={() => setCollapsed(!collapsed)}
+                    sx={{ color: 'white' }}
                 >
-                    <ChevronRightIcon />
+                    {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
                 </IconButton>
             )}
 
             <Drawer
                 variant={isMobile ? 'temporary' : 'permanent'}
-                open={isMobile ? mobileOpen : true}
-                onClose={handleDrawerToggle}
+                open={isMobile ? open : true}
+                onClose={onClose}
                 ModalProps={{ keepMounted: true }}
                 sx={{
-                    width: collapsed ? collapsedWidth : drawerWidth,
+                    width: isMobile ? drawerWidth : (collapsed ? collapsedWidth : drawerWidth),
                     flexShrink: 0,
                     '& .MuiDrawer-paper': {
-                        width: collapsed ? collapsedWidth : drawerWidth,
+                        width: isMobile ? drawerWidth : (collapsed ? collapsedWidth : drawerWidth),
                         boxSizing: 'border-box',
                         backgroundColor: '#003366',
                         color: '#fff',
@@ -486,7 +495,6 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
 
 // import React, { useState, useEffect } from 'react';
 // import {

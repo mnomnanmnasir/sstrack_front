@@ -268,7 +268,7 @@ function Screenshot() {
           throw new Error(`Please fill both start and end time for Break ${index + 1}.`);
         }
       });
-  
+
       const currentDate = new Date().toISOString().split("T")[0];
       const forcedTimezone = 'Asia/Karachi'; // This ensures +05:00
       const defaultTimezone = moment.tz.guess(); // e.g., browser/user fallback
@@ -276,25 +276,34 @@ function Screenshot() {
       const requestData = employees.map((employee) => {
         const employeeTimezone = employee?.timezone || defaultTimezone; // 🧠 use employee-specific timezone if present
         const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
-      
+
         const formattedBreakTimes = breakTimes.map((slot) => {
           const breakStartRaw = `${currentDate}T${slot.start}`;
           const breakEndRaw = `${currentDate}T${slot.end}`;
-        
-          const breakStartTime = moment.tz(breakStartRaw, 'Asia/Karachi').format('YYYY-MM-DDTHH:mm:ssZ');
-          const breakEndTime = moment.tz(breakEndRaw, 'Asia/Karachi').format('YYYY-MM-DDTHH:mm:ssZ');
-        
+
+          // const breakStartTime = moment.tz(breakStartRaw, 'Asia/Karachi').format('YYYY-MM-DDTHH:mm:ssZ');
+          // const breakEndTime = moment.tz(breakEndRaw, 'Asia/Karachi').format('YYYY-MM-DDTHH:mm:ssZ');
+          const offsetMinutes = -new Date().getTimezoneOffset(); // e.g., 300 for +05:00
+
+          const breakStartTime = moment.utc(`${currentDate}T${slot.start}`)
+            .utcOffset(offsetMinutes)
+            .format('YYYY-MM-DDTHH:mm:ssZ');
+
+          const breakEndTime = moment.utc(`${currentDate}T${slot.end}`)
+            .utcOffset(offsetMinutes)
+            .format('YYYY-MM-DDTHH:mm:ssZ');
+
           const durationMinutes = (moment(breakEndTime).toDate() - moment(breakStartTime).toDate()) / (1000 * 60);
           const hours = Math.floor(durationMinutes / 60);
           const minutes = durationMinutes % 60;
-        
+
           return {
             TotalHours: `${hours}h:${minutes}m`,
             breakStartTime,
             breakEndTime,
           };
-        });        
-      
+        });
+
         return {
           userId: employee._id,
           settings: {
@@ -303,10 +312,10 @@ function Screenshot() {
             timezoneOffset: timezoneOffset,
           },
         };
-      });      
-  
+      });
+
       console.log("breaktimeDta ===>", requestData);
-  
+
       const response = await axios.post(
         "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
         requestData,
@@ -317,7 +326,7 @@ function Screenshot() {
           },
         }
       );
-  
+
       if (response.status === 200) {
         enqueueSnackbar("Break Time rule successfully submitted!", {
           variant: "success",
@@ -334,9 +343,9 @@ function Screenshot() {
       console.error("Error submitting punctuality rule:", error);
     }
   };
-  
-  
-  
+
+
+
 
   const handleRemoveBreakTime = (index) => {
     if (breakTimes.length > 0) {

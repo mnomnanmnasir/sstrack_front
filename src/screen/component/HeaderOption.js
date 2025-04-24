@@ -12,7 +12,7 @@ import { setToken } from "../../store/authSlice";
 import { Modal } from "bootstrap";
 
 
-function UserDashboardSection(params) {
+function HeaderOption({ isMobile }) {
 
     // const navigate = useNavigate();
     const location = useLocation();
@@ -103,29 +103,37 @@ function UserDashboardSection(params) {
     };
     return (
 
-
-        <div className="cursor-pointer mt-3">
-            {/* <Header /> */}
-            <>
-                {/* <HeaderOption /> */}
-                <nav className="navbar navbar-expand-lg navbar-dark" style={{
-                    backgroundColor: "#0d3756",
-                    padding: "10px 0px",
-                    borderTopLeftRadius: "10px",
-                    borderTopRightRadius: "10px",
-                    margin: "0px 30px 0 30px",
-                }}>
-                    {/* <HeaderOption /> */}
-                    <div className="container-fluid" style={{ position: "relative" }}>
-                        <div>
-                            {/* <img onClick={() => navigate('/')} className="logo" src={logo} /> */}
-                            {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div className={`header-options ${isMobile ? "mobile-header" : "desktop-header"}`}>
+            {isMobile ? (
+                <div className="d-flex flex-column">
+                    <Link to="/download" className="text-white mb-2">Download</Link>
+                    <Link to="/pricing" className="text-white mb-2">Pricing</Link>
+                    <Link to="/workCards" className="text-white mb-2">How it Works</Link>
+                    <Link to="/Training" className="text-white mb-2">Training Center</Link>
+                </div>
+            ) : (
+                <div className="cursor-pointer mt-3">
+                    {/* <Header /> */}
+                    <>
+                        {/* <HeaderOption /> */}
+                        <nav className="navbar navbar-expand-lg navbar-dark" style={{
+                            backgroundColor: "#0d3756",
+                            padding: "10px 0px",
+                            borderTopLeftRadius: "10px",
+                            borderTopRightRadius: "10px",
+                            margin: "0px 30px 0 30px",
+                        }}>
+                            {/* <HeaderOption /> */}
+                            <div className="container-fluid" style={{ position: "relative" }}>
+                                <div>
+                                    {/* <img onClick={() => navigate('/')} className="logo" src={logo} /> */}
+                                    {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                                     <span className="navbar-toggler-icon"></span>
                                 </button> */}
-                        </div>
-                        <div>
-                            <div className="d-flex amButton justify-content-end" role="search">
-                                {/* <div className="ownerSectionUser1 text-white" onClick={() => {
+                                </div>
+                                <div>
+                                    <div className="d-flex amButton justify-content-end" role="search">
+                                        {/* <div className="ownerSectionUser1 text-white" onClick={() => {
                                         navigate('/')
                                     }} >
                                         <p style={{ margin: 0 }} onClick={() => {
@@ -133,7 +141,7 @@ function UserDashboardSection(params) {
 
                                         }}>Home</p>
                                     </div> */}
-                                {/* <div className="ownerSectionUser1 text-white" onClick={() => {
+                                        {/* <div className="ownerSectionUser1 text-white" onClick={() => {
                                         navigate('/download')
                                     }} >
                                         <p className="ownerSectionUser1 text-white" style={{ margin: 0 }} onClick={() => {
@@ -141,99 +149,99 @@ function UserDashboardSection(params) {
                                         }}>Download</p>
                                     </div> */}
 
-                                {/* ✅ This div will be hidden on /signin */}
+                                        {/* ✅ This div will be hidden on /signin */}
 
-                                <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', margin: 0 }}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        if (window.location.pathname !== "/") {
-                                            navigate("/", { state: { scrollTo: "pricing" } });
-                                        } else {
-                                            scrollToSection('pricing'); // Call the scroll function if already on homepage
-                                        }
-                                    }}>Pricing</Link>
-                                {/* <div className=" text-white" > */}
-                                <Link
-                                    to="/workCards"
-                                    className="ownerSectionUser1"
-                                    // state={{ scrollTo: "section5" }}
-                                    style={{ color: 'white', textDecoration: 'none', margin: 0 }}
-                                >
-                                    How It Works</Link>
-                                {/* <p style={{ margin: 0 }} onClick={() => location.pathname === "/" ? scrollToSection('section4') : navigate("/")}>How It Work</p> */}
-                                {/* </div> */}
-                                {/* <div className="ownerSectionUser1 text-white" onClick={() => {
+                                        <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', margin: 0 }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (window.location.pathname !== "/") {
+                                                    navigate("/", { state: { scrollTo: "pricing" } });
+                                                } else {
+                                                    scrollToSection('pricing'); // Call the scroll function if already on homepage
+                                                }
+                                            }}>Pricing</Link>
+                                        {/* <div className=" text-white" > */}
+                                        <Link
+                                            to="/workCards"
+                                            className="ownerSectionUser1"
+                                            // state={{ scrollTo: "section5" }}
+                                            style={{ color: 'white', textDecoration: 'none', margin: 0 }}
+                                        >
+                                            How It Works</Link>
+                                        {/* <p style={{ margin: 0 }} onClick={() => location.pathname === "/" ? scrollToSection('section4') : navigate("/")}>How It Work</p> */}
+                                        {/* </div> */}
+                                        {/* <div className="ownerSectionUser1 text-white" onClick={() => {
                                         navigate('/pricing')
                                     }} >
                                         <p style={{ margin: 0 }} onClick={() => location.pathname === "/" ? scrollToSection('section3') : navigate("/")}>Pricing</p>
                                     </div> */}
-                                {/* <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }}
+                                        {/* <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }}
                                     > */}
-                                <Link
-                                    to="/Training"
-                                    className="ownerSectionUser1"
-                                    style={{ color: "white", textDecoration: "none", margin: 0 }}
-                                // onClick={() => handleDismiss()} // Call function on click
-                                >
-                                    Training Center
-                                </Link>
-                                {(location.pathname !== "/signin") && (location.pathname !== "/signup") && (
+                                        <Link
+                                            to="/Training"
+                                            className="ownerSectionUser1"
+                                            style={{ color: "white", textDecoration: "none", margin: 0 }}
+                                        // onClick={() => handleDismiss()} // Call function on click
+                                        >
+                                            Training Center
+                                        </Link>
+                                        {(location.pathname !== "/signin") && (location.pathname !== "/signup") && (
 
-                                    <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none' }}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            if (window.location.pathname !== "/") {
-                                                navigate("/download", { state: { scrollTo: "" } });
-                                            } else {
-                                                scrollToSection(''); // Call the scroll function if already on homepage
-                                            }
-                                        }}>Download</Link>
-                                )}
-                                <Link
-                                    to="#"
-                                    className="ownerSectionUser1"
-                                    style={{ color: 'white', textDecoration: 'none', margin: 0 }}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setShowDemoModal(true); // 🔥 Show modal first
-                                    }}
-                                >
-                                    Demo
-                                </Link>
+                                            <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none' }}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    if (window.location.pathname !== "/") {
+                                                        navigate("/download", { state: { scrollTo: "" } });
+                                                    } else {
+                                                        scrollToSection(''); // Call the scroll function if already on homepage
+                                                    }
+                                                }}>Download</Link>
+                                        )}
+                                        <Link
+                                            to="#"
+                                            className="ownerSectionUser1"
+                                            style={{ color: 'white', textDecoration: 'none', margin: 0 }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setShowDemoModal(true); // 🔥 Show modal first
+                                            }}
+                                        >
+                                            Demo
+                                        </Link>
 
-                                {/* Bootstrap Modal Markup */}
-                                <div
-                                    className="modal fade"
-                                    ref={modalRef}
-                                    tabIndex="-1"
-                                    aria-labelledby="demoModalLabel"
-                                    aria-hidden="true"
-                                >
-                                    <div className="modal-dialog modal-dialog-centered">
-                                        <div className="modal-content" style={{ borderRadius: "12px", padding: "20px" }}>
-                                            <div className="modal-header border-0 position-relative">
-                                                <div style={{ position: "absolute", left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
-                                                    <h5
-                                                        className="modal-title"
-                                                        id="demoModalLabel"
-                                                        style={{ fontWeight: "600", color: "#222", margin: 0 }}
-                                                    >
-                                                        Switch to Demo Account?
-                                                    </h5>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    className="btn-close ms-auto"
-                                                    data-bs-dismiss="modal"
-                                                    aria-label="Close"
-                                                ></button>
-                                            </div>
+                                        {/* Bootstrap Modal Markup */}
+                                        <div
+                                            className="modal fade"
+                                            ref={modalRef}
+                                            tabIndex="-1"
+                                            aria-labelledby="demoModalLabel"
+                                            aria-hidden="true"
+                                        >
+                                            <div className="modal-dialog modal-dialog-centered">
+                                                <div className="modal-content" style={{ borderRadius: "12px", padding: "20px" }}>
+                                                    <div className="modal-header border-0 position-relative">
+                                                        <div style={{ position: "absolute", left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
+                                                            <h5
+                                                                className="modal-title"
+                                                                id="demoModalLabel"
+                                                                style={{ fontWeight: "600", color: "#222", margin: 0 }}
+                                                            >
+                                                                Switch to Demo Account?
+                                                            </h5>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            className="btn-close ms-auto"
+                                                            data-bs-dismiss="modal"
+                                                            aria-label="Close"
+                                                        ></button>
+                                                    </div>
 
-                                            <div className="modal-body" style={{ textAlign: "center", fontSize: "14px", color: "#555", lineHeight: "1.6" }}>
-                                                Your current session will be logged out and you will be redirected to a demo account for testing purposes. <br />
-                                                <strong>Would you like to proceed?</strong>
-                                            </div>
-                                            {/* <div className="modal-footer border-0 d-flex justify-content-center">
+                                                    <div className="modal-body" style={{ textAlign: "center", fontSize: "14px", color: "#555", lineHeight: "1.6" }}>
+                                                        Your current session will be logged out and you will be redirected to a demo account for testing purposes. <br />
+                                                        <strong>Would you like to proceed?</strong>
+                                                    </div>
+                                                    {/* <div className="modal-footer border-0 d-flex justify-content-center">
                                                 <button
                                                     className="btn"
                                                     style={{
@@ -250,17 +258,17 @@ function UserDashboardSection(params) {
                                                 >
                                                     Yes
                                                 </button> */}
-                                            <div className="modal-footer border-0 d-flex justify-content-center gap-2 px-4 pb-4">
-                                                {isLoggingIn ? (
-                                                    <div className="d-flex align-items-center justify-content-center">
-                                                        <div className="spinner-border" style={{color: '#7FC45B'}} role="status">
-                                                            <span className="visually-hidden" style={{ marginLeft: "-30px" }}>Loading...</span>
-                                                        </div>
-                                                        {/* <span style={{ marginLeft: "10px", fontWeight: 600 }}>Logging in...</span> */}
-                                                    </div>
-                                                ) : (
-                                                    <>
-                                                        {/* <button
+                                                    <div className="modal-footer border-0 d-flex justify-content-center gap-2 px-4 pb-4">
+                                                        {isLoggingIn ? (
+                                                            <div className="d-flex align-items-center justify-content-center">
+                                                                <div className="spinner-border" style={{ color: '#7FC45B' }} role="status">
+                                                                    <span className="visually-hidden" style={{ marginLeft: "-30px" }}>Loading...</span>
+                                                                </div>
+                                                                {/* <span style={{ marginLeft: "10px", fontWeight: 600 }}>Logging in...</span> */}
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                {/* <button
                                                             className="btn"
                                                             style={{
                                                                 padding: "10px 20px",
@@ -296,58 +304,60 @@ function UserDashboardSection(params) {
                                                             )}
                                                         </button> */}
 
-                                                        <button
-                                                    className="btn"
-                                                    style={{
-                                                        padding: "10px 20px",
-                                                        backgroundColor: "#7FC45B",
-                                                        color: "#fff",
-                                                        fontWeight: "600",
-                                                        borderRadius: "5px",
-                                                        minWidth: "100px"
-                                                    }}
-                                                    onClick={() => {
-                                                        setIsLoggingIn(true); // Show loader immediately
-                                                        // modalInstance.current.hide();
-                                                        handleLogin();
-                                                    }}
-                                                >
-                                                    Yes
-                                                </button>
-                                                        <button
-                                                            className="btn"
-                                                            disabled={isLoggingIn}
-                                                            style={{
-                                                                padding: "10px 20px",
-                                                                backgroundColor: "#ccc",
-                                                                color: "#333",
-                                                                fontWeight: "600",
-                                                                borderRadius: "5px",
-                                                            }}
-                                                            data-bs-dismiss="modal"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </>
+                                                                <button
+                                                                    className="btn"
+                                                                    style={{
+                                                                        padding: "10px 20px",
+                                                                        backgroundColor: "#7FC45B",
+                                                                        color: "#fff",
+                                                                        fontWeight: "600",
+                                                                        borderRadius: "5px",
+                                                                        minWidth: "100px"
+                                                                    }}
+                                                                    onClick={() => {
+                                                                        setIsLoggingIn(true); // Show loader immediately
+                                                                        // modalInstance.current.hide();
+                                                                        handleLogin();
+                                                                    }}
+                                                                >
+                                                                    Yes
+                                                                </button>
+                                                                <button
+                                                                    className="btn"
+                                                                    disabled={isLoggingIn}
+                                                                    style={{
+                                                                        padding: "10px 20px",
+                                                                        backgroundColor: "#ccc",
+                                                                        color: "#333",
+                                                                        fontWeight: "600",
+                                                                        borderRadius: "5px",
+                                                                    }}
+                                                                    data-bs-dismiss="modal"
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                            </>
 
-                                                )}
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
 
-                                {/* <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', margin: 0 }}
+                                        {/* <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none', margin: 0 }}
                                         onClick={handleLogin}>Demo</Link> */}
-                                {/* <p style={{ margin: 0, fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/aboutUs")}>{language === "en" ? "About Us" : "كيف يعمل"}</p> */}
-                                {/* </div> */}
-                            </div>
+                                        {/* <p style={{ margin: 0, fontSize: '0.8rem', }} onClick={() => location.pathname === "/" ? scrollToSection('section1') : navigate("/aboutUs")}>{language === "en" ? "About Us" : "كيف يعمل"}</p> */}
+                                        {/* </div> */}
+                                    </div>
 
-                        </div>
-                    </div>
-                </nav>
-            </>
-        </div >
+                                </div>
+                            </div>
+                        </nav>
+                    </>
+                </div>
+            )}
+        </div>
     )
 }
 
-export default UserDashboardSection;
+export default HeaderOption;
