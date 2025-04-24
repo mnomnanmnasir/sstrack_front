@@ -270,61 +270,43 @@ function Screenshot() {
       });
   
       const currentDate = new Date().toISOString().split("T")[0];
-<<<<<<< HEAD
       const forcedTimezone = 'Asia/Karachi'; // This ensures +05:00
-  
+      const defaultTimezone = moment.tz.guess(); // e.g., browser/user fallback
+
       const requestData = employees.map((employee) => {
-=======
-  
-      // Build request for each employee
-      const requestData = employees.map((employee) => {
-        const timezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
->>>>>>> 3f40da3f2dbbc57745f8d3ce207863f90f08edcd
+        const employeeTimezone = employee?.timezone || defaultTimezone; // 🧠 use employee-specific timezone if present
         const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
-  
+      
         const formattedBreakTimes = breakTimes.map((slot) => {
           const breakStartRaw = `${currentDate}T${slot.start}`;
           const breakEndRaw = `${currentDate}T${slot.end}`;
-  
-<<<<<<< HEAD
-          const breakStartTime = moment.tz(breakStartRaw, forcedTimezone).format(); // 👈 +05:00 always
-          const breakEndTime = moment.tz(breakEndRaw, forcedTimezone).format();
-=======
-          const breakStartTime = moment.tz(breakStartRaw, timezone).format();
-          const breakEndTime = moment.tz(breakEndRaw, timezone).format();
->>>>>>> 3f40da3f2dbbc57745f8d3ce207863f90f08edcd
-  
+        
+          const breakStartTime = moment.tz(breakStartRaw, 'Asia/Karachi').format('YYYY-MM-DDTHH:mm:ssZ');
+          const breakEndTime = moment.tz(breakEndRaw, 'Asia/Karachi').format('YYYY-MM-DDTHH:mm:ssZ');
+        
           const durationMinutes = (moment(breakEndTime).toDate() - moment(breakStartTime).toDate()) / (1000 * 60);
           const hours = Math.floor(durationMinutes / 60);
           const minutes = durationMinutes % 60;
-  
+        
           return {
             TotalHours: `${hours}h:${minutes}m`,
             breakStartTime,
             breakEndTime,
           };
-        });
-  
+        });        
+      
         return {
           userId: employee._id,
           settings: {
             breakTime: formattedBreakTimes,
-<<<<<<< HEAD
-            timezone: forcedTimezone,
-=======
-            timezone: timezone,
->>>>>>> 3f40da3f2dbbc57745f8d3ce207863f90f08edcd
+            timezone: employeeTimezone,
             timezoneOffset: timezoneOffset,
           },
         };
-      });
+      });      
   
       console.log("breaktimeDta ===>", requestData);
   
-<<<<<<< HEAD
-=======
-      // API call
->>>>>>> 3f40da3f2dbbc57745f8d3ce207863f90f08edcd
       const response = await axios.post(
         "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
         requestData,
@@ -353,11 +335,8 @@ function Screenshot() {
     }
   };
   
-<<<<<<< HEAD
   
   
-=======
->>>>>>> 3f40da3f2dbbc57745f8d3ce207863f90f08edcd
 
   const handleRemoveBreakTime = (index) => {
     if (breakTimes.length > 0) {

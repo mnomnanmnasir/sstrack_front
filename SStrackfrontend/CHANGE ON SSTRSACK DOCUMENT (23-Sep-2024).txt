@@ -1,8 +1,0 @@
-///////////SSTRACK//////////////
-
-testing the updated password and forgot password (15mins)
-push the code on vercel and continue another task (10mins)
-(companyOwner > companyIndividualUser file) optimize the code integrate the single component apply the conditional statement inside the userDetail (1hr)
-(managerScreens > dashboard.js file) optimize the code integrate the single component apply the conditional statement inside the userDashboard (1hr)
-(sstrack > account.js) re-rendering the billingComponent,js but make a different component and then import the another components (35mins)
-Add offlineTime but show the same offline time and currently time (45mins)
