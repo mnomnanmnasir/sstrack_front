@@ -53,7 +53,7 @@ function UserHeader({ setSidebarOpen, sidebarOpen }) {
     const [prevNotificationIds, setPrevNotificationIds] = useState([]);
     // const [sidebarOpen, setSidebarOpen] = useState(false);
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
 
     let headers = {
         Authorization: 'Bearer ' + token,

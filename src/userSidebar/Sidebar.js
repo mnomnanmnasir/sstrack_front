@@ -311,7 +311,7 @@ const Sidebar = ({ open, onClose }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
 
     useEffect(() => {
         const token = localStorage.getItem("token");

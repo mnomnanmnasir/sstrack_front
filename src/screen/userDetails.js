@@ -35,13 +35,16 @@ import { setEmployessSetting } from "../store/adminSlice"; // Adjust the import 
 import Payment from "./paymentPlan";
 import jwtDecode from "jwt-decode";
 import Joyride from "react-joyride";
-
+import { useMediaQuery, useTheme } from '@mui/material';
 
 function UserDetails() {
 
 
     const dispatch = useDispatch();
     const employees = useSelector((state) => state.adminSlice.employess);
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('lg')); // md = 960px
 
     const [allowBlur, setAllowBlur] = useState(true);
 
@@ -1474,81 +1477,96 @@ function UserDetails() {
                                         </div>
                                     </div>
                                 ) : <div className="timerAndTracking" id='secondStep'>
-                                    <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
-                                        <div>
-                                            <img width={120} src={logo} alt="" />
-                                        </div>
-                                        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
-                                            {/* Weekday */}
-                                            <p className="weekDayTimer">
-                                                {days[selectedDayIndex]}
-                                            </p>
+                                    {isMobile ? (
+                                        <>
+                                            <div className="container p-3"
 
-                                            {/* <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]}  </p> */}
+                                            >
 
-                                            {/* Current Day of the month */}
-                                            <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
+                                                {/* TOP: Date, Time, Week/Month */}
+                                                <div
+                                                    className="text-white text-center p-3 rounded"
+                                                    style={{
+                                                        background: "linear-gradient(to right, #2c7abe, #222f3c)",
+                                                        boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+                                                        borderRadius: "12px",
+                                                        maxWidth: 600,
+                                                        margin: "0 auto"
+                                                    }}
+                                                >
+                                                    {/* Top Row: Play Icon + Date */}
+                                                    <div className="d-flex align-items-center justify-content-center gap-3 mb-2">
+                                                        {/* Play Circle */}
+                                                        <div
+                                                            className="rounded-circle d-flex align-items-center justify-content-center"
+                                                            style={{
+                                                                width: 40,
+                                                                height: 40,
+                                                                backgroundColor: "#a5d64c", // green
+                                                            }}
+                                                        >
+                                                            <i className="bi bi-play-fill" style={{ fontSize: "1.5rem", color: "#2c3e50" }}></i>
+                                                        </div>
 
-                                            <p className="weekDateTimer">
-                                                {months[month || currentMonth]}
-                                            </p>
+                                                        {/* Date */}
+                                                        <p className="fw-semibold mb-0" style={{ fontSize: '1.1rem' }}>
+                                                            {days[selectedDayIndex]} {formattedDate?.split('-')[2]} {months[month || currentMonth]} {currentYear}
+                                                        </p>
+                                                    </div>
 
-                                            {/* Current Year */}
-                                            <p className="weekDateTimer">
-                                                {currentYear} {/* Display the current year */}
-                                            </p>
-                                            <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
-                                                <div className="circular-progress" style={{
-                                                    cursor: "pointer"
-                                                }}>
-                                                    <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
+                                                    {/* Timer */}
+                                                    <p className="" style={{ fontSize: '3.5rem', color: '#50AA00' }}>
+                                                        {data?.totalHours?.daily || "0h 0m"}
+                                                    </p>
+
+                                                    {/* Week & Month */}
+                                                    <div className="d-flex justify-content-center gap-5 mt-2">
+                                                        <div>
+                                                            <span className="fw-semibold" style={{ fontSize: '1rem' }}>Week</span>
+                                                            <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
+
+                                                        </div>
+                                                        <div>
+                                                            <span className="fw-semibold" style={{ fontSize: '1rem' }}>Month</span>
+                                                            <p className="weekTimerDigit">{data?.totalHours?.monthly}</p>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </OverlayTrigger>
-                                            {/* <p className="timerClock">
-                                            {data?.totalHours?.daily === "0h 0m" ? days[currentWeekDay] : data?.totalHours?.daily}
-                                        </p> */}
-                                            <p className="timerClock">        {data?.totalHours?.daily ? data.totalHours.daily : "0h 0m"}
-                                            </p>
-                                            {/* <p className="timerClock">{totalHours.daily}</p> */}
-                                            <p className="weekTimer">Week</p>
-                                            <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
-                                            <img src={circleDot} alt="CircleDot.png" />
-                                            <p className="weekTimer">Month</p>
-                                            <p className="monthTimerDigit">{data?.totalHours?.monthly}</p>
-                                        </div>
-                                    </div>
-                                    <div className="activity-image-container">
-                                        <div className="activityMainHeading">
-                                            <h4 className="activityMainHeadingContent">Activity Tracker</h4>
-                                            <p className="activityMainContent">Activity Level</p>
-                                        </div>
-                                        <div className="activityMeternContent">
-                                            <div className="activityMeterContentMain">
-                                                <div className="activityMeterContent">
-                                                    <img src={perc_20} alt="" />
-                                                    <p className="activityMeterContentPercent">0 - 20 %</p>
-                                                </div>
-                                                <div className="activityMeterContent">
-                                                    <img src={perc_40} alt="" />
-                                                    <p className="activityMeterContentPercent">21 - 40 %</p>
-                                                </div>
-                                                <div className="activityMeterContent">
-                                                    <img src={perc_60} alt="" />
-                                                    <p className="activityMeterContentPercent">41 - 60 %</p>
-                                                </div>
-                                                <div className="activityMeterContent">
-                                                    <img src={perc_80} alt="" />
-                                                    <p className="activityMeterContentPercent">61 - 80 %</p>
-                                                </div>
-                                                <div className="activityMeterContent" style={{ width: 200 }}>
-                                                    <img src={perc_100} alt="" />
-                                                    <p className="activityMeterContentPercent" >81 - 100 %</p>
-                                                </div>
-                                            </div>
-                                            <div className="activityMeterMain">
-                                                <div className="activityMeterMainContainer">
-                                                    <img className="activityMeterMainImage" src={activityImage} alt="" />
-                                                    <div className="needleContainerMain">
+
+
+
+                                                {/* LEGEND SECTION */}
+                                                <div className="row align-items-center justify-content-between text-start">
+                                                    {/* LEFT: Text + Legend */}
+                                                    <div className="col-6 col-md-6 mb-2 mb-md-0">
+                                                    <h5 className="fw-bold fs-3">Activity Tracker</h5>
+                                                        <p className="mb-0 fw-semibold">Activity Level</p>
+
+                                                        <div className="d-flex justify-content-start gap-2 flex-wrap">
+                                                            <div className="d-flex align-items-center gap-2">
+                                                                <div style={{ width: 12, height: 12, backgroundColor: 'orange', borderRadius: '50%' }}></div>
+                                                                <small>0–20%</small>
+                                                            </div>
+                                                            <div className="d-flex align-items-center gap-2">
+                                                                <div style={{ width: 12, height: 12, backgroundColor: '#ffcc00', borderRadius: '50%' }}></div>
+                                                                <small>21–40%</small>
+                                                            </div>
+                                                            <div className="d-flex align-items-center gap-2">
+                                                                <div style={{ width: 12, height: 12, backgroundColor: '#99cc33', borderRadius: '50%' }}></div>
+                                                                <small>41–60%</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    {/* RIGHT: Gauge Meter with Needle */}
+                                                    <div className="col-6 col-md-6 d-flex justify-content-center align-items-center position-relative">
+                                                        <img
+                                                            src={activityImage}
+                                                            alt="Activity Meter"
+                                                            className="img-fluid"
+                                                            style={{ maxWidth: 250 }}
+                                                        />
                                                         <div
                                                             className="needleContainerMainAlingment"
                                                             style={{
@@ -1569,9 +1587,112 @@ function UserDetails() {
                                                         </div>
                                                     </div>
                                                 </div>
+
                                             </div>
-                                        </div>
-                                    </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
+                                                <div>
+                                                    <img width={120} src={logo} alt="" />
+                                                </div>
+                                                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                                                    {/* Weekday */}
+                                                    <p className="weekDayTimer">
+                                                        {days[selectedDayIndex]}
+                                                    </p>
+
+                                                    {/* <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]}  </p> */}
+
+                                                    {/* Current Day of the month */}
+                                                    <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
+
+                                                    <p className="weekDateTimer">
+                                                        {months[month || currentMonth]}
+                                                    </p>
+
+                                                    {/* Current Year */}
+                                                    <p className="weekDateTimer">
+                                                        {currentYear} {/* Display the current year */}
+                                                    </p>
+                                                    <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
+                                                        <div className="circular-progress" style={{
+                                                            cursor: "pointer"
+                                                        }}>
+                                                            <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
+                                                        </div>
+                                                    </OverlayTrigger>
+                                                    {/* <p className="timerClock">
+                                            {data?.totalHours?.daily === "0h 0m" ? days[currentWeekDay] : data?.totalHours?.daily}
+                                        </p> */}
+                                                    <p className="timerClock">        {data?.totalHours?.daily ? data.totalHours.daily : "0h 0m"}
+                                                    </p>
+                                                    {/* <p className="timerClock">{totalHours.daily}</p> */}
+                                                    <p className="weekTimer">Week</p>
+                                                    <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
+                                                    <img src={circleDot} alt="CircleDot.png" />
+                                                    <p className="weekTimer">Month</p>
+                                                    <p className="monthTimerDigit">{data?.totalHours?.monthly}</p>
+                                                </div>
+                                            </div>
+                                            <div className="activity-image-container">
+                                                <div className="activityMainHeading">
+                                                    <h4 className="activityMainHeadingContent">Activity Tracker</h4>
+                                                    <p className="activityMainContent">Activity Level</p>
+                                                </div>
+                                                <div className="activityMeternContent">
+                                                    <div className="activityMeterContentMain">
+                                                        <div className="activityMeterContent">
+                                                            <img src={perc_20} alt="" />
+                                                            <p className="activityMeterContentPercent">0 - 20 %</p>
+                                                        </div>
+                                                        <div className="activityMeterContent">
+                                                            <img src={perc_40} alt="" />
+                                                            <p className="activityMeterContentPercent">21 - 40 %</p>
+                                                        </div>
+                                                        <div className="activityMeterContent">
+                                                            <img src={perc_60} alt="" />
+                                                            <p className="activityMeterContentPercent">41 - 60 %</p>
+                                                        </div>
+                                                        <div className="activityMeterContent">
+                                                            <img src={perc_80} alt="" />
+                                                            <p className="activityMeterContentPercent">61 - 80 %</p>
+                                                        </div>
+                                                        <div className="activityMeterContent" style={{ width: 200 }}>
+                                                            <img src={perc_100} alt="" />
+                                                            <p className="activityMeterContentPercent" >81 - 100 %</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="activityMeterMain">
+                                                        <div className="activityMeterMainContainer">
+                                                            <img className="activityMeterMainImage" src={activityImage} alt="" />
+                                                            <div className="needleContainerMain">
+                                                                <div
+                                                                    className="needleContainerMainAlingment"
+                                                                    style={{
+                                                                        transform: `translateY(-50%) rotate(${Math.floor(totalActivityByDay?.totalactivity) <= 20 ? -75 :
+                                                                            Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
+                                                                                Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
+                                                                                    Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
+                                                                                        Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -108
+                                                                            }deg)`
+                                                                    }}>
+                                                                    <div className="needleContainerAlingment">
+                                                                        <div className="diamond"></div>
+                                                                        <div className="needlePointerMain"></div>
+                                                                        <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
+                                                                            <div className="needleScrewMain"></div>
+                                                                        </OverlayTrigger>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
                                 </div>}
                                 <div className="time-scale" style={{ display: "flex", justifyContent: "space-between" }} id="Thirdstep">
                                     {renderTimeIntervals()}
