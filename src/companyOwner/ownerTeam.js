@@ -48,6 +48,7 @@ function OwnerTeam() {
         Authorization: "Bearer " + token,
     };
 
+    const [showNewModal, setShowNewModal] = useState(false);
 
     // import { useEffect } from "react";
 
@@ -75,6 +76,13 @@ function OwnerTeam() {
     //     }
     // }, [location]);    
 
+    const rolePriority = {
+        "owner": 1,
+        "admin": 2,
+        "manager": 3,
+        "user": 4
+    };
+
     useEffect(() => {
         if (user?.userType === "manager") {
             getManagerTeam();
@@ -97,6 +105,17 @@ function OwnerTeam() {
         }
     }, []);
 
+
+    // const handleInviteClick = () => {
+    //     setShow3(true);               // Show modal
+    //     handleSendInvitation();      // Trigger API call
+    // };
+
+    const handleInviteClick = () => {
+
+        handleSendInvitation();      // Trigger API call
+
+    };
 
     const user = jwtDecode(JSON.stringify(token));
     // console.log('check',user._id === "679b223b61427668c045c659");
@@ -397,7 +416,7 @@ function OwnerTeam() {
                 });
                 getData();
                 setEmail("");
-
+                setShowNewModal(true); // ✅ Open success modal here
             }
         } catch (error) {
             enqueueSnackbar(error?.response?.data?.message || "Network error", {
@@ -484,6 +503,57 @@ function OwnerTeam() {
                     </button>
                 </Modal.Footer>
             </Modal> : null}
+
+            {showNewModal && (
+                <Modal show={showNewModal} onHide={() => setShowNewModal(false)} centered size="lg">
+                    <Modal.Header closeButton>
+                        <Modal.Title>📋 Company Policy Setup</Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body style={{ fontSize: "16px", lineHeight: "1.6" }}>
+                        <p><strong>Welcome!</strong> Set default company-wide policies that apply automatically to all new users.</p>
+
+                        <hr />
+                        <h6><strong>Break Policy</strong></h6>
+                        <ul>
+
+                            <li><strong>Break Time:</strong> 12:00 PM to 12:30 PM</li>
+                            {/* <li><strong>Default:</strong> 20 minutes of inactivity triggers pause.</li> */}
+
+                        </ul>
+                        {/* <p>Break Policy: ON/OFF</p> */}
+
+                        <hr />
+                        <h6><strong>Auto-Pause Policy</strong></h6>
+                        <ul>
+                            <li>Automatically pause tracking after inactivity.</li>
+                            <li><strong>Default:</strong> 20 minutes of inactivity triggers pause.</li>
+                        </ul>
+
+                        <hr />
+                        <h6><strong>Working Hours Policy</strong></h6>
+                        <ul>
+                            <li>Start Time: <strong>09:00 AM</strong></li>
+                            <li>End Time: <strong>05:00 PM</strong></li>
+                        </ul>
+
+                        <hr />
+                        <h6><strong>Automatic Application</strong></h6>
+                        <ul>
+                            <li>Applies to all <strong>new</strong> users.</li>
+                        </ul>
+
+                        <hr />
+                        <h6><strong>📢 Important Note</strong></h6>
+                        <p>You can override these policies for individual users anytime.</p>
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <button className="btn text-white" style={{ background: '#7CCB58' }} onClick={() => setShowNewModal(false)}>Got It!</button>
+                    </Modal.Footer>
+                </Modal>
+            )}
+
             {user?._id === "679b223b61427668c045c659" && (
                 <Joyride
                     steps={steps}
@@ -507,8 +577,8 @@ function OwnerTeam() {
                 <div className="mainwrapper">
                     <div className="ownerTeamContainer">
                         <div className="row">
-                        <div className="col-12 col-lg-4">
-                        {user?.userType !== "manager" && (
+                            <div className="col-12 col-lg-4">
+                                {user?.userType !== "manager" && (
                                     <>
                                         <p className="addUserButton" onClick={() => setShowGroupInput(!showGroupInput)}>
                                             {showGroupInput ? "× Close" : "+ Create user group"}
@@ -666,7 +736,7 @@ function OwnerTeam() {
                                                     border: "none",
                                                 }}
                                                 disabled={isInviteLoading || !isTypingEmail} // Use isInviteLoading here
-                                                onClick={handleSendInvitation}
+                                                onClick={handleInviteClick}
                                             >
                                                 {isInviteLoading && isValidEmail ? (
                                                     <FerrisWheelSpinner loading={isInviteLoading} size={23} color="#fff" />
@@ -700,85 +770,124 @@ function OwnerTeam() {
                                         {users?.length}
                                     </div>
                                 </div>
-                                <div id="lisstofallusers" >
-                                    {users?.map((e, i) => {
-                                        return (
-                                            <div
+                                <div id="lisstofallusers">
+                                    {Array.isArray(users) &&
+                                        [...users]
+                                            .sort((a, b) => {
+                                                if (a.inviteStatus && !b.inviteStatus) return 1;
+                                                if (!a.inviteStatus && b.inviteStatus) return -1;
+                                                if (a.isArchived && !b.isArchived) return 1;
+                                                if (!a.isArchived && b.isArchived) return -1;
+                                                const roleA = rolePriority[a.userType] || 99;
+                                                const roleB = rolePriority[b.userType] || 99;
+                                                if (roleA !== roleB) return roleA - roleB;
+                                                const nameA = (a.name || a.email || "").toLowerCase();
+                                                const nameB = (b.name || b.email || "").toLowerCase();
+                                                return nameA.localeCompare(nameB);
+                                            })
+                                            .map((e, i, arr) => {
+                                                // Previous user for comparison
+                                                const prev = arr[i - 1];
+                                                const currentRole = e.userType;
+                                                const prevRole = prev?.userType;
 
-                                                className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center gap-1`} onClick={() => {
-                                                    setMainId(e._id)
-                                                    setActiveId(e._id)
-                                                    setIsUserArchive(e?.isArchived ? false : true)
-                                                    setInviteStatus(false)
-                                                    setPayrate(e)
-                                                    setSelectedUser(e)
-                                                    setGroupData(null)
-                                                }}>
-                                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: '100%' }}>
-                                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                                        <div className="groupContentMainImg">
-                                                            <p>{i + 1}</p>
-                                                        </div>
-                                                        <p className="groupContent">{e?.inviteStatus === true ? e?.email : e?.name}</p>
-                                                    </div>
-                                                    {e?.inviteStatus === true && (
+                                                // Check section heading conditions
+                                                const isNewSection = !prev ||
+                                                    (prev?.inviteStatus !== e?.inviteStatus) ||
+                                                    (prev?.isArchived !== e?.isArchived) ||
+                                                    (prevRole !== currentRole);
+
+                                                let sectionTitle = "";
+                                                if (e.inviteStatus) {
+                                                    sectionTitle = "Invited Users";
+                                                } else if (e.isArchived) {
+                                                    sectionTitle = "Archived Users";
+                                                } else if (e.userType === "owner") {
+                                                    sectionTitle = "Owners";
+                                                } else if (e.userType === "admin") {
+                                                    sectionTitle = "Admins";
+                                                } else if (e.userType === "manager") {
+                                                    sectionTitle = "Managers";
+                                                } else {
+                                                    sectionTitle = "Users";
+                                                }
+
+                                                return (
+                                                    <React.Fragment key={e._id}>
+                                                        {isNewSection && (
+                                                            <h6 style={{ fontWeight: 600, marginTop: "20px", marginBottom: "10px", color: "#0E4772" }}>
+                                                                {sectionTitle}
+                                                            </h6>
+                                                        )}
+
                                                         <div
-                                                            style={{
-                                                                marginRight: "3px",
-                                                                padding: "3px 10px",
-                                                                borderRadius: "3px",
-                                                                color: "#fff",
-                                                                fontSize: "12px",
-                                                                lineHeight: 1.4,
+                                                            className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center gap-1`}
+                                                            onClick={() => {
+                                                                setMainId(e._id);
+                                                                setActiveId(e._id);
+                                                                setIsUserArchive(e?.isArchived ? false : true);
+                                                                setInviteStatus(false);
+                                                                setPayrate(e);
+                                                                setSelectedUser(e);
+                                                                setGroupData(null);
                                                             }}
                                                         >
-                                                            <img width={30} src={inviteIcon} alt="Invite Icon" />
-                                                        </div>
-                                                    )}
+                                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: '100%' }}>
+                                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                                    <div className="groupContentMainImg">
+                                                                        <p>{i + 1}</p>
+                                                                    </div>
+                                                                    <p className="groupContent">{e?.inviteStatus === true ? e?.email : e?.name}</p>
+                                                                </div>
 
-                                                    {/* Archive Icon */}
-                                                    {e?.isArchived === true && (
-                                                        <div
-                                                            style={{
-                                                                marginRight: "3px",
-                                                                padding: "3px 10px",
-                                                                borderRadius: "3px",
-                                                                color: "#fff",
-                                                                fontSize: "12px",
-                                                                lineHeight: 1.4,
-                                                            }}
-                                                        >
-                                                            <img width={30} src={archiveIcon} alt="Archive Icon" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                {
-                                                    e?.userType === "owner" ? <div>
-                                                        <AiFillStar color="#e7c741" size={20} />
-                                                    </div> :
-                                                        e?.userType === "admin" ? <div>
-                                                            <AiFillStar color="#28659C" size={20} />
-                                                        </div>
-                                                            :
-                                                            e?.userType === "manager" && (
-                                                                <div style={{ backgroundColor: "#5CB85C", width: 80, padding: "5px 10px", borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                                                {e?.inviteStatus && (
+                                                                    <div style={{
+                                                                        marginRight: "3px", padding: "3px 10px", borderRadius: "3px",
+                                                                        color: "#fff", fontSize: "12px", lineHeight: 1.4,
+                                                                    }}>
+                                                                        <img width={30} src={inviteIcon} alt="Invite Icon" />
+                                                                    </div>
+                                                                )}
+                                                                {e?.isArchived && (
+                                                                    <div style={{
+                                                                        marginRight: "3px", padding: "3px 10px", borderRadius: "3px",
+                                                                        color: "#fff", fontSize: "12px", lineHeight: 1.4,
+                                                                    }}>
+                                                                        <img width={30} src={archiveIcon} alt="Archive Icon" />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Role Badge */}
+                                                            {e?.userType === "owner" ? (
+                                                                <AiFillStar color="#e7c741" size={20} />
+                                                            ) : e?.userType === "admin" ? (
+                                                                <AiFillStar color="#28659C" size={20} />
+                                                            ) : e?.userType === "manager" && (
+                                                                <div style={{
+                                                                    backgroundColor: "#5CB85C", width: 80, padding: "5px 10px",
+                                                                    borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "space-between"
+                                                                }}>
                                                                     <AiOutlineUser color="white" size={20} />
-                                                                    <p style={{ margin: 0, fontWeight: "600", color: "white" }}>{e?.assignedUsers?.filter(f => f !== user._id)?.length}</p>
+                                                                    <p style={{ margin: 0, fontWeight: "600", color: "white" }}>
+                                                                        {e?.assignedUsers?.filter(f => f !== user._id)?.length}
+                                                                    </p>
                                                                 </div>
                                                             )}
-                                            </div>
-                                        )
-                                    })}
+                                                        </div>
+                                                    </React.Fragment>
+                                                );
+                                            })}
                                 </div>
 
                             </div>
-                            {/* <div>
+                            <div className="d-none d-lg-block" style={{ width: "0px", margin: "0 0 0 60px" }}>
                                 <img src={line} />
-                            </div> */}
-                            <div className="d-none d-lg-block" style={{ width: "10px", backgroundColor: "#ccc", margin: "0 0 0 60px" }}></div>
+                            </div>
+                            {/* <div className="d-none d-lg-block" style={{ width: "10px", backgroundColor: "#ccc", margin: "0 0 0 60px" }}></div> */}
 
                             <div className="col-12 col-lg-6">
-                            <div
+                                <div
                                     style={{
 
                                         display: mainId == null && GroupData == null ? "flex" : "",
