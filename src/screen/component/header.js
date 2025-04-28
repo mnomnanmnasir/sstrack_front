@@ -39,7 +39,7 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
 
             <Navbar expand="lg" style={{
                 backgroundColor: "#0d3756",
-                padding: "20px 30px",
+                // padding: "20px 30px",
                 borderRadius: "20px",
                 margin: "30px 30px 0 30px",
             }}>
@@ -74,7 +74,6 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
                                             fontWeight: '400', // Sinkin Sans weight
                                             fontSize: '0.8rem',
                                             fontFamily: "'Sinkin Sans', sans-serif",
-
                                         }}>Download</Button>
                                         <Button onClick={() => navigate('/signin')} className="btn loginButton1" type="button" style={{
                                             marginRight: '10px',

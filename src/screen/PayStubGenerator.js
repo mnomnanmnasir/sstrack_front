@@ -17,7 +17,7 @@ const PayStubGenerator = () => {
     const [month, setMonth] = useState('');
     const [frequency, setFrequency] = useState('');
     const [periods, setPeriods] = useState([]);
-  
+
     const [selectedPeriod, setSelectedPeriod] = useState('');
     const [showSummary, setShowSummary] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -186,12 +186,12 @@ const PayStubGenerator = () => {
         console.log("Viewing stub:", record);
         navigate('/pay_stub_View', {
             state: {
-              stub: record.stubData,
-              user: record.user,
-              period: record.period
+                stub: record.stubData,
+                user: record.user,
+                period: record.period
             }
-          });
-          
+        });
+
         // You can also:
         // - open a modal
         // - navigate to a stub detail page
@@ -263,13 +263,16 @@ const PayStubGenerator = () => {
                                             const selectedId = e.target.value;
                                             setSelectedUserId(selectedId);
                                         }}
-                                    >
+                                    >   
                                         <option value=''>-- Select User --</option>
-                                        {users?.map((u, index) => (
-                                            <option key={index} value={u._id}>
-                                                {u.name}
-                                            </option>
-                                        ))}
+
+                                        {users
+                                            ?.filter((u) => u && u._id && u.name) // ✅ Sirf valid users ko filter karo
+                                            .map((u, index) => (
+                                                <option key={index} value={u._id}>
+                                                    {u.name}
+                                                </option>
+                                            ))}
                                     </Form.Select>
                                 </Form.Group>
 
