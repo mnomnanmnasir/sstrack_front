@@ -244,11 +244,7 @@ export default function AppRouter() {
           </Route>
           
           {/* <Route path="*" element={<Navigate to="/signin" />} /> */}
-<<<<<<< HEAD
-          <Route path="/:token" element={<Home />} />
-=======
-          <Route path="/:token" element={<NewHome />} />
->>>>>>> ada26667e79cce803c96555c4880c6acfad6a8ae
+          {/* <Route path="/:token" element={<Home />} /> */}
           {/* Catch-all route */}
           <Route path="/sALogin" element={<SaLogin />} />
           <Route path="/sADashboard" element={<SaMain />} />
