@@ -449,7 +449,7 @@ function CreateAccount({ language }) {
                                         fontSize: "12px",
                                         padding: "5px 8px",
                                     }}>
-                                    Auto Generate
+                                    Auto
                                 </button>
                                 {/* Eye Icon */}
                                 <img

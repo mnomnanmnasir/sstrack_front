@@ -98,6 +98,7 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                             borderColor: '#8CCA6B', // Border color
                                             borderWidth: '1px',    // Optional for a visible border
                                         }}>{language === "en" ? "Log In / SignUp" : "تسجيل الدخول"}</Button>
+                                        
 
                                     </>
                                 ) : (
@@ -195,6 +196,18 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                         borderWidth: '1px',    // Optional for a visible border
                                     }}
                                 >{language === "en" ? "Log In" : "تسجيل الدخول"}</Button>
+                                 <Button onClick={() => navigate('/signup')}
+                                    style={{
+                                        marginTop: '20px',
+                                        backgroundColor: 'transparent',
+                                        marginRight: '10px',
+                                        fontWeight: '400', // Sinkin Sans weight
+                                        fontSize: '0.8rem',  // Text size
+                                        fontFamily: "'Sinkin Sans', sans-serif",
+                                        borderColor: '#8CCA6B', // Border color
+                                        borderWidth: '1px',    // Optional for a visible border
+                                    }}
+                                >{language === "en" ? "Sign Up" : "تسجيل الدخول"}</Button>
                             </>
                         ) : (
                             <>

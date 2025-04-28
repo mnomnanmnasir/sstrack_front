@@ -377,194 +377,225 @@ function UserHeader({ setSidebarOpen, sidebarOpen }) {
                 {/* <Header /> */}
                 {user?.userType === "user" ? (
                     <>
-                        <HeaderOption />
-                        <nav className="navbar navbar-expand-lg navbar-dark" style={{
-                            // backgroundColor: "#0d3756",
-                            // padding: "10px 15px",
-                            // // borderTopLeftRadius: "10px",
-                            // // borderTopRightRadius: "10px",
-                            // margin: "0px 30px 0 30px",
-                            backgroundColor: "#0d3756",
-                            padding: "10px 15px",
-                            // borderTopLeftRadius: "10px",
-                            // borderTopRightRadius: "10px",
-                            margin: "0px 30px 0 30px",
-                            marginTop: '-15px'
-                        }}>
-                            <div className="d-flex flex-column flex-lg-row justify-content-between align-items-center w-100">
-                                <div className="d-flex align-items-center mb-2 mb-lg-0">
-                                    <img onClick={() => navigate('/')} className="logo1" src={logo} />
+                        {!isMobile && <HeaderOption />}
+
+                        {sidebarOpen && isMobile && (
+                            <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+                        )}
+
+                        <nav className="navbar navbar-expand-lg navbar-dark custom-header-navbar">
+                            {/* <HeaderOption /> */}
+                            <div className="container-fluid" style={{ position: "relative" }}>
+
+                                {/* 👇 Hamburger Icon */}
+                                {isMobile && !sidebarOpen && (
+                                    <IconButton
+                                        onClick={() => setSidebarOpen(true)}
+                                        sx={{
+                                            color: 'white',
+                                            marginRight: '10px',
+                                        }}
+                                    >
+                                        <FaBars size={22} />
+                                    </IconButton>
+                                )}
+
+                                <div>
+                                    {/* <img onClick={() => navigate('/')} className="logo1" src={logo} /> */}
+                                    <div className="d-none d-md-block">
+                                        {/* Desktop view */}
+                                        <img onClick={() => navigate('/')} className="logo1" src={logo} />
+                                    </div>
+                                    <div className="d-flex d-md-none justify-content-center w-100">
+                                        {/* Mobile view */}
+                                        <img onClick={() => navigate('/')} className="logo1" src={logo} style={{ height: 50 }} />
+                                    </div>
+
                                     {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                                <span className="navbar-toggler-icon"></span>
-                            </button> */}
+            <span className="navbar-toggler-icon"></span>
+        </button> */}
                                 </div>
                                 <div ref={logoutDivRef}>
-                                    <div className="d-flex amButton justify-content-space-between" role="search">
-                                        {/* <h1>
-                                            Hello
-                                        </h1> */}
+
+
+                                    <div className="d-flex amButton" role="search">
+
+                                        {/* Notification call the component */}
+                                        {!isMobile &&
+                                            <div style={{ position: "relative", marginRight: "15px" }} ref={notificationRef}>
+                                                <NotificationBell userType={items?.userType} userId={items?._id} />
+                                            </div>
+                                        }
                                         {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
-                                            <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p> */}
-                                        {/* {token && user && (
-                                                <>
-                                                    <p>
-                                                        {user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)} ({userType})
-                                                    </p>
-                                                    <button onClick={() => setShowContent(!showContent)} className="userName">
-                                                        {capitalizedWord + wordsAfterSpace}
-                                                    </button>
-                                                </>
-                                            )} */}
-                                        <div style={{ position: "relative", marginRight: "15px" }} ref={notificationRef}>
-                                            <button
-                                                className="btn position-relative"
-                                                type="button"
-                                                onClick={() => setShowNotifications(!showNotifications)} // Toggle manually
-                                                style={{ background: "transparent", border: "none" }}
-                                            >
-                                                <FaBell size={20} style={{ color: '#28659C' }} />
+                        <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p>
+                        <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/workCards")}>How It Work</p> */}
+                                        {token && user && (
+                                            <>
 
-                                                {(notificationCount >= 0) && (
-                                                    <sup
-                                                        style={{
-                                                            position: "absolute",
-                                                            top: "-4px",
-                                                            right: "-8px",
-                                                            backgroundColor: "#7CCB58",
-                                                            color: "white",
-                                                            borderRadius: "50%",
-                                                            padding: "2px 6px",
-                                                            fontSize: "10px",
-                                                            fontWeight: "bold",
-                                                            lineHeight: "1",
-                                                        }}
-                                                    >
-                                                        {notificationCount > 10 ? "10+" : notificationCount}
-                                                    </sup>
-                                                )}
-                                            </button>
+                                                <div className="d-flex justify-content-end align-items-center flex-nowrap info-container">
+                                                    {/* {(user?.userType === "user" || user?.userType === "manager" || user?.userType === "admin") && (
+                                <div className="company-name-container1">
+                                    <div>
 
-                                            {showNotifications && ( // 🧠 Conditionally render dropdown
-                                                <ul
-                                                    className="shadow"
-                                                    style={{
-                                                        position: "absolute",
-                                                        top: "100%",
-                                                        right: "0",
-                                                        width: "300px",
-                                                        maxHeight: "350px",
-                                                        overflowY: "auto",
-                                                        backgroundColor: "#fff",
-                                                        padding: "10px",
-                                                        borderRadius: "8px",
-                                                        zIndex: 1000,
-                                                    }}
-                                                >
-                                                    {notifications.length === 0 ? (
-                                                        <li className="text-center text-muted" style={{ fontSize: "13px" }}>
-                                                            No notifications
-                                                        </li>
-                                                    ) : (
+                                    </div>
+                                    <p className="m-0 fw-bold">
+                                        Break Time {remainingBreakTime || '0h 0m'}
+                                    </p>
+                                </div>
+                            )} */}
+                                                    {!isMobile &&
                                                         <>
-                                                            {notifications.slice(0, 3).map((notif, index) => (
-                                                                <li key={notif._id || index}>
+                                                            {(user?.userType === "user" || user?.userType === "manager" || user?.userType === "admin") && (
+                                                                <div className="company-name-container1">
+                                                                    <div>
+
+                                                                    </div>
+                                                                    <p className="m-0 fw-bold">
+                                                                        Break Time {remainingBreakTime || '0h 0m'}
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                            <div className="company-name-container1">
+                                                                <div>
+                                                                    <img src={circle} className="company-logo" alt="Company Logo" />
+                                                                </div>
+                                                                <p className="m-0 fw-bold">
+                                                                    {items?.company}
+                                                                </p>
+                                                            </div>
+                                                        </>
+                                                    }
+                                                </div>
+                                                {/* <p>
+                            {user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)} ({userType})
+                        </p>
+                        <button onClick={() => setShowContent(!showContent)} className="userName">
+                            {capitalizedWord + wordsAfterSpace}
+                        </button> */}
+                                                {isMobile ? (
+                                                    <>
+                                                        {/* 🔹 Row 2: FaUserCircle on Right */}
+                                                        <div style={{ position: 'relative', width: '100%' }}>
+                                                            <div className="d-flex justify-content-space-between px-3 text-white" style={{ width: '100%' }}>
+
+                                                                <NotificationBell userType={items?.userType} userId={items?._id} />
+
+                                                                <IconButton
+                                                                    onClick={() => setShowContent(!showContent)}
+                                                                    sx={{ color: 'white', border: 'none', background: 'transparent' }}
+                                                                >
+                                                                    <FaUserCircle size={24} />
+                                                                </IconButton>
+
+                                                                {/* 🔹 Name + Role (below icon) */}
+                                                                <div className="text-center text-white" style={{ fontSize: '14px', fontWeight: '500' }}>
+
+                                                                </div>
+
+                                                                {showContent && (
                                                                     <div
+                                                                        className="dropdown-menu show"
                                                                         style={{
-                                                                            padding: "10px",
-                                                                            marginBottom: "8px",
-                                                                            backgroundColor: "#fff",
-                                                                            borderRadius: "6px",
-                                                                            borderLeft: "4px solid #28659C",
-                                                                            fontSize: "13px",
-                                                                            lineHeight: "1.4",
+                                                                            position: 'absolute',
+                                                                            top: '40px',
+                                                                            right: '0',
+                                                                            backgroundColor: '#28659C',
+                                                                            borderRadius: '6px',
+                                                                            width: '220px',
+                                                                            padding: '12px',
+                                                                            zIndex: 2000,
+                                                                            color: '#fff',
                                                                         }}
                                                                     >
-                                                                        <div style={{ fontWeight: "600", color: "#28659C", marginBottom: "4px" }}>
-                                                                            {notif.title || "Untitled"}
+                                                                        <p className="m-0">
+                                                                            {user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)} ({userType})
+                                                                            ({items?.company})
+                                                                        </p>
+                                                                        <p className="m-0 fw-bold">
+                                                                            {/* ({items?.company}) */}
+                                                                            Break Time {remainingBreakTime || '0h 0m'}
+                                                                        </p>
+                                                                        <div className="d-flex flex-column mb-3">
+                                                                            <Link to="/download" className="text-white mb-2" onClick={() => setShowContent(false)}>Download</Link>
+                                                                            <Link to="/pricing" className="text-white mb-2" onClick={() => setShowContent(false)}>Pricing</Link>
+                                                                            <Link to="/workCards" className="text-white mb-2" onClick={() => setShowContent(false)}>How it Works</Link>
+                                                                            <Link to="/Training" className="text-white mb-2" onClick={() => setShowContent(false)}>Training Center</Link>
                                                                         </div>
-                                                                        <div style={{ color: "#333" }}>
-                                                                            {notif.message || "No message provided."}
+                                                                        <div className="text-white border-top pt-2">
+                                                                            <div onClick={() => { takeToDashboard(); setShowContent(false); }} className="mb-2" style={{ cursor: 'pointer' }}>
+                                                                                <img src={dashboard} className="me-2" style={{ width: 18 }} />
+                                                                                Dashboard
+                                                                            </div>
+                                                                            <div onClick={() => { takeToAdmin(); setShowContent(false); }} className="mb-2" style={{ cursor: 'pointer' }}>
+                                                                                <img src={account} className="me-2" style={{ width: 18 }} />
+                                                                                My Account
+                                                                            </div>
+                                                                            <div onClick={() => { takeToHistory(); setShowContent(false); }} className="mb-2" style={{ cursor: 'pointer' }}>
+                                                                                <AiOutlineHistory className="me-2" size={18} />
+                                                                                History Logs
+                                                                            </div>
+                                                                            {(user?.userType !== "user" && user?.userType !== "manager") && (
+                                                                                <div onClick={() => { takeToSettings(); setShowContent(false); }} className="mb-2" style={{ cursor: 'pointer' }}>
+                                                                                    <SettingsIcon className="me-2" style={{ fontSize: 18 }} />
+                                                                                    Settings
+                                                                                </div>
+                                                                            )}
+                                                                            <button onClick={() => { logOut(); setShowContent(false); }} className="btn btn-sm btn-light w-100 mt-2">
+                                                                                Logout
+                                                                            </button>
                                                                         </div>
                                                                     </div>
-                                                                </li>
-                                                            ))}
-
-                                                            <li className="text-center">
-                                                                <Link to="/notification">
-                                                                    <button
-                                                                        className="btn btn-primary btn-sm"
-                                                                        style={{
-                                                                            backgroundColor: "#28659C",
-                                                                            borderColor: "#28659C",
-                                                                            borderRadius: "5px",
-                                                                            fontSize: "13px"
-                                                                        }}
-                                                                    >
-                                                                        View All
-                                                                    </button>
-                                                                </Link>
-                                                            </li>
-                                                        </>
-                                                    )}
-                                                </ul>
-                                            )}
-                                        </div>
-                                        {/* {!isMobile && */}
-                                        <>
-                                            <div className="d-flex justify-content-end align-items-center flex-nowrap info-container">
-                                                {(user?.userType === "user" || user?.userType === "manager" || user?.userType === "admin") && (
-                                                    <div className="company-name-container1">
-                                                        <div>
-
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                        <p className="m-0 fw-bold">
-                                                            Break Time {remainingBreakTime || '0h 0m'}
-                                                        </p>
-                                                    </div>
+
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <p>{user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)} ({userType})</p>
+                                                        <button onClick={() => setShowContent(!showContent)} className="userName">
+                                                            {capitalizedWord + wordsAfterSpace}
+                                                        </button>
+                                                    </>
                                                 )}
 
-                                                <div className="company-name-container1">
-                                                    <div>
-                                                        <img src={circle} className="company-logo" alt="Company Logo" />
-                                                    </div>
-                                                    <p className="m-0 fw-bold">
-                                                        {items?.company}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <p>{user?.name.charAt(0).toUpperCase() + user?.name.slice(1)} ({userType})</p>
-                                            <button onClick={() => setShowContent(!showContent)} className="userName">
-                                                {capitalizedWord + wordsAfterSpace}
-                                            </button>
-                                        </>
-                                        {/* } */}
+                                            </>
+                                        )}
                                         {/* <button onClick={() => updateData()} className="userName">
-                                    {capitalizedWord}
-                                </button> */}
+                {capitalizedWord}
+            </button> */}
                                     </div>
-                                    {showContent && <div className="logoutDiv">
+
+                                    {!isMobile && showContent && <div className="logoutDiv">
                                         <div onClick={takeToDashboard}>
                                             <div>
                                                 <img src={dashboard} />
                                             </div>
                                             <p>Dashboard</p>
                                         </div>
+                                        {/* <div onClick={leaveManagement}>
+                    <div>
+                        <img src={dashboard} />
+                    </div>
+                    <p>Leave Management</p>
+                </div> */}
                                         <div onClick={takeToAdmin}>
                                             <div>
                                                 <img src={account} />
                                             </div>
                                             <p>My Account</p>
                                         </div>
+                                        {/* <div onClick={takeToHistory}>
+                    <div>
+                        <img src={account} />
+                    </div>
+                    <p>History 
+                        <span>    
+                        Logs
+                        </span>
+                        </p>
+                </div> */}
 
-                                        {/* {user?.userType === "user" && (
-                                            <div onClick={userSettings}>
-                                                <div style={{ marginLeft: '-5px' }}>
-                                                    <BeachAccessIcon style={{ fontSize: '24px', color: '#fff' }} />
-                                                </div>
-                                                <p>Leaves</p>
-                                            </div>
-                                        )} */}
                                         <div onClick={takeToHistory}>
                                             <div style={{ marginLeft: '-4%' }}>
                                                 <AiOutlineHistory size={24} color="#fff" /> {/* 🛠 Icon Added Here */}
@@ -575,26 +606,73 @@ function UserHeader({ setSidebarOpen, sidebarOpen }) {
                                                 </span>
                                             </p>
                                         </div>
-
-
-                                        {user?.userType === "user" ? null : (
+                                        {(user?.userType === "user") || (user?.userType === "manager") ? null : (
                                             <div onClick={takeToSettings}>
-                                                <div>
-                                                    <img src={account} />
+                                                <div style={{ marginLeft: '-5px' }}>
+                                                    <SettingsIcon style={{ fontSize: '24px', color: '#fff' }} />
                                                 </div>
                                                 <p>Settings</p>
                                             </div>
                                         )}
+
                                         <div onClick={logOut}>
                                             <div>
                                                 <img src={logout} />
                                             </div>
                                             <p>Logout</p>
                                         </div>
-                                    </div>}
+                                    </div>
+                                    }
+
                                 </div>
                             </div>
                         </nav>
+                        {/* {showMessage && ( */}
+                        {showMessage && (
+                            <div
+                                className="alert d-flex justify-content-center align-items-center text-center mb-3 mx-3 mx-sm-4 mx-md-5"
+                                style={{
+                                    backgroundColor: 'orange',
+                                    color: 'white',
+                                    fontWeight: 500,
+                                    borderRadius: '0 0 8px 8px',
+                                }}
+                                role="alert"
+                            >
+                                <span>
+                                    Complete your account setup by adding a{' '}
+                                    <Link to="/Projects" className="text-success text-decoration-underline">
+                                        project
+                                    </Link>
+                                    , inviting{' '}
+                                    <Link to="/team" className="text-success text-decoration-underline">
+                                        users
+                                    </Link>
+                                    , setting{' '}
+                                    {(userType === 'admin' || userType === 'owner') && (
+                                        <Link to="/settings/break-time" className="text-success text-decoration-underline">
+                                            break times
+                                        </Link>
+                                    )}
+                                    , ensuring{' '}
+                                    {(userType === 'admin' || userType === 'owner') && (
+                                        <Link to="/settings/punctuality" className="text-success text-decoration-underline">
+                                            punctuality
+                                        </Link>
+                                    )}
+                                    , and configuring{' '}
+                                    <Link to="/leave-management" className="text-success text-decoration-underline">
+                                        leaves
+                                    </Link>
+                                    , Please click{' '}
+                                    <Link to="/Training" className="text-success text-decoration-underline">
+                                        Training center
+                                    </Link>
+                                    .
+                                </span>
+                            </div>
+                        )}
+
                         {/* <UserDashboardSection /> */}
                     </>
 
@@ -711,7 +789,7 @@ function UserHeader({ setSidebarOpen, sidebarOpen }) {
                                                             <div className="d-flex justify-content-space-between px-3 text-white" style={{ width: '100%' }}>
 
                                                                 <NotificationBell userType={items?.userType} userId={items?._id} />
-                                                                
+
                                                                 <IconButton
                                                                     onClick={() => setShowContent(!showContent)}
                                                                     sx={{ color: 'white', border: 'none', background: 'transparent' }}
@@ -721,12 +799,12 @@ function UserHeader({ setSidebarOpen, sidebarOpen }) {
 
                                                                 {/* 🔹 Name + Role (below icon) */}
                                                                 <div className="text-center text-white" style={{ fontSize: '14px', fontWeight: '500' }}>
-                                                                    <p className="mb-1">
+                                                                    {/* <p className="mb-1">
                                                                         {user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)} ({userType})
                                                                     </p>
                                                                     <p className="m-0 fw-bold">
                                                                         ({items?.company})
-                                                                    </p>
+                                                                    </p> */}
                                                                     {!user?.userType === "owner" &&
                                                                         < p className="m-0 fw-bold">
                                                                             Break Time {remainingBreakTime || '0h 0m'}
@@ -749,6 +827,16 @@ function UserHeader({ setSidebarOpen, sidebarOpen }) {
                                                                             color: '#fff',
                                                                         }}
                                                                     >
+                                                                        <p className="mb-1 m-0">
+                                                                            {user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)} ({userType})
+                                                                        </p>
+                                                                        <p className="m-0 fw-bold">
+                                                                            ({items?.company})
+                                                                        </p>
+                                                                        <p className="m-0 fw-bold">
+                                                                            {/* ({items?.company}) */}
+                                                                            Break Time {remainingBreakTime || '0h 0m'}
+                                                                        </p>
                                                                         <div className="d-flex flex-column mb-3">
                                                                             <Link to="/download" className="text-white mb-2" onClick={() => setShowContent(false)}>Download</Link>
                                                                             <Link to="/pricing" className="text-white mb-2" onClick={() => setShowContent(false)}>Pricing</Link>

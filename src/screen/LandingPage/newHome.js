@@ -249,7 +249,7 @@ function NewHome({ isAuthenticated }) {
         </Container>
         <img
           src={laptopandmob}
-          alt="Laptop and Mobile Mockup"
+          alt="Laptop and Mobile Mockup for Employee Monitoring Software"
           style={{
             position: 'relative',
             top: '60%',

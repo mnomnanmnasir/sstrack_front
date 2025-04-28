@@ -101,7 +101,7 @@ function NewHEaderOpions({ language, showVertical = false }) {
                                 {language === "en" ? "How It Works" : "كيف يعمل"}
                             </NavLink>
                             {/* Contact Us Link (Corrected) */}
-                            {location.pathname === "section3" ? (
+                            {/* {location.pathname === "section3" ? (
                                 <button
                                     className="nav-link ownerSectionUser1"
                                     style={{
@@ -130,7 +130,17 @@ function NewHEaderOpions({ language, showVertical = false }) {
                                 >
                                     {language === "en" ? "Contact Us" : "اتصل بنا"}
                                 </NavLink>
-                            )}
+                            )} */}
+                            <NavLink
+                                to="/contact"
+                                className="nav-link ownerSectionUser1"
+                                style={({ isActive }) => ({
+                                    color: isActive ? "#7ACB59" : "white",
+                                    fontSize: "15px",
+                                })}
+                            >
+                                {language === "en" ? "Contact Us" : "ہم سے رابطہ کریں"}
+                            </NavLink>
                         </div>
                     </div>
                 </div>

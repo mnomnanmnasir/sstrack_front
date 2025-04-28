@@ -120,4 +120,13 @@ issue fix
 new pages by abdullah
 again new update
 add
+<<<<<<< HEAD
 againnn
+=======
+againnn
+viewTimeline
+userHeader
+>>>>>>> d69181267ec9ff7f6cb9e4e0d1a396f8d0bcc94d
+poilicyModal
+payStub
+headerOption
