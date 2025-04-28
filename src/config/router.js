@@ -155,7 +155,7 @@ export default function AppRouter() {
             <Route path="/" element={<NewHome />} />
             <Route path="/capture-screen" element={<CaptureScreen />} />
             {/* <Route path="/:token" element={<NewHome />} /> */}
-     
+
 
             <Route path="/create-account/:code/:email" element={<CreateAccount />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
@@ -175,7 +175,7 @@ export default function AppRouter() {
             <Route path="/user-setting" element={token ? (suspended ? <Navigate to="/account" /> : <UserSettings />) : <Navigate to="/" />} />
             <Route path="/Training" element={token ? (suspended ? <Navigate to="/account" /> : <TrainingPage />) : <Navigate to="/" />} />
             <Route path="/notification" element={token ? (suspended ? <Navigate to="/account" /> : <Notification />) : <Navigate to="/" />} />
-           
+
 
             {/* <Route path="/team" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerTeam />) : <Navigate to="/" />} /> */}
             <Route
@@ -214,8 +214,8 @@ export default function AppRouter() {
             {/* <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} /> */}
             <Route path="/attendence-management" element={token ? (suspended ? <Navigate to="/account" /> : <Attendence />) : <Navigate to="/" />} />
             <Route path="/history" element={token ? (suspended ? <Navigate to="/account" /> : <History />) : <Navigate to="/" />} />
-            <Route path="/pay_stub_managment" element={token ? (suspended ? <Navigate to="/account" /> :  <PayStubGenerator /> ) : <Navigate to="/" />} />
-            <Route path="/pay_stub_View" element={token ? (suspended ? <Navigate to="/account" /> :  <PayStubs /> ) : <Navigate to="/" />} />
+            <Route path="/pay_stub_managment" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubGenerator />) : <Navigate to="/" />} />
+            <Route path="/pay_stub_View" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubs />) : <Navigate to="/" />} />
             <Route path="/punctuality-reports" element={token ? (suspended ? <Navigate to="/account" /> : <PunctualityReports />) : <Navigate to="/" />} />
 
             {/* <Route path="/effective-settings/break-time" element={<BreakTime />} /> */}
@@ -242,9 +242,8 @@ export default function AppRouter() {
             {/* <Route path="/privacy-policy1" element={<PrivacyPolicy1/>} />
               <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} /> */}
           </Route>
-          
+
           {/* <Route path="*" element={<Navigate to="/signin" />} /> */}
-          {/* <Route path="/:token" element={<Home />} /> */}
           {/* Catch-all route */}
           <Route path="/sALogin" element={<SaLogin />} />
           <Route path="/sADashboard" element={<SaMain />} />
@@ -253,6 +252,8 @@ export default function AppRouter() {
           <Route path="/play_store" element={<PlayStore />} />
           <Route path="/windows" element={<Windows />} />
           <Route path="/macos" element={<Macos />} />
+
+          <Route path="/:token" element={<Home />} />
 
           <Route path="*" element={<NotFound />} />
 
