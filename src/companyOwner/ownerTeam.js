@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
@@ -18,6 +17,13 @@ import line from "../images/Line 3.webp";
 import OwnerTeamComponent from "./ownerTeamComponent";
 import Joyride from "react-joyride";
 import GroupComponent from "../screen/component/GroupComponent";
+import moment from "moment-timezone";
+import TimezoneSelect from 'react-timezone-select';
+import AutoPauseContent from "../adminScreens/settingScreenComponent/AutoPauseContent";
+import BreakTimeModal from ".././screen/component/Modal/BreakTimeModal";
+import PunctualityModal from ".././screen/component/Modal/PunctualityModal";
+
+
 
 function OwnerTeam() {
     const [run, setRun] = useState(true);
@@ -47,8 +53,33 @@ function OwnerTeam() {
     const headers = {
         Authorization: "Bearer " + token,
     };
+    const [showAutoPauseModal, setShowAutoPauseModal] = useState(false);
+    // const [timezone, setSelectedTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    const [showBreakTimeModal, setShowBreakTimeModal] = useState(false);
+    const [breakStartTime, setBreakStartTime] = useState("");
+    const [breakEndTime, setBreakEndTime] = useState("");
+    const [breakTimeLoading, setBreakTimeLoading] = useState(false);
+    const [showPunctualityModal, setShowPunctualityModal] = useState(false);
+
+    const [puncStartTime, setPuncStartTime] = useState("");
+    const [puncEndTime, setPuncEndTime] = useState("");
+    const [punctualityLoading, setPunctualityLoading] = useState(false);
+
+    const [model, setModel] = useState({
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timezoneOffset: null,
+    });
+
+    const fillModel = (key, val) => {
+        setModel((prevModel) => ({
+            ...prevModel,
+            [key]: val,
+        }));
+    };
 
     const [showNewModal, setShowNewModal] = useState(false);
+    const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    const [timezoneOffset, setTimezoneOffset] = useState(new Date().getTimezoneOffset()); // initial system offset
 
     // import { useEffect } from "react";
 
@@ -83,6 +114,115 @@ function OwnerTeam() {
         "user": 4
     };
 
+    const handleBreakTimeSave = async () => {
+        try {
+            if (!breakStartTime || !breakEndTime) {
+                enqueueSnackbar("Please select both Break Start Time and Break End Time.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+                return;
+            }
+
+            if (!timezone) {
+                enqueueSnackbar("Please select timezone.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+                return;
+            }
+
+            const currentDate = new Date().toISOString().split("T")[0];
+
+            const requestData = {
+                userId: user._id,
+                settings: {
+                    breakTime: [
+                        {
+                            TotalHours: calculateTotalHours(breakStartTime, breakEndTime),
+                            breakStartTime: moment.tz(`${currentDate}T${breakStartTime}`, timezone).format(),
+                            breakEndTime: moment.tz(`${currentDate}T${breakEndTime}`, timezone).format(),
+                        },
+                    ],
+                    timezone: timezone,
+                    timezoneOffset: timezoneOffset,
+                },
+            };
+
+            const response = await axios.post(
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                enqueueSnackbar("Break Time successfully submitted!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+                setShowBreakTimeModal(false); // ✅ Modal close karna success pe
+            } else {
+                enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
+            }
+        } catch (error) {
+            enqueueSnackbar("Error submitting Break Time.", { variant: "error" });
+            console.error("Error:", error);
+        }
+    };
+
+    const handleSavePunctuality = async () => {
+        try {
+            if (!puncStartTime || !puncEndTime) {
+                enqueueSnackbar("Please select both Start and End Time.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+                return;
+            }
+
+            const currentDate = new Date().toISOString().split("T")[0];
+
+            const requestData = {
+                userId: user._id, // 🧠 Current user
+                settings: {
+                    puncStartTime: `${currentDate}T${puncStartTime}:00`,
+                    puncEndTime: `${currentDate}T${puncEndTime}:00`,
+                    timezone: timezone,
+                    timezoneOffset: timezoneOffset,
+                },
+            };
+
+            const response = await axios.post(
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                enqueueSnackbar("Punctuality successfully saved!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+                setShowPunctualityModal(false);
+            } else {
+                enqueueSnackbar("Failed to save Punctuality.", { variant: "error" });
+            }
+        } catch (error) {
+            console.error("Error saving Punctuality:", error);
+            enqueueSnackbar("Error saving Punctuality.", { variant: "error" });
+        }
+    };
+
     useEffect(() => {
         if (user?.userType === "manager") {
             getManagerTeam();
@@ -105,6 +245,16 @@ function OwnerTeam() {
         }
     }, []);
 
+    const calculateTotalHours = (start, end) => {
+        const [startHours, startMinutes] = start.split(':').map(Number);
+        const [endHours, endMinutes] = end.split(':').map(Number);
+
+        const startTotalMinutes = startHours * 60 + startMinutes;
+        const endTotalMinutes = endHours * 60 + endMinutes;
+
+        const totalMinutes = endTotalMinutes - startTotalMinutes;
+        return (totalMinutes / 60).toFixed(2); // Return total hours in decimal (like 0.5, 1.25 etc.)
+    };
 
     // const handleInviteClick = () => {
     //     setShow3(true);               // Show modal
@@ -504,6 +654,37 @@ function OwnerTeam() {
                 </Modal.Footer>
             </Modal> : null}
 
+            {showAutoPauseModal && (
+                <Modal show={showAutoPauseModal} onHide={() => setShowAutoPauseModal(false)} size="lg" centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>⚙️ Auto-Pause Policy Settings</Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
+                        <AutoPauseContent />
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <button className="btn btn-secondary" onClick={() => setShowAutoPauseModal(false)}>Close</button>
+                    </Modal.Footer>
+                </Modal>
+            )}
+
+            <PunctualityModal
+                show={showPunctualityModal}
+                onClose={() => setShowPunctualityModal(false)}
+                puncStartTime={puncStartTime}
+                setPuncStartTime={setPuncStartTime}
+                puncEndTime={puncEndTime}
+                setPuncEndTime={setPuncEndTime}
+                onSave={async () => {
+                    setPunctualityLoading(true);
+                    await handleSavePunctuality(); // ✅ API call yahan hoga
+                    setPunctualityLoading(false);
+                }}
+                loading={punctualityLoading}
+            />
+
             {showNewModal && (
                 <Modal show={showNewModal} onHide={() => setShowNewModal(false)} centered size="lg">
                     <Modal.Header closeButton>
@@ -514,36 +695,66 @@ function OwnerTeam() {
                         <p><strong>Welcome!</strong> Set default company-wide policies that apply automatically to all new users.</p>
 
                         <hr />
-                        <h6><strong>Break Policy</strong></h6>
+                        {/* Break Policy with Button */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <h6><strong>Break Policy</strong></h6>
+                            <button
+                                className="btn btn-outline-primary btn-sm"
+                                style={{ padding: "2px 10px", fontSize: "14px" }}
+                                onClick={() => setShowBreakTimeModal(true)} // ✅ Open modal
+                            >
+                                Break Time
+                            </button>
+                        </div>
                         <ul>
-
                             <li><strong>Break Time:</strong> 12:00 PM to 12:30 PM</li>
-                            {/* <li><strong>Default:</strong> 20 minutes of inactivity triggers pause.</li> */}
-
                         </ul>
-                        {/* <p>Break Policy: ON/OFF</p> */}
 
                         <hr />
-                        <h6><strong>Auto-Pause Policy</strong></h6>
+                        {/* Auto-Pause Policy with Button */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <h6><strong>Auto-Pause Policy</strong></h6>
+                            <button
+                                className="btn btn-outline-secondary btn-sm"
+                                style={{ padding: "2px 10px", fontSize: "14px" }}
+                                onClick={() => setShowAutoPauseModal(true)} // ✅ Open AutoPause Modal
+                            >
+                                Policy
+                            </button>
+                        </div>
                         <ul>
                             <li>Automatically pause tracking after inactivity.</li>
                             <li><strong>Default:</strong> 20 minutes of inactivity triggers pause.</li>
                         </ul>
 
                         <hr />
-                        <h6><strong>Working Hours Policy</strong></h6>
+
+                        {/* Working Hours Policy with Punctuality Button */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <h6><strong>Working Hours Policy</strong></h6>
+                            <button
+                                className="btn btn-outline-success btn-sm"
+                                style={{ padding: "2px 10px", fontSize: "14px" }}
+                                onClick={() => setShowPunctualityModal(true)} // ✅ Open punctuality modal
+                            >
+                                Punctuality
+                            </button>
+                        </div>
+
                         <ul>
                             <li>Start Time: <strong>09:00 AM</strong></li>
                             <li>End Time: <strong>05:00 PM</strong></li>
                         </ul>
 
                         <hr />
+                        {/* Automatic Application */}
                         <h6><strong>Automatic Application</strong></h6>
                         <ul>
                             <li>Applies to all <strong>new</strong> users.</li>
                         </ul>
 
                         <hr />
+                        {/* Important Note */}
                         <h6><strong>📢 Important Note</strong></h6>
                         <p>You can override these policies for individual users anytime.</p>
                     </Modal.Body>
@@ -553,6 +764,25 @@ function OwnerTeam() {
                     </Modal.Footer>
                 </Modal>
             )}
+
+            <BreakTimeModal
+                show={showBreakTimeModal}
+                onClose={() => setShowBreakTimeModal(false)}
+                timezone={timezone}
+                setTimezone={setTimezone}
+                timezoneOffset={timezoneOffset}
+                setTimezoneOffset={setTimezoneOffset}
+                breakStartTime={breakStartTime}
+                setBreakStartTime={setBreakStartTime}
+                breakEndTime={breakEndTime}
+                setBreakEndTime={setBreakEndTime}
+                onSave={async () => {
+                    setBreakTimeLoading(true);
+                    await handleBreakTimeSave();
+                    setBreakTimeLoading(false);
+                }}
+                loading={breakTimeLoading}
+            />
 
             {user?._id === "679b223b61427668c045c659" && (
                 <Joyride

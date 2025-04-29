@@ -508,7 +508,7 @@ function OwnerTeamComponent(props) {
                             <p className="employeeDetailName2" style={{ fontWeight: "bold", color: "#28659C" }}>{selectedGroupName}</p>
                         </div>
                     )}
-                    <div>
+                    {/* <div className="container-fluid">
                         {data && Object.keys(data).length > 0 ? (
                             <div className="d-flex align-items-center justify-content-between">
                                 <div>
@@ -532,14 +532,51 @@ function OwnerTeamComponent(props) {
                         ) : (
                             <p></p>
                         )}
-                    </div>
+                    </div> */}
+                    {/* <div className="container"> */}
+                    {data && Object.keys(data).length > 0 ? (
+                        <div className="row">
+                            {/* Left Section - Name & Email */}
+                            <div className="col-12 col-md-6 mb-3 mb-md-0 text-md-start">
+                                <p className="employeeDetailName1 mb-1">{data.name}</p>
+                                <p className="employeeDetailName2">{data.email}</p>
+                            </div>
+
+                            {/* Right Section - Currency Converter */}
+                            <div className="col-12 col-md-6 text-md-end">
+                                {user?.userType !== 'manager' && !selectedUser?.inviteStatus && (
+                                    <>
+                                        {selectedUser?.userType !== 'owner' && (
+                                            <CurrencyConverter userId={fixId} payrate={payrate} />
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        <p></p>
+                    )}
+                    {/* </div> */}
+
+
                     {user?.userType !== 'manager' &&
                         selectedUser?.userType !== 'owner' &&
                         !selectedUser?.inviteStatus && (  // ✅ Check if user has accepted the invite
-                            <div style={{ marginTop: 30, marginBottom: 30 }}>
-                                <p className="employeeDetail">Select Timezone</p>
-                                <div className="dropdown" style={{ minWidth: 440 }}>
-                                    <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
+                            // <div style={{ marginTop: 30, marginBottom: 30 }}>
+                            //     <p className="employeeDetail">Select Timezone</p>
+                            //     <div className="dropdown" style={{ minWidth: 440 }}>
+                            //         <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
+                            //     </div>
+                            // </div>
+                            <div className="my-4">
+                                <p className="employeeDetail ">Select Timezone</p>
+
+                                <div className="row justify-content-start">
+                                    <div className="col-12 col-md-8 col-lg-12">
+                                        <div className="dropdown w-100">
+                                            <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -782,7 +819,7 @@ function OwnerTeamComponent(props) {
                                         </div>
 
                                         {/* Save Button */}
-                                        <button className="btn w-100 text-white" style={{backgroundColor: '#5CB85C'}} onClick={updateStubSettings}>
+                                        <button className="btn w-100 text-white" style={{ backgroundColor: '#5CB85C' }} onClick={updateStubSettings}>
                                             Save Stub Settings
                                         </button>
                                     </div>
