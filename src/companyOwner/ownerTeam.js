@@ -149,6 +149,7 @@ function OwnerTeam() {
                 },
             };
 
+            // ✅ Step 1: Call first API to save break time
             const response = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
                 requestData,
@@ -165,13 +166,40 @@ function OwnerTeam() {
                     variant: "success",
                     anchorOrigin: { vertical: "top", horizontal: "right" },
                 });
-                setShowBreakTimeModal(false); // ✅ Modal close karna success pe
+
+                // ✅ Step 2: Now call second API to update timezone
+                const timezonePayload = {
+                    // userId: mainId, // ✅ include this if backend expects userId in body
+                    // userId: user._id, // 👈 include userId here
+                    timezone: timezone,
+                    timezoneOffset: timezoneOffset,
+                    breakStartTime: breakStartTime,
+                    breakEndTime: breakEndTime,
+                };
+
+                await axios.patch(
+                    `https://myuniversallanguages.com:9093/api/v1/owner/updateUsersTimezone/${mainId}`,
+                    timezonePayload,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                enqueueSnackbar("Timezone successfully updated!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                setShowBreakTimeModal(false); // ✅ Modal band kar do
             } else {
                 enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
             }
         } catch (error) {
-            enqueueSnackbar("Error submitting Break Time.", { variant: "error" });
-            console.error("Error:", error);
+            console.error("Error submitting Break Time or updating Timezone:", error);
+            enqueueSnackbar("Error submitting Break Time or updating Timezone.", { variant: "error" });
         }
     };
 
@@ -267,7 +295,9 @@ function OwnerTeam() {
 
     };
 
-    const user = jwtDecode(JSON.stringify(token));
+    // const user = jwtDecode(JSON.stringify(token));
+    const user = jwtDecode(token); // ✅ Fix here
+
     // console.log('check',user._id === "679b223b61427668c045c659");
     const [selectedGroupName, setSelectedGroupName] = useState("");
 
@@ -307,7 +337,7 @@ function OwnerTeam() {
         if (!newGroupName.trim()) return;
 
         try {
-            const response = await axios.post(`${apiUrl}/userGroup/add`, {
+            const response = await axios.post(`${apiUrl} / userGroup / add`, {
                 name: newGroupName,
             }, { headers });
 
@@ -376,7 +406,7 @@ function OwnerTeam() {
         setLoading(true)
         try {
             setLoading2(true)
-            const response = await axios.get(`${apiUrl}/manager/employees`, { headers })
+            const response = await axios.get(`${apiUrl} / manager / employees`, { headers })
             if (response.status) {
                 setLoading(false)
                 setLoading2(false)
@@ -490,7 +520,7 @@ function OwnerTeam() {
     //         setIsInviteLoading(true); // Start loading for invite button
 
     //         try {
-    //             const res = await axios.post(`${apiUrl}/superAdmin/email`, {
+    //             const res = await axios.post(`${ apiUrl } / superAdmin / email`, {
     //                 toEmail: email,
     //                 company: user.company,
     //             }, {
@@ -542,7 +572,7 @@ function OwnerTeam() {
                     horizontal: "right"
                 }
             });
-            return; // 🔒 Exit early if email is invalid
+            return;
         }
 
         setShow3(false);
@@ -552,9 +582,7 @@ function OwnerTeam() {
             const res = await axios.post(`${apiUrl}/superAdmin/email`, {
                 toEmail: email,
                 company: user.company,
-            }, {
-                headers: headers,
-            });
+            }, { headers });
 
             if (res.status) {
                 enqueueSnackbar(res.data.message, {
@@ -564,9 +592,17 @@ function OwnerTeam() {
                         horizontal: "right"
                     }
                 });
-                getData();
+
+                // ✅ Set mainId from updatedUser._id
+                const invitedUser = res.data?.updatedUser;
+                if (invitedUser && invitedUser._id) {
+                    setMainId(invitedUser._id); // ✅ This will now be used in your timezone API
+                    setSelectedUser(invitedUser); // optional, if needed later
+                }
+
+                getData(); // Refresh user list
                 setEmail("");
-                setShowNewModal(true); // ✅ Open success modal here
+                setShowNewModal(true); // Show company policy modal
             }
         } catch (error) {
             enqueueSnackbar(error?.response?.data?.message || "Network error", {
@@ -595,7 +631,7 @@ function OwnerTeam() {
                     }} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <button disabled={deleteType !== "DELETE" ? true : false} className={`${deleteType !== "DELETE" ? "teamActionButtonDisabled" : "teamActionButton"}`} onClick={deleteUser}>
+                    <button disabled={deleteType !== "DELETE" ? true : false} className={`${deleteType !== "DELETE" ? "teamActionButtonDisabled" : "teamActionButton"} `} onClick={deleteUser}>
                         DELETE
                     </button>
 
@@ -866,7 +902,7 @@ function OwnerTeam() {
                                                     {groups?.map((e, i) => (
                                                         <div
 
-                                                            className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center gap-1`} onClick={() => {
+                                                            className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align - items - center gap - 1`} onClick={() => {
                                                                 setGroupData(e)
                                                                 setMainId(null)
                                                                 setActiveId(e._id)
@@ -1000,7 +1036,7 @@ function OwnerTeam() {
                                         {users?.length}
                                     </div>
                                 </div>
-                                <div id="lisstofallusers">
+                                <div id="lisstofallusers" className="container-fluid">
                                     {Array.isArray(users) &&
                                         [...users]
                                             .sort((a, b) => {
@@ -1051,7 +1087,7 @@ function OwnerTeam() {
                                                         )}
 
                                                         <div
-                                                            className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center gap-1`}
+                                                            className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align - items - center gap - 1`}
                                                             onClick={() => {
                                                                 setMainId(e._id);
                                                                 setActiveId(e._id);

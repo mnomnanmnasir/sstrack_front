@@ -537,13 +537,15 @@ function OwnerTeamComponent(props) {
                     {data && Object.keys(data).length > 0 ? (
                         <div className="row">
                             {/* Left Section - Name & Email */}
-                            <div className="col-12 col-md-6 mb-3 mb-md-0 text-md-start">
-                                <p className="employeeDetailName1 mb-1">{data.name}</p>
-                                <p className="employeeDetailName2">{data.email}</p>
+                            <div className="col-12 col-md-9 mb-3 mb-md-0 text-md-start">
+                                <p className="employeeDetailName1 mb-1" style={{ wordBreak: "break-word" }}>{data.name}</p>
+                                <p className="employeeDetailName2" style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
+                                    {data.email}
+                                </p>
                             </div>
 
                             {/* Right Section - Currency Converter */}
-                            <div className="col-12 col-md-6 text-md-end">
+                            <div className="col-12 col-md-3 text-md-end mt-2 mt-md-0">
                                 {user?.userType !== 'manager' && !selectedUser?.inviteStatus && (
                                     <>
                                         {selectedUser?.userType !== 'owner' && (
