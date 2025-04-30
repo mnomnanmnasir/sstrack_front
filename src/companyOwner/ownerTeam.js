@@ -22,6 +22,8 @@ import TimezoneSelect from 'react-timezone-select';
 import AutoPauseContent from "../adminScreens/settingScreenComponent/AutoPauseContent";
 import BreakTimeModal from ".././screen/component/Modal/BreakTimeModal";
 import PunctualityModal from ".././screen/component/Modal/PunctualityModal";
+import { setEmployessSetting5 } from "../store/adminSlice"; // Adjust path if needed
+import { useDispatch, useSelector } from "react-redux";
 
 
 
@@ -53,6 +55,13 @@ function OwnerTeam() {
     const headers = {
         Authorization: "Bearer " + token,
     };
+
+    const dispatch = useDispatch();
+    const [showAutoPauseSaveModal, setShowAutoPauseSaveModal] = useState(false);
+    const [pauseSetting, setPauseSetting] = useState(true); // default true
+
+    const [frequency, setFrequency] = useState(20); // default frequency
+
     const [showAutoPauseModal, setShowAutoPauseModal] = useState(false);
     // const [timezone, setSelectedTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
     const [showBreakTimeModal, setShowBreakTimeModal] = useState(false);
@@ -60,6 +69,8 @@ function OwnerTeam() {
     const [breakEndTime, setBreakEndTime] = useState("");
     const [breakTimeLoading, setBreakTimeLoading] = useState(false);
     const [showPunctualityModal, setShowPunctualityModal] = useState(false);
+
+    const employee = useSelector((state) => state?.adminSlice?.employess) || [];
 
     const [puncStartTime, setPuncStartTime] = useState("");
     const [puncEndTime, setPuncEndTime] = useState("");
@@ -114,8 +125,64 @@ function OwnerTeam() {
         "user": 4
     };
 
+    const handleRadioChange = async (employee, shouldPause) => {
+        const updatedSettings = {
+            ...employee.effectiveSettings,
+            individualAutoPause: true,
+            autoPauseTrackingAfter: {
+                pause: shouldPause,
+                frequency: 20, // ✅ Default frequency
+            },
+        };
+
+        try {
+            const response = await axios.patch(
+                `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${mainId}`,
+                {
+                    userId: mainId,
+                    effectiveSettings: updatedSettings,
+                },
+                { headers }
+            );
+
+            if (response.status === 200) {
+                enqueueSnackbar("AutoPause setting updated!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                dispatch(
+                    setEmployessSetting5({
+                        id: employee._id,
+                        key: "pause",
+                        value: shouldPause,
+                    })
+                );
+            } else {
+                enqueueSnackbar("Failed to update AutoPause setting.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+            }
+        } catch (error) {
+            console.error("❌ AutoPause Error:", error);
+            enqueueSnackbar("Error updating AutoPause setting.", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+        }
+    };
+
     const handleBreakTimeSave = async () => {
         try {
+            if (!mainId) {
+                enqueueSnackbar("No user selected to update break time.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+                return;
+            }
+
             if (!breakStartTime || !breakEndTime) {
                 enqueueSnackbar("Please select both Break Start Time and Break End Time.", {
                     variant: "error",
@@ -134,22 +201,27 @@ function OwnerTeam() {
 
             const currentDate = new Date().toISOString().split("T")[0];
 
+            const breakStart = moment.tz(`${currentDate}T${breakStartTime}`, timezone).format();
+            const breakEnd = moment.tz(`${currentDate}T${breakEndTime}`, timezone).format();
+
             const requestData = {
-                userId: user._id,
+                userId: mainId,
                 settings: {
                     breakTime: [
                         {
-                            TotalHours: calculateTotalHours(breakStartTime, breakEndTime),
-                            breakStartTime: moment.tz(`${currentDate}T${breakStartTime}`, timezone).format(),
-                            breakEndTime: moment.tz(`${currentDate}T${breakEndTime}`, timezone).format(),
+                            TotalHours: Number(calculateTotalHours(breakStartTime, breakEndTime)),
+                            breakStartTime: breakStart,
+                            breakEndTime: breakEnd,
                         },
                     ],
-                    timezone: timezone,
-                    timezoneOffset: timezoneOffset,
+                    timezone,
+                    timezoneOffset,
                 },
             };
 
-            // ✅ Step 1: Call first API to save break time
+            console.log("📌 mainId:", mainId);
+            console.log("📦 requestData:", requestData);
+
             const response = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
                 requestData,
@@ -162,19 +234,13 @@ function OwnerTeam() {
             );
 
             if (response.status === 200) {
-                enqueueSnackbar("Break Time successfully submitted!", {
-                    variant: "success",
-                    anchorOrigin: { vertical: "top", horizontal: "right" },
-                });
+                enqueueSnackbar("Break Time successfully submitted!", { variant: "success" });
 
-                // ✅ Step 2: Now call second API to update timezone
                 const timezonePayload = {
-                    // userId: mainId, // ✅ include this if backend expects userId in body
-                    // userId: user._id, // 👈 include userId here
-                    timezone: timezone,
-                    timezoneOffset: timezoneOffset,
-                    breakStartTime: breakStartTime,
-                    breakEndTime: breakEndTime,
+                    timezone,
+                    timezoneOffset,
+                    breakStartTime,
+                    breakEndTime,
                 };
 
                 await axios.patch(
@@ -188,20 +254,18 @@ function OwnerTeam() {
                     }
                 );
 
-                enqueueSnackbar("Timezone successfully updated!", {
-                    variant: "success",
-                    anchorOrigin: { vertical: "top", horizontal: "right" },
-                });
-
-                setShowBreakTimeModal(false); // ✅ Modal band kar do
+                enqueueSnackbar("Timezone successfully updated!", { variant: "success" });
+                setShowBreakTimeModal(false);
             } else {
                 enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
             }
         } catch (error) {
-            console.error("Error submitting Break Time or updating Timezone:", error);
+            console.error("❌ BreakTime Error:", error.response?.data || error.message);
             enqueueSnackbar("Error submitting Break Time or updating Timezone.", { variant: "error" });
         }
     };
+
+
 
     const handleSavePunctuality = async () => {
         try {
@@ -216,7 +280,7 @@ function OwnerTeam() {
             const currentDate = new Date().toISOString().split("T")[0];
 
             const requestData = {
-                userId: user._id, // 🧠 Current user
+                userId: mainId,  // ✅ Use mainId for selected/invited user
                 settings: {
                     puncStartTime: `${currentDate}T${puncStartTime}:00`,
                     puncEndTime: `${currentDate}T${puncEndTime}:00`,
@@ -241,13 +305,40 @@ function OwnerTeam() {
                     variant: "success",
                     anchorOrigin: { vertical: "top", horizontal: "right" },
                 });
+
+                // ✅ Call second API to update timezone
+                const timezonePayload = {
+                    settings: {
+                        timezone: timezone,
+                        timezoneOffset: timezoneOffset,
+                        puncStartTime: puncStartTime,
+                        puncEndTime: puncEndTime,
+                    }
+                };
+
+                await axios.patch(
+                    `https://myuniversallanguages.com:9093/api/v1/owner/updateUsersTimezone/${mainId}`,
+                    timezonePayload,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                enqueueSnackbar("Timezone successfully updated!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
                 setShowPunctualityModal(false);
             } else {
                 enqueueSnackbar("Failed to save Punctuality.", { variant: "error" });
             }
         } catch (error) {
             console.error("Error saving Punctuality:", error);
-            enqueueSnackbar("Error saving Punctuality.", { variant: "error" });
+            enqueueSnackbar("Error saving Punctuality or updating Timezone.", { variant: "error" });
         }
     };
 
@@ -690,18 +781,110 @@ function OwnerTeam() {
                 </Modal.Footer>
             </Modal> : null}
 
-            {showAutoPauseModal && (
-                <Modal show={showAutoPauseModal} onHide={() => setShowAutoPauseModal(false)} size="lg" centered>
+            {showAutoPauseSaveModal && (
+                <Modal show={showAutoPauseSaveModal} onHide={() => setShowAutoPauseSaveModal(false)} centered>
                     <Modal.Header closeButton>
-                        <Modal.Title>⚙️ Auto-Pause Policy Settings</Modal.Title>
+                        <Modal.Title>🕒 Auto-Pause Policy</Modal.Title>
                     </Modal.Header>
 
-                    <Modal.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
-                        <AutoPauseContent />
+                    <Modal.Body>
+                        <p style={{ marginBottom: "16px" }}>Choose whether to pause tracking after inactivity:</p>
+
+                        {/* Radio: Pause after */}
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
+                            <input
+                                type="radio"
+                                name="autoPauseOption"
+                                id="pauseOption"
+                                value="true"
+                                checked={pauseSetting === true}
+                                onChange={() => setPauseSetting(true)}
+                                style={{ marginRight: "10px" }}
+                            />
+                            <label htmlFor="pauseOption" style={{ margin: 0, fontWeight: 500 }}>
+                                Pause after
+                            </label>
+
+                            <input
+                                type="number"
+                                min="1"
+                                value={frequency}
+                                onChange={(e) => setFrequency(Number(e.target.value))}
+                                style={{ width: "60px", margin: "0 10px", padding: "4px 6px" }}
+                            />
+                            <span>minutes of inactivity</span>
+                        </div>
+
+                        {/* Radio: Do not pause */}
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                            <input
+                                type="radio"
+                                name="autoPauseOption"
+                                id="noPauseOption"
+                                value="false"
+                                checked={pauseSetting === false}
+                                onChange={() => setPauseSetting(false)}
+                                style={{ marginRight: "10px" }}
+                            />
+                            <label htmlFor="noPauseOption" style={{ margin: 0, fontWeight: 500 }}>
+                                Don't auto pause
+                            </label>
+                        </div>
                     </Modal.Body>
 
                     <Modal.Footer>
-                        <button className="btn btn-secondary" onClick={() => setShowAutoPauseModal(false)}>Close</button>
+                        <button className="btn btn-secondary" onClick={() => setShowAutoPauseSaveModal(false)}>
+                            Cancel
+                        </button>
+                        <button
+                            className="btn btn-success"
+                            onClick={async () => {
+                                if (!mainId) {
+                                    enqueueSnackbar("Please select a user to apply auto-pause policy", { variant: "error" });
+                                    return;
+                                }
+
+                                const emp = users?.find(u => u._id === mainId);
+                                if (!emp) {
+                                    enqueueSnackbar("User not found", { variant: "error" });
+                                    return;
+                                }
+
+                                const updatedSettings = {
+                                    ...emp.effectiveSettings,
+                                    individualAutoPause: true,
+                                    autoPauseTrackingAfter: {
+                                        pause: pauseSetting,
+                                        frequency: frequency,
+                                    }
+                                };
+
+                                try {
+                                    const res = await axios.patch(
+                                        `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${emp._id}`,
+                                        {
+                                            userId: emp._id,
+                                            effectiveSettings: updatedSettings,
+                                        },
+                                        { headers }
+                                    );
+
+                                    if (res.status === 200) {
+                                        enqueueSnackbar("AutoPause setting updated!", {
+                                            variant: "success",
+                                            anchorOrigin: { vertical: "top", horizontal: "right" },
+                                        });
+                                        dispatch(setEmployessSetting5({ id: emp._id, key: "pause", value: pauseSetting }));
+                                        dispatch(setEmployessSetting5({ id: emp._id, key: "frequency", value: frequency }));
+                                        setShowAutoPauseSaveModal(false);
+                                    }
+                                } catch (err) {
+                                    enqueueSnackbar("Error updating settings", { variant: "error" });
+                                }
+                            }}
+                        >
+                            Save
+                        </button>
                     </Modal.Footer>
                 </Modal>
             )}
@@ -710,6 +893,9 @@ function OwnerTeam() {
                 show={showPunctualityModal}
                 onClose={() => setShowPunctualityModal(false)}
                 puncStartTime={puncStartTime}
+                timezone={timezone}
+                setTimezone={setTimezone}
+                setTimezoneOffset={setTimezoneOffset}
                 setPuncStartTime={setPuncStartTime}
                 puncEndTime={puncEndTime}
                 setPuncEndTime={setPuncEndTime}
@@ -753,7 +939,10 @@ function OwnerTeam() {
                             <button
                                 className="btn btn-outline-secondary btn-sm"
                                 style={{ padding: "2px 10px", fontSize: "14px" }}
-                                onClick={() => setShowAutoPauseModal(true)} // ✅ Open AutoPause Modal
+                                onClick={() => {
+                                    setPauseSetting(true); // or set based on default if needed
+                                    setShowAutoPauseSaveModal(true); // open your new modal
+                                }}
                             >
                                 Policy
                             </button>

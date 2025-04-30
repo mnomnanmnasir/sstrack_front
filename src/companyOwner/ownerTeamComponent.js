@@ -773,14 +773,21 @@ function OwnerTeamComponent(props) {
                                         <div className="row">
                                             <div className="col-md-4 mb-3">
                                                 <label className="form-label">Applied Tax Country</label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     className="form-control"
-                                                    placeholder="Enter Tax Country"
                                                     value={appliedTaxCountry}
                                                     onChange={(e) => setAppliedTaxCountry(e.target.value)}
-                                                />
+                                                >
+                                                    <option value="">Select Country</option>
+                                                    <option value="Canada">Canada</option>
+                                                    <option value="United States">USA</option>
+                                                    <option value="Pakistan">Pakistan</option>
+                                                    <option value="Philiphines">Philippines</option>
+                                                    <option value="India">India</option>
+                                                    <option value="Saudia Arabia">KSA</option>
+                                                </select>
                                             </div>
+
                                             <div className="col-md-4 mb-3">
                                                 <label className="form-label">Applied Tax State</label>
                                                 <input
@@ -791,6 +798,7 @@ function OwnerTeamComponent(props) {
                                                     onChange={(e) => setAppliedTaxState(e.target.value)}
                                                 />
                                             </div>
+
                                             <div className="col-md-4 mb-3">
                                                 <label className="form-label">Vacation Pay</label>
                                                 <input

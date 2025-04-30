@@ -21,6 +21,9 @@ const LocaitonTracking = () => {
     const [totalDistance, setTotalDistance] = useState(0); // Total distance in KM
     const [totalTime, setTotalTime] = useState("0h 0m");
     const tokens = localStorage.getItem("token");
+    const [showFullSummary, setShowFullSummary] = useState(false);
+
+    const summaryPreviewCount = 3;
     const items = jwtDecode(JSON.stringify(tokens));
     const [userID, setuserId] = useState(items?._id)
     const [overviewData, setOverviewData] = useState({
@@ -161,33 +164,71 @@ const LocaitonTracking = () => {
         setuserId(e?.value)
         console.log('here', e?.value)
     }
+
+
+
     const animatedComponents = makeAnimated();
+
+
     useEffect(() => {
-        // Determine the initial center of the map
-        const initialCenter = polylinePath.length > 0 && polylinePath[0].length > 0
-            ? polylinePath[0][0] // Use the first coordinate of the first polyline
-            : [37.7749, -122.4194]; // Default to San Francisco if no polylines are available
+        if (!polylinePath || polylinePath.length === 0) return;
 
-        const map = L.map("map").setView(initialCenter, 13); // Set the initial view
+        // Clean up any previous map
+        let mapContainer = document.getElementById("map");
+        if (mapContainer._leaflet_id) {
+            mapContainer._leaflet_id = null;
+        }
 
-        // Add OpenStreetMap tiles
+        const initialCenter = polylinePath[0][0] || [37.7749, -122.4194];
+
+        const map = L.map("map").setView(initialCenter, 15);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: "© OpenStreetMap contributors",
         }).addTo(map);
 
-        // Add polylines to the map
-        polylinePath.forEach((polyline) => {
-            L.polyline(polyline, {
-                color: "blue",
-                weight: 4,
-            }).addTo(map);
+        const featureGroup = L.featureGroup().addTo(map);
+
+        polylinePath.forEach((polyline, polylineIndex) => {
+            if (polyline.length > 1) {
+                const line = L.polyline(polyline, {
+                    color: "blue",
+                    weight: 8,
+                    opacity: 0.9,
+                }).addTo(map);
+                featureGroup.addLayer(line);
+
+                console.log(`Polyline ${polylineIndex + 1} Coordinates:`);
+                polyline.forEach((coord, coordIndex) => {
+                    console.log(`→ [${coord[0]}, ${coord[1]}]`);
+
+                    // Marker at each coordinate
+                    const coordMarker = L.marker(coord, {
+                        icon: L.icon({
+                            iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                            iconSize: [32, 32],
+                        }),
+                        title: `Point ${coordIndex + 1}`,
+                    }).addTo(map);
+                    coordMarker.bindPopup(`Point ${coordIndex + 1}`).openPopup();
+
+                    featureGroup.addLayer(coordMarker);
+                });
+            }
         });
 
-        // Cleanup map instance on unmount
+        if (featureGroup.getLayers().length > 0) {
+            map.fitBounds(featureGroup.getBounds(), {
+                padding: [30, 30],
+            });
+        }
+
         return () => {
             map.remove();
         };
     }, [polylinePath]);
+
+
+
     const getManagerEmployees = async () => {
         try {
             const response = await axios.get(`${apiUrl}/manager/employees`, { headers });
@@ -491,59 +532,90 @@ const LocaitonTracking = () => {
                         </LoadScript> */}
                         {/* Active Summary */}
                         <div>
-                            <h3 style={{ fontSize: "23px", color: "#28659C", fontWeight: "600", }}> Active Summary</h3>
-                            <div style={{ marginBottom: "20px" }}>
-                                <ul
+                            <h3 style={{ fontSize: "23px", color: "#28659C", fontWeight: "600" }}>Active Summary</h3>
+
+                            <div style={{ marginBottom: "10px" }}>
+                                <button
+                                    onClick={() => setShowFullSummary(!showFullSummary)}
                                     style={{
-                                        listStyleType: "none",
-                                        display: "flex",
-                                        flexWrap: "wrap",
-                                        padding: "0",
-                                        margin: "0",
+                                        padding: "8px 16px",
+                                        fontSize: "14px",
+                                        backgroundColor: "#28659C",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        cursor: "pointer",
+                                        marginBottom: "10px",
                                     }}
                                 >
-                                    {activeSummary.map((summary, index) => (
-                                        <li
-                                            key={index}
+                                    {showFullSummary ? "Hide Details" : "Show All"}
+                                </button>
+
+                                {!showFullSummary && activeSummary.length > 2 && (
+                                    <div style={{ color: "#555", fontSize: "14px", fontWeight: "500" }}>
+                                        Showing 1 and {activeSummary.length} of {activeSummary.length}
+                                    </div>
+                                )}
+                            </div>
+
+                            <ul
+                                style={{
+                                    listStyleType: "none",
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    padding: "0",
+                                    margin: "0",
+                                }}
+                            >
+                                {(showFullSummary
+                                    ? activeSummary
+                                    : activeSummary.length > 1
+                                        ? [activeSummary[0], activeSummary[activeSummary.length - 1]]
+                                        : activeSummary
+                                ).map((summary, index) => (
+                                    <li
+                                        key={index}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            marginBottom: "10px",
+                                            marginRight: "20px",
+                                            fontSize: "14px",
+                                            fontWeight: "500",
+                                            color: "#000",
+                                        }}
+                                    >
+                                        <div
                                             style={{
+                                                width: "12px",
+                                                height: "12px",
+                                                borderRadius: "50%",
+                                                backgroundColor: "#E6F4EA",
                                                 display: "flex",
                                                 alignItems: "center",
-                                                marginBottom: "10px",
-                                                marginRight: "20px", // Space between items
-                                                fontSize: "14px",
-                                                fontWeight: "500",
-                                                color: "#000",
+                                                justifyContent: "center",
+                                                marginRight: "8px",
+                                                border: "2px solid #32CD32",
                                             }}
                                         >
                                             <div
                                                 style={{
-                                                    width: "12px",
-                                                    height: "12px",
+                                                    width: "6px",
+                                                    height: "6px",
                                                     borderRadius: "50%",
-                                                    backgroundColor: "#E6F4EA",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    marginRight: "8px", // Space between dot and text
-                                                    border: "2px solid #32CD32",
+                                                    backgroundColor: "#32CD32",
                                                 }}
-                                            >
-                                                <div
-                                                    style={{
-                                                        width: "6px",
-                                                        height: "6px",
-                                                        borderRadius: "50%",
-                                                        backgroundColor: "#32CD32",
-                                                    }}
-                                                ></div>
-                                            </div>
-                                            {summary}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
+                                            ></div>
+                                        </div>
+                                        {summary}
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
+
+
+
+
                     </div>
                 </div>
             </div >

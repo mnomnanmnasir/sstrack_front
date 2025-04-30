@@ -1,109 +1,50 @@
 import { useDispatch, useSelector } from "react-redux";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import { setEmployessSetting5, setAllUserSetting7, setAllUserSetting8 } from "../../store/adminSlice"; // ✅ Update with your correct path
-import CompanyEmployess from "../../screen/component/companyEmployess"; // ✅ Update if needed
+import { setEmployessSetting5 } from "../../store/adminSlice";
 import axios from "axios";
 
 function AutoPauseContent() {
   const employees = useSelector((state) => state.adminSlice.employess);
   const dispatch = useDispatch();
-  let token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
-  let headers = {
-    Authorization: 'Bearer ' + token,
+  const headers = {
+    Authorization: "Bearer " + token,
   };
 
   const handleApplySettings = async (employee, type, setting) => {
-    const setting1 = {
+    const settingData = {
       ...employee.effectiveSettings,
       individualAutoPause: true,
       autoPauseTrackingAfter: {
-        ...employee.effectiveSettings.autoPauseTrackingAfter,
-        pause: setting
-      }
-    };
-    const setting2 = {
-      ...employee.effectiveSettings,
-      individualAutoPause: true,
-      autoPauseTrackingAfter: {
-        ...employee.effectiveSettings.autoPauseTrackingAfter,
-        frequency: setting
+        ...employee.effectiveSettings?.autoPauseTrackingAfter,
+        [type]: setting, // dynamically set "pause" or "frequency"
       }
     };
 
     try {
       const res = await axios.patch(
         `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${employee._id}`,
-        {
-          userId: employee._id,
-          effectiveSettings: type === "pause" ? setting1 : setting2
-        },
+        { effectiveSettings: settingData },
         { headers }
       );
+
       if (res.status === 200) {
         enqueueSnackbar("Employee settings updated", {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "right" },
         });
+
+        dispatch(setEmployessSetting5({ id: employee._id, key: type, value: setting }));
       }
     } catch (error) {
-      console.log(error);
+      console.error("❌ Error updating AutoPause settings:", error?.response?.data || error.message);
+      enqueueSnackbar("Failed to update settings", {
+        variant: "error",
+        anchorOrigin: { vertical: "top", horizontal: "right" },
+      });
     }
   };
-
-  function Setting({ employee }) {
-    return (
-      <>
-        <div>
-          <input
-            type="radio"
-            id={`${employee._id}_pauseAfter`}
-            name={`${employee._id}_pauseAfterOption`}
-            value="Pause after"
-            checked={employee?.effectiveSettings?.autoPauseTrackingAfter?.pause === true}
-            onChange={() => {
-              handleApplySettings(employee, "pause", true);
-              dispatch(setEmployessSetting5({ id: employee._id, key: "pause", value: true }));
-            }}
-          />
-          <label htmlFor={`${employee._id}_pauseAfter`}>Pause after</label>
-        </div>
-
-        <div>
-          <input
-            className="number"
-            type="number"
-            placeholder="5"
-            value={employee?.effectiveSettings?.autoPauseTrackingAfter?.frequency || ""}
-            onChange={(e) => {
-              if (e.target.value >= 0) {
-                handleApplySettings(employee, "frequency", e.target.value);
-                dispatch(setEmployessSetting5({ id: employee._id, key: "frequency", value: e.target.value }));
-              }
-            }}
-          />
-          <label style={{ paddingLeft: "18px", fontSize: "18px", fontWeight: "500", color: "#0E4772" }}>
-            minutes of user inactivity
-          </label>
-        </div>
-
-        <div>
-          <input
-            type="radio"
-            id={`${employee._id}_doNotPause`}
-            name={`${employee._id}_doNotPauseOption`}
-            value="Do not pause"
-            checked={employee?.effectiveSettings?.autoPauseTrackingAfter?.pause === false}
-            onChange={() => {
-              handleApplySettings(employee, "pause", false);
-              dispatch(setEmployessSetting5({ id: employee._id, key: "pause", value: false }));
-            }}
-          />
-          <label htmlFor={`${employee._id}_doNotPause`}>Do not pause</label>
-        </div>
-      </>
-    );
-  }
 
   return (
     <div>
@@ -111,14 +52,78 @@ function AutoPauseContent() {
       <div style={{ marginBottom: "10px" }}>
         <p className="settingScreenshotHeading">Auto-pause tracking after</p>
         <p style={{ fontSize: "14px" }}>
-          Tracking will automatically pause after the specified period of inactivity and will automatically resume when user becomes active again.
+          Tracking will automatically pause after the specified period of inactivity and will automatically resume when the user becomes active again.
         </p>
       </div>
 
       <div className="activityLevelIndividual">
         <p className="settingScreenshotIndividual">Individual Settings</p>
         <p className="individualSettingFont">If enabled, the individual setting will be used instead of the team setting</p>
-        <CompanyEmployess Setting={Setting} />
+
+        {employees?.map((employee) => {
+          const settings = employee?.effectiveSettings || {};
+          const autoPause = settings.autoPauseTrackingAfter || {};
+
+          return (
+            <div
+              key={employee._id}
+              style={{
+                border: "1px solid #ccc",
+                padding: "15px",
+                borderRadius: "8px",
+                marginBottom: "15px"
+              }}
+            >
+              <h6>{employee?.name || employee?.email}</h6>
+
+              <div style={{ marginTop: "10px" }}>
+                <div>
+                  <input
+                    type="radio"
+                    id={`${employee._id}_pauseAfter`}
+                    name={`${employee._id}_pauseOption`}
+                    checked={autoPause.pause === true}
+                    onChange={() => handleApplySettings(employee, "pause", true)}
+                  />
+                  <label htmlFor={`${employee._id}_pauseAfter`} style={{ marginLeft: "6px" }}>
+                    Pause after inactivity
+                  </label>
+                </div>
+
+                <div style={{ marginTop: "6px" }}>
+                  <input
+                    type="radio"
+                    id={`${employee._id}_doNotPause`}
+                    name={`${employee._id}_pauseOption`}
+                    checked={autoPause.pause === false}
+                    onChange={() => handleApplySettings(employee, "pause", false)}
+                  />
+                  <label htmlFor={`${employee._id}_doNotPause`} style={{ marginLeft: "6px" }}>
+                    Do not pause
+                  </label>
+                </div>
+
+                <div style={{ marginTop: "10px" }}>
+                  <input
+                    type="number"
+                    placeholder="5"
+                    className="form-control"
+                    style={{ width: "120px", display: "inline-block", marginRight: "10px" }}
+                    value={autoPause.frequency || ""}
+                    onChange={(e) => {
+                      if (e.target.value >= 0) {
+                        handleApplySettings(employee, "frequency", parseInt(e.target.value));
+                      }
+                    }}
+                  />
+                  <label style={{ fontSize: "14px", color: "#0E4772" }}>
+                    minutes of user inactivity
+                  </label>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

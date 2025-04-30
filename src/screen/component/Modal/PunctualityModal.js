@@ -1,8 +1,9 @@
 // 📁 src/components/PunctualityModal.jsx
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
+import TimezoneSelect from 'react-timezone-select';
 
-function PunctualityModal({ show, onClose, puncStartTime, setPuncStartTime, puncEndTime, setPuncEndTime, onSave, loading }) {
+function PunctualityModal({ show, onClose, timezone, setTimezone, puncStartTime,setTimezoneOffset, setPuncStartTime, puncEndTime, setPuncEndTime, onSave, loading }) {
     return (
         <Modal show={show} onHide={onClose} centered size="lg">
             <Modal.Header closeButton>
@@ -19,6 +20,19 @@ function PunctualityModal({ show, onClose, puncStartTime, setPuncStartTime, punc
                 </ul>
 
                 <hr />
+
+                <div className="mb-3">
+                    <label className="form-label">Select Timezone</label>
+                    <div className="dropdown">
+                        <TimezoneSelect
+                            value={timezone}
+                            onChange={(tz) => {
+                                setTimezone(tz.value);
+                                setTimezoneOffset(tz.offset);
+                            }}
+                        />
+                    </div>
+                </div>
 
                 {/* PuncStartTime Field */}
                 <div className="mb-3">
