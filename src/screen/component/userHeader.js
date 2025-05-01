@@ -788,7 +788,7 @@ function UserHeader({ setSidebarOpen, sidebarOpen }) {
                                                         <div style={{ position: 'relative', width: '100%' }}>
                                                             <div className="d-flex justify-content-space-between px-3 text-white" style={{ width: '100%' }}>
 
-                                                                <NotificationBell userType={items?.userType} userId={items?._id} />
+                                                                {/* <NotificationBell userType={items?.userType} userId={items?._id} /> */}
 
                                                                 <IconButton
                                                                     onClick={() => setShowContent(!showContent)}
@@ -827,16 +827,25 @@ function UserHeader({ setSidebarOpen, sidebarOpen }) {
                                                                             color: '#fff',
                                                                         }}
                                                                     >
-                                                                        <p className="mb-1 m-0">
-                                                                            {user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)} ({userType})
-                                                                        </p>
+                                                                        <div className="d-flex align-items-center justify-content-between mb-1">
+                                                                            <p className="m-0">
+                                                                                {user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)} ({userType})
+                                                                            </p>
+                                                                            <NotificationBell userType={items?.userType} userId={items?._id} />
+                                                                        </div>
+
                                                                         <p className="m-0 fw-bold">
                                                                             ({items?.company})
                                                                         </p>
-                                                                        <p className="m-0 fw-bold">
-                                                                            {/* ({items?.company}) */}
-                                                                            Break Time {remainingBreakTime || '0h 0m'}
-                                                                        </p>
+
+
+                                                                        {!user?.userType === "owner" &&
+                                                                            <p className="m-0 fw-bold">
+                                                                                {/* ({items?.company}) */}
+                                                                                Break Time {remainingBreakTime || '0h 0m'}
+                                                                            </p>
+                                                                        }
+
                                                                         <div className="d-flex flex-column mb-3">
                                                                             <Link to="/download" className="text-white mb-2" onClick={() => setShowContent(false)}>Download</Link>
                                                                             <Link to="/pricing" className="text-white mb-2" onClick={() => setShowContent(false)}>Pricing</Link>

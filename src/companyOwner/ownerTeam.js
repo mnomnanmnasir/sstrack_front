@@ -234,7 +234,12 @@ function OwnerTeam() {
             );
 
             if (response.status === 200) {
-                enqueueSnackbar("Break Time successfully submitted!", { variant: "success" });
+                // enqueueSnackbar("Break Time successfully submitted!", { variant: "success" });
+                enqueueSnackbar("Break Time successfully submitted!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
 
                 const timezonePayload = {
                     timezone,
@@ -254,7 +259,12 @@ function OwnerTeam() {
                     }
                 );
 
-                enqueueSnackbar("Timezone successfully updated!", { variant: "success" });
+                // enqueueSnackbar("Timezone successfully updated!", { variant: "success" });
+                enqueueSnackbar("Timezone successfully updated!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
                 setShowBreakTimeModal(false);
             } else {
                 enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
@@ -782,7 +792,9 @@ function OwnerTeam() {
             </Modal> : null}
 
             {showAutoPauseSaveModal && (
-                <Modal show={showAutoPauseSaveModal} onHide={() => setShowAutoPauseSaveModal(false)} centered>
+
+                <Modal show={showAutoPauseSaveModal} onHide={() => setShowAutoPauseSaveModal(false)} style={{ zIndex: 2000 }} backdropStyle={{ zIndex: 1999 }}>
+                    {/* <Modal show={showAutoPauseSaveModal} onHide={() => setShowAutoPauseSaveModal(false)} centered> */}
                     <Modal.Header closeButton>
                         <Modal.Title>🕒 Auto-Pause Policy</Modal.Title>
                     </Modal.Header>
@@ -837,7 +849,7 @@ function OwnerTeam() {
                             Cancel
                         </button>
                         <button
-                            className="btn btn-success"
+                            className="btn text-white" style={{ backgroundColor: '#7CCB58' }}
                             onClick={async () => {
                                 if (!mainId) {
                                     enqueueSnackbar("Please select a user to apply auto-pause policy", { variant: "error" });
@@ -908,6 +920,16 @@ function OwnerTeam() {
             />
 
             {showNewModal && (
+                //   <Modal
+                //   show={showNewModal}
+                //   onHide={() => setShowNewModal(false)}
+                //   centered
+                //   size="lg"
+                //   backdrop="static"
+                //   keyboard={false}
+                //   dialogClassName="zmodal-fix"
+                // />
+
                 <Modal show={showNewModal} onHide={() => setShowNewModal(false)} centered size="lg">
                     <Modal.Header closeButton>
                         <Modal.Title>📋 Company Policy Setup</Modal.Title>
@@ -937,7 +959,7 @@ function OwnerTeam() {
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <h6><strong>Auto-Pause Policy</strong></h6>
                             <button
-                                className="btn btn-outline-secondary btn-sm"
+                                className="btn btn-outline-primary btn-sm"
                                 style={{ padding: "2px 10px", fontSize: "14px" }}
                                 onClick={() => {
                                     setPauseSetting(true); // or set based on default if needed
@@ -958,7 +980,7 @@ function OwnerTeam() {
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <h6><strong>Working Hours Policy</strong></h6>
                             <button
-                                className="btn btn-outline-success btn-sm"
+                                className="btn btn-outline-primary btn-sm"
                                 style={{ padding: "2px 10px", fontSize: "14px" }}
                                 onClick={() => setShowPunctualityModal(true)} // ✅ Open punctuality modal
                             >
@@ -988,7 +1010,8 @@ function OwnerTeam() {
                         <button className="btn text-white" style={{ background: '#7CCB58' }} onClick={() => setShowNewModal(false)}>Got It!</button>
                     </Modal.Footer>
                 </Modal>
-            )}
+            )
+            }
 
             <BreakTimeModal
                 show={showBreakTimeModal}
@@ -1009,17 +1032,19 @@ function OwnerTeam() {
                 loading={breakTimeLoading}
             />
 
-            {user?._id === "679b223b61427668c045c659" && (
-                <Joyride
-                    steps={steps}
-                    run={run}
-                    callback={handleJoyrideCallback}
-                    showProgress
-                    showSkipButton
-                    continuous
-                    scrollToFirstStep
-                />
-            )}
+            {
+                user?._id === "679b223b61427668c045c659" && (
+                    <Joyride
+                        steps={steps}
+                        run={run}
+                        callback={handleJoyrideCallback}
+                        showProgress
+                        showSkipButton
+                        continuous
+                        scrollToFirstStep
+                    />
+                )
+            }
             <SnackbarProvider />
 
             <div className="container" id='team'>
@@ -1378,7 +1403,7 @@ function OwnerTeam() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 
