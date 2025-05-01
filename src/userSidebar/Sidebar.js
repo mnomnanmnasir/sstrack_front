@@ -237,7 +237,10 @@ const Sidebar = ({ open, onClose }) => {
                                                                 .filter(u => u.userName)
                                                                 .sort((a, b) => a.userName.localeCompare(b.userName))
                                                                 .map((u) => (
-                                                                    <p key={u.userId} style={{ fontSize: '13px', marginBottom: 4, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                    <p key={u.userId}
+                                                                        onClick={() => navigate(`/timeline/${u.userId}`)}
+
+                                                                        style={{ fontSize: '13px', marginBottom: 4, display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                                         <img src={check} alt="Online" style={{ width: 14, height: 14 }} />
                                                                         {u.userName}
                                                                     </p>
@@ -268,15 +271,42 @@ const Sidebar = ({ open, onClose }) => {
                                                                 .filter(u => u.userName)
                                                                 .sort((a, b) => a.userName.localeCompare(b.userName))
                                                                 .map((u) => (
-                                                                    <p key={u.userId} style={{ fontSize: '13px', marginBottom: 4, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                    // <p key={u.userId} style={{ fontSize: '13px', marginBottom: 4, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                    //     <span
+                                                                    //         style={{
+                                                                    //             width: 10,
+                                                                    //             height: 10,
+                                                                    //             borderRadius: '50%',
+                                                                    //             backgroundColor: '#fff',
+                                                                    //             display: 'inline-block',
+                                                                    //             boxShadow: '0 0 3px #fff',
+                                                                    //         }}
+                                                                    //     ></span>
+                                                                    //     {u.userName}
+                                                                    // </p>
+                                                                    <p
+                                                                        key={u.userId}
+                                                                        onClick={() => navigate(`/timeline/${u.userId}`)}
+                                                                        style={{
+                                                                            fontSize: '13px',
+                                                                            marginBottom: 8,
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            gap: '10px',
+                                                                            background: '#003366',
+                                                                            padding: '6px 10px',
+                                                                            borderRadius: '6px',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                    >
                                                                         <span
                                                                             style={{
                                                                                 width: 10,
                                                                                 height: 10,
                                                                                 borderRadius: '50%',
-                                                                                backgroundColor: '#fff',
+                                                                                backgroundColor: '#7ACB59',
                                                                                 display: 'inline-block',
-                                                                                boxShadow: '0 0 3px #fff',
+                                                                                boxShadow: '0 0 3px #7ACB59',
                                                                             }}
                                                                         ></span>
                                                                         {u.userName}
@@ -309,6 +339,7 @@ const Sidebar = ({ open, onClose }) => {
                                                                     .map((u) => (
                                                                         <div
                                                                             key={u.userId}
+                                                                            onClick={() => navigate(`/timeline/${u.userId}`)}
                                                                             style={{
                                                                                 fontSize: '13px',
                                                                                 marginBottom: 8,
@@ -318,6 +349,7 @@ const Sidebar = ({ open, onClose }) => {
                                                                                 background: '#003366',
                                                                                 padding: '6px 10px',
                                                                                 borderRadius: '6px',
+                                                                                cursor: 'pointer'
                                                                             }}
                                                                         >
                                                                             <span
@@ -338,7 +370,7 @@ const Sidebar = ({ open, onClose }) => {
                                                             )}
                                                         </div>
 
-                                                        {/* 🔴 OFFLINE USERS */}
+                                                        {/*  OFFLINE USERS */}
                                                         <div style={{ flex: 1 }}>
                                                             <p style={{ fontWeight: 'bold', marginBottom: 6 }}>Offline Users</p>
                                                             {Array.isArray(userStats.offlineUsers) &&
@@ -349,6 +381,7 @@ const Sidebar = ({ open, onClose }) => {
                                                                     .map((u) => (
                                                                         <div
                                                                             key={u.userId}
+                                                                            onClick={() => navigate(`/timeline/${u.userId}`)}
                                                                             style={{
                                                                                 fontSize: '13px',
                                                                                 marginBottom: 8,
