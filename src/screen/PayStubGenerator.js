@@ -68,8 +68,42 @@ const PayStubGenerator = () => {
     useEffect(() => {
         if (!month || !frequency) return;
 
-        let generatedPeriods = [];
+        console.log("Month:", month);
+        console.log("Frequency:", frequency);
 
+        const fetchPayPeriods = async () => {
+            try {
+                const headers = {
+                    Authorization: "Bearer " + token,
+                };
+
+                const response = await fetch(
+                    `https://myuniversallanguages.com:9093/api/v1/owner/paystubs/getPayPeriodDates?date=${month}&type=${frequency}`,
+                    {
+                        method: "GET",
+                        headers: headers,
+                    }
+                );
+
+                const data = await response.json();
+                console.log("API Response:", data.data);
+
+                if (Array.isArray(data.data)) {
+                    setPeriods(data.data);
+                    setSelectedPeriod('');
+                } else {
+                    console.warn("Unexpected API format:", data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch pay periods:", error);
+            }
+        };
+
+        fetchPayPeriods();
+
+        // Optional fallback:
+        /*
+        let generatedPeriods = [];
         if (frequency === 'weekly') {
             generatedPeriods = generateWeeklyPeriods(month);
         } else if (frequency === 'biweekly') {
@@ -77,10 +111,13 @@ const PayStubGenerator = () => {
         } else if (frequency === 'monthly') {
             generatedPeriods = generateMonthlyPeriod(month);
         }
-
+    
         setPeriods(generatedPeriods);
         setSelectedPeriod('');
+        */
     }, [month, frequency]);
+
+
 
     const handleGenerate = async () => {
         if (!selectedUserId || !month || !frequency || !selectedPeriod) {
@@ -114,7 +151,9 @@ const PayStubGenerator = () => {
                 'https://myuniversallanguages.com:9093/api/v1/owner/generatePayStubs',
                 {
                     startDate: formData.startDate,
+                    // startDate: "2025-01-27",
                     endDate: formData.endDate,
+                    // endDate: "2025-02-02",
                     userIds: [formData.userId],
                     country: formData.country,
                     state: formData.state
@@ -139,7 +178,8 @@ const PayStubGenerator = () => {
                 dateGenerated: new Date().toLocaleString(),
                 stubData: res.data
             };
-            setHistory([newRecord, ...history]);
+            await fetchAllStubs(); // Refresh history from server
+
 
             alert('Stub generated successfully!');
             setShowSummary(false);
@@ -182,13 +222,32 @@ const PayStubGenerator = () => {
 
         }
     }
+    const fetchAllStubs = async () => {
+        console.log("running")
+        try {
+            const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/owner/paystubs/getAllStubs`, {
+                headers: {
+                    Authorization: "Bearer " + token,
+                }
+            });
+    
+            console.log('pay stubbbbsss',response.data.data)
+            if (Array.isArray(response.data.data)) {
+                setHistory(response.data.data);
+            } else {
+                console.warn("Unexpected getAllStubs format:", response.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch all stubs:", error.response?.data || error.message);
+        }
+    };
     const handleViewStub = (record) => {
         console.log("Viewing stub:", record);
         navigate('/pay_stub_View', {
             state: {
-                stub: record.stubData,
-                user: record.user,
-                period: record.period
+                stub: record,
+                user: record.name,
+                period: record.payPeriod
             }
         });
 
@@ -233,11 +292,20 @@ const PayStubGenerator = () => {
     useEffect(() => {
         if (user?.userType === "manager") {
             getManagerTeam();
-        }
-        else {
+        } else {
             getData();
         }
-    }, [])
+      
+        fetchAllStubs(); // <-- Fetch all stubs on page load
+    }, []);
+    
+
+
+    const handleMonthChange = (e) => {
+        const selectedMonth = e.target.value;
+        setMonth(selectedMonth);
+        console.log('Selected Month:', selectedMonth);
+    };
 
     return (
         <>
@@ -263,22 +331,23 @@ const PayStubGenerator = () => {
                                             const selectedId = e.target.value;
                                             setSelectedUserId(selectedId);
                                         }}
-                                    >   
+                                    >
                                         <option value=''>-- Select User --</option>
-
-                                        {users
-                                            ?.filter((u) => u && u._id && u.name) // ✅ Sirf valid users ko filter karo
-                                            .map((u, index) => (
-                                                <option key={index} value={u._id}>
-                                                    {u.name}
-                                                </option>
-                                            ))}
+                                        {users?.map((u, index) => (
+                                            <option key={index} value={u._id}>
+                                                {u.name}
+                                            </option>
+                                        ))}
                                     </Form.Select>
                                 </Form.Group>
 
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Select Pay Month</Form.Label>
-                                    <Form.Control type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
+                                <Form.Group controlId="monthPicker">
+                                    <Form.Label>Select Month</Form.Label>
+                                    <Form.Control
+                                        type="month"
+                                        value={month}
+                                        onChange={handleMonthChange}
+                                    />
                                 </Form.Group>
 
                                 <Form.Group className="mb-3">
@@ -333,7 +402,7 @@ const PayStubGenerator = () => {
                                         <thead>
                                             <tr>
                                                 <th>User</th>
-                                                <th>Month</th>
+                                                {/* <th>Month</th> */}
                                                 <th>Frequency</th>
                                                 <th>Period</th>
                                                 <th>Date Generated</th>
@@ -343,11 +412,11 @@ const PayStubGenerator = () => {
                                         <tbody>
                                             {history.map((h, idx) => (
                                                 <tr key={idx}>
-                                                    <td>{h.user}</td>
-                                                    <td>{h.month}</td>
-                                                    <td>{h.frequency}</td>
-                                                    <td>{h.period}</td>
-                                                    <td>{h.dateGenerated}</td>
+                                                    <td>{h.name}</td>
+                                                    {/* <td>{h.month}</td> */}
+                                                    <td>{h.payPeriod}</td>
+                                                    <td>{`${h.StartDate} - ${h.EndDate}`}</td>
+                                                    <td>{h.payDate}</td>
                                                     <td>
                                                         <button
                                                             className="btn btn-sm btn-primary"

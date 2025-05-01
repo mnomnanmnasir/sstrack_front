@@ -132,7 +132,7 @@ const Sidebar = ({ open, onClose }) => {
         { text: 'Leave Management', icon: <CalendarTodayIcon />, route: '/leave-management' },
         { text: 'Location Tracking', icon: <MapIcon />, route: '/Locationtracking' },
 
-        // { text: 'Pay Stub Managment', icon: <AttachMoneyIcon />, route: '/pay_stub_managment' },
+        { text: 'Pay Stub Managment', icon: <AttachMoneyIcon />, route: '/pay_stub_managment' },
 
         ...(userType === 'manager' ? [{ text: 'Attendence Management', icon: <PeopleIcon />, route: '/attendence-management' }] : []),
     ];
@@ -238,7 +238,10 @@ const Sidebar = ({ open, onClose }) => {
                                                                 .sort((a, b) => a.userName.localeCompare(b.userName))
                                                                 .map((u) => (
                                                                     <p key={u.userId}
-                                                                        onClick={() => navigate(`/timeline/${u.userId}`)}
+                                                                        onClick={() => {
+                                                                            navigate(`/timeline/${u.userId}`);
+                                                                            setShowUsersDropdown(false);
+                                                                        }}
 
                                                                         style={{ fontSize: '13px', marginBottom: 4, display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                                         <img src={check} alt="Online" style={{ width: 14, height: 14 }} />
@@ -286,7 +289,10 @@ const Sidebar = ({ open, onClose }) => {
                                                                     // </p>
                                                                     <p
                                                                         key={u.userId}
-                                                                        onClick={() => navigate(`/timeline/${u.userId}`)}
+                                                                        onClick={() => {
+                                                                            navigate(`/timeline/${u.userId}`);
+                                                                            setShowUsersDropdown(false);
+                                                                        }}
                                                                         style={{
                                                                             fontSize: '13px',
                                                                             marginBottom: 8,
@@ -339,7 +345,10 @@ const Sidebar = ({ open, onClose }) => {
                                                                     .map((u) => (
                                                                         <div
                                                                             key={u.userId}
-                                                                            onClick={() => navigate(`/timeline/${u.userId}`)}
+                                                                            onClick={() => {
+                                                                                navigate(`/timeline/${u.userId}`);
+                                                                                setShowUsersDropdown(false);
+                                                                            }}
                                                                             style={{
                                                                                 fontSize: '13px',
                                                                                 marginBottom: 8,
@@ -381,7 +390,10 @@ const Sidebar = ({ open, onClose }) => {
                                                                     .map((u) => (
                                                                         <div
                                                                             key={u.userId}
-                                                                            onClick={() => navigate(`/timeline/${u.userId}`)}
+                                                                            onClick={() => {
+                                                                                navigate(`/timeline/${u.userId}`);
+                                                                                setShowUsersDropdown(false);
+                                                                            }}
                                                                             style={{
                                                                                 fontSize: '13px',
                                                                                 marginBottom: 8,

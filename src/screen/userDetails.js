@@ -446,7 +446,11 @@ function UserDetails() {
     useEffect(() => {
         fetchData();
     }, [formattedDate]);
-
+    
+    useEffect(() => {
+        fetchData();
+    }, [userId]);
+    
     const navigate = useNavigate("")
 
     const isValidTimeFormat = (timeString) => {
