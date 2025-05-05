@@ -302,7 +302,6 @@ function UserDashboard() {
         if (userData) {
             setData(userData);
         }
-        fetchData()
     }, [userData]);
 
     useEffect(() => {

@@ -192,7 +192,7 @@ function Screenshot() {
                         puncEndTime: `${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`,
                         timezone: userTimezone,
                         timezoneOffset: userTimezoneOffset,
-                        implementStartDate: `${implementStartDate}T${implementStartTime}:00`,  // ✅ FIXED
+                        implementStartDate: `${implementStartDate}T${implementStartTime}:00`, 
                     },
                 };
             });
