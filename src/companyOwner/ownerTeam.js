@@ -438,7 +438,7 @@ function OwnerTeam() {
         if (!newGroupName.trim()) return;
 
         try {
-            const response = await axios.post(`${apiUrl} / userGroup / add`, {
+            const response = await axios.post(`${apiUrl}/userGroup/add`, {
                 name: newGroupName,
             }, { headers });
 

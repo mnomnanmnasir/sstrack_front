@@ -136,6 +136,7 @@ function OwnerTeamComponent(props) {
                 setAppliedTaxState('');
                 setVacationPay('');
                 setPayPeriodType('');
+                setRatePerHours('')
                 return;
             }
             try {
@@ -162,7 +163,7 @@ function OwnerTeamComponent(props) {
                     setAppliedTaxState(foundEmployee?.appliedTaxState || '');
                     setVacationPay(foundEmployee?.vacationPay || '');
                     setPayPeriodType(foundEmployee?.payPeriodType || '');
-                    setRatePerHours(foundEmployee?.ratePerHour || '');
+                    setRatePerHours(foundEmployee?.billingInfo?.ratePerHour || '');
 
                 } else {
                     console.log('⚠️ No employee found for selected user.');
@@ -193,7 +194,7 @@ function OwnerTeamComponent(props) {
                     setAppliedTaxState(responseData?.appliedTaxState || '');
                     setVacationPay(responseData?.vacationPay || '');
                     setPayPeriodType(responseData?.payPeriodType || '');
-
+                    setRatePerHours(responseData?.billingInfo?.ratePerHour || '');
                     setData(responseData); // ✅ Data set for name, email etc.
                 }
             } catch (error) {
@@ -545,7 +546,6 @@ function OwnerTeamComponent(props) {
                                 <p className="employeeDetailName1 mb-1" style={{ wordBreak: "break-word" }}>{data.name}</p>
                                 <p className="employeeDetailName2" style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
                                     {data.email}
-                                    {/* {ratePerHour} */}
                                 </p>
                             </div>
 
@@ -565,14 +565,14 @@ function OwnerTeamComponent(props) {
                     )}
                     {/* </div> */}
 
-                    <div className="col-12 col-md-3 text-md-end mt-2 mt-md-0">
+                    <div className="col-12 col-md-9 mb-3 mb-md-0 text-md-start">
                         {user?.userType !== 'manager' && !selectedUser?.inviteStatus && (
                             <>
                                 {selectedUser?.userType !== 'owner' && (
                                     <>
                                         {ratePerHour && (
-                                            <p style={{ fontWeight: 600, marginBottom: 5 }}>
-                                                Rate/hr: <span style={{ color: "#28659C" }}>${ratePerHour}</span>
+                                            <p className="employeeDetailName2 mb-1" style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
+                                                PayRate:<span>${ratePerHour}</span>
                                             </p>
                                         )}
                                     </>

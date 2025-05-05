@@ -22,6 +22,8 @@ function Screenshot() {
     const [puncStartTime, setPuncStartTime] = useState("");
     const [puncEndTime, setPuncEndTime] = useState("");
     const [implementStartDate, setImplementStartDate] = useState(""); // 👈 Add this line
+    const [implementStartTime, setImplementStartTime] = useState(""); // 👈 Add this line
+
 
 
     useEffect(() => {
@@ -190,7 +192,7 @@ function Screenshot() {
                         puncEndTime: `${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`,
                         timezone: userTimezone,
                         timezoneOffset: userTimezoneOffset,
-                        implementStartDate: `${new Date().toISOString().split('T')[0]}T${implementStartDate}:00`, // 👈 Add this line
+                        implementStartDate: `${implementStartDate}T${implementStartTime}:00`,  // ✅ FIXED
                     },
                 };
             });
@@ -283,7 +285,7 @@ function Screenshot() {
                             />
                         </div>
                         <div>
-                            <label>Set Policy date:</label>
+                            <label>Policy Time:</label>
                             {/* <input
                                 type="time"
                                 value={puncEndTime}
@@ -293,6 +295,22 @@ function Screenshot() {
                             /> */}
                             <input
                                 type="time"
+                                value={implementStartTime}
+                                onFocus={(e) => e.target.showPicker()}
+                                onChange={(e) => setImplementStartTime(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label>Policy Date:</label>
+                            {/* <input
+                                type="time"
+                                value={puncEndTime}
+                                onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
+                                onChange={(e) => setPuncEndTime(e.target.value)}
+                            // onChange={(e) => console.log(e.target.value)}
+                            /> */}
+                            <input
+                                type="date"
                                 value={implementStartDate}
                                 onFocus={(e) => e.target.showPicker()}
                                 onChange={(e) => setImplementStartDate(e.target.value)}
