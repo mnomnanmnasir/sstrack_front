@@ -39,6 +39,8 @@ function OwnerTeamComponent(props) {
     const [appliedTaxState, setAppliedTaxState] = useState('');
     const [vacationPay, setVacationPay] = useState('');
     const [payPeriodType, setPayPeriodType] = useState('');
+    const [ratePerHour, setRatePerHours] = useState('');
+
     const token = localStorage.getItem('token');
     const headers = {
         Authorization: "Bearer " + token,
@@ -160,6 +162,8 @@ function OwnerTeamComponent(props) {
                     setAppliedTaxState(foundEmployee?.appliedTaxState || '');
                     setVacationPay(foundEmployee?.vacationPay || '');
                     setPayPeriodType(foundEmployee?.payPeriodType || '');
+                    setRatePerHours(foundEmployee?.ratePerHour || '');
+
                 } else {
                     console.log('⚠️ No employee found for selected user.');
                 }
@@ -541,6 +545,7 @@ function OwnerTeamComponent(props) {
                                 <p className="employeeDetailName1 mb-1" style={{ wordBreak: "break-word" }}>{data.name}</p>
                                 <p className="employeeDetailName2" style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
                                     {data.email}
+                                    {/* {ratePerHour} */}
                                 </p>
                             </div>
 
@@ -560,6 +565,21 @@ function OwnerTeamComponent(props) {
                     )}
                     {/* </div> */}
 
+                    <div className="col-12 col-md-3 text-md-end mt-2 mt-md-0">
+                        {user?.userType !== 'manager' && !selectedUser?.inviteStatus && (
+                            <>
+                                {selectedUser?.userType !== 'owner' && (
+                                    <>
+                                        {ratePerHour && (
+                                            <p style={{ fontWeight: 600, marginBottom: 5 }}>
+                                                Rate/hr: <span style={{ color: "#28659C" }}>${ratePerHour}</span>
+                                            </p>
+                                        )}
+                                    </>
+                                )}
+                            </>
+                        )}
+                    </div>
 
                     {user?.userType !== 'manager' &&
                         selectedUser?.userType !== 'owner' &&
@@ -732,9 +752,9 @@ function OwnerTeamComponent(props) {
                                 )}
 
                                 {selectedUser?.userType !== 'owner' && selectedUser?.inviteStatus === false && (
-                               <>
-                               </>
-                               // <div className="container" style={{ marginTop: "30px" }}>
+                                    <>
+                                    </>
+                                    // <div className="container" style={{ marginTop: "30px" }}>
                                     //     <p className="h4 mb-4">Pay Stub</p>
 
                                     //     {/* Row 1: Shift Premium Rate, Overtime Rate, Hourly Rate */}
