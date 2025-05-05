@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import {
     Drawer, List, ListItemButton, ListItemIcon, ListItemText,
@@ -132,7 +130,7 @@ const Sidebar = ({ open, onClose }) => {
         { text: 'Leave Management', icon: <CalendarTodayIcon />, route: '/leave-management' },
         { text: 'Location Tracking', icon: <MapIcon />, route: '/Locationtracking' },
 
-        { text: 'Pay Stub Managment', icon: <AttachMoneyIcon />, route: '/pay_stub_managment' },
+        // { text: 'Pay Stub Managment', icon: <AttachMoneyIcon />, route: '/pay_stub_managment' },
 
         ...(userType === 'manager' ? [{ text: 'Attendence Management', icon: <PeopleIcon />, route: '/attendence-management' }] : []),
     ];
@@ -212,7 +210,7 @@ const Sidebar = ({ open, onClose }) => {
                                             position: 'fixed',
                                             top: isMobile ? usersDropdownPos.top + 40 : usersDropdownPos.top,
                                             left: isMobile ? 10 : usersDropdownPos.left,
-                                            right: isMobile ? 'auto' : undefined,
+                                            right: isMobile ? 'auto' : '',
                                             backgroundColor: '#002244',
                                             borderRadius: 6,
                                             padding: '12px 20px',
@@ -237,16 +235,36 @@ const Sidebar = ({ open, onClose }) => {
                                                                 .filter(u => u.userName)
                                                                 .sort((a, b) => a.userName.localeCompare(b.userName))
                                                                 .map((u) => (
-                                                                    <p key={u.userId}
+
+                                                                    <div
+                                                                        key={u.userId}
                                                                         onClick={() => {
                                                                             navigate(`/timeline/${u.userId}`);
                                                                             setShowUsersDropdown(false);
                                                                         }}
+                                                                        style={{
+                                                                            fontSize: '13px',
+                                                                            marginBottom: 8,
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            gap: '10px',
+                                                                            background: '#003366',
+                                                                            padding: '6px 10px',
+                                                                            borderRadius: '6px',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                    >
+                                                                        {/* <p key={u.userId}
 
-                                                                        style={{ fontSize: '13px', marginBottom: 4, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                        onClick={() => {
+                                                                            navigate(`/timeline/${u.userId}`);
+                                                                            setShowUsersDropdown(false);
+                                                                        }}
+                                                                        style={{ fontSize: '13px', marginBottom: 4, display: 'flex', alignItems: 'center', gap: '6px' }}> */}
                                                                         <img src={check} alt="Online" style={{ width: 14, height: 14 }} />
                                                                         {u.userName}
-                                                                    </p>
+
+                                                                    </div>
                                                                 ))
                                                         ) : (
                                                             <p style={{ fontSize: '13px', color: '#ccc' }}>No one online</p>
@@ -287,7 +305,26 @@ const Sidebar = ({ open, onClose }) => {
                                                                     //     ></span>
                                                                     //     {u.userName}
                                                                     // </p>
-                                                                    <p
+                                                                    // <p
+                                                                    //     key={u.userId}
+                                                                    //     onClick={() => {
+                                                                    //         navigate(`/timeline/${u.userId}`);
+                                                                    //         setShowUsersDropdown(false);
+                                                                    //     }}
+                                                                    //     style={{
+                                                                    //         fontSize: '13px',
+                                                                    //         marginBottom: 8,
+                                                                    //         display: 'flex',
+                                                                    //         alignItems: 'center',
+                                                                    //         gap: '10px',
+                                                                    //         background: '#003366',
+                                                                    //         padding: '6px 10px',
+                                                                    //         borderRadius: '6px',
+                                                                    //         cursor: 'pointer'
+
+                                                                    //     }}
+                                                                    // >
+                                                                    <div
                                                                         key={u.userId}
                                                                         onClick={() => {
                                                                             navigate(`/timeline/${u.userId}`);
@@ -299,10 +336,11 @@ const Sidebar = ({ open, onClose }) => {
                                                                             display: 'flex',
                                                                             alignItems: 'center',
                                                                             gap: '10px',
-                                                                            background: '#003366',
+                                                                            background: '#1c2e40',
                                                                             padding: '6px 10px',
                                                                             borderRadius: '6px',
                                                                             cursor: 'pointer'
+
                                                                         }}
                                                                     >
                                                                         <span
@@ -310,13 +348,13 @@ const Sidebar = ({ open, onClose }) => {
                                                                                 width: 10,
                                                                                 height: 10,
                                                                                 borderRadius: '50%',
-                                                                                backgroundColor: '#7ACB59',
                                                                                 display: 'inline-block',
+                                                                                backgroundColor: '#fff',
                                                                                 boxShadow: '0 0 3px #7ACB59',
                                                                             }}
                                                                         ></span>
                                                                         {u.userName}
-                                                                    </p>
+                                                                    </div>
                                                                 ))
                                                         ) : (
                                                             <p style={{ fontSize: '13px', color: '#ccc' }}>No one offline</p>
@@ -403,6 +441,8 @@ const Sidebar = ({ open, onClose }) => {
                                                                                 background: '#1c2e40',
                                                                                 padding: '6px 10px',
                                                                                 borderRadius: '6px',
+                                                                                cursor: 'pointer'
+
                                                                             }}
                                                                         >
                                                                             <span

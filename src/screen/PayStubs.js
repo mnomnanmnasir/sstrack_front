@@ -39,8 +39,7 @@ export default function PayStubs() {
     }, [stubData, stubUser, stubPeriod]);
 
 
-    const data = stubData || {};
-    // const data =  {};
+    const data = stubData.data[0] || {};
     console.log('Received Stub Data:', data);
     return (
         <>

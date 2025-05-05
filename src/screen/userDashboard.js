@@ -35,10 +35,27 @@ function UserDashboard() {
     const [yesterdaySortOrder, setYesterdaySortOrder] = useState('asc');
     const [thisWeekSortOrder, setThisWeekSortOrder] = useState('asc');
     const [thisMonthSortOrder, setThisMonthSortOrder] = useState('asc');
+    const [totalUsersWorkingToday, setTotalWorking] = useState('0');
+    const [totalActiveUsers, setTotalActiveUsers] = useState('0');
+    
+
+
     const [socketData, setSocketData] = useState(null); // State to store data from socket
     const navigate = useNavigate();
     const socket = useSocket()
     const token = localStorage.getItem("token");
+    const [billingSummary, setBillingSummary] = useState({
+        daily: 0,
+        yesterday: 0,
+        weekly: 0,
+        monthly: 0
+    });
+    const [totalAmount, setTotalAmount] = useState({
+        daily: 0,
+        yesterday: 0,
+        weekly: 0,
+        monthly: 0
+    });
     let user;
     useEffect(() => {
         console.log('run--------', run)
@@ -285,6 +302,7 @@ function UserDashboard() {
         if (userData) {
             setData(userData);
         }
+        fetchData()
     }, [userData]);
 
     useEffect(() => {
@@ -341,8 +359,24 @@ function UserDashboard() {
                     if (responseOnlineOfflineUsers.status === 200) {
                         // Process responseOnlineOfflineUsers.data as needed
                         console.log("Online/offline users data:", responseOnlineOfflineUsers.data);
+                        // ✅ Store billing amounts in state
                         // Update state or perform actions with this data
                     }
+                }
+
+                setTotalWorking(response.data.totalUsersWorkingToday)
+                // setTotalUsers(response.data.totalUsers)
+                setTotalActiveUsers(response.data.totalActiveUsers)
+
+                // ✅ Store totalBillingAmounts directly from this response
+                if (user?.userType === "owner" || user?.userType === "admin") {
+                    setTotalAmount(response.data.totalBillingAmounts || {});
+                    console.log("Set Billing Amount", response.data.totalBillingAmounts)
+                }
+                // ✅ Store totalHours directly from this response
+                if (user?.userType === "owner" || user?.userType === "admin") {
+                    setBillingSummary(response.data.totalHours || {});
+                    console.log("Set Total Hours", response.data.totalHours)
                 }
             }
         } catch (error) {
@@ -351,6 +385,11 @@ function UserDashboard() {
         }
     };
 
+    useEffect(() => {
+        if (user?.userType) {
+            fetchData();
+        }
+    }, []); // OR [user] if you're computing user asynchronously
 
 
     // const items = jwtDecode(JSON.stringify(token));
@@ -462,6 +501,8 @@ function UserDashboard() {
                 )}
                 <div className="container">
                     <div className="userHeader">
+
+
                         <div>
                             <h5>Employee Dashboard</h5>
                         </div>
@@ -470,28 +511,135 @@ function UserDashboard() {
                             <img src={setting} alt="setting.png" style={{ cursor: "pointer" }} onClick={() => navigate("/account")} />
                         </div>
                     </div>
+
                     <div className="mainwrapper">
                         <div className="userDashboardContainer">
                             <div className="dashheadings dashheading-wrapper">
                                 <p className="dashheadingtop heading-col" onClick={handleSort}>
                                     Employee {sortOrder === 'asc' ? '↑' : '↓'}
+                                    <div style={{ color: 'grey', fontWeight: '600', cursor: 'pointer' }}>
+                                        {totalActiveUsers || '0'} online, {totalUsersWorkingToday} worked today
+                                    </div>
                                 </p>
                                 <p className="dashheadingtop heading-col" onClick={handleLastActiveSort}>
                                     Last active {lastActiveSortOrder === 'asc' ? '↑' : '↓'}
+                                    <p style={{ width: '20%', color: '#666', fontWeight: '500' }}>
+                                        {/* {totalUsersWorkingToday} online, worked today */}
+                                    </p>
                                 </p>
-                                <p className="dashheadingtop heading-col" onClick={handleTodaySort}>
+                                {/* <p className="dashheadingtop heading-col" onClick={handleTodaySort}>
                                     Today {todaySortOrder === 'asc' ? '↑' : '↓'}
+                                </p> */}
+                                {/* <div style={{ fontWeight: 'bold', color: '#444', textAlign: 'center', cursor: 'pointer' }} onClick={handleTodaySort}> */}
+                                <p className="dashheadingtop heading-col" onClick={handleTodaySort}>
+
+                                    Today {todaySortOrder === 'asc' ? '↑' : '↓'}
+                                    <div style={{ color: 'grey', fontWeight: '600', cursor: 'pointer' }}>
+                                        {billingSummary.daily || '0h 0m'}
+                                    </div>
+                                    <div style={{ color: '#000', fontSize: '13px' }}>
+                                        ${totalAmount.daily || 0}
+                                    </div>
                                 </p>
                                 <p className="dashheadingtop heading-col" onClick={handleYesterdaySort}>
                                     Yesterday {yesterdaySortOrder === 'asc' ? '↑' : '↓'}
+                                    <div style={{ color: 'grey', fontWeight: '600', cursor: 'pointer' }}>
+                                        {billingSummary.yesterday || '0h 0m'}
+                                    </div>
+                                    <div style={{ color: '#888', fontSize: '13px' }}>
+                                        ${totalAmount.yesterday || 0}
+                                    </div>
                                 </p>
                                 <p className="dashheadingtop heading-col" onClick={handleThisWeekSort}>
                                     This week {thisWeekSortOrder === 'asc' ? '↑' : '↓'}
+                                    <div style={{ color: 'grey', fontWeight: '600', cursor: 'pointer' }}>
+                                        {billingSummary.weekly || '0h 0m'}
+                                    </div>
+                                    <div style={{ color: '#888', fontSize: '13px' }}>
+                                        ${totalAmount.weekly || 0}
+                                    </div>
                                 </p>
                                 <p className="dashheadingtop heading-col" onClick={handleThisMonthSort}>
                                     This month {thisMonthSortOrder === 'asc' ? '↑' : '↓'}
+                                    <div style={{ color: 'grey', fontWeight: '600', cursor: 'pointer' }}>
+                                        {billingSummary.monthly || '0h 0m'}
+                                    </div>
+                                    <div style={{ color: '#888', fontSize: '13px' }}>
+                                        ${totalAmount.monthly || 0}
+                                    </div>
                                 </p>
                             </div>
+
+                            {/* <div className="dashheadings dashheading-wrapper" style={{ display: 'flex', alignItems: 'center', background: '#f9f9f9', padding: '10px 20px', borderRadius: '6px', marginBottom: '15px' }}>
+                                <p style={{ width: '20%', color: '#666', fontWeight: '500' }}>
+                                    {totalUsersWorkingToday} online, worked today
+                                </p>
+
+                                <div onClick={handleTodaySort}>
+                                    <div style={{ color: '#28659C', fontWeight: '600', cursor: 'pointer' }}>
+                                        {billingSummary.daily || '0h 0m'}
+                                    </div>
+                                    <div style={{ color: '#888', fontSize: '13px' }}>
+                                        ${totalAmount.daily || 0}
+                                    </div>
+                                </div>
+
+                                <div style={{ width: '20%', textAlign: 'center' }} onClick={handleYesterdaySort}>
+                                    <div style={{ color: '#28659C', fontWeight: '600', cursor: 'pointer' }}>
+                                        {billingSummary.yesterday || '0h 0m'}
+                                    </div>
+                                    <div style={{ color: '#888', fontSize: '13px' }}>
+                                        ${totalAmount.yesterday || 0}
+                                    </div>
+                                </div>
+
+                                <div style={{ width: '20%', textAlign: 'center' }} onClick={handleThisWeekSort}>
+                                    <div style={{ color: '#28659C', fontWeight: '600', cursor: 'pointer' }}>
+                                        {billingSummary.weekly || '0h 0m'}
+                                    </div>
+                                    <div style={{ color: '#888', fontSize: '13px' }}>
+                                        ${totalAmount.weekly || 0}
+                                    </div>
+                                </div>
+
+                                <div style={{ width: '20%', textAlign: 'center' }} onClick={handleThisMonthSort}>
+                                    <div style={{ color: '#28659C', fontWeight: '600', cursor: 'pointer' }}>
+                                        {billingSummary.monthly || '0h 0m'}
+                                    </div>
+                                    <div style={{ color: '#888', fontSize: '13px' }}>
+                                        ${totalAmount.monthly || 0}
+                                    </div>
+                                </div>
+                            </div> */}
+
+                            {/* <div className="billing-summary-bar" style={{ display: 'flex', justifyContent: 'space-between', background: '#f9f9f9', padding: '15px 20px', borderRadius: '6px', marginBottom: '20px' }}>
+                                <div style={{ fontWeight: '500', fontSize: '16px', color: '#888' }}>
+                                    {totalUsersWorkingToday}
+                                </div>
+                                <div style={{ display: 'flex', gap: '40px', fontSize: '15px' }}>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ color: '#888' }}>${billingSummary.daily || 0}</div>
+                                        <div style={{ color: '#888' }}>${totalAmount.daily || 0}</div>
+                                    </div>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ color: '#888' }}>${billingSummary.yesterday || 0}</div>
+                                        <div style={{ color: '#888' }}>${totalAmount.yesterday || 0}</div>
+
+                                    </div>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <p style={{ color: '#888' }}>
+                                            {billingSummary.weekly || 0}
+                                        </p>
+                                        <div style={{ color: '#888' }}>${totalAmount.weekly || 0}</div>
+
+                                    </div>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ color: '#888' }}>${billingSummary.monthly || 0}</div>
+                                        <div style={{ color: '#888' }}>${totalAmount.monthly || 0}</div>
+
+                                    </div>
+                                </div>
+                            </div> */}
 
                             <div className="my-first-step">
                                 {isLoading ? (
@@ -567,6 +715,8 @@ function UserDashboard() {
                                                         <p className="dashheadingtop textalign">{user?.totalHours?.daily}</p>
                                                         <p className="screenShotAmount" style={{ color: user?.isActive === true && "#28659C" }}>${Math.round(user?.billingAmounts?.daily?.usdAmount || 0)}
                                                         </p>
+                                                        {/* <div style={{ color: '#888' }}>${billingSummary.daily || 0}</div>
+                                                        <div style={{ color: '#888' }}>${totalAmount.daily || 0}</div> */}
                                                     </div>
                                                     <div className="nameVerified">
                                                         <p className="dashheadingtop textalign">{user?.totalHours?.yesterday}</p>

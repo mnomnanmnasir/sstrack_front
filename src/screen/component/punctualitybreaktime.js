@@ -22,13 +22,14 @@ const CompanyEmployess = (props) => {
     const { Setting, loading, employees } = props
     const [filteredEmployeesbyutc, setFilteredEmployeesbyutc] = useState([]);
     // const employees = useSelector((state) => state?.adminSlice?.employess) || []
-    console.log('Employees', employees)
+    // console.log('Employees', employees) 
     // const employees = useSelector((state) => state.adminSlice.employess)
     // .filter((employee) => employee.invitationStatus === 'accepted');
     // const [timeFields, setTimeFields] = useState({}); // Track time fields for each employee
     const [timeFields, setTimeFields] = useState([])
     const [puncStartTime, setPuncStartTime] = useState("");
     const [puncEndTime, setPuncEndTime] = useState("");
+    const [implementStartDate, setImplementStartDate] = useState(""); // 👈 Add this line
 
     // ✅ Function to Format Time (Subtract 2 Hours for Display)
     const formatTime = (time) => {
@@ -39,6 +40,7 @@ const CompanyEmployess = (props) => {
         const fetchAllEmployeeData = async () => {
             try {
                 const updatedFields = {};
+
                 for (const employee of employees) {
                     const response = await axios.get(
                         `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
@@ -48,17 +50,22 @@ const CompanyEmployess = (props) => {
                             },
                         }
                     );
+                    console.log("punch debug", response)
 
                     if (response.status === 200) {
-                        const { puncStartTime, puncEndTime } = response.data.data;
+                        const { puncStartTime, puncEndTime,implementStartTime } = response.data.data;
 
                         updatedFields[employee._id] = {
                             showFields: employee.punctualityData?.individualPuncStart || false,
                             puncStartTime: (puncStartTime && !puncStartTime.includes("00:00")) ? puncStartTime.split("T")[1].substring(0, 5) : "",
                             puncEndTime: (puncEndTime && !puncEndTime.includes("00:00")) ? puncEndTime.split("T")[1].substring(0, 5) : "",
+                            // ✅ split implementStartDate into date and time
+                            implementStartDate: implementStartTime ? implementStartTime.split("T")[0] : "",
+                            implementStartTime: implementStartTime ? implementStartTime.split("T")[1].substring(0, 5) : "",
                         };
                     }
                 }
+                console.log("punch", updatedFields)
                 setTimeFields(updatedFields);
                 // localStorage.setItem("timeFields", JSON.stringify(updatedFields)); // ✅ Local Storage update karein
             } catch (error) {
@@ -79,6 +86,8 @@ const CompanyEmployess = (props) => {
                 // showFields: persistedTimeFields[employee._id]?.showFields ?? employee?.punctualityData?.individualPuncStart || false,
                 puncStartTime: persistedTimeFields[employee._id]?.puncStartTime || "00:00",
                 puncEndTime: persistedTimeFields[employee._id]?.puncEndTime || "00:00",
+                implementStartDate: timeFields[employee._id]?.implementStartDate || "",
+                implementStartTime: timeFields[employee._id]?.implementStartTime || ""
             };
             return fields;
         }, {});
@@ -86,23 +95,25 @@ const CompanyEmployess = (props) => {
         setTimeFields(updatedTimeFields);
     }, [employees]);
 
-    useEffect(() => {
-        // Synchronize `timeFields` state with `employees` data on mount or update
-        const updatedTimeFields = employees.reduce((fields, employee) => {
-            fields[employee._id] = {
-                showFields: employee?.punctualityData?.individualPuncStart || false, // Reflect the backend state
-                // startTime: fields[employee._id]?.startTime || "", // Retain existing values
-                // endTime: fields[employee._id]?.endTime || "",
-                startTime: timeFields[employee._id]?.startTime || "00:00",
-                endTime: timeFields[employee._id]?.endTime || "00:00",
-                puncStartTime: timeFields[employee._id]?.puncStartTime || "00:00",
-                puncEndTime: timeFields[employee._id]?.puncEndTime || "00:00",
-            };
-            return fields;
-        }, {});
+    // useEffect(() => {
+    //     // Synchronize `timeFields` state with `employees` data on mount or update
+    //     const updatedTimeFields = employees.reduce((fields, employee) => {
+    //         fields[employee._id] = {
+    //             showFields: employee?.punctualityData?.individualPuncStart || false, // Reflect the backend state
+    //             // startTime: fields[employee._id]?.startTime || "", // Retain existing values
+    //             // endTime: fields[employee._id]?.endTime || "",
+    //             startTime: timeFields[employee._id]?.startTime || "00:00",
+    //             endTime: timeFields[employee._id]?.endTime || "00:00",
+    //             puncStartTime: timeFields[employee._id]?.puncStartTime || "00:00",
+    //             puncEndTime: timeFields[employee._id]?.puncEndTime || "00:00",
+    //             implementStartDate: timeFields[employee._id]?.implementStartDate || "",
+    //             implementStartTime: timeFields[employee._id]?.implementStartTime || "",
+    //         };
+    //         return fields;
+    //     }, {});
 
-        setTimeFields(updatedTimeFields);
-    }, [employees]);
+    //     setTimeFields(updatedTimeFields);
+    // }, [employees]);
 
 
     const handleToggleChange = async (employee, isSelected) => {
@@ -254,7 +265,7 @@ const CompanyEmployess = (props) => {
     // ✅ user visited this component
     const handleSave = async (employeeId) => {
         try {
-            const { puncStartTime, puncEndTime } = timeFields[employeeId];
+            const { puncStartTime, puncEndTime, implementStartDate, implementStartTime } = timeFields[employeeId];
 
             if (!puncStartTime || !puncEndTime) {
                 enqueueSnackbar("Both Punctuality Start Time and End Time are required.", {
@@ -271,7 +282,7 @@ const CompanyEmployess = (props) => {
             // Extract timezone and offset from the employee's data
             const timezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
             const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
-            
+
             const requestData = {
                 userId: employeeId,
                 settings: {
@@ -283,7 +294,10 @@ const CompanyEmployess = (props) => {
                     puncStartTime: `${currentDate}T${puncStartTime}:00`,
                     puncEndTime: `${currentDate}T${puncEndTime}:00`,
                     timezone: timezone,
-                    timezoneOffset: timezoneOffset
+                    timezoneOffset: timezoneOffset,
+                    // implementStartDate: `${currentDate}T${implementStartDate}:00`, // 👈 Add this line
+                    implementStartDate: `${implementStartDate}T${implementStartTime}:00`,  // ✅ Full datetime
+
                     // puncEndTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`),
                     // individualPuncStart: true,
                 },
@@ -326,6 +340,9 @@ const CompanyEmployess = (props) => {
                             showFields: true,
                             puncStartTime: updatedData.puncStartTime.split("T")[1].substring(0, 5),
                             puncEndTime: updatedData.puncEndTime.split("T")[1].substring(0, 5),
+                            implementStartDate: `${implementStartDate}T${implementStartTime}:00`,  // ✅ Full datetime
+
+
                         },
                     }));
 
@@ -433,6 +450,54 @@ const CompanyEmployess = (props) => {
 
                                                         onChange={(e) => handleTimeChange(employee._id, "puncEndTime", e.target.value)}
                                                         style={{ marginLeft: 10 }}
+                                                    />
+                                                </label>
+                                                {/* <label>
+                                                    Policy Time:
+                                                    <input
+                                                        type="time"
+                                                        value={timeFields[employee._id]?.implementStartDate || ""}
+                                                        onChange={(e) =>
+                                                            setTimeFields((prev) => ({
+                                                                ...prev,
+                                                                [employee._id]: {
+                                                                    ...prev[employee._id],
+                                                                    implementStartDate: e.target.value,
+                                                                },
+                                                            }))
+                                                        }
+                                                    />
+                                                </label> */}
+                                                <label>
+                                                    Policy Time:
+                                                    <input
+                                                        type="time"
+                                                        value={timeFields[employee._id]?.implementStartTime || ""}
+                                                        onChange={(e) =>
+                                                            setTimeFields((prev) => ({
+                                                                ...prev,
+                                                                [employee._id]: {
+                                                                    ...prev[employee._id],
+                                                                    implementStartTime: e.target.value,
+                                                                },
+                                                            }))
+                                                        }
+                                                    />
+                                                </label>
+                                                <label style={{ marginLeft: 10 }}>
+                                                    Policy Date:
+                                                    <input
+                                                        type="date"
+                                                        value={timeFields[employee._id]?.implementStartDate || ""}
+                                                        onChange={(e) =>
+                                                            setTimeFields((prev) => ({
+                                                                ...prev,
+                                                                [employee._id]: {
+                                                                    ...prev[employee._id],
+                                                                    implementStartDate: e.target.value,
+                                                                },
+                                                            }))
+                                                        }
                                                     />
                                                 </label>
                                             </div>

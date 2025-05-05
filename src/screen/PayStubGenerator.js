@@ -4,6 +4,8 @@ import { SnackbarProvider } from 'notistack';
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Form, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import moment from 'moment'; // Make sure this is installed
+
 
 const PayStubGenerator = () => {
 
@@ -118,26 +120,26 @@ const PayStubGenerator = () => {
     }, [month, frequency]);
 
 
-
     const handleGenerate = async () => {
         if (!selectedUserId || !month || !frequency || !selectedPeriod) {
             alert('Please complete all fields.');
             return;
         }
-
+    
         setLoading(true);
-
+    
         try {
-            // Parse and format start & end date
-            const [start, end] = selectedPeriod.split(' - ');
-            const [year, monthNumber] = month.split('-');
-            const [startDay, startMonth] = start.split('/');
-            const [endDay, endMonth] = end.split('/');
-
-            const startDate = `${year}-${startMonth.padStart(2, '0')}-${startDay.padStart(2, '0')}`;
-            const endDate = `${year}-${endMonth.padStart(2, '0')}-${endDay.padStart(2, '0')}`;
-
-            // Create payload
+            const [rawStart, rawEnd] = selectedPeriod.trim().split(' - ').map(s => s.trim());
+    
+            // Convert to YYYY-MM-DD using moment
+            const startDate = moment(rawStart, ["YYYY-MM-DD", "DD/MM/YYYY", "MM/DD/YYYY"]).format("YYYY-MM-DD");
+            const endDate = moment(rawEnd, ["YYYY-MM-DD", "DD/MM/YYYY", "MM/DD/YYYY"]).format("YYYY-MM-DD");
+    
+            // Extra check if parsing failed
+            if (!moment(startDate, "YYYY-MM-DD", true).isValid() || !moment(endDate, "YYYY-MM-DD", true).isValid()) {
+                throw new Error("Start or End date is not in valid format.");
+            }
+    
             const formData = {
                 startDate,
                 endDate,
@@ -145,15 +147,22 @@ const PayStubGenerator = () => {
                 country: "Philippines",
                 state: "maharashtra"
             };
-
+    
             const token = localStorage.getItem('token');
+    
+            console.log("Sending to API:", {
+                startDate: formData.startDate,
+                endDate: formData.endDate,
+                userIds: [formData.userId],
+                country: formData.country,
+                state: formData.state
+            });
+    
             const res = await axios.post(
                 'https://myuniversallanguages.com:9093/api/v1/owner/generatePayStubs',
                 {
                     startDate: formData.startDate,
-                    // startDate: "2025-01-27",
                     endDate: formData.endDate,
-                    // endDate: "2025-02-02",
                     userIds: [formData.userId],
                     country: formData.country,
                     state: formData.state
@@ -164,34 +173,32 @@ const PayStubGenerator = () => {
                     }
                 }
             );
-
+    
             console.log('Pay Stub Response:', res.data);
-
-
-            // Optionally: Add to local history
+    
             const newRecord = {
                 ...formData,
                 month,
                 frequency,
                 period: selectedPeriod,
-                user: selectedUser?.name || 'N/A', // Add user's name here
+                user: selectedUser?.name || 'N/A',
                 dateGenerated: new Date().toLocaleString(),
                 stubData: res.data
             };
-            await fetchAllStubs(); // Refresh history from server
-
-
+    
+            await fetchAllStubs();
             alert('Stub generated successfully!');
             setShowSummary(false);
         } catch (error) {
-            console.error("Error generating pay stub:", error.response?.data || error.message);
-            alert("Failed to generate stub. Check console for details.");
+            console.error("Error generating pay stub:", error.message);
+            alert(error.message || "Failed to generate stub.");
+            alert('Stub settings are incomplete. Please configure the tax country for this user before proceeding.')
         } finally {
             setLoading(false);
         }
     };
-
-
+    
+    
 
     //get users Id 
     const getData = async () => {
@@ -230,8 +237,8 @@ const PayStubGenerator = () => {
                     Authorization: "Bearer " + token,
                 }
             });
-    
-            console.log('pay stubbbbsss',response.data.data)
+
+            console.log('pay stubbbbsss', response.data.data)
             if (Array.isArray(response.data.data)) {
                 setHistory(response.data.data);
             } else {
@@ -295,10 +302,10 @@ const PayStubGenerator = () => {
         } else {
             getData();
         }
-      
+
         fetchAllStubs(); // <-- Fetch all stubs on page load
     }, []);
-    
+
 
 
     const handleMonthChange = (e) => {
