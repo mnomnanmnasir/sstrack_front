@@ -120,4 +120,38 @@ issue fix
 new pages by abdullah
 again new update
 add
+<<<<<<< HEAD
 againnn
+=======
+againnn
+viewTimeline
+userHeader
+>>>>>>> d69181267ec9ff7f6cb9e4e0d1a396f8d0bcc94d
+poilicyModal
+payStub
+headerOption
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+auto generate hide
+public .html file
+header fix
+index.html file
+upadte index
+sitemap
+>>>>>>> 73d6cc30c1df57b725fa1db82f764a583b871eb4
+LocationTracking
+index.html fix
+fix sitemap
+Download Open Microsoft store
+>>>>>>> 564dca0cdb8c5e6811e3a7028bb3e28605bfc03b
+payStub Section ownerTeamComponent Hide
+conflict ressolved
+fix Conflict Notification
+fix sidebar
+fix payStubGenerator
+
+stub generator message
+commit by Abdullah
+profile update

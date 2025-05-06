@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+      <loc>https://sstrack.io/</loc>
+    </url>
+    <url>
+      <loc>https://sstrack.io/aboutUs</loc>
+    </url>
+    <url>
+      <loc>https://sstrack.io/contact</loc>
+    </url>
+    <url>
+      <loc>https://sstrack.io/pricing</loc>
+    </url>
+    <url>
+      <loc>https://sstrack.io/product</loc>
+    </url>
+    <url>
+      <loc>https://sstrack.io/download</loc>
+    </url>
+    <url>
+      <loc>https://sstrack.io/privacy-policy</loc>
+    </url>
+    <url>
+      <loc>https://sstrack.io/blogs</loc>
+    </url>
+  </urlset>
+
+<!-- <?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://localhost:3000/</loc>
+  </url>
+  <url>
+    <loc>http://localhost:3000/aboutUs</loc>
+  </url>
+  <url>
+    <loc>http://localhost:3000/contact</loc>  
+  </url>
+  <url>
+    <loc>http://localhost:3000/pricing</loc>
+  </url>
+  <url>
+    <loc>http://localhost:3000/product</loc>
+  </url>
+  <url>
+    <loc>http://localhost:3000/download</loc>
+  </url>
+  <url>
+    <loc>http://localhost:3000/privacy-policy</loc>
+  </url>
+  <url>
+    <loc>http://localhost:3000/blogs</loc>
+  </url>
+</urlset> -->

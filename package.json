@@ -34,6 +34,10 @@
     "devextreme": "23.2.4",
     "devextreme-react": "23.2.4",
     "html2canvas": "^1.4.1",
+<<<<<<< HEAD
+=======
+    "html2pdf": "^0.0.11",
+>>>>>>> 514acc53d373c755c7a8ee49026e4604ec60f675
     "html2pdf.js": "^0.10.3",
     "jsonwebtoken": "^9.0.0",
     "jspdf": "^2.5.1",
@@ -101,5 +105,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "sitemap": "^8.0.0"
   }
 }
