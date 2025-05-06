@@ -53,7 +53,7 @@ const CompanyEmployess = (props) => {
                     console.log("punch debug", response)
 
                     if (response.status === 200) {
-                        const { puncStartTime, puncEndTime,implementStartTime } = response.data.data;
+                        const { puncStartTime, puncEndTime, implementStartTime } = response.data.data;
 
                         updatedFields[employee._id] = {
                             showFields: employee.punctualityData?.individualPuncStart || false,
@@ -283,26 +283,50 @@ const CompanyEmployess = (props) => {
             const timezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
             const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
 
+            // const requestData = {
+            //     userId: employeeId,
+            //     settings: {
+            //         // puncStartTime: `${puncStartTime}:00`,
+            //         // puncEndTime: `${puncEndTime}:00`,
+            //         // puncStartTime: new Date(`${currentDate}T${puncStartTime}:00`),
+            //         // puncEndTime: new Date(`${currentDate}T${puncEndTime}:00`),                    
+            //         // puncStartTime:new Date(`${new Date().toISOString().split('T')[0]}T${puncStartTime}:00`),
+            //         puncStartTime: `${currentDate}T${puncStartTime}:00`,
+            //         puncEndTime: `${currentDate}T${puncEndTime}:00`,
+            //         timezone: timezone,
+            //         timezoneOffset: timezoneOffset,
+            //         // implementStartDate: `${currentDate}T${implementStartDate}:00`, // 👈 Add this line
+            //         implementStartDate: `${implementStartDate}T${implementStartTime}:00`,  // ✅ Full datetime
+
+            //         // puncEndTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`),
+            //         // individualPuncStart: true,
+            //     },
+            // };
+            
+            const formatWithOffset = (datetimeStr, offset) => {
+                // Convert to number (in case it's a string like "-3")
+                const offsetHours = parseInt(offset, 10);
+                const sign = offsetHours >= 0 ? '+' : '-';
+                const absHours = Math.abs(offsetHours).toString().padStart(2, '0');
+
+                const offsetFormatted = `${sign}${absHours}:00`;
+                return `${datetimeStr}:00${offsetFormatted}`;
+            };
+
+            const puncStartRaw = `${currentDate}T${puncStartTime}`;
+            const puncEndRaw = `${currentDate}T${puncEndTime}`;
+            const implementRaw = `${implementStartDate}T${implementStartTime}`;
+
             const requestData = {
                 userId: employeeId,
                 settings: {
-                    // puncStartTime: `${puncStartTime}:00`,
-                    // puncEndTime: `${puncEndTime}:00`,
-                    // puncStartTime: new Date(`${currentDate}T${puncStartTime}:00`),
-                    // puncEndTime: new Date(`${currentDate}T${puncEndTime}:00`),                    
-                    // puncStartTime:new Date(`${new Date().toISOString().split('T')[0]}T${puncStartTime}:00`),
-                    puncStartTime: `${currentDate}T${puncStartTime}:00`,
-                    puncEndTime: `${currentDate}T${puncEndTime}:00`,
+                    puncStartTime: formatWithOffset(puncStartRaw, timezoneOffset),
+                    puncEndTime: formatWithOffset(puncEndRaw, timezoneOffset),
+                    implementStartDate: formatWithOffset(implementRaw, timezoneOffset),
                     timezone: timezone,
                     timezoneOffset: timezoneOffset,
-                    // implementStartDate: `${currentDate}T${implementStartDate}:00`, // 👈 Add this line
-                    implementStartDate: `${implementStartDate}T${implementStartTime}:00`,  // ✅ Full datetime
-
-                    // puncEndTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`),
-                    // individualPuncStart: true,
                 },
             };
-
 
             const response = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",

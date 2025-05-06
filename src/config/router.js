@@ -63,8 +63,12 @@ import AnalyticsTracker from "../screen/component/AnalyticsTracker"; // ✅ Add 
 import Contact from "../screen/ContactUS/Contact"; // ✅ Add this at top
 import NotFound from '../screen/NotFound'; // Adjust the import path as necessary
 import PayStubs from "../screen/PayStubs";
-import PayStubGenerator from "../screen/PayStubGenerator";
+// import PayStubGenerator from "../screen/PayStubGenerator";
 import RecentBlogs from "../screen/component/Blogs/RecentBlogs";
+import PayrollHistory from "../screen/PayStub/PayrollHistory";
+import PayStubGenerator from "../screen/PayStub/PayStubGenerator";
+// import PayrollTable from "../screen/PayStub/PayrollTable";
+
 
 
 
@@ -177,7 +181,11 @@ export default function AppRouter() {
             <Route path="/user-setting" element={token ? (suspended ? <Navigate to="/account" /> : <UserSettings />) : <Navigate to="/" />} />
             <Route path="/Training" element={token ? (suspended ? <Navigate to="/account" /> : <TrainingPage />) : <Navigate to="/" />} />
             <Route path="/notification" element={token ? (suspended ? <Navigate to="/account" /> : <Notification />) : <Navigate to="/" />} />
-
+            {/* <Route path="/history" element={token ? (suspended ? <Navigate to="/account" /> : <History />) : <Navigate to="/" />} /> */}
+            <Route path="/pay_stub_managment" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubGenerator />) : <Navigate to="/" />} />
+            <Route path="/pay_stub_View" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubs />) : <Navigate to="/" />} />
+            <Route path="/punctuality-reports" element={token ? (suspended ? <Navigate to="/account" /> : <PunctualityReports />) : <Navigate to="/" />} />
+            <Route path="/PayStub_history" element={token ? (suspended ? <Navigate to="/account" /> : <PayrollHistory/>) : <Navigate to="/" />} />
 
             {/* <Route path="/team" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerTeam />) : <Navigate to="/" />} /> */}
             <Route
@@ -216,9 +224,9 @@ export default function AppRouter() {
             {/* <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} /> */}
             <Route path="/attendence-management" element={token ? (suspended ? <Navigate to="/account" /> : <Attendence />) : <Navigate to="/" />} />
             <Route path="/history" element={token ? (suspended ? <Navigate to="/account" /> : <History />) : <Navigate to="/" />} />
-            <Route path="/pay_stub_managment" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubGenerator />) : <Navigate to="/" />} />
+            {/* <Route path="/pay_stub_managment" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubGenerator />) : <Navigate to="/" />} />
             <Route path="/pay_stub_View" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubs />) : <Navigate to="/" />} />
-            <Route path="/punctuality-reports" element={token ? (suspended ? <Navigate to="/account" /> : <PunctualityReports />) : <Navigate to="/" />} />
+            <Route path="/punctuality-reports" element={token ? (suspended ? <Navigate to="/account" /> : <PunctualityReports />) : <Navigate to="/" />} /> */}
 
             {/* <Route path="/effective-settings/break-time" element={<BreakTime />} /> */}
             <Route path="/settings" element={<Setting />}>

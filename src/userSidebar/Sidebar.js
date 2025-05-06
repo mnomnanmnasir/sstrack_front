@@ -131,7 +131,10 @@ const Sidebar = ({ open, onClose }) => {
         { text: 'Location Tracking', icon: <MapIcon />, route: '/Locationtracking' },
 
         // { text: 'Pay Stub Managment', icon: <AttachMoneyIcon />, route: '/pay_stub_managment' },
-
+        ...(userType === 'owner' || userType === 'admin' ? [
+            { text: 'Pay Stub Managment', icon: <PeopleIcon />, route: '/pay_stub_managment' }
+        ] : []),
+        
         ...(userType === 'manager' ? [{ text: 'Attendence Management', icon: <PeopleIcon />, route: '/attendence-management' }] : []),
     ];
 
@@ -157,7 +160,7 @@ const Sidebar = ({ open, onClose }) => {
             <List>
                 {filteredSidebarItems.map((item, index) => {
                     // 🟦 TIMELINE TAB WITH USERS DROPDOWN
-                    if (item.text === 'Timeline') {
+                    if (item.text === 'Timeline' && userType !== 'user') {
                         return (
                             <div
                                 key="timeline-tab"
