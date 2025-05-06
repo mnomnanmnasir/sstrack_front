@@ -458,7 +458,7 @@ function OwnerReport() {
                     return;
                 }
             } else {
-                const url = `${apiUrl}/owner/companies`;
+                const url = `${apiUrl}/owner/getEmployees`;
 
                 const response = await axios.get(url, { headers });
 

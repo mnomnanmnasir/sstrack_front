@@ -237,7 +237,7 @@ const DownloadSection = () => {
 
 
                                 {/* Windows Download Button 1 */}
-                                <button
+                                {/* <button
                                     style={{
                                         backgroundColor: loading1 ? '#6c757d' : 'black',
                                         padding: '1.9%',
@@ -257,8 +257,28 @@ const DownloadSection = () => {
                                             </span>
                                         </>
                                     )}
+                                </button> */}
+                                <button
+                                    style={{
+                                        backgroundColor: loading1 ? '#6c757d' : 'black',
+                                        padding: '1.9%',
+                                        width: '32%',
+                                        fontSize: '75%',
+                                        cursor: loading1 ? 'not-allowed' : 'pointer',
+                                    }}
+                                    className={loading1 ? "disable-download-button" : "download-button"}
+                                    disabled={loading1}
+                                    onClick={() => window.open("ms-windows-store://pdp/?ProductId=9n0c5qdb1lm7", "_blank")}
+                                >
+                                    {loading1 ? "Downloading..." : (
+                                        <>
+                                            <BsWindows color="#00ACEE" size={18} style={{ margin: "-5px 10px 0 0" }} />
+                                            <span style={{ color: 'white' }}>
+                                                {isArabic ? "تحميل لنظام ويندوز" : "Download for Windows"}
+                                            </span>
+                                        </>
+                                    )}
                                 </button>
-
                                 {/* Mac Download Button 3 */}
                                 {/* <button
                                     style={{
@@ -375,6 +395,23 @@ const DownloadSection = () => {
                                         </span>
                                     </>
                                 </button>
+
+                                <div style={{ marginTop: '10px', width: '100%' }}>
+                                    <hr style={{ borderTop: '1px solid #ccc' }} />
+                                    <p style={{ fontSize: '14px', color: '#555', marginTop: '10px' }}>
+                                        If the Microsoft download is not working due to any issue, you can download it from{" "}
+                                        <a
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault(); // Prevent default anchor behavior
+                                                handleDownload("WIN"); // Trigger download function
+                                            }}
+                                            style={{ color: '#007bff', textDecoration: 'underline' }}
+                                        >
+                                            Download for Windows
+                                        </a>.
+                                    </p>
+                                </div>
 
                             </div>
 

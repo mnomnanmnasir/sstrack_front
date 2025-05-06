@@ -32,6 +32,15 @@ function OwnerTeamComponent(props) {
     const [data, setData] = useState({});
     let { fixId, archived_unarchived_users, deleteUser, isUserArchive, selectedGroupName, inviteStatus, handleSendInvitation, payrate, reSendInvitation, users, setUsers, selectedUser } = props
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const [shiftPremiumRate, setShiftPremiumRate] = useState('');
+    const [overtimeRate, setOvertimeRate] = useState('');
+    const [hourlyRate, setHourlyRate] = useState('');
+    const [appliedTaxCountry, setAppliedTaxCountry] = useState('');
+    const [appliedTaxState, setAppliedTaxState] = useState('');
+    const [vacationPay, setVacationPay] = useState('');
+    const [payPeriodType, setPayPeriodType] = useState('');
+    const [ratePerHour, setRatePerHours] = useState('');
+
     const token = localStorage.getItem('token');
     const headers = {
         Authorization: "Bearer " + token,
@@ -81,6 +90,123 @@ function OwnerTeamComponent(props) {
             console.error('Error updating timezone:', error.response ? error.response.data : error.message);
         }
     };
+
+    const updateStubSettings = async () => {
+
+        const payload = {
+            shiftPremiumRate: shiftPremiumRate,
+            overtimeRate: overtimeRate,
+            hourlyRate: hourlyRate,
+            appliedTaxCountry: appliedTaxCountry,
+            appliedTaxState: appliedTaxState,
+            vacationPay: vacationPay,
+            payPeriodType: payPeriodType
+        };
+
+        try {
+            const response = await axios.post(
+                `${apiUrl}/superAdmin/updateStubsSetting/${fixId}`,
+                payload,
+                { headers }
+            );
+
+            if (response.status === 200 || response.status === 201) {
+                enqueueSnackbar('Stub settings updated successfully!', {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
+                });
+            }
+        } catch (error) {
+            console.error('Error updating stub settings:', error.response?.data || error.message);
+            enqueueSnackbar('Failed to update stub settings.', {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+        }
+    };
+
+    useEffect(() => {
+        const fetchSelectedUserBillingInfo = async () => {
+            if (!selectedUser || !selectedUser._id) {
+                console.log('⚠️ No selected user');
+                setShiftPremiumRate('');
+                setOvertimeRate('');
+                setHourlyRate('');
+                setAppliedTaxCountry('');
+                setAppliedTaxState('');
+                setVacationPay('');
+                setPayPeriodType('');
+                setRatePerHours('')
+                return;
+            }
+            try {
+                const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
+                console.log("✅ Companies API Response:", response.data);
+
+                const companies = response.data?.companies || [];
+
+                let foundEmployee = null;
+                for (const company of companies) {
+                    if (company.employees && company.employees.length > 0) {
+                        foundEmployee = company.employees.find(emp => emp._id === selectedUser._id);
+                        if (foundEmployee) break;
+                    }
+                }
+
+                if (foundEmployee) {
+                    console.log("🎯 Found Employee:", foundEmployee);
+
+                    setShiftPremiumRate(foundEmployee?.billingInfo?.shiftPremiumRate || '');
+                    setOvertimeRate(foundEmployee?.billingInfo?.overtimeRate || '');
+                    setHourlyRate(foundEmployee?.billingInfo?.ratePerHour || '');
+                    setAppliedTaxCountry(foundEmployee?.appliedTaxCountry || '');
+                    setAppliedTaxState(foundEmployee?.appliedTaxState || '');
+                    setVacationPay(foundEmployee?.vacationPay || '');
+                    setPayPeriodType(foundEmployee?.payPeriodType || '');
+                    setRatePerHours(foundEmployee?.billingInfo?.ratePerHour || '');
+
+                } else {
+                    console.log('⚠️ No employee found for selected user.');
+                }
+            } catch (error) {
+                console.error('❌ Error fetching selected user billing info:', error.response?.data || error.message);
+            }
+        };
+
+        fetchSelectedUserBillingInfo();
+    }, [selectedUser?._id]);  // ✅ Dependency yahan selectedUser._id hai
+
+    useEffect(() => {
+        const fetchSelectedUserData = async () => {
+            if (!selectedUser || !selectedUser._id) return;
+
+            try {
+                const response = await axios.get(`${apiUrl}/owner/${selectedUser._id}`, { headers });
+                console.log("📥 Selected User API Response:", response.data);
+
+                if (response.status === 200 && response.data) {
+                    const responseData = response.data;
+
+                    setShiftPremiumRate(responseData?.billingInfo?.shiftPremiumRate || '');
+                    setOvertimeRate(responseData?.billingInfo?.overtimeRate || '');
+                    setHourlyRate(responseData?.billingInfo?.ratePerHour || '');
+                    setAppliedTaxCountry(responseData?.appliedTaxCountry || '');
+                    setAppliedTaxState(responseData?.appliedTaxState || '');
+                    setVacationPay(responseData?.vacationPay || '');
+                    setPayPeriodType(responseData?.payPeriodType || '');
+                    setRatePerHours(responseData?.billingInfo?.ratePerHour || '');
+                    setData(responseData); // ✅ Data set for name, email etc.
+                }
+            } catch (error) {
+                console.error('❌ Error fetching selected user:', error.response?.data || error.message);
+            }
+        };
+
+        fetchSelectedUserData();
+    }, [selectedUser?._id]);
+
+
+
     const [isUserArchived, setIsUserArchived] = useState(false);
     const dispatch = useDispatch();
 
@@ -297,7 +423,7 @@ function OwnerTeamComponent(props) {
         }
     }
 
-   
+
 
 
     const handleRemoveAssignUser = async (id) => {
@@ -387,7 +513,7 @@ function OwnerTeamComponent(props) {
                             <p className="employeeDetailName2" style={{ fontWeight: "bold", color: "#28659C" }}>{selectedGroupName}</p>
                         </div>
                     )}
-                    <div>
+                    {/* <div className="container-fluid">
                         {data && Object.keys(data).length > 0 ? (
                             <div className="d-flex align-items-center justify-content-between">
                                 <div>
@@ -411,14 +537,68 @@ function OwnerTeamComponent(props) {
                         ) : (
                             <p></p>
                         )}
+                    </div> */}
+                    {/* <div className="container"> */}
+                    {data && Object.keys(data).length > 0 ? (
+                        <div className="row">
+                            {/* Left Section - Name & Email */}
+                            <div className="col-12 col-md-9 mb-3 mb-md-0 text-md-start">
+                                <p className="employeeDetailName1 mb-1" style={{ wordBreak: "break-word" }}>{data.name}</p>
+                                <p className="employeeDetailName2" style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
+                                    {data.email}
+                                </p>
+                            </div>
+
+                            {/* Right Section - Currency Converter */}
+                            <div className="col-12 col-md-3 text-md-end mt-2 mt-md-0">
+                                {user?.userType !== 'manager' && !selectedUser?.inviteStatus && (
+                                    <>
+                                        {selectedUser?.userType !== 'owner' && (
+                                            <CurrencyConverter userId={fixId} payrate={payrate} />
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        <p></p>
+                    )}
+                    {/* </div> */}
+
+                    <div className="col-12 col-md-9 mb-3 mb-md-0 text-md-start">
+                        {user?.userType !== 'manager' && !selectedUser?.inviteStatus && (
+                            <>
+                                {selectedUser?.userType !== 'owner' && (
+                                    <>
+                                        {ratePerHour && (
+                                            <p className="employeeDetailName2 mb-1" style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
+                                                PayRate:<span>${ratePerHour}</span>
+                                            </p>
+                                        )}
+                                    </>
+                                )}
+                            </>
+                        )}
                     </div>
+
                     {user?.userType !== 'manager' &&
                         selectedUser?.userType !== 'owner' &&
                         !selectedUser?.inviteStatus && (  // ✅ Check if user has accepted the invite
-                            <div style={{ marginTop: 30, marginBottom: 30 }}>
-                                <p className="employeeDetail">Select Timezone</p>
-                                <div className="dropdown" style={{ minWidth: 440 }}>
-                                    <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
+                            // <div style={{ marginTop: 30, marginBottom: 30 }}>
+                            //     <p className="employeeDetail">Select Timezone</p>
+                            //     <div className="dropdown" style={{ minWidth: 440 }}>
+                            //         <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
+                            //     </div>
+                            // </div>
+                            <div className="my-4">
+                                <p className="employeeDetail ">Select Timezone</p>
+
+                                <div className="row justify-content-start">
+                                    <div className="col-12 col-md-8 col-lg-12">
+                                        <div className="dropdown w-100">
+                                            <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -570,6 +750,113 @@ function OwnerTeamComponent(props) {
                                 ) : (
                                     <p></p>
                                 )}
+
+                                {selectedUser?.userType !== 'owner' && selectedUser?.inviteStatus === false && (
+                                    <>
+                                    </>
+                                    // <div className="container" style={{ marginTop: "30px" }}>
+                                    //     <p className="h4 mb-4">Pay Stub</p>
+
+                                    //     {/* Row 1: Shift Premium Rate, Overtime Rate, Hourly Rate */}
+                                    //     <div className="row">
+                                    //         <div className="col-md-4 mb-3">
+                                    //             <label className="form-label">Shift Premium Rate</label>
+                                    //             <input
+                                    //                 type="number"
+                                    //                 className="form-control"
+                                    //                 placeholder="Enter Shift Premium Rate"
+                                    //                 value={shiftPremiumRate === null ? '' : shiftPremiumRate}
+                                    //                 onChange={(e) => setShiftPremiumRate(e.target.value === '' ? '' : Number(e.target.value))}
+                                    //             />
+                                    //         </div>
+                                    //         <div className="col-md-4 mb-3">
+                                    //             <label className="form-label">Overtime Rate</label>
+                                    //             <input
+                                    //                 type="number"
+                                    //                 className="form-control"
+                                    //                 placeholder="Enter Overtime Rate"
+                                    //                 value={overtimeRate === null ? '' : overtimeRate}
+                                    //                 onChange={(e) => setOvertimeRate(e.target.value === '' ? '' : Number(e.target.value))}
+                                    //             />
+                                    //         </div>
+                                    //         <div className="col-md-4 mb-3">
+                                    //             <label className="form-label">Hourly Rate</label>
+                                    //             <input
+                                    //                 type="number"
+                                    //                 className="form-control"
+                                    //                 placeholder="Enter Hourly Rate"
+                                    //                 value={hourlyRate === null ? '' : hourlyRate}
+                                    //                 onChange={(e) => setHourlyRate(e.target.value === '' ? '' : Number(e.target.value))}
+                                    //             />
+                                    //         </div>
+                                    //     </div>
+
+                                    //     {/* Row 2: Applied Tax Country, Applied Tax State, Vacation Pay */}
+                                    //     <div className="row">
+                                    //         <div className="col-md-4 mb-3">
+                                    //             <label className="form-label">Applied Tax Country</label>
+                                    //             <select
+                                    //                 className="form-control"
+                                    //                 value={appliedTaxCountry}
+                                    //                 onChange={(e) => setAppliedTaxCountry(e.target.value)}
+                                    //             >
+                                    //                 <option value="">Select Country</option>
+                                    //                 <option value="Canada">Canada</option>
+                                    //                 <option value="United States">USA</option>
+                                    //                 <option value="Pakistan">Pakistan</option>
+                                    //                 <option value="Philiphines">Philippines</option>
+                                    //                 <option value="India">India</option>
+                                    //                 <option value="Saudia Arabia">KSA</option>
+                                    //             </select>
+                                    //         </div>
+
+                                    //         <div className="col-md-4 mb-3">
+                                    //             <label className="form-label">Applied Tax State</label>
+                                    //             <input
+                                    //                 type="text"
+                                    //                 className="form-control"
+                                    //                 placeholder="Enter Tax State"
+                                    //                 value={appliedTaxState}
+                                    //                 onChange={(e) => setAppliedTaxState(e.target.value)}
+                                    //             />
+                                    //         </div>
+
+                                    //         <div className="col-md-4 mb-3">
+                                    //             <label className="form-label">Vacation Pay</label>
+                                    //             <input
+                                    //                 type="number"
+                                    //                 className="form-control"
+                                    //                 placeholder="Enter Vacation Pay"
+                                    //                 value={vacationPay === null ? '' : vacationPay}
+                                    //                 onChange={(e) => setVacationPay(e.target.value === '' ? '' : Number(e.target.value))}
+                                    //             />
+                                    //         </div>
+                                    //     </div>
+
+                                    //     {/* Row 3: Pay Period Type */}
+                                    //     <div className="row">
+                                    //         <div className="col-md-4 mb-4">
+                                    //             <label className="form-label">Pay Period Type</label>
+                                    //             <select
+                                    //                 className="form-select"
+                                    //                 value={payPeriodType}
+                                    //                 onChange={(e) => setPayPeriodType(e.target.value)}
+                                    //             >
+                                    //                 <option value="">Select Period</option>
+                                    //                 <option value="weekly">Weekly</option>
+                                    //                 <option value="biweekly">Bi-Weekly</option>
+                                    //                 <option value="monthly">Monthly</option>
+                                    //             </select>
+                                    //         </div>
+                                    //     </div>
+
+                                    //     {/* Save Button */}
+                                    //     <button className="btn w-100 text-white" style={{ backgroundColor: '#5CB85C' }} onClick={updateStubSettings}>
+                                    //         Save Stub Settings
+                                    //     </button>
+                                    // </div>
+                                )}
+
                             </div>
 
                             {role === "manager" && (

@@ -21,6 +21,8 @@ import jwtDecode from "jwt-decode";
 // import NewHeader from './component/Header/NewHeader';
 import { useDispatch } from "react-redux";
 import { setToken } from "../store/authSlice";
+import { useTheme, useMediaQuery } from '@mui/material';
+
 
 function CreateAccount({ language }) {
 
@@ -58,7 +60,8 @@ function CreateAccount({ language }) {
 
     const [showMessage, setShowMessage] = useState(false);  // ✅ Track message visibility
     const [firstTimeGenerated, setFirstTimeGenerated] = useState(false);  // ✅ Track first-time status
-
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
     // ✅ Function to Generate Secure Password
     // const generatePassword = () => {
     //     if (!firstTimeGenerated) { // ✅ Sirf pehli baar message show karein
@@ -219,7 +222,7 @@ function CreateAccount({ language }) {
         fillModel("timezone", defaultTimezone);
 
         // ✅ Auto-generate password on first render
-        fillModel("password", generatePassword());
+        // fillModel("password", generatePassword());
     }, []);
 
     async function getLink(params) {
@@ -353,7 +356,7 @@ function CreateAccount({ language }) {
                                 <div><img src={emailIcon} /></div>
                                 <input className="autofill" value={model?.email} type="email" placeholder="Email" />
                             </div> */}
-                               <div
+                            <div
                                 className="inputDiv"
                                 style={{
                                     backgroundColor: model?.company ? "#f0f0f0" : "white",
@@ -374,7 +377,7 @@ function CreateAccount({ language }) {
                                     placeholder="Company"
                                     disabled={!!model?.company}
                                     style={{
-                                        backgroundColor: model?.company ? "#f0f0f0"  : "white",
+                                        backgroundColor: model?.company ? "#f0f0f0" : "white",
                                         border: "none",
                                         outline: "none",
                                         flex: 1,
@@ -431,26 +434,28 @@ function CreateAccount({ language }) {
                                     onKeyPress={handleKeyPress} // ✅ Detect Key Press
                                 />
                                 {/* Auto Generate Button */}
-                                <button
-                                    onClick={() => {
-                                        const newPassword = generatePassword(); // ✅ Random password generate karein
-                                        fillModel("password", newPassword); // ✅ Password field update karein
-                                    }}
-                                    style={{
-                                        position: "absolute",
-                                        right: "35px", // ✅ Adjusted to fit before the eye icon
-                                        top: "50%",
-                                        transform: "translateY(-50%)",
-                                        backgroundColor: "#6ABB47",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "5px",
-                                        cursor: "pointer",
-                                        fontSize: "12px",
-                                        padding: "5px 8px",
-                                    }}>
-                                    Auto Generate
-                                </button>
+                                {!isMobile &&
+                                    <button
+                                        onClick={() => {
+                                            const newPassword = generatePassword(); // ✅ Random password generate karein
+                                            fillModel("password", newPassword); // ✅ Password field update karein
+                                        }}
+                                        style={{
+                                            position: "absolute",
+                                            right: "35px", // ✅ Adjusted to fit before the eye icon
+                                            top: "50%",
+                                            transform: "translateY(-50%)",
+                                            backgroundColor: "#6ABB47",
+                                            color: "white",
+                                            border: "none",
+                                            borderRadius: "5px",
+                                            cursor: "pointer",
+                                            fontSize: "12px",
+                                            padding: "5px 8px",
+                                        }}>
+                                        Auto Generate
+                                    </button>
+                                }
                                 {/* Eye Icon */}
                                 <img
                                     style={{

@@ -21,14 +21,19 @@ function Screenshot() {
 
     const [puncStartTime, setPuncStartTime] = useState("");
     const [puncEndTime, setPuncEndTime] = useState("");
+    const [implementStartDate, setImplementStartDate] = useState(""); // 👈 Add this line
+    const [implementStartTime, setImplementStartTime] = useState(""); // 👈 Add this line
+
 
 
     useEffect(() => {
         if (employees?.length > 0) {
             const firstEmployee = employees[0];
             const punctualityData = firstEmployee?.punctualityData || {};
-            setPuncStartTime(punctualityData.puncStartTime || "");
-            setPuncEndTime(punctualityData.puncEndTime || "");
+            setPuncStartTime(punctualityData.convertedpuncStartTime || "");
+            setPuncEndTime(punctualityData.convertedpuncEndTime || "");
+            // setPuncStartTime(punctualityData.convertedpuncStartTime);
+            //     setPuncEndTime(punctualityData.convertedpuncEndTime);
         }
     }, [employees]);
 
@@ -128,8 +133,8 @@ function Screenshot() {
             // console.log("checkk", employeesData);
             if (employeesData.length > 0) {
                 const punctualityData = employeesData[0]?.punctualityData || {};
-                setPuncStartTime(punctualityData.puncStartTime);
-                setPuncEndTime(punctualityData.puncEndTime);
+                setPuncStartTime(punctualityData.convertedpuncStartTime);
+                setPuncEndTime(punctualityData.convertedpuncEndTime);
             } else {
                 console.warn("No employee data found.");
             }
@@ -187,6 +192,7 @@ function Screenshot() {
                         puncEndTime: `${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`,
                         timezone: userTimezone,
                         timezoneOffset: userTimezoneOffset,
+                        implementStartDate: `${implementStartDate}T${implementStartTime}:00`, 
                     },
                 };
             });
@@ -235,6 +241,7 @@ function Screenshot() {
             console.error("Error submitting punctuality rule:", error);
         }
     };
+
     const handleFilteredEmployees = (filteredEmployees) => {
         console.log("Filtered Employees:", filteredEmployees);
         setfilter(filteredEmployees)
@@ -275,6 +282,38 @@ function Screenshot() {
                                 onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                 onChange={(e) => setPuncEndTime(e.target.value)}
                             // onChange={(e) => console.log(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label>Policy Time:</label>
+                            {/* <input
+                                type="time"
+                                value={puncEndTime}
+                                onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
+                                onChange={(e) => setPuncEndTime(e.target.value)}
+                            // onChange={(e) => console.log(e.target.value)}
+                            /> */}
+                            <input
+                                type="time"
+                                value={implementStartTime}
+                                onFocus={(e) => e.target.showPicker()}
+                                onChange={(e) => setImplementStartTime(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label>Policy Date:</label>
+                            {/* <input
+                                type="time"
+                                value={puncEndTime}
+                                onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
+                                onChange={(e) => setPuncEndTime(e.target.value)}
+                            // onChange={(e) => console.log(e.target.value)}
+                            /> */}
+                            <input
+                                type="date"
+                                value={implementStartDate}
+                                onFocus={(e) => e.target.showPicker()}
+                                onChange={(e) => setImplementStartDate(e.target.value)}
                             />
                         </div>
                     </div>

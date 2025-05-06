@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
@@ -18,6 +17,15 @@ import line from "../images/Line 3.webp";
 import OwnerTeamComponent from "./ownerTeamComponent";
 import Joyride from "react-joyride";
 import GroupComponent from "../screen/component/GroupComponent";
+import moment from "moment-timezone";
+import TimezoneSelect from 'react-timezone-select';
+import AutoPauseContent from "../adminScreens/settingScreenComponent/AutoPauseContent";
+import BreakTimeModal from ".././screen/component/Modal/BreakTimeModal";
+import PunctualityModal from ".././screen/component/Modal/PunctualityModal";
+import { setEmployessSetting5 } from "../store/adminSlice"; // Adjust path if needed
+import { useDispatch, useSelector } from "react-redux";
+
+
 
 function OwnerTeam() {
     const [run, setRun] = useState(true);
@@ -48,6 +56,41 @@ function OwnerTeam() {
         Authorization: "Bearer " + token,
     };
 
+    const dispatch = useDispatch();
+    const [showAutoPauseSaveModal, setShowAutoPauseSaveModal] = useState(false);
+    const [pauseSetting, setPauseSetting] = useState(true); // default true
+
+    const [frequency, setFrequency] = useState(20); // default frequency
+
+    const [showAutoPauseModal, setShowAutoPauseModal] = useState(false);
+    // const [timezone, setSelectedTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    const [showBreakTimeModal, setShowBreakTimeModal] = useState(false);
+    const [breakStartTime, setBreakStartTime] = useState("");
+    const [breakEndTime, setBreakEndTime] = useState("");
+    const [breakTimeLoading, setBreakTimeLoading] = useState(false);
+    const [showPunctualityModal, setShowPunctualityModal] = useState(false);
+
+    const employee = useSelector((state) => state?.adminSlice?.employess) || [];
+
+    const [puncStartTime, setPuncStartTime] = useState("");
+    const [puncEndTime, setPuncEndTime] = useState("");
+    const [punctualityLoading, setPunctualityLoading] = useState(false);
+
+    const [model, setModel] = useState({
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timezoneOffset: null,
+    });
+
+    const fillModel = (key, val) => {
+        setModel((prevModel) => ({
+            ...prevModel,
+            [key]: val,
+        }));
+    };
+
+    const [showNewModal, setShowNewModal] = useState(false);
+    const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    const [timezoneOffset, setTimezoneOffset] = useState(new Date().getTimezoneOffset()); // initial system offset
 
     // import { useEffect } from "react";
 
@@ -75,6 +118,240 @@ function OwnerTeam() {
     //     }
     // }, [location]);    
 
+    const rolePriority = {
+        "owner": 1,
+        "admin": 2,
+        "manager": 3,
+        "user": 4
+    };
+
+    const handleRadioChange = async (employee, shouldPause) => {
+        const updatedSettings = {
+            ...employee.effectiveSettings,
+            individualAutoPause: true,
+            autoPauseTrackingAfter: {
+                pause: shouldPause,
+                frequency: 20, // ✅ Default frequency
+            },
+        };
+
+        try {
+            const response = await axios.patch(
+                `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${mainId}`,
+                {
+                    userId: mainId,
+                    effectiveSettings: updatedSettings,
+                },
+                { headers }
+            );
+
+            if (response.status === 200) {
+                enqueueSnackbar("AutoPause setting updated!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                dispatch(
+                    setEmployessSetting5({
+                        id: employee._id,
+                        key: "pause",
+                        value: shouldPause,
+                    })
+                );
+            } else {
+                enqueueSnackbar("Failed to update AutoPause setting.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+            }
+        } catch (error) {
+            console.error("❌ AutoPause Error:", error);
+            enqueueSnackbar("Error updating AutoPause setting.", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+        }
+    };
+
+    const handleBreakTimeSave = async () => {
+        try {
+            if (!mainId) {
+                enqueueSnackbar("No user selected to update break time.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+                return;
+            }
+
+            if (!breakStartTime || !breakEndTime) {
+                enqueueSnackbar("Please select both Break Start Time and Break End Time.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+                return;
+            }
+
+            if (!timezone) {
+                enqueueSnackbar("Please select timezone.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+                return;
+            }
+
+            const currentDate = new Date().toISOString().split("T")[0];
+
+            const breakStart = moment.tz(`${currentDate}T${breakStartTime}`, timezone).format();
+            const breakEnd = moment.tz(`${currentDate}T${breakEndTime}`, timezone).format();
+
+            const requestData = {
+                userId: mainId,
+                settings: {
+                    breakTime: [
+                        {
+                            TotalHours: Number(calculateTotalHours(breakStartTime, breakEndTime)),
+                            breakStartTime: breakStart,
+                            breakEndTime: breakEnd,
+                        },
+                    ],
+                    timezone,
+                    timezoneOffset,
+                },
+            };
+
+            console.log("📌 mainId:", mainId);
+            console.log("📦 requestData:", requestData);
+
+            const response = await axios.post(
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                // enqueueSnackbar("Break Time successfully submitted!", { variant: "success" });
+                enqueueSnackbar("Break Time successfully submitted!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+
+                const timezonePayload = {
+                    timezone,
+                    timezoneOffset,
+                    breakStartTime,
+                    breakEndTime,
+                };
+
+                await axios.patch(
+                    `https://myuniversallanguages.com:9093/api/v1/owner/updateUsersTimezone/${mainId}`,
+                    timezonePayload,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                // enqueueSnackbar("Timezone successfully updated!", { variant: "success" });
+                enqueueSnackbar("Timezone successfully updated!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                setShowBreakTimeModal(false);
+            } else {
+                enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
+            }
+        } catch (error) {
+            console.error("❌ BreakTime Error:", error.response?.data || error.message);
+            enqueueSnackbar("Error submitting Break Time or updating Timezone.", { variant: "error" });
+        }
+    };
+
+
+
+    const handleSavePunctuality = async () => {
+        try {
+            if (!puncStartTime || !puncEndTime) {
+                enqueueSnackbar("Please select both Start and End Time.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+                return;
+            }
+
+            const currentDate = new Date().toISOString().split("T")[0];
+
+            const requestData = {
+                userId: mainId,  // ✅ Use mainId for selected/invited user
+                settings: {
+                    puncStartTime: `${currentDate}T${puncStartTime}:00`,
+                    puncEndTime: `${currentDate}T${puncEndTime}:00`,
+                    timezone: timezone,
+                    timezoneOffset: timezoneOffset,
+                },
+            };
+
+            const response = await axios.post(
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                enqueueSnackbar("Punctuality successfully saved!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                // ✅ Call second API to update timezone
+                const timezonePayload = {
+                    settings: {
+                        timezone: timezone,
+                        timezoneOffset: timezoneOffset,
+                        puncStartTime: puncStartTime,
+                        puncEndTime: puncEndTime,
+                    }
+                };
+
+                await axios.patch(
+                    `https://myuniversallanguages.com:9093/api/v1/owner/updateUsersTimezone/${mainId}`,
+                    timezonePayload,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                enqueueSnackbar("Timezone successfully updated!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                setShowPunctualityModal(false);
+            } else {
+                enqueueSnackbar("Failed to save Punctuality.", { variant: "error" });
+            }
+        } catch (error) {
+            console.error("Error saving Punctuality:", error);
+            enqueueSnackbar("Error saving Punctuality or updating Timezone.", { variant: "error" });
+        }
+    };
+
     useEffect(() => {
         if (user?.userType === "manager") {
             getManagerTeam();
@@ -97,8 +374,31 @@ function OwnerTeam() {
         }
     }, []);
 
+    const calculateTotalHours = (start, end) => {
+        const [startHours, startMinutes] = start.split(':').map(Number);
+        const [endHours, endMinutes] = end.split(':').map(Number);
 
-    const user = jwtDecode(JSON.stringify(token));
+        const startTotalMinutes = startHours * 60 + startMinutes;
+        const endTotalMinutes = endHours * 60 + endMinutes;
+
+        const totalMinutes = endTotalMinutes - startTotalMinutes;
+        return (totalMinutes / 60).toFixed(2); // Return total hours in decimal (like 0.5, 1.25 etc.)
+    };
+
+    // const handleInviteClick = () => {
+    //     setShow3(true);               // Show modal
+    //     handleSendInvitation();      // Trigger API call
+    // };
+
+    const handleInviteClick = () => {
+
+        handleSendInvitation();      // Trigger API call
+
+    };
+
+    // const user = jwtDecode(JSON.stringify(token));
+    const user = jwtDecode(token); // ✅ Fix here
+
     // console.log('check',user._id === "679b223b61427668c045c659");
     const [selectedGroupName, setSelectedGroupName] = useState("");
 
@@ -207,7 +507,7 @@ function OwnerTeam() {
         setLoading(true)
         try {
             setLoading2(true)
-            const response = await axios.get(`${apiUrl}/manager/employees`, { headers })
+            const response = await axios.get(`${apiUrl} / manager / employees`, { headers })
             if (response.status) {
                 setLoading(false)
                 setLoading2(false)
@@ -321,7 +621,7 @@ function OwnerTeam() {
     //         setIsInviteLoading(true); // Start loading for invite button
 
     //         try {
-    //             const res = await axios.post(`${apiUrl}/superAdmin/email`, {
+    //             const res = await axios.post(`${ apiUrl } / superAdmin / email`, {
     //                 toEmail: email,
     //                 company: user.company,
     //             }, {
@@ -373,7 +673,7 @@ function OwnerTeam() {
                     horizontal: "right"
                 }
             });
-            return; // 🔒 Exit early if email is invalid
+            return;
         }
 
         setShow3(false);
@@ -383,9 +683,7 @@ function OwnerTeam() {
             const res = await axios.post(`${apiUrl}/superAdmin/email`, {
                 toEmail: email,
                 company: user.company,
-            }, {
-                headers: headers,
-            });
+            }, { headers });
 
             if (res.status) {
                 enqueueSnackbar(res.data.message, {
@@ -395,9 +693,17 @@ function OwnerTeam() {
                         horizontal: "right"
                     }
                 });
-                getData();
-                setEmail("");
 
+                // ✅ Set mainId from updatedUser._id
+                const invitedUser = res.data?.updatedUser;
+                if (invitedUser && invitedUser._id) {
+                    setMainId(invitedUser._id); // ✅ This will now be used in your timezone API
+                    setSelectedUser(invitedUser); // optional, if needed later
+                }
+
+                getData(); // Refresh user list
+                setEmail("");
+                setShowNewModal(true); // Show company policy modal
             }
         } catch (error) {
             enqueueSnackbar(error?.response?.data?.message || "Network error", {
@@ -426,7 +732,7 @@ function OwnerTeam() {
                     }} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <button disabled={deleteType !== "DELETE" ? true : false} className={`${deleteType !== "DELETE" ? "teamActionButtonDisabled" : "teamActionButton"}`} onClick={deleteUser}>
+                    <button disabled={deleteType !== "DELETE" ? true : false} className={`${deleteType !== "DELETE" ? "teamActionButtonDisabled" : "teamActionButton"} `} onClick={deleteUser}>
                         DELETE
                     </button>
 
@@ -484,17 +790,261 @@ function OwnerTeam() {
                     </button>
                 </Modal.Footer>
             </Modal> : null}
-            {user?._id === "679b223b61427668c045c659" && (
-                <Joyride
-                    steps={steps}
-                    run={run}
-                    callback={handleJoyrideCallback}
-                    showProgress
-                    showSkipButton
-                    continuous
-                    scrollToFirstStep
-                />
+
+            {showAutoPauseSaveModal && (
+
+                <Modal show={showAutoPauseSaveModal} onHide={() => setShowAutoPauseSaveModal(false)} style={{ zIndex: 2000 }} backdropStyle={{ zIndex: 1999 }}>
+                    {/* <Modal show={showAutoPauseSaveModal} onHide={() => setShowAutoPauseSaveModal(false)} centered> */}
+                    <Modal.Header closeButton>
+                        <Modal.Title>🕒 Auto-Pause Policy</Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body>
+                        <p style={{ marginBottom: "16px" }}>Choose whether to pause tracking after inactivity:</p>
+
+                        {/* Radio: Pause after */}
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
+                            <input
+                                type="radio"
+                                name="autoPauseOption"
+                                id="pauseOption"
+                                value="true"
+                                checked={pauseSetting === true}
+                                onChange={() => setPauseSetting(true)}
+                                style={{ marginRight: "10px" }}
+                            />
+                            <label htmlFor="pauseOption" style={{ margin: 0, fontWeight: 500 }}>
+                                Pause after
+                            </label>
+
+                            <input
+                                type="number"
+                                min="1"
+                                value={frequency}
+                                onChange={(e) => setFrequency(Number(e.target.value))}
+                                style={{ width: "60px", margin: "0 10px", padding: "4px 6px" }}
+                            />
+                            <span>minutes of inactivity</span>
+                        </div>
+
+                        {/* Radio: Do not pause */}
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                            <input
+                                type="radio"
+                                name="autoPauseOption"
+                                id="noPauseOption"
+                                value="false"
+                                checked={pauseSetting === false}
+                                onChange={() => setPauseSetting(false)}
+                                style={{ marginRight: "10px" }}
+                            />
+                            <label htmlFor="noPauseOption" style={{ margin: 0, fontWeight: 500 }}>
+                                Don't auto pause
+                            </label>
+                        </div>
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <button className="btn btn-secondary" onClick={() => setShowAutoPauseSaveModal(false)}>
+                            Cancel
+                        </button>
+                        <button
+                            className="btn text-white" style={{ backgroundColor: '#7CCB58' }}
+                            onClick={async () => {
+                                if (!mainId) {
+                                    enqueueSnackbar("Please select a user to apply auto-pause policy", { variant: "error" });
+                                    return;
+                                }
+
+                                const emp = users?.find(u => u._id === mainId);
+                                if (!emp) {
+                                    enqueueSnackbar("User not found", { variant: "error" });
+                                    return;
+                                }
+
+                                const updatedSettings = {
+                                    ...emp.effectiveSettings,
+                                    individualAutoPause: true,
+                                    autoPauseTrackingAfter: {
+                                        pause: pauseSetting,
+                                        frequency: frequency,
+                                    }
+                                };
+
+                                try {
+                                    const res = await axios.patch(
+                                        `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${emp._id}`,
+                                        {
+                                            userId: emp._id,
+                                            effectiveSettings: updatedSettings,
+                                        },
+                                        { headers }
+                                    );
+
+                                    if (res.status === 200) {
+                                        enqueueSnackbar("AutoPause setting updated!", {
+                                            variant: "success",
+                                            anchorOrigin: { vertical: "top", horizontal: "right" },
+                                        });
+                                        dispatch(setEmployessSetting5({ id: emp._id, key: "pause", value: pauseSetting }));
+                                        dispatch(setEmployessSetting5({ id: emp._id, key: "frequency", value: frequency }));
+                                        setShowAutoPauseSaveModal(false);
+                                    }
+                                } catch (err) {
+                                    enqueueSnackbar("Error updating settings", { variant: "error" });
+                                }
+                            }}
+                        >
+                            Save
+                        </button>
+                    </Modal.Footer>
+                </Modal>
             )}
+
+            <PunctualityModal
+                show={showPunctualityModal}
+                onClose={() => setShowPunctualityModal(false)}
+                puncStartTime={puncStartTime}
+                timezone={timezone}
+                setTimezone={setTimezone}
+                setTimezoneOffset={setTimezoneOffset}
+                setPuncStartTime={setPuncStartTime}
+                puncEndTime={puncEndTime}
+                setPuncEndTime={setPuncEndTime}
+                onSave={async () => {
+                    setPunctualityLoading(true);
+                    await handleSavePunctuality(); // ✅ API call yahan hoga
+                    setPunctualityLoading(false);
+                }}
+                loading={punctualityLoading}
+            />
+
+            {showNewModal && (
+                //   <Modal
+                //   show={showNewModal}
+                //   onHide={() => setShowNewModal(false)}
+                //   centered
+                //   size="lg"
+                //   backdrop="static"
+                //   keyboard={false}
+                //   dialogClassName="zmodal-fix"
+                // />
+
+                <Modal show={showNewModal} onHide={() => setShowNewModal(false)} centered size="lg">
+                    <Modal.Header closeButton>
+                        <Modal.Title>📋 Company Policy Setup</Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body style={{ fontSize: "16px", lineHeight: "1.6" }}>
+                        <p><strong>Welcome!</strong> Set default company-wide policies that apply automatically to all new users.</p>
+
+                        <hr />
+                        {/* Break Policy with Button */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <h6><strong>Break Policy</strong></h6>
+                            <button
+                                className="btn btn-outline-primary btn-sm"
+                                style={{ padding: "2px 10px", fontSize: "14px" }}
+                                onClick={() => setShowBreakTimeModal(true)} // ✅ Open modal
+                            >
+                                Break Time
+                            </button>
+                        </div>
+                        <ul>
+                            <li><strong>Break Time:</strong> 12:00 PM to 12:30 PM</li>
+                        </ul>
+
+                        <hr />
+                        {/* Auto-Pause Policy with Button */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <h6><strong>Auto-Pause Policy</strong></h6>
+                            <button
+                                className="btn btn-outline-primary btn-sm"
+                                style={{ padding: "2px 10px", fontSize: "14px" }}
+                                onClick={() => {
+                                    setPauseSetting(true); // or set based on default if needed
+                                    setShowAutoPauseSaveModal(true); // open your new modal
+                                }}
+                            >
+                                Policy
+                            </button>
+                        </div>
+                        <ul>
+                            <li>Automatically pause tracking after inactivity.</li>
+                            <li><strong>Default:</strong> 20 minutes of inactivity triggers pause.</li>
+                        </ul>
+
+                        <hr />
+
+                        {/* Working Hours Policy with Punctuality Button */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <h6><strong>Working Hours Policy</strong></h6>
+                            <button
+                                className="btn btn-outline-primary btn-sm"
+                                style={{ padding: "2px 10px", fontSize: "14px" }}
+                                onClick={() => setShowPunctualityModal(true)} // ✅ Open punctuality modal
+                            >
+                                Punctuality
+                            </button>
+                        </div>
+
+                        <ul>
+                            <li>Start Time: <strong>09:00 AM</strong></li>
+                            <li>End Time: <strong>05:00 PM</strong></li>
+                        </ul>
+
+                        <hr />
+                        {/* Automatic Application */}
+                        <h6><strong>Automatic Application</strong></h6>
+                        <ul>
+                            <li>Applies to all <strong>new</strong> users.</li>
+                        </ul>
+
+                        <hr />
+                        {/* Important Note */}
+                        <h6><strong>📢 Important Note</strong></h6>
+                        <p>You can override these policies for individual users anytime.</p>
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <button className="btn text-white" style={{ background: '#7CCB58' }} onClick={() => setShowNewModal(false)}>Got It!</button>
+                    </Modal.Footer>
+                </Modal>
+            )
+            }
+
+            <BreakTimeModal
+                show={showBreakTimeModal}
+                onClose={() => setShowBreakTimeModal(false)}
+                timezone={timezone}
+                setTimezone={setTimezone}
+                timezoneOffset={timezoneOffset}
+                setTimezoneOffset={setTimezoneOffset}
+                breakStartTime={breakStartTime}
+                setBreakStartTime={setBreakStartTime}
+                breakEndTime={breakEndTime}
+                setBreakEndTime={setBreakEndTime}
+                onSave={async () => {
+                    setBreakTimeLoading(true);
+                    await handleBreakTimeSave();
+                    setBreakTimeLoading(false);
+                }}
+                loading={breakTimeLoading}
+            />
+
+            {
+                user?._id === "679b223b61427668c045c659" && (
+                    <Joyride
+                        steps={steps}
+                        run={run}
+                        callback={handleJoyrideCallback}
+                        showProgress
+                        showSkipButton
+                        continuous
+                        scrollToFirstStep
+                    />
+                )
+            }
             <SnackbarProvider />
 
             <div className="container" id='team'>
@@ -507,8 +1057,8 @@ function OwnerTeam() {
                 <div className="mainwrapper">
                     <div className="ownerTeamContainer">
                         <div className="row">
-                        <div className="col-12 col-lg-4">
-                        {user?.userType !== "manager" && (
+                            <div className="col-12 col-lg-4">
+                                {user?.userType !== "manager" && (
                                     <>
                                         <p className="addUserButton" onClick={() => setShowGroupInput(!showGroupInput)}>
                                             {showGroupInput ? "× Close" : "+ Create user group"}
@@ -566,7 +1116,7 @@ function OwnerTeam() {
                                                     {groups?.map((e, i) => (
                                                         <div
 
-                                                            className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center gap-1`} onClick={() => {
+                                                            className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align - items - center gap - 1`} onClick={() => {
                                                                 setGroupData(e)
                                                                 setMainId(null)
                                                                 setActiveId(e._id)
@@ -666,7 +1216,7 @@ function OwnerTeam() {
                                                     border: "none",
                                                 }}
                                                 disabled={isInviteLoading || !isTypingEmail} // Use isInviteLoading here
-                                                onClick={handleSendInvitation}
+                                                onClick={handleInviteClick}
                                             >
                                                 {isInviteLoading && isValidEmail ? (
                                                     <FerrisWheelSpinner loading={isInviteLoading} size={23} color="#fff" />
@@ -700,85 +1250,124 @@ function OwnerTeam() {
                                         {users?.length}
                                     </div>
                                 </div>
-                                <div id="lisstofallusers" >
-                                    {users?.map((e, i) => {
-                                        return (
-                                            <div
+                                <div id="lisstofallusers" className="container-fluid">
+                                    {Array.isArray(users) &&
+                                        [...users]
+                                            .sort((a, b) => {
+                                                if (a.inviteStatus && !b.inviteStatus) return 1;
+                                                if (!a.inviteStatus && b.inviteStatus) return -1;
+                                                if (a.isArchived && !b.isArchived) return 1;
+                                                if (!a.isArchived && b.isArchived) return -1;
+                                                const roleA = rolePriority[a.userType] || 99;
+                                                const roleB = rolePriority[b.userType] || 99;
+                                                if (roleA !== roleB) return roleA - roleB;
+                                                const nameA = (a.name || a.email || "").toLowerCase();
+                                                const nameB = (b.name || b.email || "").toLowerCase();
+                                                return nameA.localeCompare(nameB);
+                                            })
+                                            .map((e, i, arr) => {
+                                                // Previous user for comparison
+                                                const prev = arr[i - 1];
+                                                const currentRole = e.userType;
+                                                const prevRole = prev?.userType;
 
-                                                className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center gap-1`} onClick={() => {
-                                                    setMainId(e._id)
-                                                    setActiveId(e._id)
-                                                    setIsUserArchive(e?.isArchived ? false : true)
-                                                    setInviteStatus(false)
-                                                    setPayrate(e)
-                                                    setSelectedUser(e)
-                                                    setGroupData(null)
-                                                }}>
-                                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: '100%' }}>
-                                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                                        <div className="groupContentMainImg">
-                                                            <p>{i + 1}</p>
-                                                        </div>
-                                                        <p className="groupContent">{e?.inviteStatus === true ? e?.email : e?.name}</p>
-                                                    </div>
-                                                    {e?.inviteStatus === true && (
+                                                // Check section heading conditions
+                                                const isNewSection = !prev ||
+                                                    (prev?.inviteStatus !== e?.inviteStatus) ||
+                                                    (prev?.isArchived !== e?.isArchived) ||
+                                                    (prevRole !== currentRole);
+
+                                                let sectionTitle = "";
+                                                if (e.inviteStatus) {
+                                                    sectionTitle = "Invited Users";
+                                                } else if (e.isArchived) {
+                                                    sectionTitle = "Archived Users";
+                                                } else if (e.userType === "owner") {
+                                                    sectionTitle = "Owners";
+                                                } else if (e.userType === "admin") {
+                                                    sectionTitle = "Admins";
+                                                } else if (e.userType === "manager") {
+                                                    sectionTitle = "Managers";
+                                                } else {
+                                                    sectionTitle = "Users";
+                                                }
+
+                                                return (
+                                                    <React.Fragment key={e._id}>
+                                                        {isNewSection && (
+                                                            <h6 style={{ fontWeight: 600, marginTop: "20px", marginBottom: "10px", color: "#0E4772" }}>
+                                                                {sectionTitle}
+                                                            </h6>
+                                                        )}
+
                                                         <div
-                                                            style={{
-                                                                marginRight: "3px",
-                                                                padding: "3px 10px",
-                                                                borderRadius: "3px",
-                                                                color: "#fff",
-                                                                fontSize: "12px",
-                                                                lineHeight: 1.4,
+                                                            className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align - items - center gap - 1`}
+                                                            onClick={() => {
+                                                                setMainId(e._id);
+                                                                setActiveId(e._id);
+                                                                setIsUserArchive(e?.isArchived ? false : true);
+                                                                setInviteStatus(false);
+                                                                setPayrate(e);
+                                                                setSelectedUser(e);
+                                                                setGroupData(null);
                                                             }}
                                                         >
-                                                            <img width={30} src={inviteIcon} alt="Invite Icon" />
-                                                        </div>
-                                                    )}
+                                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: '100%' }}>
+                                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                                    <div className="groupContentMainImg">
+                                                                        <p>{i + 1}</p>
+                                                                    </div>
+                                                                    <p className="groupContent">{e?.inviteStatus === true ? e?.email : e?.name}</p>
+                                                                </div>
 
-                                                    {/* Archive Icon */}
-                                                    {e?.isArchived === true && (
-                                                        <div
-                                                            style={{
-                                                                marginRight: "3px",
-                                                                padding: "3px 10px",
-                                                                borderRadius: "3px",
-                                                                color: "#fff",
-                                                                fontSize: "12px",
-                                                                lineHeight: 1.4,
-                                                            }}
-                                                        >
-                                                            <img width={30} src={archiveIcon} alt="Archive Icon" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                {
-                                                    e?.userType === "owner" ? <div>
-                                                        <AiFillStar color="#e7c741" size={20} />
-                                                    </div> :
-                                                        e?.userType === "admin" ? <div>
-                                                            <AiFillStar color="#28659C" size={20} />
-                                                        </div>
-                                                            :
-                                                            e?.userType === "manager" && (
-                                                                <div style={{ backgroundColor: "#5CB85C", width: 80, padding: "5px 10px", borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                                                {e?.inviteStatus && (
+                                                                    <div style={{
+                                                                        marginRight: "3px", padding: "3px 10px", borderRadius: "3px",
+                                                                        color: "#fff", fontSize: "12px", lineHeight: 1.4,
+                                                                    }}>
+                                                                        <img width={30} src={inviteIcon} alt="Invite Icon" />
+                                                                    </div>
+                                                                )}
+                                                                {e?.isArchived && (
+                                                                    <div style={{
+                                                                        marginRight: "3px", padding: "3px 10px", borderRadius: "3px",
+                                                                        color: "#fff", fontSize: "12px", lineHeight: 1.4,
+                                                                    }}>
+                                                                        <img width={30} src={archiveIcon} alt="Archive Icon" />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Role Badge */}
+                                                            {e?.userType === "owner" ? (
+                                                                <AiFillStar color="#e7c741" size={20} />
+                                                            ) : e?.userType === "admin" ? (
+                                                                <AiFillStar color="#28659C" size={20} />
+                                                            ) : e?.userType === "manager" && (
+                                                                <div style={{
+                                                                    backgroundColor: "#5CB85C", width: 80, padding: "5px 10px",
+                                                                    borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "space-between"
+                                                                }}>
                                                                     <AiOutlineUser color="white" size={20} />
-                                                                    <p style={{ margin: 0, fontWeight: "600", color: "white" }}>{e?.assignedUsers?.filter(f => f !== user._id)?.length}</p>
+                                                                    <p style={{ margin: 0, fontWeight: "600", color: "white" }}>
+                                                                        {e?.assignedUsers?.filter(f => f !== user._id)?.length}
+                                                                    </p>
                                                                 </div>
                                                             )}
-                                            </div>
-                                        )
-                                    })}
+                                                        </div>
+                                                    </React.Fragment>
+                                                );
+                                            })}
                                 </div>
 
                             </div>
-                            {/* <div>
+                            <div className="d-none d-lg-block" style={{ width: "0px", margin: "0 0 0 60px" }}>
                                 <img src={line} />
-                            </div> */}
-                            <div className="d-none d-lg-block" style={{ width: "10px", backgroundColor: "#ccc", margin: "0 0 0 60px" }}></div>
+                            </div>
+                            {/* <div className="d-none d-lg-block" style={{ width: "10px", backgroundColor: "#ccc", margin: "0 0 0 60px" }}></div> */}
 
                             <div className="col-12 col-lg-6">
-                            <div
+                                <div
                                     style={{
 
                                         display: mainId == null && GroupData == null ? "flex" : "",
@@ -814,7 +1403,7 @@ function OwnerTeam() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 

@@ -76,25 +76,7 @@ function Account({ suspended }) {
     const [puncEndTime, setPuncEndTime] = useState("");
 
 
-    // ✅ Secure Password Generator Function
-    // const generatePassword = () => {
-    //     const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?";
-    //     let password = "";
-    //     for (let i = 0; i < 12; i++) {
-    //         password += chars.charAt(Math.floor(Math.random() * chars.length));
-    //     }
-    //     setNewPassword(password);
-    //     setNewPassword2(password);
 
-    //     // ✅ Show message when password is generated
-    //     setShowMessage(true);
-
-    //     // ✅ Automatically hide message after 5 seconds (5000ms)
-    //     setTimeout(() => {
-    //         setShowMessage(false);
-    //     }, 5000);
-    // };
-    // ✅ Function to Generate Secure Password
     const generatePassword = () => {
         if (isFirstTime) { // ✅ Only show the message if it's the first time after opening modal
             const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?";
@@ -171,35 +153,13 @@ function Account({ suspended }) {
                 console.log("Rate Per Hour:", rate);
                 setRatePerHour(rate);
 
-                const puncStart = data.convertedpuncStartTime ? data.convertedpuncStartTime.substring(11, 16) : "";
-                const puncEnd = data.convertedpuncEndTime ? data.convertedpuncEndTime.substring(11, 16) : "";
+                const puncStart = data.puncStartTime ? data.puncStartTime.substring(11, 16) : "";
+                const puncEnd = data.puncEndTime ? data.puncEndTime.substring(11, 16) : "";
 
                 console.log("PuncStart:", puncStart);
                 console.log("PuncEnd:", puncEnd);
 
-                // if (breakData) {
-                //     console.log("✅ breakConvertedData[0]:", breakData);
-                //     console.log("✅ breakStartTime:", breakData.breakStartTime);
-                //     console.log("✅ breakEndTime:", breakData.breakEndTime);
-
-                //     // ⛔ NO MOMENT, just plain raw string
-                //     fillModel("breakStartTime", breakData.breakStartTime);
-                //     fillModel("breakEndTime", breakData.breakEndTime);
-                // }
-                //     if (breakData) {
-                //         console.log("✅ breakConvertedData[0]:", breakData);
-                //         console.log("✅ breakStartTime:", breakData.breakStartTime);
-                //         console.log("✅ breakEndTime:", breakData.breakEndTime);
-
-                //         // Format to HH:mm for <input type="time">
-                //         fillModel("breakStartTime", moment(breakData.breakStartTime).format("HH:mm"));
-                //         fillModel("breakEndTime", moment(breakData.breakEndTime).format("HH:mm"));
-                //     }
-
-                //     fillModel("puncStartTime", puncStart);
-                //     fillModel("puncEndTime", puncEnd);
-                // }
-                // const breakData = data.breakConvertedData?.[0];
+      
 
                 if (breakData) {
                     const breakStart = breakData.breakStartTime
@@ -705,11 +665,7 @@ function Account({ suspended }) {
     //         setShowVerifyModal(true); // Phir verification modal open karein
     //     }, 500); // 0.5 second ka delay taake state properly update ho
     // };
-    useEffect(() => {
-        if (isArchived) {
 
-        }
-    }, [isArchived]);
 
     const handleArchive = async () => {
         await deleteMyAccount();
@@ -726,9 +682,7 @@ function Account({ suspended }) {
     // const [email, setEmail] = useState(items.email);
     const [showDeleteButton, setShowDeleteButton] = useState(false);
 
-    useEffect(() => {
-        console.log("isArchived updated:", isArchived); // Debugging ke liye
-    }, [isArchived]); // ✅ Jab bhi isArchived change hoga, yeh useEffect chalega
+// ✅ Jab bhi isArchived change hoga, yeh useEffect chalega
 
     // Step 1: Send verification code to email
     async function verifyDeleteAccount() {
