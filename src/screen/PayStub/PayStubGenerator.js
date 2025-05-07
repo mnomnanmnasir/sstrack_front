@@ -161,9 +161,11 @@ const PayStubGenerator = () => {
             await fetchAllStubs();
             alert('Stub generated successfully!');
             setShowSummary(true);
-        } catch (error) {
-            console.error("Error generating stub:", error.message);
-            alert(error.message || 'Failed to generate stub.');
+        } catch (res) {
+            console.error("Error generating stub:", res.
+                response.data.message
+            );
+            alert(res.response.data.message || 'Failed to generate stub.');
         } finally {
             setLoading(false);
         }
