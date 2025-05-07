@@ -24,15 +24,8 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
         { method: "GET", headers }
       );
       const data = await response.json();
-      console.log('responceeee', response)
-      if (Array.isArray(data.data)) {
-        setPeriods(data.data); // All good
-      } else if (typeof data.data === 'string') {
-        setPeriods([data.data]); // Wrap the string in an array
-      } else {
-        console.error("Unexpected API format:", data.data);
-      }
-
+      if (Array.isArray(data.data)) setPeriods(data.data);
+      else console.warn("Unexpected API format:", data);
     } catch (error) {
       console.error("Failed to fetch pay periods:", error);
     }

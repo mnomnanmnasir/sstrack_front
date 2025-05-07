@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> 7dc750c (new)
 import React, { useEffect, useState } from "react";
 import warning from '../images/warning.png'
 import pause from "../images/pauseIcon.webp";
@@ -972,7 +968,3 @@ export default OwnerTeamComponent;
 
 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 7dc750c (new)
