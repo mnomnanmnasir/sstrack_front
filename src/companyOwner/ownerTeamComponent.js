@@ -138,7 +138,7 @@ function OwnerTeamComponent(props) {
                 setAppliedTaxState('');
                 setVacationPay('');
                 setPayPeriodType('');
-                setPayType(''),
+                setPayType('');
                 setRatePerHours('')
                 return;
             }
