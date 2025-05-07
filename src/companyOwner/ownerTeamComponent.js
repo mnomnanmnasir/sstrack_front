@@ -40,6 +40,7 @@ function OwnerTeamComponent(props) {
     const [vacationPay, setVacationPay] = useState('');
     const [payPeriodType, setPayPeriodType] = useState('');
     const [ratePerHour, setRatePerHours] = useState('');
+    const [pay_type, setPayType] = useState('');
 
     const token = localStorage.getItem('token');
     const headers = {
@@ -100,6 +101,7 @@ function OwnerTeamComponent(props) {
             appliedTaxCountry: appliedTaxCountry,
             appliedTaxState: appliedTaxState,
             vacationPay: vacationPay,
+            pay_type: pay_type,
             payPeriodType: payPeriodType
         };
 
@@ -136,6 +138,7 @@ function OwnerTeamComponent(props) {
                 setAppliedTaxState('');
                 setVacationPay('');
                 setPayPeriodType('');
+                setPayType(''),
                 setRatePerHours('')
                 return;
             }
@@ -163,6 +166,7 @@ function OwnerTeamComponent(props) {
                     setAppliedTaxState(foundEmployee?.appliedTaxState || '');
                     setVacationPay(foundEmployee?.vacationPay || '');
                     setPayPeriodType(foundEmployee?.payPeriodType || '');
+                    setPayType(foundEmployee?.pay_type);
                     setRatePerHours(foundEmployee?.billingInfo?.ratePerHour || '');
 
                 } else {
@@ -194,6 +198,7 @@ function OwnerTeamComponent(props) {
                     setAppliedTaxState(responseData?.appliedTaxState || '');
                     setVacationPay(responseData?.vacationPay || '');
                     setPayPeriodType(responseData?.payPeriodType || '');
+                    setPayType(responseData?.pay_type);
                     setRatePerHours(responseData?.billingInfo?.ratePerHour || '');
                     setData(responseData); // ✅ Data set for name, email etc.
                 }
@@ -753,108 +758,124 @@ function OwnerTeamComponent(props) {
 
                                 {selectedUser?.userType !== 'owner' && selectedUser?.inviteStatus === false && (
                                     <>
+
+                                        <div className="container" style={{ marginTop: "30px" }}>
+                                            <p className="h4 mb-4">Pay Stub</p>
+
+                                            {/* Row 1: Shift Premium Rate, Overtime Rate, Hourly Rate */}
+                                            <div className="row">
+                                                <div className="col-md-4 mb-3">
+                                                    <label className="form-label">Shift Premium Rate</label>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        placeholder="Enter Shift Premium Rate"
+                                                        value={shiftPremiumRate === null ? '' : shiftPremiumRate}
+                                                        onChange={(e) => setShiftPremiumRate(e.target.value === '' ? '' : Number(e.target.value))}
+                                                    />
+                                                </div>
+                                                <div className="col-md-4 mb-3">
+                                                    <label className="form-label">Overtime Rate</label>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        placeholder="Enter Overtime Rate"
+                                                        value={overtimeRate === null ? '' : overtimeRate}
+                                                        onChange={(e) => setOvertimeRate(e.target.value === '' ? '' : Number(e.target.value))}
+                                                    />
+                                                </div>
+                                                <div className="col-md-4 mb-3">
+                                                    <label className="form-label">Hourly Rate</label>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        placeholder="Enter Hourly Rate"
+                                                        value={hourlyRate === null ? '' : hourlyRate}
+                                                        onChange={(e) => setHourlyRate(e.target.value === '' ? '' : Number(e.target.value))}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Row 2: Applied Tax Country, Applied Tax State, Vacation Pay */}
+                                            <div className="row">
+                                                <div className="col-md-4 mb-3">
+                                                    <label className="form-label">Applied Tax Country</label>
+                                                    <select
+                                                        className="form-control"
+                                                        value={appliedTaxCountry}
+                                                        onChange={(e) => setAppliedTaxCountry(e.target.value)}
+                                                    >
+                                                        <option value="">Select Country</option>
+                                                        <option value="Canada">Canada</option>
+                                                        <option value="United States">USA</option>
+                                                        <option value="Pakistan">Pakistan</option>
+                                                        <option value="Philiphines">Philippines</option>
+                                                        <option value="India">India</option>
+                                                        <option value="Saudia Arabia">KSA</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="col-md-4 mb-3">
+                                                    <label className="form-label">Applied Tax State</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        placeholder="Enter Tax State"
+                                                        value={appliedTaxState}
+                                                        onChange={(e) => setAppliedTaxState(e.target.value)}
+                                                    />
+                                                </div>
+
+                                                <div className="col-md-4 mb-3">
+                                                    <label className="form-label">Vacation Pay</label>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        placeholder="Enter Vacation Pay"
+                                                        value={vacationPay === null ? '' : vacationPay}
+                                                        onChange={(e) => setVacationPay(e.target.value === '' ? '' : Number(e.target.value))}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Row 3: Pay Period Type */}
+                                            <div className="row">
+                                                <div className="col-md-4 mb-4">
+                                                    <label className="form-label">Pay Period Type</label>
+                                                    <select
+                                                        className="form-select"
+                                                        value={payPeriodType}
+                                                        onChange={(e) => setPayPeriodType(e.target.value)}
+                                                    >
+                                                        <option value="">Select Period</option>
+                                                        <option value="weekly">Weekly</option>
+                                                        <option value="biweekly">Bi-Weekly</option>
+                                                        {/* <option value="monthly">Monthly</option> */}
+                                                    </select>
+                                                </div>
+                                                <div className="col-md-4 mb-4">
+                                                    <label className="form-label">Pay Type</label>
+                                                    <select
+                                                        className="form-select"
+                                                        value={pay_type}
+                                                        onChange={(e) => setPayType(e.target.value)}
+                                                    >
+                                                        <option value="">Select Period</option>
+                                                        <option value="hourly">Hourly</option>
+                                                        <option value="monthly">Monthly</option>
+                                                        {/* <option value="monthly">Monthly</option> */}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            {/* <div className="row">
+                                            </div> */}
+
+                                            {/* Save Button */}
+                                            <button className="btn w-100 text-white" style={{ backgroundColor: '#5CB85C' }} onClick={updateStubSettings}>
+                                                Save Stub Settings
+                                            </button>
+                                        </div>
                                     </>
-                                    // <div className="container" style={{ marginTop: "30px" }}>
-                                    //     <p className="h4 mb-4">Pay Stub</p>
-
-                                    //     {/* Row 1: Shift Premium Rate, Overtime Rate, Hourly Rate */}
-                                    //     <div className="row">
-                                    //         <div className="col-md-4 mb-3">
-                                    //             <label className="form-label">Shift Premium Rate</label>
-                                    //             <input
-                                    //                 type="number"
-                                    //                 className="form-control"
-                                    //                 placeholder="Enter Shift Premium Rate"
-                                    //                 value={shiftPremiumRate === null ? '' : shiftPremiumRate}
-                                    //                 onChange={(e) => setShiftPremiumRate(e.target.value === '' ? '' : Number(e.target.value))}
-                                    //             />
-                                    //         </div>
-                                    //         <div className="col-md-4 mb-3">
-                                    //             <label className="form-label">Overtime Rate</label>
-                                    //             <input
-                                    //                 type="number"
-                                    //                 className="form-control"
-                                    //                 placeholder="Enter Overtime Rate"
-                                    //                 value={overtimeRate === null ? '' : overtimeRate}
-                                    //                 onChange={(e) => setOvertimeRate(e.target.value === '' ? '' : Number(e.target.value))}
-                                    //             />
-                                    //         </div>
-                                    //         <div className="col-md-4 mb-3">
-                                    //             <label className="form-label">Hourly Rate</label>
-                                    //             <input
-                                    //                 type="number"
-                                    //                 className="form-control"
-                                    //                 placeholder="Enter Hourly Rate"
-                                    //                 value={hourlyRate === null ? '' : hourlyRate}
-                                    //                 onChange={(e) => setHourlyRate(e.target.value === '' ? '' : Number(e.target.value))}
-                                    //             />
-                                    //         </div>
-                                    //     </div>
-
-                                    //     {/* Row 2: Applied Tax Country, Applied Tax State, Vacation Pay */}
-                                    //     <div className="row">
-                                    //         <div className="col-md-4 mb-3">
-                                    //             <label className="form-label">Applied Tax Country</label>
-                                    //             <select
-                                    //                 className="form-control"
-                                    //                 value={appliedTaxCountry}
-                                    //                 onChange={(e) => setAppliedTaxCountry(e.target.value)}
-                                    //             >
-                                    //                 <option value="">Select Country</option>
-                                    //                 <option value="Canada">Canada</option>
-                                    //                 <option value="United States">USA</option>
-                                    //                 <option value="Pakistan">Pakistan</option>
-                                    //                 <option value="Philiphines">Philippines</option>
-                                    //                 <option value="India">India</option>
-                                    //                 <option value="Saudia Arabia">KSA</option>
-                                    //             </select>
-                                    //         </div>
-
-                                    //         <div className="col-md-4 mb-3">
-                                    //             <label className="form-label">Applied Tax State</label>
-                                    //             <input
-                                    //                 type="text"
-                                    //                 className="form-control"
-                                    //                 placeholder="Enter Tax State"
-                                    //                 value={appliedTaxState}
-                                    //                 onChange={(e) => setAppliedTaxState(e.target.value)}
-                                    //             />
-                                    //         </div>
-
-                                    //         <div className="col-md-4 mb-3">
-                                    //             <label className="form-label">Vacation Pay</label>
-                                    //             <input
-                                    //                 type="number"
-                                    //                 className="form-control"
-                                    //                 placeholder="Enter Vacation Pay"
-                                    //                 value={vacationPay === null ? '' : vacationPay}
-                                    //                 onChange={(e) => setVacationPay(e.target.value === '' ? '' : Number(e.target.value))}
-                                    //             />
-                                    //         </div>
-                                    //     </div>
-
-                                    //     {/* Row 3: Pay Period Type */}
-                                    //     <div className="row">
-                                    //         <div className="col-md-4 mb-4">
-                                    //             <label className="form-label">Pay Period Type</label>
-                                    //             <select
-                                    //                 className="form-select"
-                                    //                 value={payPeriodType}
-                                    //                 onChange={(e) => setPayPeriodType(e.target.value)}
-                                    //             >
-                                    //                 <option value="">Select Period</option>
-                                    //                 <option value="weekly">Weekly</option>
-                                    //                 <option value="biweekly">Bi-Weekly</option>
-                                    //                 <option value="monthly">Monthly</option>
-                                    //             </select>
-                                    //         </div>
-                                    //     </div>
-
-                                    //     {/* Save Button */}
-                                    //     <button className="btn w-100 text-white" style={{ backgroundColor: '#5CB85C' }} onClick={updateStubSettings}>
-                                    //         Save Stub Settings
-                                    //     </button>
-                                    // </div>
                                 )}
 
                             </div>
