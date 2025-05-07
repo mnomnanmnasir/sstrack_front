@@ -117,18 +117,14 @@ const Sidebar = ({ open, onClose }) => {
         { text: 'Location Tracking', icon: <MapIcon />, route: '/Locationtracking' },
 
         // { text: 'Pay Stub Managment', icon: <AttachMoneyIcon />, route: '/pay_stub_managment' },
-<<<<<<< HEAD
         { isDropdown: 'paystub' },
         // ...(userType === 'owner' || userType === 'admin' ? [
         //     { text: 'Pay Stub Managment', icon: <PeopleIcon />, route: '/pay_stub_managment' }
         // ] : []),
 
-=======
-        ...(userType === 'owner' || userType === 'admin' ? [
+       ...(userType === 'owner' || userType === 'admin' ? [
             { text: 'Pay Roll', icon: <PeopleIcon />, route: '/pay_stub_managment' }
         ] : []),
-        
->>>>>>> f3347d1d3e5c174c9ea172dd64ab8357e1cc25aa
         ...(userType === 'manager' ? [{ text: 'Attendence Management', icon: <PeopleIcon />, route: '/attendence-management' }] : []),
     ];
 
