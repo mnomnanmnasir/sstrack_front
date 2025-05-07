@@ -122,9 +122,6 @@ const Sidebar = ({ open, onClose }) => {
         //     { text: 'Pay Stub Managment', icon: <PeopleIcon />, route: '/pay_stub_managment' }
         // ] : []),
 
-       ...(userType === 'owner' || userType === 'admin' ? [
-            { text: 'Pay Roll', icon: <PeopleIcon />, route: '/pay_stub_managment' }
-        ] : []),
         ...(userType === 'manager' ? [{ text: 'Attendence Management', icon: <PeopleIcon />, route: '/attendence-management' }] : []),
     ];
 

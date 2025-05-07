@@ -168,13 +168,13 @@ function HeaderOption({ isMobile }) {
                                             style={{ color: 'white', textDecoration: 'none', margin: 0 }}
                                         >
                                             How It Works</Link>
-                                        {/* <Link
+                                        <Link
                                             to="/blogs"
                                             className="ownerSectionUser1"
                                             // state={{ scrollTo: "section5" }}
                                             style={{ color: 'white', textDecoration: 'none', margin: 0 }}
                                         >
-                                            Blogs</Link> */}
+                                            Blogs</Link>
                                         {/* <p style={{ margin: 0 }} onClick={() => location.pathname === "/" ? scrollToSection('section4') : navigate("/")}>How It Work</p> */}
                                         {/* </div> */}
                                         {/* <div className="ownerSectionUser1 text-white" onClick={() => {

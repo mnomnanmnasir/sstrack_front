@@ -62,12 +62,11 @@ import Macos from "../screen/Macos";
 import AnalyticsTracker from "../screen/component/AnalyticsTracker"; // ✅ Add this at top
 import Contact from "../screen/ContactUS/Contact"; // ✅ Add this at top
 import NotFound from '../screen/NotFound'; // Adjust the import path as necessary
-
+import PayStubs from "../screen/PayStubs";
 // import PayStubGenerator from "../screen/PayStubGenerator";
 import CreateBlogs from "../screen/component/Blogs/CreateBlogs";
 import PayrollHistory from "../screen/PayStub/PayrollHistory";
 import PayStubGenerator from "../screen/PayStub/PayStubGenerator";
-import PayStubs from "../screen/PayStub/PayStubs";
 // import PayrollTable from "../screen/PayStub/PayrollTable";
 
 

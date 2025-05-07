@@ -850,7 +850,7 @@ function OwnerTeamComponent(props) {
                                                         <option value="">Select Period</option>
                                                         <option value="weekly">Weekly</option>
                                                         <option value="biweekly">Bi-Weekly</option>
-                                                     // <option value="monthly">Monthly</option>
+                                                        {/* <option value="monthly">Monthly</option> */}
                                                     </select>
                                                 </div>
                                                 <div className="col-md-4 mb-4">

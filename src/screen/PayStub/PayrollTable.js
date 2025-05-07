@@ -90,22 +90,13 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
 
   useEffect(() => {
     if (typeof onSelectionChange === 'function') {
-      const selected = employees.filter(emp => selectedEmployees.includes(emp.id));
-      const totalGross = selected.reduce((sum, emp) => sum + parseFloat(calculateGrossPay(emp)), 0);
-      const employerContrib = selected.length * 0.41; // or whatever logic applies
-
       onSelectionChange({
         selectedEmployeeIds: selectedEmployees,
         payPeriodStart: payPeriod.start,
-        payPeriodEnd: payPeriod.end,
-        month,
-        totalGross,
-        employerContrib,
-        payDate // already set in useState
+        payPeriodEnd: payPeriod.end
       });
     }
-  }, [selectedEmployees, payPeriod, employees, payDate]);
-
+  }, [selectedEmployees, payPeriod]);
 
   const getWorkingDays = (start, end) => {
     const startDate = new Date(start);
@@ -131,7 +122,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
 
   return (
     <div style={styles.container}>
-      {/* <div style={styles.header}>Run Payroll: Every Friday 2</div> */}
+      <div style={styles.header}>Run Payroll: Every Friday 2</div>
 
       <div style={styles.controls}>
         <Form.Group className="mb-3">
