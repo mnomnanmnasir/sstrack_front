@@ -254,7 +254,6 @@ function UserDetails() {
         }));
     };
 
-
     const parseTime = (time) => {
         if (!time) return null; // Return null if time is empty or undefined
 
@@ -327,18 +326,27 @@ function UserDetails() {
     //         setLoading(false);
     //     }
     // };
+
     const fetchData = async () => {
         setLoading(true);
         try {
-            // const userId = items?._id; // ✅ Fix: Extract userId from decoded token
+            const isUser = items?.userType === "user";
+            const userId = isUser ? items?._id : (params?.id || items?._id); // ✅ fallback added
 
-            const userId = items?.userType === "user" ? items?._id : params?.id; // ✅ fixed logic
-            if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
+            console.log("Resolved userId:", userId); // DEBUG
+
+            if (!userId) {
+                console.error("User ID not found. Skipping API call.");
+                return;
+            }
+
+            if (["admin", "owner", "manager"].includes(items?.userType)) {
                 const [screenshotsResponse, activitiesResponse, hoursResponse] = await Promise.all([
                     axios.get(`${apiUrl}/owner/sorted-screenshots/${userId}?date=${formattedDate}`, { headers }),
                     axios.get(`${apiUrl}/owner/sorted-activities/${userId}?date=${formattedDate}`, { headers }),
                     axios.get(`${apiUrl}/owner/sorted-hours/${userId}?date=${formattedDate}`, { headers })
                 ]);
+
                 const screenshotsData = screenshotsResponse.data;
                 const activitiesData = activitiesResponse.data;
                 const hoursData = hoursResponse.data;
@@ -349,29 +357,32 @@ function UserDetails() {
                 setTimeTrackingId(hoursData.data?.TimeTrackingId || null);
                 setTimeEntries(screenshotsData.data?.groupedScreenshots || []);
 
-                // Clear data if no screenshots are available
                 if (!screenshotsData.data?.groupedScreenshots?.length) {
                     setTimeEntries([]);
                 }
             } else {
                 const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
+
                 setData(response.data?.data || []);
                 setTimeEntryId(response.data?.data?.TimeTrackingId || null);
                 setTimeTrackingId(response.data?.data?.TimeTrackingId || null);
                 setTimeEntries(response.data?.data?.groupedScreenshots || []);
 
-                // Clear data if no screenshots are available
                 if (!response.data?.data?.groupedScreenshots?.length) {
                     setTimeEntries([]);
                 }
             }
         } catch (error) {
-            console.error(error);
-            setTimeEntries([]); // Clear screenshots in case of error
+            console.error("Fetch error:", error);
+            setTimeEntries([]);
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchData()
+    }, [])
 
     // const fetchData = async () => {
     //     if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
@@ -724,38 +735,38 @@ function UserDetails() {
     //         const userId = items?._id;
     //         const isUser = items?.userType === "user";
     //         const idToUse = isUser ? userId : params?.id || userId; // ✅ FIXED
-    
+
     //         const url = isUser
     //             ? `${apiUrl}/timetrack/hoursbyday?date=${activeMonth}`
     //             : `${apiUrl}/owner/hoursbyday/${idToUse}?date=${activeMonth}`;
-    
+
     //         const response = await axios.get(url, { headers });
-    
+
     //         const totalHours = response.data.data.totalHoursByDay;
     //         console.log("totalHours of active month", response.data);
-    
+
     //         const currentDate = new Date();
     //         const maxHours = 8;
     //         let percentagesByDay = [];
-    
+
     //         const processMonth = (totalHours, month, year) => {
     //             const filteredHours = totalHours.filter(th => {
     //                 const [day, mon, yr] = th.date.split('-');
     //                 return mon.padStart(2, '0') === month && yr === year;
     //             });
-    
+
     //             filteredHours.forEach(th => {
     //                 const match = th.totalHours.match(/(\d+)h\s*(\d*)m/);
     //                 let totalMinutes = 0;
-    
+
     //                 if (match) {
     //                     const hours = parseInt(match[1], 10) || 0;
     //                     const minutes = parseInt(match[2], 10) || 0;
     //                     totalMinutes = hours * 60 + minutes;
     //                 }
-    
+
     //                 const percentage = Math.min((totalMinutes / (maxHours * 60)) * 100, 100);
-    
+
     //                 percentagesByDay.push({
     //                     date: th.date,
     //                     totalMinutes,
@@ -765,10 +776,10 @@ function UserDetails() {
     //                 });
     //             });
     //         };
-    
+
     //         const currentYear = currentDate.getFullYear();
     //         let isFirstMonthProcessed = false;
-    
+
     //         for (let year = currentYear; year >= 2023; year--) {
     //             for (let month = 12; month >= 1; month--) {
     //                 processMonth(totalHours, month.toString().padStart(2, '0'), year.toString());
@@ -778,7 +789,7 @@ function UserDetails() {
     //                 }
     //             }
     //         }
-    
+
     //         console.log('PERCENTAGES', percentagesByDay);
     //         setTotalPercentageByDay(percentagesByDay);
     //     } catch (error) {
@@ -788,41 +799,41 @@ function UserDetails() {
 
     async function getAllDays() {
         try {
-            const userId = items?._id;
             const isUser = items?.userType === "user";
-            const idToUse = isUser ? userId : params?.id || userId; // ✅ FIXED
-    
+            // const userId = isUser ? items?._id : params?.id; // ✅ Match logic with fetchData()
+            const userId = isUser ? items?._id : (params?.id || items?._id); // ✅ fallback for admin/owner own ID
+
             const url = isUser
                 ? `${apiUrl}/timetrack/hoursbyday?date=${activeMonth}`
-                : `${apiUrl}/owner/hoursbyday/${idToUse}?date=${activeMonth}`;
-    
+                : `${apiUrl}/owner/hoursbyday/${userId}?date=${activeMonth}`;
+
             const response = await axios.get(url, { headers });
-    
+
             const totalHours = response.data.data.totalHoursByDay;
             console.log("totalHours of active month", response.data);
-    
+
             const currentDate = new Date();
             const maxHours = 8;
             let percentagesByDay = [];
-    
+
             const processMonth = (totalHours, month, year) => {
                 const filteredHours = totalHours.filter(th => {
                     const [day, mon, yr] = th.date.split('-');
                     return mon.padStart(2, '0') === month && yr === year;
                 });
-    
+
                 filteredHours.forEach(th => {
                     const match = th.totalHours.match(/(\d+)h\s*(\d*)m/);
                     let totalMinutes = 0;
-    
+
                     if (match) {
                         const hours = parseInt(match[1], 10) || 0;
                         const minutes = parseInt(match[2], 10) || 0;
                         totalMinutes = hours * 60 + minutes;
                     }
-    
+
                     const percentage = Math.min((totalMinutes / (maxHours * 60)) * 100, 100);
-    
+
                     percentagesByDay.push({
                         date: th.date,
                         totalMinutes,
@@ -832,10 +843,10 @@ function UserDetails() {
                     });
                 });
             };
-    
+
             const currentYear = currentDate.getFullYear();
             let isFirstMonthProcessed = false;
-    
+
             for (let year = currentYear; year >= 2023; year--) {
                 for (let month = 12; month >= 1; month--) {
                     processMonth(totalHours, month.toString().padStart(2, '0'), year.toString());
@@ -845,18 +856,17 @@ function UserDetails() {
                     }
                 }
             }
-    
+
             console.log('PERCENTAGES', percentagesByDay);
             setTotalPercentageByDay(percentagesByDay);
         } catch (error) {
             console.log("Error in getAllDays:", error);
         }
-    }    
-
+    }
 
     useEffect(() => {
         getAllDays()
-    }, [activeMonth]);
+    }, [activeMonth, userId]);
 
     const handleOpenDeleteModal = (element, elements) => {
         setShowDeleteModal(true)

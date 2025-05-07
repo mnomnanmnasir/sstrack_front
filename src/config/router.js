@@ -64,7 +64,7 @@ import Contact from "../screen/ContactUS/Contact"; // ✅ Add this at top
 import NotFound from '../screen/NotFound'; // Adjust the import path as necessary
 import PayStubs from "../screen/PayStubs";
 // import PayStubGenerator from "../screen/PayStubGenerator";
-import RecentBlogs from "../screen/component/Blogs/RecentBlogs";
+import CreateBlogs from "../screen/component/Blogs/CreateBlogs";
 import PayrollHistory from "../screen/PayStub/PayrollHistory";
 import PayStubGenerator from "../screen/PayStub/PayStubGenerator";
 // import PayrollTable from "../screen/PayStub/PayrollTable";
@@ -170,7 +170,7 @@ export default function AppRouter() {
             <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/blogs" element={<RecentBlogs />} />
+            <Route path="/blogs" element={<CreateBlogs />} />
 
             <Route path="/dashboard" element={token ? (suspended ? <Navigate to="/account" /> : <UserDashboard />) : <Navigate to="/" />} />
             {/* <Route path="/splash" element={token ? (suspended ? <Navigate to="/account" /> : <DashboardSplash/>) : <Navigate to="/" />} /> */}

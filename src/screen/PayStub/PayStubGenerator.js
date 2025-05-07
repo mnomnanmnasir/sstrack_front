@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import PayrollTable from './PayrollTable';
 import PayStubs from './PayStubs';
+import { useLocation } from 'react-router-dom';
 
 const PayStubGenerator = () => {
     const [step, setStep] = useState(0);
@@ -27,6 +28,7 @@ const PayStubGenerator = () => {
     const user = jwtDecode(JSON.stringify(token));
     const headers = { Authorization: `Bearer ${token}` };
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const location = useLocation();
 
     const handleNext = async () => {
         if (step === 1) {
@@ -174,6 +176,13 @@ const PayStubGenerator = () => {
         fetchAllStubs();
     }, []);
 
+    useEffect(() => {
+        // If coming from navigate with state
+        if (location.state?.step) {
+            setStep(location.state.step);
+        }
+    }, [location.state]);
+    
     return (
         <>
             <SnackbarProvider />
