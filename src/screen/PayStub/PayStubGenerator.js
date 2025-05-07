@@ -22,7 +22,9 @@ const PayStubGenerator = () => {
     const [payScheduleCounts, setPayScheduleCounts] = useState({});
     const [loading, setLoading] = useState(false);
     const [history, setHistory] = useState([]);
-
+    const [totalGross, setTotalGross] = useState(0);
+    const [employerContrib, setEmployerContrib] = useState(0);
+    const [payDate, setPayDate] = useState('');
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const user = jwtDecode(JSON.stringify(token));
@@ -161,9 +163,11 @@ const PayStubGenerator = () => {
             await fetchAllStubs();
             alert('Stub generated successfully!');
             setShowSummary(true);
-        } catch (error) {
-            console.error("Error generating stub:", error.message);
-            alert(error.message || 'Failed to generate stub.');
+        } catch (res) {
+            console.error("Error generating stub:", res.
+                response.data.message
+            );
+            alert(res.response.data.message || 'Failed to generate stub.');
         } finally {
             setLoading(false);
         }
@@ -193,7 +197,7 @@ const PayStubGenerator = () => {
                 <div className='mainwrapper'>
                     <div className="ownerTeamContainer">
                         <div className="container p-4">
-                            <h2>🧾 Pay Stub Wizard</h2>
+                            <h2>🧾 Pay Stub </h2>
                             {step === 0 && (
                                 <>
                                     <h4 className="mb-4">🔗 Shortcuts</h4>
@@ -277,11 +281,15 @@ const PayStubGenerator = () => {
                                 <PayrollTable
                                     employees={filteredUsers}
                                     frequency={frequency}
-                                    onSelectionChange={({ selectedEmployeeIds, payPeriodStart, payPeriodEnd, month }) => {
+                                    onSelectionChange={({ selectedEmployeeIds, payPeriodStart, payPeriodEnd, month, totalGross, employerContrib, payDate }) => {
                                         setSelectedIds(selectedEmployeeIds);
                                         setSelectedPeriodDates({ start: payPeriodStart, end: payPeriodEnd });
                                         setMonth(month);
+                                        setTotalGross(totalGross);
+                                        setEmployerContrib(employerContrib);
+                                        setPayDate(payDate);
                                     }}
+
                                 />
                             )}
 
@@ -289,18 +297,32 @@ const PayStubGenerator = () => {
                                 <>
                                     <h4>Step 4: Review</h4>
                                     {/* Summary Section */}
-                                    <div className="mb-4 p-3 bg-light rounded border">
-                                        <h5>📌 Summary</h5>
-                                        <p><strong>Pay Period:</strong> {selectedPeriodDates.start} to {selectedPeriodDates.end}</p>
-                                        <p><strong>Selected Employees:</strong></p>
-                                        <ul>
-                                            {filteredUsers
-                                                .filter(user => selectedIds.includes(user._id))
-                                                .map(user => (
-                                                    <li key={user._id}>{user.name}</li>
-                                                ))}
-                                        </ul>
+                                    {/* Payroll Cost Summary Card */}
+                                    <div className="card p-3 mb-4 shadow-sm d-flex flex-row justify-content-between align-items-center" style={{ backgroundColor: '#f9fbfd' }}>
+                                        <div>
+                                            <h5>Total Payroll Cost</h5>
+                                            <div className="bg-white border rounded p-3 mt-2">
+                                                <div style={{ fontSize: '24px', fontWeight: 'bold' }}>${(totalGross + employerContrib).toFixed(2)}</div>
+                                                <div className="text-muted">Gross pay <span className="float-end">${totalGross.toFixed(2)}</span></div>
+                                                <div className="text-muted">Employer taxes & contributions   <span className="float-end">${employerContrib.toFixed(2)}</span></div>
+                                            </div>
+                                        </div>
+
+                                        <div className="ps-4">
+                                            <div><strong>Funding account:</strong> <span className="text-muted">--</span></div>
+                                            <div><strong>Pay period:</strong> <span className="text-muted">{selectedPeriodDates.start} to {selectedPeriodDates.end}</span></div>
+                                            <div><strong>Pay date:</strong> <span className="text-muted">{payDate}</span></div>
+                                            {/* <div className="mt-2">
+                                                <label><strong>Chart of account:</strong></label>
+                                                <select className="form-select mt-1" style={{ width: '180px' }}>
+                                                    <option>Chequing</option>
+                                                    <option>Savings</option>
+                                                    <option>Payroll Account</option>
+                                                </select>
+                                            </div> */}
+                                        </div>
                                     </div>
+
                                     {/* History Section */}
                                     {history.length > 0 && (
                                         <div className="mt-5">
