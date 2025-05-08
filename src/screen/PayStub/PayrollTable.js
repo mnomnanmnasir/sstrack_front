@@ -100,21 +100,32 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
 
   useEffect(() => {
     if (typeof onSelectionChange === 'function') {
-      const selected = employees.filter(emp => selectedEmployees.includes(emp.id));
+      const selected = employees
+        .filter(emp => selectedEmployees.includes(emp.id));
+
       const totalGross = selected.reduce((sum, emp) => sum + parseFloat(calculateGrossPay(emp)), 0);
-      const employerContrib = selected.length * 0.41; // or whatever logic applies
+      const employerContrib = selected.length * 0.41;
+
+      const selectedEmployeeData = selected.map(emp => ({
+        userId: emp.id,
+        memo: emp.memo,
+        bonus: parseFloat(emp.bonus) || 0,
+        adjustments: parseFloat(emp.adjustments) || 0
+      }));
 
       onSelectionChange({
         selectedEmployeeIds: selectedEmployees,
+        selectedEmployeeData, // ✅ enriched per-user data
         payPeriodStart: payPeriod.start,
         payPeriodEnd: payPeriod.end,
         month,
         totalGross,
         employerContrib,
-        payDate // already set in useState
+        payDate
       });
     }
   }, [selectedEmployees, payPeriod, employees, payDate]);
+
 
 
   const getWorkingDays = (start, end) => {

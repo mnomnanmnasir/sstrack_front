@@ -15,6 +15,7 @@ const PayStubGenerator = () => {
     const [selectedUserId, setSelectedUserId] = useState('');
     const [month, setMonth] = useState('');
     const [frequency, setFrequency] = useState('');
+    const [selectedEmployeeData, setSelectedEmployeeData] = useState([]);
     const [selectedIds, setSelectedIds] = useState([]);
     const [selectedPeriodDates, setSelectedPeriodDates] = useState({ start: '', end: '' });
     const [filteredUsers, setFilteredUsers] = useState([]);
@@ -53,17 +54,50 @@ const PayStubGenerator = () => {
             } finally {
                 setLoading(false);
             }
+
         } else if (step === 2) {
             if (!selectedPeriodDates.start || !selectedPeriodDates.end || selectedIds.length === 0) {
                 alert("Please select month, pay period and employees.");
-
                 return;
             }
-            setStep(prev => prev + 1);
+
+            try {
+                setLoading(true);
+
+                const startDate = moment(selectedPeriodDates.start).format("YYYY-MM-DD");
+                const endDate = moment(selectedPeriodDates.end).format("YYYY-MM-DD");
+
+                const payload = {
+                    startDate,
+                    endDate,
+                    userIds: selectedIds,
+                    country: "Philippines",  // Replace if dynamic
+                    state: "maharashtra",    // Replace if dynamic
+                    employeeData: selectedEmployeeData || []
+                };
+
+                const res = await axios.post(`${apiUrl}/owner/generatePayStubs`, payload, { headers });
+                await fetchAllStubs(); // Optional
+                alert("Stubs generated successfully!");
+                setStep(prev => prev + 1);
+            } catch (error) {
+                console.error("Error generating stubs:", error);
+                alert(error?.response?.data?.message || "Failed to generate stubs.");
+            } finally {
+                setLoading(false);
+            }
+
         } else if (step === 3) {
-            await handleGenerate();
+            console.log("✅ Final review data:");
+            console.log("Selected IDs:", selectedIds);
+            console.log("Pay Period:", selectedPeriodDates);
+            console.log("Selected Employees:", selectedEmployeeData);
+            console.log("Total Gross:", totalGross);
+            console.log("Employer Contribution:", employerContrib);
+            console.log("Pay Date:", payDate);
         }
     };
+
 
     const handleViewStub = (record) => {
         console.log("Viewing stub:", record);
@@ -149,27 +183,33 @@ const PayStubGenerator = () => {
             const { start, end } = selectedPeriodDates;
             const startDate = moment(start).format("YYYY-MM-DD");
             const endDate = moment(end).format("YYYY-MM-DD");
-            const res = await axios.post(
-                `${apiUrl}/owner/generatePayStubs`,
-                {
-                    startDate,
-                    endDate,
-                    userIds: selectedIds,
-                    country: "Philippines",
-                    state: "maharashtra"
-                },
-                { headers }
-            );
+
+            const payload = {
+                startDate,
+                endDate,
+                country: "Philippines",
+                state: "maharashtra",
+                userStubs: selectedEmployeeData.map(emp => ({
+                    userId: emp.userId,
+                    memo: emp.memo,
+                    bonus: emp.bonus,
+                    adjustment: emp.adjustments,
+                }))
+            };
+
+            const res = await axios.post(`${apiUrl}/owner/generatePayStubs`, payload, { headers });
+
             await fetchAllStubs();
             alert('Stub generated successfully!');
             setShowSummary(true);
         } catch (res) {
-            console.log("Error generating stub:", res.response.data.message);
-            alert(res.response.data.message || 'Failed to generate stub.');
+            console.log("Error generating stub:", res.response?.data?.message);
+            alert(res.response?.data?.message || 'Failed to generate stub.');
         } finally {
             setLoading(false);
         }
     };
+
 
     useEffect(() => {
         if (user?.userType === "manager") getManagerTeam();
@@ -279,16 +319,26 @@ const PayStubGenerator = () => {
                                 <PayrollTable
                                     employees={filteredUsers}
                                     frequency={frequency}
-                                    onSelectionChange={({ selectedEmployeeIds, payPeriodStart, payPeriodEnd, month, totalGross, employerContrib, payDate }) => {
+                                    onSelectionChange={({
+                                        selectedEmployeeIds,
+                                        selectedEmployeeData, // <-- New
+                                        payPeriodStart,
+                                        payPeriodEnd,
+                                        month,
+                                        totalGross,
+                                        employerContrib,
+                                        payDate
+                                    }) => {
                                         setSelectedIds(selectedEmployeeIds);
+                                        setSelectedEmployeeData(selectedEmployeeData); // ✅ new state
                                         setSelectedPeriodDates({ start: payPeriodStart, end: payPeriodEnd });
                                         setMonth(month);
                                         setTotalGross(totalGross);
                                         setEmployerContrib(employerContrib);
                                         setPayDate(payDate);
                                     }}
-
                                 />
+
                             )}
 
                             {step === 3 && (
@@ -310,7 +360,7 @@ const PayStubGenerator = () => {
                                             <div><strong>Funding account:</strong> <span className="text-muted">--</span></div>
                                             <div><strong>Pay period:</strong> <span className="text-muted">{selectedPeriodDates.start} to {selectedPeriodDates.end}</span></div>
                                             <div><strong>Pay date:</strong> <span className="text-muted">{payDate}</span></div>
-                                            
+
                                         </div>
                                     </div>
 
@@ -358,8 +408,9 @@ const PayStubGenerator = () => {
                             <div className="d-flex justify-content-between mt-4">
                                 <Button onClick={handleBack} disabled={step === 0}>Back</Button>
                                 <Button onClick={handleNext} variant="primary" disabled={loading}>
-                                    {loading ? <Spinner size="sm" animation="border" /> : step === 3 ? 'Generate Stub' : 'Next'}
+                                    {loading ? <Spinner size="sm" animation="border" /> : step === 2 ? 'Generate Stub' : step === 3 ? 'Submit' : 'Next'}
                                 </Button>
+
                             </div>
 
 
