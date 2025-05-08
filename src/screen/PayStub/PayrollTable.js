@@ -235,6 +235,9 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
         </Button>
 
       </div>
+      <div style={{ alignSelf: 'flex-end', fontWeight: 600, padding: '8px 0' }}>
+        Total Employees: {employees.length}
+      </div>
 
       <table style={styles.table}>
         <thead>
