@@ -57,6 +57,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
         overtime: 0,
         hourlyRate: emp.billingInfo?.ratePerHour || 0,
         bonus: 0.0,
+        adjustments: 0,
         memo: '',
         payMethod: 'Bank transfer',
       }));
@@ -81,7 +82,9 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
   const calculateGrossPay = (emp) => {
     const regularPay = emp.regularHours * emp.hourlyRate;
     const overtimePay = emp.overtime * emp.hourlyRate * 1.5;
-    return (regularPay + overtimePay + emp.bonus).toFixed(2);
+    const bonus = parseFloat(emp.bonus) || 0;
+    const adjustments = parseFloat(emp.adjustments) || 0;
+    return (regularPay + overtimePay + bonus + adjustments).toFixed(2);
   };
 
   useEffect(() => {
@@ -174,6 +177,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
             <th style={styles.th}>Regular Hours</th>
             <th style={styles.th}>Overtime</th>
             <th style={styles.th}>Bonus</th>
+            <th style={styles.th}>Adjustments</th>
             <th style={styles.th}>Gross Pay</th>
             <th style={styles.th}>Memo</th>
             <th style={styles.th}>Pay Method</th>
@@ -232,6 +236,16 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                       style={{ ...styles.input, width: '80px' }}
                     />
                   </td>
+                  <td style={styles.td}>
+                    <input
+                      type="number"
+                      value={emp.adjustments}
+                      onChange={(e) => handleChange(emp.id, 'adjustments', e.target.value)}
+                      disabled={!editable}
+                      style={{ ...styles.input, width: '80px' }}
+                    />
+                  </td>
+
                   <td style={styles.td}>${calculateGrossPay(emp)}</td>
                   <td style={styles.td}>
                     <input
