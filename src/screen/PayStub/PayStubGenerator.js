@@ -19,6 +19,7 @@ const PayStubGenerator = () => {
     const [selectedIds, setSelectedIds] = useState([]);
     const [selectedPeriodDates, setSelectedPeriodDates] = useState({ start: '', end: '' });
     const [filteredUsers, setFilteredUsers] = useState([]);
+    const [generatedStubs, setGeneratedStubs] = useState([]);
     const [showSummary, setShowSummary] = useState(false);
     const [payScheduleCounts, setPayScheduleCounts] = useState({});
     const [loading, setLoading] = useState(false);
@@ -71,13 +72,19 @@ const PayStubGenerator = () => {
                     startDate,
                     endDate,
                     userIds: selectedIds,
-                    country: "Philippines",  // Replace if dynamic
-                    state: "maharashtra",    // Replace if dynamic
+                    // country: "Philippines",  // Replace if dynamic
+                    // state: "maharashtra",    // Replace if dynamic
                     employeeData: selectedEmployeeData || []
                 };
 
                 const res = await axios.post(`${apiUrl}/owner/generatePayStubs`, payload, { headers });
+                if (res.data?.data) {
+                    setGeneratedStubs(res.data.data);
+                    // Add this state to hold the generated stub records
+                }
+
                 await fetchAllStubs(); // Optional
+                console.log('stub generation', res)
                 alert("Stubs generated successfully!");
                 setStep(prev => prev + 1);
             } catch (error) {
@@ -88,6 +95,7 @@ const PayStubGenerator = () => {
             }
 
         } else if (step === 3) {
+            navigate('/PayStub_history')
             console.log("✅ Final review data:");
             console.log("Selected IDs:", selectedIds);
             console.log("Pay Period:", selectedPeriodDates);
@@ -224,6 +232,22 @@ const PayStubGenerator = () => {
             setStep(location.state.step);
         }
     }, [location.state]);
+    // ---- Payroll Summary Calculations ----
+    const currencySymbolMap = {
+        usd: '$', pkr: '₨', inr: '₹', cad: 'C$', eur: '€', gbp: '£'
+    };
+
+    const displayCurrency = generatedStubs[0]?.currency?.toLowerCase() || 'usd';
+    const currencySymbol = currencySymbolMap[displayCurrency] || '$';
+
+    const totalGrossAmount = generatedStubs.reduce((sum, stub) => sum + (stub.grossPay || 0), 0);
+    const totalNetAmount = generatedStubs.reduce((sum, stub) => sum + (stub.netPay || 0), 0);
+    const totalHoursWorked = generatedStubs.reduce((sum, stub) => sum + ((stub.regHours || 0) + (stub.OTHours || 0)), 0);
+    const totalDeductions = generatedStubs.reduce((sum, stub) => {
+        const tax = (stub.taxBreakdown || []).reduce((s, t) => s + (t.amount || 0), 0);
+        const other = (stub.totalDeductions || []).reduce((s, d) => s + (d.amount || 0), 0);
+        return sum + tax + other;
+    }, 0);
 
     return (
         <>
@@ -345,14 +369,20 @@ const PayStubGenerator = () => {
                                 <>
                                     <h4>Step 4: Review</h4>
                                     {/* Summary Section */}
+
                                     {/* Payroll Cost Summary Card */}
                                     <div className="card p-3 mb-4 shadow-sm d-flex flex-row justify-content-between align-items-center" style={{ backgroundColor: '#f9fbfd' }}>
                                         <div>
                                             <h5>Total Payroll Cost</h5>
                                             <div className="bg-white border rounded p-3 mt-2">
-                                                <div style={{ fontSize: '24px', fontWeight: 'bold' }}>${(totalGross + employerContrib).toFixed(2)}</div>
-                                                <div className="text-muted">Gross pay <span className="float-end">${totalGross.toFixed(2)}</span></div>
-                                                <div className="text-muted">Employer taxes & contributions <span className="float-end">${employerContrib.toFixed(2)}</span></div>
+                                                <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                                                    {currencySymbol} {(totalGrossAmount + employerContrib).toFixed(2)}
+                                                </div>
+                                                <div className="text-muted">Gross pay <span className="float-end">{currencySymbol} {totalGrossAmount.toFixed(2)}</span></div>
+                                                <div className="text-muted">Net pay <span className="float-end">{currencySymbol} {totalNetAmount.toFixed(2)}</span></div>
+                                                <div className="text-muted">
+                                                    Employer taxes & contributions <span className="float-end">{currencySymbol} {totalDeductions.toFixed(2)}</span>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -360,48 +390,69 @@ const PayStubGenerator = () => {
                                             <div><strong>Funding account:</strong> <span className="text-muted">--</span></div>
                                             <div><strong>Pay period:</strong> <span className="text-muted">{selectedPeriodDates.start} to {selectedPeriodDates.end}</span></div>
                                             <div><strong>Pay date:</strong> <span className="text-muted">{payDate}</span></div>
-
                                         </div>
                                     </div>
 
-                                    {/* History Section */}
-                                    {history.length > 0 && (
-                                        <div className="mt-5">
-                                            <h4>🗂️ Pay Stub History</h4>
-                                            <table className="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th>User</th>
-                                                        {/* <th>Month</th> */}
-                                                        <th>Frequency</th>
-                                                        <th>Period</th>
-                                                        <th>Date Generated</th>
-                                                        <th>Action</th> {/* New column for the button */}
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {history.map((h, idx) => (
-                                                        <tr key={idx}>
-                                                            <td>{h.name}</td>
-                                                            {/* <td>{h.month}</td> */}
-                                                            <td>{h.payPeriod}</td>
-                                                            <td>{`${h.StartDate} - ${h.EndDate}`}</td>
-                                                            <td>{h.payDate}</td>
-                                                            <td>
-                                                                <button
-                                                                    className="btn btn-sm btn-primary"
-                                                                    onClick={() => handleViewStub(h)}
-                                                                >
-                                                                    View
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                                    <div className="table-responsive">
 
-                                        </div>
-                                    )}
+                                        <table className="table table-bordered mt-3 bg-white">
+                                            <thead className="table-light">
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Total hours</th>
+                                                    <th>Gross Pay</th>
+                                                    <th>Taxes & Deductions</th>
+                                                    <th>Net Pay</th>
+                                                    <th>Employer Contributions</th>
+                                                    <th>Memo</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {generatedStubs.map((stub, idx) => {
+                                                    const currencySymbol = {
+                                                        usd: '$', pkr: '₨', inr: '₹', cad: 'C$', eur: '€', gbp: '£'
+                                                    }[stub.currency?.toLowerCase()] || '$';
+
+                                                    const totalDeductions = (stub.taxBreakdown || []).reduce((sum, item) => sum + (item.amount || 0), 0) +
+                                                        (stub.totalDeductions || []).reduce((sum, item) => sum + (item.amount || 0), 0);
+
+                                                    const memo = selectedEmployeeData.find(emp => emp.userId === stub.userId)?.memo || '';
+
+                                                    return (
+                                                        <tr key={stub._id || idx}>
+                                                            <td>{stub.name}</td>
+                                                            <td>{stub.regHours + stub.OTHours}</td>
+                                                            <td>{currencySymbol} {stub.grossPay?.toFixed(2)}</td>
+                                                            <td>{currencySymbol} {totalDeductions.toFixed(2)}</td>
+                                                            <td>{currencySymbol} {stub.netPay?.toFixed(2)}</td>
+                                                            <td>--</td>
+                                                            <td>{memo}</td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                                <tr className="fw-bold">
+                                                    <td>Total</td>
+                                                    <td>{generatedStubs.reduce((sum, s) => sum + (s.regHours + s.OTHours), 0)}</td>
+                                                    <td>
+                                                        {generatedStubs.length > 0 && (() => {
+                                                            const curr = generatedStubs[0].currency?.toLowerCase() || 'usd';
+                                                            const symbol = {
+                                                                usd: '$', pkr: '₨', inr: '₹', cad: 'C$', eur: '€', gbp: '£'
+                                                            }[curr] || '$';
+                                                            const total = generatedStubs.reduce((sum, s) => sum + (s.grossPay || 0), 0);
+                                                            return `${symbol} ${total.toFixed(2)}`;
+                                                        })()}
+                                                    </td>
+                                                    <td>--</td>
+                                                    <td>--</td>
+                                                    <td>--</td>
+                                                    <td></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+
                                 </>
                             )}
 
