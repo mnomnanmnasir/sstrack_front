@@ -1,13 +1,15 @@
 import jwtDecode from 'jwt-decode';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { Form } from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
+
+
 
 const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequency, onSelectionChange }) => {
   const token = localStorage.getItem('token');
   const user = useMemo(() => jwtDecode(token), [token]);
   const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
   const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
-
+  const [originalEmployees, setOriginalEmployees] = useState([]);
   const [payPeriod, setPayPeriod] = useState({ start: '2025-04-21', end: '2025-04-27' });
   const [payDate, setPayDate] = useState('2025-05-02');
   const [frequency] = useState(parentFrequency || '');
@@ -47,21 +49,23 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
 
   useEffect(() => {
     if (Array.isArray(initialEmployees)) {
-      const workingDays = getWorkingDays(payPeriod.start, payPeriod.end);
-      const defaultRegularHours = workingDays * 8;
+
       const mapped = initialEmployees.map((emp) => ({
         id: emp._id,
         name: emp.name,
         type: emp.billingInfo?.payType === 'hourly' ? 'Hourly' : 'Monthly',
-        regularHours: defaultRegularHours,
+        regularHours: emp.totalHours?.userHours || 0,
         overtime: 0,
-        hourlyRate: emp.billingInfo?.ratePerHour || 0,
+        regularHours: emp.totalHours?.userHours || 0,
         bonus: 0.0,
         adjustments: 0,
         memo: '',
         payMethod: 'Bank transfer',
+        currency: emp.billingInfo?.currency || 'usd',
+        earnings: emp.earnings || {},
       }));
       setEmployees(mapped);
+      setOriginalEmployees(mapped); // ✅ Save for reset
     }
   }, [initialEmployees, payPeriod]);
 
@@ -78,14 +82,57 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
       )
     );
   };
+  const handlePeriodChange = async (e) => {
+    const selected = e.target.value;
+    setSelectedPeriod(selected);
 
-  const calculateGrossPay = (emp) => {
-    const regularPay = emp.regularHours * emp.hourlyRate;
-    const overtimePay = emp.overtime * emp.hourlyRate * 1.5;
-    const bonus = parseFloat(emp.bonus) || 0;
-    const adjustments = parseFloat(emp.adjustments) || 0;
-    return (regularPay + overtimePay + bonus + adjustments).toFixed(2);
+    if (!selected || !frequency) return;
+
+    // Parse start and end dates
+    const [startStr, endStr] = selected.split(" - ");
+    const formatDate = (dateStr) => {
+      const [month, day, year] = dateStr.split("/");
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    };
+    const startDate = formatDate(startStr);
+    const endDate = formatDate(endStr);
+
+    try {
+      const response = await fetch(
+        `${apiUrl}/owner/filterUsersBypayPeriod/${frequency}?startDate=${startDate}&endDate=${endDate}`,
+        {
+          method: "GET",
+          headers,
+        }
+      );
+      const result = await response.json();
+      console.log("📦 Filtered API Response:", result);
+
+      if (result.success && Array.isArray(result.data)) {
+        const mappedEmployees = result.data.map(emp => ({
+          id: emp._id,
+          name: emp.name,
+          type: emp.billingInfo?.payType === 'hourly' ? 'Hourly' : 'Monthly',
+          regularHours: emp.totalHours?.userHours || 0,
+          overtime: emp.totalHours?.overTimeUser || 0,
+          hourlyRate: emp.billingInfo?.ratePerHour || 0,
+          bonus: 0.0,
+          adjustments: 0.0,
+          memo: '',
+          payMethod: 'Bank transfer',
+          currency: emp.billingInfo?.currency || 'usd',
+          earnings: emp.earnings || {},
+        }));
+
+        setEmployees(mappedEmployees);
+      }
+
+    } catch (error) {
+      console.error("❌ Error fetching filtered employees:", error);
+    }
   };
+
+
 
   useEffect(() => {
     if (selectedPeriod.includes(" - ")) {
@@ -103,7 +150,8 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
       const selected = employees
         .filter(emp => selectedEmployees.includes(emp.id));
 
-      const totalGross = selected.reduce((sum, emp) => sum + parseFloat(calculateGrossPay(emp)), 0);
+      const totalGross = selected.reduce((sum, emp) => sum + (parseFloat(emp.earnings?.grossPay) || 0), 0);
+
       const employerContrib = selected.length * 0.41;
 
       const selectedEmployeeData = selected.map(emp => ({
@@ -112,7 +160,6 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
         bonus: parseFloat(emp.bonus) || 0,
         adjustments: parseFloat(emp.adjustments) || 0
       }));
-
       onSelectionChange({
         selectedEmployeeIds: selectedEmployees,
         selectedEmployeeData, // ✅ enriched per-user data
@@ -126,19 +173,17 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
     }
   }, [selectedEmployees, payPeriod, employees, payDate]);
 
-
-
-  const getWorkingDays = (start, end) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    let count = 0;
-    while (startDate <= endDate) {
-      const day = startDate.getDay();
-      if (day !== 0 && day !== 6) count++;
-      startDate.setDate(startDate.getDate() + 1);
-    }
-    return count;
+  const currencySymbols = {
+    usd: '$',
+    pkr: '₨',
+    cad: 'C$',
+    eur: '€',
+    gbp: '£',
+    inr: '₹',
   };
+
+
+
 
   const styles = {
     container: { padding: '30px', fontFamily: 'Segoe UI, sans-serif', backgroundColor: '#f9fbfd' },
@@ -164,7 +209,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
           <Form.Label>Select Pay Period</Form.Label>
           <Form.Select
             value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
+            onChange={handlePeriodChange}
             disabled={periods.length === 0}
           >
             <option value="">-- Select Period --</option>
@@ -172,10 +217,23 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
           </Form.Select>
         </Form.Group>
 
+
+
         <div>
           <label>Frequency:</label><br />
           <p style={{ ...styles.input, marginBottom: 0 }}>{frequency.charAt(0).toUpperCase() + frequency.slice(1)}</p>
         </div>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            setMonth('');
+            setSelectedPeriod('');
+            setEmployees(originalEmployees); // ✅ Just restore the original
+          }}
+        >
+          Reset Filters
+        </Button>
+
       </div>
 
       <table style={styles.table}>
@@ -232,12 +290,12 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                   <td style={styles.td}>
                     <input
                       type="number"
-                      value={emp.overtime}
-                      onChange={(e) => handleChange(emp.id, 'overtime', e.target.value)}
-                      disabled={!editable}
+                      value={emp.earnings?.overtime || 0}
+                      disabled
                       style={{ ...styles.input, width: '70px' }}
                     />
                   </td>
+
                   <td style={styles.td}>
                     <input
                       type="number"
@@ -257,7 +315,13 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                     />
                   </td>
 
-                  <td style={styles.td}>${calculateGrossPay(emp)}</td>
+                  <td style={styles.td}>
+                    {currencySymbols[emp.currency?.toLowerCase()] || '$'} {(emp.earnings?.grossPay || 0).toFixed(2)}
+                  </td>
+
+
+
+
                   <td style={styles.td}>
                     <input
                       type="text"
