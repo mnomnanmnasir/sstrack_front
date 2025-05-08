@@ -36,6 +36,7 @@ function OwnerTeamComponent(props) {
     const [overtimeRate, setOvertimeRate] = useState('');
     const [hourlyRate, setHourlyRate] = useState('');
     const [appliedTaxCountry, setAppliedTaxCountry] = useState('');
+    const [currency, setCurrency] = useState('');
     const [appliedTaxState, setAppliedTaxState] = useState('');
     const [vacationPay, setVacationPay] = useState('');
     const [payPeriodType, setPayPeriodType] = useState('');
@@ -51,6 +52,31 @@ function OwnerTeamComponent(props) {
 
 
     );
+
+    const usStateNameToCode = {
+        "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR",
+        "California": "CA", "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE",
+        "District of Columbia": "DC", "Florida": "FL", "Georgia": "GA", "Hawaii": "HI",
+        "Idaho": "ID", "Illinois": "IL", "Indiana": "IN", "Iowa": "IA", "Kansas": "KS",
+        "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD",
+        "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS",
+        "Missouri": "MO", "Montana": "MT", "Nebraska": "NE", "Nevada": "NV",
+        "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM", "New York": "NY",
+        "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK",
+        "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI",
+        "South Carolina": "SC", "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX",
+        "Utah": "UT", "Vermont": "VT", "Virginia": "VA", "Washington": "WA",
+        "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY"
+    };
+
+    const countryStateMap = {
+        Canada: ["Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan"],
+        "United States": Object.keys(usStateNameToCode), // <- Only use full names in dropdown
+        // Pakistan: ["Punjab", "Sindh", "KPK", "Balochistan"],
+        // Philiphines: ["Metro Manila", "Cebu", "Davao", "Laguna"],
+        India: ["Maharashtra", "Karnataka", "West Bengal", "Gujarat", "Tamil Nadu", "Telangana", "Andhra Pradesh", "Assam", "Bihar", "Chhattisgarh", "Kerala", "Punjab", "Odisha"]
+        // "Saudia Arabia": ["Riyadh", "Jeddah", "Dammam", "Mecca"],
+    };
 
     const [selectedGroupId, setSelectedGroupId] = useState(null);
 
@@ -99,7 +125,11 @@ function OwnerTeamComponent(props) {
             overtimeRate: overtimeRate,
             hourlyRate: hourlyRate,
             appliedTaxCountry: appliedTaxCountry,
-            appliedTaxState: appliedTaxState,
+            currency: currency,
+            appliedTaxState:
+                appliedTaxCountry === "United States" && usStateNameToCode[appliedTaxState]
+                    ? usStateNameToCode[appliedTaxState]
+                    : appliedTaxState,
             vacationPay: vacationPay,
             pay_type: pay_type,
             payPeriodType: payPeriodType
@@ -164,6 +194,7 @@ function OwnerTeamComponent(props) {
                     setHourlyRate(foundEmployee?.billingInfo?.ratePerHour || '');
                     setAppliedTaxCountry(foundEmployee?.appliedTaxCountry || '');
                     setAppliedTaxState(foundEmployee?.appliedTaxState || '');
+                    setCurrency(foundEmployee?.currency || '');
                     setVacationPay(foundEmployee?.vacationPay || '');
                     setPayPeriodType(foundEmployee?.payPeriodType || '');
                     setPayType(foundEmployee?.pay_type);
@@ -196,6 +227,7 @@ function OwnerTeamComponent(props) {
                     setHourlyRate(responseData?.billingInfo?.ratePerHour || '');
                     setAppliedTaxCountry(responseData?.appliedTaxCountry || '');
                     setAppliedTaxState(responseData?.appliedTaxState || '');
+                    setCurrency(responseData?.currency || '');
                     setVacationPay(responseData?.vacationPay || '');
                     setPayPeriodType(responseData?.payPeriodType || '');
                     setPayType(responseData?.pay_type);
@@ -798,7 +830,7 @@ function OwnerTeamComponent(props) {
 
                                             {/* Row 2: Applied Tax Country, Applied Tax State, Vacation Pay */}
                                             <div className="row">
-                                                <div className="col-md-4 mb-3">
+                                                <div className="col-md-6 mb-3">
                                                     <label className="form-label">Applied Tax Country</label>
                                                     <select
                                                         className="form-control"
@@ -814,8 +846,8 @@ function OwnerTeamComponent(props) {
                                                         <option value="Saudia Arabia">KSA</option>
                                                     </select>
                                                 </div>
-
-                                                <div className="col-md-4 mb-3">
+                                               
+                                                {/* <div className="col-md-4 mb-3">
                                                     <label className="form-label">Applied Tax State</label>
                                                     <input
                                                         type="text"
@@ -824,9 +856,60 @@ function OwnerTeamComponent(props) {
                                                         value={appliedTaxState}
                                                         onChange={(e) => setAppliedTaxState(e.target.value)}
                                                     />
+                                                </div> */}
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Applied Tax State</label>
+                                                    {["Canada", "United States", "India"].includes(appliedTaxCountry) ? (
+                                                        <select
+                                                            className="form-control"
+                                                            value={appliedTaxState}
+                                                            onChange={(e) => setAppliedTaxState(e.target.value)}
+                                                        >
+                                                            <option value="">Select State</option>
+                                                            {countryStateMap[appliedTaxCountry].map((state) => (
+                                                                <option key={state} value={state}>
+                                                                    {appliedTaxCountry === "United States" ? `${state}` : state}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    ) : (
+                                                        <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            placeholder="No State"
+                                                            disabled
+                                                        />
+                                                    )}
                                                 </div>
-
-                                                <div className="col-md-4 mb-3">
+                                                {/* <div className="col-md-4 mb-3">
+                                                    <label className="form-label">Vacation Pay</label>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        placeholder="Enter Vacation Pay"
+                                                        value={vacationPay === null ? '' : vacationPay}
+                                                        onChange={(e) => setVacationPay(e.target.value === '' ? '' : Number(e.target.value))}
+                                                    />
+                                                </div> */}
+                                            </div>
+                                            <div className="row">
+                                            <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Currency</label>
+                                                    <select
+                                                        className="form-control"
+                                                        value={currency}
+                                                        onChange={(e) => setCurrency(e.target.value)}
+                                                    >
+                                                        <option value="">Select Currency</option>
+                                                        <option value="USD">USD</option>
+                                                        <option value="QAR">QAR</option>
+                                                        <option value="PKR">PKR</option>
+                                                        <option value="SAR">SAR</option>
+                                                        <option value="AED">AED</option>
+                                                        <option value="PHP">PHP</option>
+                                                    </select>
+                                                </div>
+                                                <div className="col-md-6 mb-3">
                                                     <label className="form-label">Vacation Pay</label>
                                                     <input
                                                         type="number"
@@ -837,11 +920,12 @@ function OwnerTeamComponent(props) {
                                                     />
                                                 </div>
                                             </div>
-
                                             {/* Row 3: Pay Period Type */}
                                             <div className="row">
-                                                <div className="col-md-4 mb-4">
-                                                    <label className="form-label">Pay Period Type</label>
+                                                <div className="col-md-6 mb-4">
+                                                    <label className="form-label">Pay Period Type
+                                                        <small className="text-muted d-block">(Please select either Weekly or Bi-Weekly pay period)</small>
+                                                    </label>
                                                     <select
                                                         className="form-select"
                                                         value={payPeriodType}
@@ -853,8 +937,10 @@ function OwnerTeamComponent(props) {
                                                         {/* <option value="monthly">Monthly</option> */}
                                                     </select>
                                                 </div>
-                                                <div className="col-md-4 mb-4">
-                                                    <label className="form-label">Pay Type</label>
+                                                <div className="col-md-6 mb-4">
+                                                    <label className="form-label">Pay Type
+                                                        <small className="text-muted d-block">(Please select either Hourly or Monthly pay type)</small>
+                                                    </label>
                                                     <select
                                                         className="form-select"
                                                         value={pay_type}
