@@ -20,6 +20,7 @@ import { setLogout } from "../store/timelineSlice";
 import { useDispatch } from "react-redux";
 import jwtDecode from "jwt-decode";
 import TimezoneSelect from "react-timezone-select";
+import PayStubSettings from "../screen/component/PayStubSetting/payStubSetting";
 
 function OwnerTeamComponent(props) {
 
@@ -41,7 +42,7 @@ function OwnerTeamComponent(props) {
     const [vacationPay, setVacationPay] = useState('');
     const [payPeriodType, setPayPeriodType] = useState('');
     const [ratePerHour, setRatePerHours] = useState('');
-    const [pay_type, setPayType] = useState('');
+    const [pay_type, setPayType] = useState('hourly'); // ✅ Default value
 
     const token = localStorage.getItem('token');
     const headers = {
@@ -70,11 +71,11 @@ function OwnerTeamComponent(props) {
     };
 
     const countryStateMap = {
-        Canada: ["Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan"],
-        "United States": Object.keys(usStateNameToCode), // <- Only use full names in dropdown
+        canada: ["Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan"],
+        "usa": Object.keys(usStateNameToCode), // <- Only use full names in dropdown
         // Pakistan: ["Punjab", "Sindh", "KPK", "Balochistan"],
         // Philiphines: ["Metro Manila", "Cebu", "Davao", "Laguna"],
-        India: ["Maharashtra", "Karnataka", "West Bengal", "Gujarat", "Tamil Nadu", "Telangana", "Andhra Pradesh", "Assam", "Bihar", "Chhattisgarh", "Kerala", "Punjab", "Odisha"]
+        india: ["Maharashtra", "Karnataka", "West Bengal", "Gujarat", "Tamil Nadu", "Telangana", "Andhra Pradesh", "Assam", "Bihar", "Chhattisgarh", "Kerala", "Punjab", "Odisha"]
         // "Saudia Arabia": ["Riyadh", "Jeddah", "Dammam", "Mecca"],
     };
 
@@ -127,11 +128,11 @@ function OwnerTeamComponent(props) {
             appliedTaxCountry: appliedTaxCountry,
             currency: currency,
             appliedTaxState:
-                appliedTaxCountry === "United States" && usStateNameToCode[appliedTaxState]
+                appliedTaxCountry === "usa" && usStateNameToCode[appliedTaxState]
                     ? usStateNameToCode[appliedTaxState]
                     : appliedTaxState,
             vacationPay: vacationPay,
-            pay_type: pay_type,
+            pay_type: pay_type || "hourly", // ✅ enforce default if empty
             payPeriodType: payPeriodType
         };
 
@@ -790,170 +791,31 @@ function OwnerTeamComponent(props) {
 
                                 {selectedUser?.userType !== 'owner' && selectedUser?.inviteStatus === false && (
                                     <>
-
-                                        <div className="container" style={{ marginTop: "30px" }}>
-                                            <p className="h4 mb-4">Pay Stub</p>
-
-                                            {/* Row 1: Shift Premium Rate, Overtime Rate, Hourly Rate */}
-                                            <div className="row">
-                                                <div className="col-md-4 mb-3">
-                                                    <label className="form-label">Shift Premium Rate</label>
-                                                    <input
-                                                        type="number"
-                                                        className="form-control"
-                                                        placeholder="Enter Shift Premium Rate"
-                                                        value={shiftPremiumRate === null ? '' : shiftPremiumRate}
-                                                        onChange={(e) => setShiftPremiumRate(e.target.value === '' ? '' : Number(e.target.value))}
-                                                    />
-                                                </div>
-                                                <div className="col-md-4 mb-3">
-                                                    <label className="form-label">Overtime Rate</label>
-                                                    <input
-                                                        type="number"
-                                                        className="form-control"
-                                                        placeholder="Enter Overtime Rate"
-                                                        value={overtimeRate === null ? '' : overtimeRate}
-                                                        onChange={(e) => setOvertimeRate(e.target.value === '' ? '' : Number(e.target.value))}
-                                                    />
-                                                </div>
-                                                <div className="col-md-4 mb-3">
-                                                    <label className="form-label">Hourly Rate</label>
-                                                    <input
-                                                        type="number"
-                                                        className="form-control"
-                                                        placeholder="Enter Hourly Rate"
-                                                        value={hourlyRate === null ? '' : hourlyRate}
-                                                        onChange={(e) => setHourlyRate(e.target.value === '' ? '' : Number(e.target.value))}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {/* Row 2: Applied Tax Country, Applied Tax State, Vacation Pay */}
-                                            <div className="row">
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Applied Tax Country</label>
-                                                    <select
-                                                        className="form-control"
-                                                        value={appliedTaxCountry}
-                                                        onChange={(e) => setAppliedTaxCountry(e.target.value)}
-                                                    >
-                                                        <option value="">Select Country</option>
-                                                        <option value="Canada">Canada</option>
-                                                        <option value="United States">USA</option>
-                                                        <option value="Pakistan">Pakistan</option>
-                                                        <option value="Philiphines">Philippines</option>
-                                                        <option value="India">India</option>
-                                                        <option value="Saudia Arabia">KSA</option>
-                                                    </select>
-                                                </div>
-
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Applied Tax State</label>
-                                                    {["Canada", "United States", "India"].includes(appliedTaxCountry) ? (
-                                                        <select
-                                                            className="form-control"
-                                                            value={appliedTaxState}
-                                                            onChange={(e) => setAppliedTaxState(e.target.value)}
-                                                        >
-                                                            <option value="">Select State</option>
-                                                            {countryStateMap[appliedTaxCountry].map((state) => (
-                                                                <option key={state} value={state}>
-                                                                    {appliedTaxCountry === "United States" ? `${state}` : state}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    ) : (
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            placeholder="No State"
-                                                            disabled
-                                                        />
-                                                    )}
-                                                </div>
-                                                {/* <div className="col-md-4 mb-3">
-                                                    <label className="form-label">Vacation Pay</label>
-                                                    <input
-                                                        type="number"
-                                                        className="form-control"
-                                                        placeholder="Enter Vacation Pay"
-                                                        value={vacationPay === null ? '' : vacationPay}
-                                                        onChange={(e) => setVacationPay(e.target.value === '' ? '' : Number(e.target.value))}
-                                                    />
-                                                </div> */}
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Currency</label>
-                                                    <select
-                                                        className="form-control"
-                                                        value={currency}
-                                                        onChange={(e) => setCurrency(e.target.value)}
-                                                    >
-                                                        <option value="">Select Currency</option>
-                                                        <option value="USD">USD</option>
-                                                        <option value="QAR">QAR</option>
-                                                        <option value="PKR">PKR</option>
-                                                        <option value="SAR">SAR</option>
-                                                        <option value="AED">AED</option>
-                                                        <option value="PHP">PHP</option>
-                                                    </select>
-                                                </div>
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Vacation Pay</label>
-                                                    <input
-                                                        type="number"
-                                                        className="form-control"
-                                                        placeholder="Enter Vacation Pay"
-                                                        value={vacationPay === null ? '' : vacationPay}
-                                                        onChange={(e) => setVacationPay(e.target.value === '' ? '' : Number(e.target.value))}
-                                                    />
-                                                </div>
-                                            </div>
-                                            {/* Row 3: Pay Period Type */}
-                                            <div className="row">
-                                                <div className="col-md-6 mb-4">
-                                                    <label className="form-label">Pay Period Type
-                                                        <small className="text-muted d-block">(Please select either Weekly or Bi-Weekly pay period)</small>
-                                                    </label>
-                                                    <select
-                                                        className="form-select"
-                                                        value={payPeriodType}
-                                                        onChange={(e) => setPayPeriodType(e.target.value)}
-                                                    >
-                                                        <option value="">Select Period</option>
-                                                        <option value="weekly">Weekly</option>
-                                                        <option value="biweekly">Bi-Weekly</option>
-                                                        <option value="monthly">Monthly</option>
-                                                    </select>
-                                                </div>
-                                                <div className="col-md-6 mb-4">
-                                                    <label className="form-label">Pay Type
-                                                        <small className="text-muted d-block">(Please select either Hourly or Monthly pay type)</small>
-                                                    </label>
-                                                    <select
-                                                        className="form-select"
-                                                        value={pay_type}
-                                                        onChange={(e) => setPayType(e.target.value)}
-                                                    >
-                                                        <option value="">Select Period</option>
-                                                        <option value="hourly">Hourly</option>
-                                                        <option value="monthly">Monthly</option>
-                                                        {/* <option value="monthly">Monthly</option> */}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {/* <div className="row">
-                                            </div> */}
-
-                                            {/* Save Button */}
-                                            <button className="btn w-100 text-white" style={{ backgroundColor: '#5CB85C' }} onClick={updateStubSettings}>
-                                                Save Stub Settings
-                                            </button>
-                                        </div>
+                                        <PayStubSettings
+                                            shiftPremiumRate={shiftPremiumRate}
+                                            setShiftPremiumRate={setShiftPremiumRate}
+                                            overtimeRate={overtimeRate}
+                                            setOvertimeRate={setOvertimeRate}
+                                            hourlyRate={hourlyRate}
+                                            setHourlyRate={setHourlyRate}
+                                            appliedTaxCountry={appliedTaxCountry}
+                                            setAppliedTaxCountry={setAppliedTaxCountry}
+                                            appliedTaxState={appliedTaxState}
+                                            setAppliedTaxState={setAppliedTaxState}
+                                            currency={currency}
+                                            setCurrency={setCurrency}
+                                            vacationPay={vacationPay}
+                                            setVacationPay={setVacationPay}
+                                            payPeriodType={payPeriodType}
+                                            setPayPeriodType={setPayPeriodType}
+                                            pay_type={pay_type}
+                                            setPayType={setPayType}
+                                            countryStateMap={countryStateMap}
+                                            usStateNameToCode={usStateNameToCode}
+                                            updateStubSettings={updateStubSettings}
+                                        />
                                     </>
                                 )}
-
                             </div>
 
                             {role === "manager" && (
