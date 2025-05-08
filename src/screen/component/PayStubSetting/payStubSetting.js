@@ -134,7 +134,6 @@ const PayStubSettings = ({
             </div>
 
             <div className="row">
-                {/* PAY PERIOD TYPE DROPDOWN */}
                 <div className="col-md-6 mb-4">
                     <label className="form-label">Pay Period Type
                         <small className="text-muted d-block">(Please select either Weekly or Bi-Weekly pay period)</small>
@@ -142,32 +141,14 @@ const PayStubSettings = ({
                     <select
                         className="form-select"
                         value={payPeriodType}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            setPayPeriodType(value);
-
-                            // Auto-adjust Pay Type based on Pay Period selection
-                            if (value === "monthly") {
-                                setPayType("monthly");
-                            } else if (pay_type === "monthly") {
-                                setPayType("hourly");
-                            }
-                        }}
+                        onChange={(e) => setPayPeriodType(e.target.value)}
                     >
                         <option value="">Select Period</option>
-                        {(pay_type === "" || pay_type === "hourly") && (
-                            <>
-                                <option value="weekly">Weekly</option>
-                                <option value="biweekly">Bi-Weekly</option>
-                            </>
-                        )}
-                        {(pay_type === "" || pay_type === "monthly") && (
-                            <option value="monthly">Monthly</option>
-                        )}
+                        <option value="weekly">Weekly</option>
+                        <option value="biweekly">Bi-Weekly</option>
+                        <option value="monthly">Monthly</option>
                     </select>
                 </div>
-
-                {/* PAY TYPE DROPDOWN */}
                 <div className="col-md-6 mb-4">
                     <label className="form-label">Pay Type
                         <small className="text-muted d-block">(Please select either Hourly or Monthly pay type)</small>
@@ -175,24 +156,13 @@ const PayStubSettings = ({
                     <select
                         className="form-select"
                         value={pay_type}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            setPayType(value);
-
-                            // Auto-adjust Pay Period if needed
-                            if (value === "monthly") {
-                                setPayPeriodType("monthly");
-                            } else if (payPeriodType === "monthly") {
-                                setPayPeriodType("");
-                            }
-                        }}
+                        onChange={(e) => setPayType(e.target.value)}
                     >
-                        <option value="">Select Type</option>
+                        {/* <option value="">Select Type</option> */}
                         <option value="hourly">Hourly</option>
                         <option value="monthly">Monthly</option>
                     </select>
                 </div>
-
             </div>
 
             <button className="btn w-100 text-white" style={{ backgroundColor: '#5CB85C' }} onClick={updateStubSettings}>
