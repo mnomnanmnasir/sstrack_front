@@ -846,17 +846,7 @@ function OwnerTeamComponent(props) {
                                                         <option value="Saudia Arabia">KSA</option>
                                                     </select>
                                                 </div>
-                                               
-                                                {/* <div className="col-md-4 mb-3">
-                                                    <label className="form-label">Applied Tax State</label>
-                                                    <input
-                                                        type="text"
-                                                        className="form-control"
-                                                        placeholder="Enter Tax State"
-                                                        value={appliedTaxState}
-                                                        onChange={(e) => setAppliedTaxState(e.target.value)}
-                                                    />
-                                                </div> */}
+
                                                 <div className="col-md-6 mb-3">
                                                     <label className="form-label">Applied Tax State</label>
                                                     {["Canada", "United States", "India"].includes(appliedTaxCountry) ? (
@@ -893,7 +883,7 @@ function OwnerTeamComponent(props) {
                                                 </div> */}
                                             </div>
                                             <div className="row">
-                                            <div className="col-md-6 mb-3">
+                                                <div className="col-md-6 mb-3">
                                                     <label className="form-label">Currency</label>
                                                     <select
                                                         className="form-control"
@@ -934,7 +924,7 @@ function OwnerTeamComponent(props) {
                                                         <option value="">Select Period</option>
                                                         <option value="weekly">Weekly</option>
                                                         <option value="biweekly">Bi-Weekly</option>
-                                                        {/* <option value="monthly">Monthly</option> */}
+                                                        <option value="monthly">Monthly</option>
                                                     </select>
                                                 </div>
                                                 <div className="col-md-6 mb-4">
