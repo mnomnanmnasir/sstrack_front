@@ -98,7 +98,7 @@ function PayrollHistory() {
                                                     <td>{h.name}</td>
                                                     <td>{h.payPeriod}</td>
                                                     <td>{`${h.StartDate} - ${h.EndDate}`}</td>
-                                                    <td>{h.payDate}</td>
+                                                    <td>{new Date(h.payDate).toLocaleString()}</td>
                                                     <td>
                                                         <button
                                                             className="btn btn-sm btn-primary"
