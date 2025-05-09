@@ -33,14 +33,29 @@ export default function PayStubs() {
   const handleDownloadPDF = () => {
     const element = pdfRef.current;
     const opt = {
-      margin:       0.5,
-      filename:     `${data.name || 'paystub'}-${data.StartDate}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      margin: 0.5,
+      filename: `${data.name || 'paystub'}-${data.StartDate}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
     };
     html2pdf().set(opt).from(element).save();
   };
+
+  const currencySymbols = {
+    USD: "$",
+    PKR: "PKR",
+    CAD: "CAD",
+    INR: "₹",
+    PHP: "₱",
+    EUR: "€",
+    GBP: "£",
+    AUD: "A",
+    JPY: "¥",
+  };
+
+  // const currencySymbol = currencySymbols[data.currency] || '';
+  const currencySymbol = currencySymbols[(data.currency || '').toUpperCase()] || '';
 
   if (!stubData) {
     return <div className="text-center mt-5 text-muted">❌ No stub data provided.</div>;
@@ -56,9 +71,9 @@ export default function PayStubs() {
 
         <div className="mainwrapper">
           <div className="ownerTeamContainer">
-            
-             {/* 📄 PDF Download Button */}
-             <div className="text-end mb-3">
+
+            {/* 📄 PDF Download Button */}
+            <div className="text-end mb-3">
               <button className="btn btn-success" onClick={handleDownloadPDF}>
                 📥 Download PDF
               </button>
@@ -177,13 +192,17 @@ export default function PayStubs() {
                 <CardContent className="d-flex justify-content-around text-center">
                   <div>
                     <h5>Net Pay</h5>
-                    <p className="h4">₱{(data.netPay ?? 0).toLocaleString()}</p>
-                    <small className="text-muted">YTD: ₱{(data.netPayYTD ?? 0).toLocaleString()}</small>
+                    <p className="h4">{currencySymbol}{(data.netPay ?? 0).toLocaleString()}</p>
+                    {/* <p className="h4">₱{(data.netPay ?? 0).toLocaleString()}</p> */}
+                    <small className="text-muted">YTD: {currencySymbol}{(data.netPayYTD ?? 0).toLocaleString()}</small>
+                    {/* <small className="text-muted">YTD: ₱{(data.netPayYTD ?? 0).toLocaleString()}</small> */}
                   </div>
                   <div>
                     <h5>Gross Pay</h5>
-                    <p className="h4">₱{(data.grossPay ?? 0).toLocaleString()}</p>
-                    <small className="text-muted">YTD: ₱{(data.grossPayYTD ?? 0).toLocaleString()}</small>
+                    {/* <p className="h4">₱{(data.grossPay ?? 0).toLocaleString()}</p> */}
+                    <p className="h4">{currencySymbol}{(data.grossPay ?? 0).toLocaleString()}</p>
+                    {/* <small className="text-muted">YTD: ₱{(data.grossPayYTD ?? 0).toLocaleString()}</small> */}
+                    <small className="text-muted">YTD: {currencySymbol}{(data.grossPayYTD ?? 0).toLocaleString()}</small>
                   </div>
                 </CardContent>
               </Card>

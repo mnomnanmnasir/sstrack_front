@@ -20,8 +20,6 @@ import jwtDecode from "jwt-decode";
 
 const fetcher = (url, headers) => axios.get(url, { headers }).then((res) => res.data);
 
-
-
 function UserDashboard() {
     const [run, setRun] = useState(true);
     const [stepIndex, setStepIndex] = useState(0);
@@ -37,8 +35,6 @@ function UserDashboard() {
     const [thisMonthSortOrder, setThisMonthSortOrder] = useState('asc');
     const [totalUsersWorkingToday, setTotalWorking] = useState('0');
     const [totalActiveUsers, setTotalActiveUsers] = useState('0');
-
-
 
     const [socketData, setSocketData] = useState(null); // State to store data from socket
     const navigate = useNavigate();
@@ -101,10 +97,6 @@ function UserDashboard() {
         Authorization: 'Bearer ' + token,
     };
 
-
-
-
-    // Define URLs based on user type
     const userUrl = user?.userType === 'user' ? 'https://myuniversallanguages.com:9093/api/v1/timetrack/hours' : null;
     const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? 'https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee' : null;
     const managerUrl = user?.userType === 'manager' ? 'https://myuniversallanguages.com:9093/api/v1/manager/dashboard' : null;
@@ -540,16 +532,13 @@ function UserDashboard() {
                                 </p>
                                 <p className="dashheadingtop heading-col" onClick={handleLastActiveSort}>
                                     Last active {lastActiveSortOrder === 'asc' ? '↑' : '↓'}
-                                    <p style={{ width: '20%', color: '#666', fontWeight: '500' }}>
-                                        {/* {totalUsersWorkingToday} online, worked today */}
-                                    </p>
                                 </p>
                                 {/* <p className="dashheadingtop heading-col" onClick={handleTodaySort}>
                                     Today {todaySortOrder === 'asc' ? '↑' : '↓'}
                                 </p> */}
+
                                 {/* <div style={{ fontWeight: 'bold', color: '#444', textAlign: 'center', cursor: 'pointer' }} onClick={handleTodaySort}> */}
                                 <p className="dashheadingtop heading-col" onClick={handleTodaySort}>
-
                                     Today {todaySortOrder === 'asc' ? '↑' : '↓'}
                                     {items?.userType !== "user" && (
                                         <>
@@ -602,77 +591,6 @@ function UserDashboard() {
                                     )}
                                 </p>
                             </div>
-
-                            {/* <div className="dashheadings dashheading-wrapper" style={{ display: 'flex', alignItems: 'center', background: '#f9f9f9', padding: '10px 20px', borderRadius: '6px', marginBottom: '15px' }}>
-                                <p style={{ width: '20%', color: '#666', fontWeight: '500' }}>
-                                    {totalUsersWorkingToday} online, worked today
-                                </p>
-
-                                <div onClick={handleTodaySort}>
-                                    <div style={{ color: '#28659C', fontWeight: '600', cursor: 'pointer' }}>
-                                        {billingSummary.daily || '0h 0m'}
-                                    </div>
-                                    <div style={{ color: '#888', fontSize: '13px' }}>
-                                        ${totalAmount.daily || 0}
-                                    </div>
-                                </div>
-
-                                <div style={{ width: '20%', textAlign: 'center' }} onClick={handleYesterdaySort}>
-                                    <div style={{ color: '#28659C', fontWeight: '600', cursor: 'pointer' }}>
-                                        {billingSummary.yesterday || '0h 0m'}
-                                    </div>
-                                    <div style={{ color: '#888', fontSize: '13px' }}>
-                                        ${totalAmount.yesterday || 0}
-                                    </div>
-                                </div>
-
-                                <div style={{ width: '20%', textAlign: 'center' }} onClick={handleThisWeekSort}>
-                                    <div style={{ color: '#28659C', fontWeight: '600', cursor: 'pointer' }}>
-                                        {billingSummary.weekly || '0h 0m'}
-                                    </div>
-                                    <div style={{ color: '#888', fontSize: '13px' }}>
-                                        ${totalAmount.weekly || 0}
-                                    </div>
-                                </div>
-
-                                <div style={{ width: '20%', textAlign: 'center' }} onClick={handleThisMonthSort}>
-                                    <div style={{ color: '#28659C', fontWeight: '600', cursor: 'pointer' }}>
-                                        {billingSummary.monthly || '0h 0m'}
-                                    </div>
-                                    <div style={{ color: '#888', fontSize: '13px' }}>
-                                        ${totalAmount.monthly || 0}
-                                    </div>
-                                </div>
-                            </div> */}
-
-                            {/* <div className="billing-summary-bar" style={{ display: 'flex', justifyContent: 'space-between', background: '#f9f9f9', padding: '15px 20px', borderRadius: '6px', marginBottom: '20px' }}>
-                                <div style={{ fontWeight: '500', fontSize: '16px', color: '#888' }}>
-                                    {totalUsersWorkingToday}
-                                </div>
-                                <div style={{ display: 'flex', gap: '40px', fontSize: '15px' }}>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <div style={{ color: '#888' }}>${billingSummary.daily || 0}</div>
-                                        <div style={{ color: '#888' }}>${totalAmount.daily || 0}</div>
-                                    </div>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <div style={{ color: '#888' }}>${billingSummary.yesterday || 0}</div>
-                                        <div style={{ color: '#888' }}>${totalAmount.yesterday || 0}</div>
-
-                                    </div>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <p style={{ color: '#888' }}>
-                                            {billingSummary.weekly || 0}
-                                        </p>
-                                        <div style={{ color: '#888' }}>${totalAmount.weekly || 0}</div>
-
-                                    </div>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <div style={{ color: '#888' }}>${billingSummary.monthly || 0}</div>
-                                        <div style={{ color: '#888' }}>${totalAmount.monthly || 0}</div>
-
-                                    </div>
-                                </div>
-                            </div> */}
 
                             <div className="my-first-step">
                                 {isLoading ? (

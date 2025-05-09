@@ -41,7 +41,7 @@ function SaSidebar({ selectedItem, onSelectItem }) {
     { label: 'Requests', icon: <PeopleIcon /> },
     // { label: 'Punctuality Reports', icon: <BarChartIcon /> },
     { label: 'Financials', icon: <BarChartIcon /> },
-
+    // { label: 'Create Blogs', icon: <BarChartIcon /> },    
   ];
 
   return (

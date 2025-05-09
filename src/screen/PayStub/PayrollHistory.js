@@ -34,6 +34,7 @@ function PayrollHistory() {
             const response = await axios.get(`${apiUrl}/owner/paystubs/getAllStubs`, { headers });
             if (Array.isArray(response.data.data)) {
                 setHistory(response.data.data);
+                console.log('pay stubs history', response.data.data)
             }
         } catch (error) {
             console.error("Failed to fetch all stubs:", error);
@@ -80,38 +81,84 @@ function PayrollHistory() {
                                     </div>
                                 </div>
                             ) : history.length > 0 ? (
-                                <div className="mt-5">
+                                <div style={{ marginTop: '2rem' }}>
                                     <h4>🗂️ Pay Stub History</h4>
-                                    <table className="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>User</th>
-                                                <th>Frequency</th>
-                                                <th>Period</th>
-                                                <th>Date Generated</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {history.map((h, idx) => (
-                                                <tr key={idx}>
-                                                    <td>{h.name}</td>
-                                                    <td>{h.payPeriod}</td>
-                                                    <td>{`${h.StartDate} - ${h.EndDate}`}</td>
-                                                    <td>{h.payDate}</td>
-                                                    <td>
-                                                        <button
-                                                            className="btn btn-sm btn-primary"
-                                                            onClick={() => handleViewStub(h)}
-                                                        >
-                                                            View
-                                                        </button>
-                                                    </td>
+                                    <div
+                                        style={{
+                                            overflowX: 'auto',
+                                            background: '#fff',
+                                            borderRadius: '8px',
+                                            padding: '20px',
+                                            boxShadow: '0 0 10px rgba(0,0,0,0.05)',
+                                            border: '1px solid #eee',
+                                        }}
+                                    >
+                                        <table style={{ minWidth: '1400px', width: '100%', borderCollapse: 'collapse' }}>
+                                            <thead>
+                                                <tr style={{ background: '#f4f6f8', fontWeight: 'bold' }}>
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd', whiteSpace: 'nowrap' }}>Name</th>
+                                                    {/* <th style={{ padding: '10px', border: '1px solid #ddd' }}>Email</th> */}
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Country</th>
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>State</th>
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Frequency</th>
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Period</th>
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Total Hours</th>
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Gross Pay</th>
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Net Pay</th>
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Total Deductions</th>
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Currency</th>
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Generated At</th>
+                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Action</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                {history.map((h, idx) => {
+                                                    const currencySymbol = {
+                                                        usd: '$', pkr: '₨', inr: '₹', cad: 'C$', eur: '€', gbp: '£'
+                                                    }[h.currency?.toLowerCase()] || h.currency || '';
+
+                                                    const totalDeductions = (h.taxBreakdown || []).reduce((sum, item) => sum + (item.amount || 0), 0) +
+                                                        (h.totalDeductions || []).reduce((sum, item) => sum + (item.amount || 0), 0);
+
+                                                    return (
+                                                        <tr key={idx}>
+                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.name}</td>
+                                                            {/* <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.userId?.email || '—'}</td> */}
+                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.country || '—'}</td>
+                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.state || '—'}</td>
+                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.payPeriod}</td>
+                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{`${h.StartDate} - ${h.EndDate}`}</td>
+                                                            <td style={{ padding: '10px', border: '1px solid #eee', textAlign: 'right' }}>{(h.regHours + h.OTHours).toFixed(2)}</td>
+                                                            <td style={{ padding: '10px', border: '1px solid #eee', textAlign: 'right' }}>{currencySymbol} {h.grossPay?.toFixed(2)}</td>
+                                                            <td style={{ padding: '10px', border: '1px solid #eee', textAlign: 'right' }}>{currencySymbol} {h.netPay?.toFixed(2)}</td>
+                                                            <td style={{ padding: '10px', border: '1px solid #eee', textAlign: 'right' }}>{currencySymbol} {totalDeductions.toFixed(2)}</td>
+                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.currency}</td>
+                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{new Date(h.generateDate || h.payDate).toLocaleString()}</td>
+                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>
+                                                                <button
+                                                                    onClick={() => handleViewStub(h)}
+                                                                    style={{
+                                                                        padding: '4px 10px',
+                                                                        fontSize: '12px',
+                                                                        backgroundColor: '#007bff',
+                                                                        color: '#fff',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                >
+                                                                    View
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
+
+
                             ) : (
                                 <div className="text-muted mt-4">No pay stubs available at the moment.</div>
                             )}

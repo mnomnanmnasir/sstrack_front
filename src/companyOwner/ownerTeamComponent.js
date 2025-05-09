@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import warning from '../images/warning.png'
 import pause from "../images/pauseIcon.webp";
 import archive from "../images/Archive.webp";
@@ -43,6 +43,7 @@ function OwnerTeamComponent(props) {
     const [payPeriodType, setPayPeriodType] = useState('');
     const [ratePerHour, setRatePerHours] = useState('');
     const [pay_type, setPayType] = useState('hourly'); // ✅ Default value
+    const ownerTeamRef = useRef(null);
 
     const token = localStorage.getItem('token');
     const headers = {
@@ -119,6 +120,12 @@ function OwnerTeamComponent(props) {
         }
     };
 
+    useEffect(() => {
+        if (fixId && ownerTeamRef.current) {
+            ownerTeamRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [fixId]);
+
     const updateStubSettings = async () => {
 
         const payload = {
@@ -150,11 +157,17 @@ function OwnerTeamComponent(props) {
                 });
             }
         } catch (error) {
-            console.error('Error updating stub settings:', error.response?.data || error.message);
-            enqueueSnackbar('Failed to update stub settings.', {
+            const errorMessage =
+                error.response?.data?.message ||
+                error.response?.data?.error || // fallback if message is in `error` key
+                "Failed to update stub settings.";
+
+            enqueueSnackbar(errorMessage, {
                 variant: "error",
                 anchorOrigin: { vertical: "top", horizontal: "right" }
             });
+
+            console.error('Error updating stub settings:', errorMessage);
         }
     };
 
@@ -502,7 +515,7 @@ function OwnerTeamComponent(props) {
 
 
     return (
-        <div style={{ width: "100% !important" }}>
+        <div ref={ownerTeamRef} style={{ width: "100% !important" }}>
             <SnackbarProvider />
             {fixId ? (
                 <>

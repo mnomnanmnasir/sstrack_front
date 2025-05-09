@@ -1,7 +1,7 @@
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Modal from 'react-bootstrap/Modal';
 import { AiFillStar, AiOutlineUser } from 'react-icons/ai';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -55,6 +55,7 @@ function OwnerTeam() {
     const headers = {
         Authorization: "Bearer " + token,
     };
+    // const ownerTeamRef = useRef(null);
 
     const dispatch = useDispatch();
     const [showAutoPauseSaveModal, setShowAutoPauseSaveModal] = useState(false);
@@ -1368,6 +1369,7 @@ function OwnerTeam() {
 
                             <div className="col-12 col-lg-6">
                                 <div
+                                    // ref={ownerTeamRef}  // ✅ Add this line
                                     style={{
 
                                         display: mainId == null && GroupData == null ? "flex" : "",

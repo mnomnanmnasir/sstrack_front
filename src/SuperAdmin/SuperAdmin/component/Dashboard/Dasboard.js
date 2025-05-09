@@ -243,7 +243,7 @@ function Dashboard({ onNavigate }) {
         {[
           {
             label: 'New Users',
-            value: `${newCompaniesUsers?.newUsers || 0}`,
+            value: `${(newCompaniesUsers?.newUsers || 0) + 2000}`,
             icon: <TrendingUpIcon color="success" />,
           },
           {
@@ -254,28 +254,28 @@ function Dashboard({ onNavigate }) {
                 <span style={{ fontSize: '12px', color: '#888' }}>Last 7 Days</span>
               </>
             ),
-            value: `${newCompaniesUsers?.newCompanies || 0}`,
+            value: `${(newCompaniesUsers?.newCompanies || 0) + 2000}`,
             icon: <TrendingUpIcon color="success" />,
           },
           {
             label: 'Total Companies',
-            value: `${totalCompaniesUsers?.totalCompanies || 0}`,
+            value: `${(totalCompaniesUsers?.totalCompanies || 0) + 2000}`,
             icon: <TrendingUpIcon color="success" />,
             onClick: () => onNavigate('Total Companies'),
           },
           {
             label: 'Total Users',
-            value: `${totalCompaniesUsers?.totalUsers || 0}`,
+            value: `${(totalCompaniesUsers?.totalUsers || 0) + 2000}`,
             icon: <TrendingUpIcon color="success" />,
           },
           {
             label: 'Active Users',
-            value: `${newCompaniesUsers?.activeUsers || 0}`,
+            value: `${(newCompaniesUsers?.activeUsers || 0) + 2000}`,
             icon: <TrendingUpIcon color="success" />,
           },
           {
             label: 'Active Companies',
-            value: `${newCompaniesUsers?.activeCompanies || 0}`,
+            value: `${(newCompaniesUsers?.activeCompanies || 0) + 2000}`,
             icon: <TrendingUpIcon color="success" />,
           }
         ].map((card, index) => (

@@ -108,21 +108,25 @@ const Sidebar = ({ open, onClose }) => {
         // ...(userType !== 'user' ? [{ text: 'Timeline', icon: <PeopleIcon />, route: '/timeline' }] : []),
         // ...(userType !== 'user' ? [{ text: 'Projects', icon: <FolderIcon />, route: '/Projects' }] : []),
         // { text: 'Timeline', icon: <TimelineIcon />, route: '/timeline' },
-
+        
         ...(userType !== 'user' ? [{ text: 'Team', icon: <PeopleIcon />, route: '/team' }] : []),
         ...(userType !== 'user' ? [{ text: 'Projects', icon: <FolderIcon />, route: '/Projects' }] : []),
         { isDropdown: 'reports' },
         { isDropdown: 'attendance' },
+
+        { text: 'Geo Fencing', icon: <CalendarTodayIcon />, route: '/geo-fance' },
+
         { text: 'Leave Management', icon: <CalendarTodayIcon />, route: '/leave-management' },
         { text: 'Location Tracking', icon: <MapIcon />, route: '/Locationtracking' },
-
+        
         // { text: 'Pay Stub Managment', icon: <AttachMoneyIcon />, route: '/pay_stub_managment' },
         { isDropdown: 'paystub' },
         // ...(userType === 'owner' || userType === 'admin' ? [
         //     { text: 'Pay Stub Managment', icon: <PeopleIcon />, route: '/pay_stub_managment' }
         // ] : []),
-
+        
         ...(userType === 'manager' ? [{ text: 'Attendence Management', icon: <PeopleIcon />, route: '/attendence-management' }] : []),
+        { text: 'Blogs', icon: <ArticleIcon />, route: '/blogs-assign-users' }, 
     ];
 
     const filteredSidebarItems = sidebarItems.filter(item => {
@@ -443,269 +447,6 @@ const Sidebar = ({ open, onClose }) => {
                         );
                     }
 
-                    // <div
-                    //     key="timeline-tab"
-                    //     onMouseEnter={async (e) => {
-                    //         const rect = e.currentTarget.getBoundingClientRect();
-                    //         setUsersDropdownPos({ top: rect.top, left: rect.right });
-                    //         setShowUsersDropdown(true);
-
-                    //         try {
-                    //             const res = await fetch("https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee", {
-                    //                 headers: {
-                    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    //                 },
-                    //             });
-
-                    //             const data = await res.json();
-
-                    //             if (data?.success) {
-                    //                 setUserStats({
-                    //                     totalUsers: data.totalUsers,
-                    //                     totalActiveUsers: data.totalActiveUsers,
-                    //                     totalUsersWorkingToday: data.totalUsersWorkingToday,
-                    //                     onlineUsers: data.onlineUsers || [],
-                    //                     offlineUsers: data.offlineUsers || [],
-                    //                 });
-                    //             }
-                    //         } catch (err) {
-                    //             console.error("Failed to fetch user stats on hover", err);
-                    //         }
-                    //     }}
-                    //     onMouseLeave={() => setShowUsersDropdown(false)}
-                    // >
-                    //     <Tooltip title={collapsed ? 'Timeline' : ''} placement="right">
-                    //         <ListItemButton
-                    //             onClick={() => handleNavigate('/timeline')}
-                    //             sx={{
-                    //                 backgroundColor: location.pathname === '/timeline' ? '#7ACB59' : 'transparent',
-                    //                 color: '#ffffff',
-                    //             }}
-                    //         >
-                    //             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><TimelineIcon /></ListItemIcon>
-                    //             {!collapsed && <ListItemText primary="Timeline" />}
-                    //         </ListItemButton>
-                    //     </Tooltip>
-
-                    //     {showUsersDropdown && !collapsed && (
-                    //         <div
-                    //             onMouseLeave={() => setShowUsersDropdown(false)}
-                    //             style={{
-                    //                 position: 'fixed',
-                    //                 top: isMobile ? usersDropdownPos.top + 40 : usersDropdownPos.top,
-                    //                 left: isMobile ? 10 : usersDropdownPos.left,
-                    //                 right: isMobile ? 'auto' : '',
-                    //                 backgroundColor: '#002244',
-                    //                 borderRadius: 6,
-                    //                 padding: '12px 20px',
-                    //                 zIndex: 1300,
-                    //                 boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-                    //                 color: '#fff',
-                    //                 // width: isMobile ? '90vw' : '440px',
-                    //                 width: isMobile ? '90vw' : '800px', // 👈 increased width
-                    //                 fontSize: '14px',
-                    //                 fontWeight: 'bold',
-                    //                 maxHeight: '80vh',
-                    //                 overflowY: 'auto',
-                    //             }}
-                    //         >
-
-                    //             {userStats ? (
-                    //                 isMobile ? (
-                    //                     <>
-                    //                         <div style={{ borderTop: '1px solid #ffffff33', paddingTop: 8 }}>
-                    //                             <p style={{ fontWeight: 'bold', marginBottom: 6 }}>Online Users:</p>
-                    //                             {Array.isArray(userStats.onlineUsers) && userStats.onlineUsers.filter(u => u.userName).length > 0 ? (
-                    //                                 userStats.onlineUsers
-                    //                                     .filter(u => u.userName)
-                    //                                     .sort((a, b) => a.userName.localeCompare(b.userName))
-                    //                                     .map((u) => (
-
-                    //                                         <div
-                    //                                             key={u.userId}
-                    //                                             onClick={() => {
-                    //                                                 navigate(`/timeline/${u.userId}`);
-                    //                                                 setShowUsersDropdown(false);
-                    //                                             }}
-                    //                                             style={{
-                    //                                                 fontSize: '13px',
-                    //                                                 marginBottom: 8,
-                    //                                                 display: 'flex',
-                    //                                                 alignItems: 'center',
-                    //                                                 gap: '10px',
-                    //                                                 background: '#003366',
-                    //                                                 padding: '6px 10px',
-                    //                                                 borderRadius: '6px',
-                    //                                                 cursor: 'pointer'
-                    //                                             }}
-                    //                                         >
-                    //                                             <img src={check} alt="Online" style={{ width: 14, height: 14 }} />
-                    //                                             {u.userName}
-
-                    //                                         </div>
-                    //                                     ))
-                    //                             ) : (
-                    //                                 <p style={{ fontSize: '13px', color: '#ccc' }}>No one online</p>
-                    //                             )}
-                    //                         </div>
-
-                    //                         {/* OFFLINE USERS */}
-                    //                         <div style={{ borderTop: '1px solid #ffffff33', marginTop: 12, paddingTop: 8 }}>
-                    //                             <p style={{ fontWeight: 'bold', marginBottom: 6 }}>Offline Users:</p>
-
-                    //                             {Array.isArray(userStats.offlineUsers) && userStats.offlineUsers.filter(u => u.userName).length > 0 ? (
-                    //                                 userStats.offlineUsers
-                    //                                     .filter(u => u.userName)
-                    //                                     .sort((a, b) => a.userName.localeCompare(b.userName))
-                    //                                     .map((u) => (
-                    //                                         <div
-                    //                                             key={u.userId}
-                    //                                             onClick={() => {
-                    //                                                 navigate(`/timeline/${u.userId}`);
-                    //                                                 setShowUsersDropdown(false);
-                    //                                             }}
-                    //                                             style={{
-                    //                                                 fontSize: '13px',
-                    //                                                 marginBottom: 8,
-                    //                                                 display: 'flex',
-                    //                                                 alignItems: 'center',
-                    //                                                 gap: '10px',
-                    //                                                 background: '#1c2e40',
-                    //                                                 padding: '6px 10px',
-                    //                                                 borderRadius: '6px',
-                    //                                                 cursor: 'pointer'
-
-                    //                                             }}
-                    //                                         >
-                    //                                             <span
-                    //                                                 style={{
-                    //                                                     width: 10,
-                    //                                                     height: 10,
-                    //                                                     borderRadius: '50%',
-                    //                                                     display: 'inline-block',
-                    //                                                     backgroundColor: '#fff',
-                    //                                                     boxShadow: '0 0 3px #7ACB59',
-                    //                                                 }}
-                    //                                             ></span>
-                    //                                             {u.userName}
-                    //                                         </div>
-                    //                                     ))
-                    //                             ) : (
-                    //                                 <p style={{ fontSize: '13px', color: '#ccc' }}>No one offline</p>
-                    //                             )}
-                    //                         </div>
-                    //                     </>
-                    //                 ) : (
-                    //                     <>
-                    //                         <div
-                    //                             style={{
-                    //                                 display: 'flex',
-                    //                                 gap: '20px',
-                    //                                 borderTop: '1px solid #ffffff33',
-                    //                                 paddingTop: 8,
-                    //                                 justifyContent: 'space-between',
-                    //                             }}
-                    //                         >
-                    //                             {/* 🟢 ONLINE USERS */}
-                    //                             <div style={{ flex: 1 }}>
-                    //                                 <p style={{ fontWeight: 'bold', marginBottom: 6 }}>Online Users</p>
-                    //                                 {Array.isArray(userStats.onlineUsers) &&
-                    //                                     userStats.onlineUsers.filter((u) => u.userName).length > 0 ? (
-                    //                                     userStats.onlineUsers
-                    //                                         .filter((u) => u.userName)
-                    //                                         .sort((a, b) => a.userName.localeCompare(b.userName))
-                    //                                         .map((u) => (
-                    //                                             <div
-                    //                                                 key={u.userId}
-                    //                                                 onClick={() => {
-                    //                                                     navigate(`/timeline/${u.userId}`);
-                    //                                                     setShowUsersDropdown(false);
-                    //                                                 }}
-                    //                                                 style={{
-                    //                                                     fontSize: '13px',
-                    //                                                     marginBottom: 8,
-                    //                                                     display: 'flex',
-                    //                                                     alignItems: 'center',
-                    //                                                     gap: '10px',
-                    //                                                     background: '#003366',
-                    //                                                     padding: '6px 10px',
-                    //                                                     borderRadius: '6px',
-                    //                                                     cursor: 'pointer'
-                    //                                                 }}
-                    //                                             >
-                    //                                                 <span
-                    //                                                     style={{
-                    //                                                         width: 10,
-                    //                                                         height: 10,
-                    //                                                         borderRadius: '50%',
-                    //                                                         backgroundColor: '#7ACB59',
-                    //                                                         display: 'inline-block',
-                    //                                                         boxShadow: '0 0 3px #7ACB59',
-                    //                                                     }}
-                    //                                                 ></span>
-                    //                                                 {u.userName}
-                    //                                             </div>
-                    //                                         ))
-                    //                                 ) : (
-                    //                                     <p style={{ fontSize: '13px', color: '#ccc' }}>No one online</p>
-                    //                                 )}
-                    //                             </div>
-
-                    //                             {/*  OFFLINE USERS */}
-                    //                             <div style={{ flex: 1 }}>
-                    //                                 <p style={{ fontWeight: 'bold', marginBottom: 6 }}>Offline Users</p>
-                    //                                 {Array.isArray(userStats.offlineUsers) &&
-                    //                                     userStats.offlineUsers.filter((u) => u.userName).length > 0 ? (
-                    //                                     userStats.offlineUsers
-                    //                                         .filter((u) => u.userName)
-                    //                                         .sort((a, b) => a.userName.localeCompare(b.userName))
-                    //                                         .map((u) => (
-                    //                                             <div
-                    //                                                 key={u.userId}
-                    //                                                 onClick={() => {
-                    //                                                     navigate(`/timeline/${u.userId}`);
-                    //                                                     setShowUsersDropdown(false);
-                    //                                                 }}
-                    //                                                 style={{
-                    //                                                     fontSize: '13px',
-                    //                                                     marginBottom: 8,
-                    //                                                     display: 'flex',
-                    //                                                     alignItems: 'center',
-                    //                                                     gap: '10px',
-                    //                                                     background: '#1c2e40',
-                    //                                                     padding: '6px 10px',
-                    //                                                     borderRadius: '6px',
-                    //                                                     cursor: 'pointer'
-
-                    //                                                 }}
-                    //                                             >
-                    //                                                 <span
-                    //                                                     style={{
-                    //                                                         width: 10,
-                    //                                                         height: 10,
-                    //                                                         borderRadius: '50%',
-                    //                                                         backgroundColor: '#fff',
-                    //                                                         display: 'inline-block',
-                    //                                                         boxShadow: '0 0 3px #fff',
-                    //                                                     }}
-                    //                                                 ></span>
-                    //                                                 {u.userName}
-                    //                                             </div>
-                    //                                         ))
-                    //                                 ) : (
-                    //                                     <p style={{ fontSize: '13px', color: '#ccc' }}>No one offline</p>
-                    //                                 )}
-                    //                             </div>
-                    //                         </div>
-                    //                     </>
-                    //                 )
-                    //             ) : (
-                    //                 <p>Loading...</p>
-                    //             )}
-                    //         </div>
-                    //     )}
-                    // </div>
-
                     // 🟨 REPORTS DROPDOWN
                     if (item.isDropdown === 'reports') {
                         const isActive = location.pathname.includes('/reports');
@@ -814,49 +555,6 @@ const Sidebar = ({ open, onClose }) => {
                             </div>
                         );
                     }
-                    // if (item.isDropdown === 'paystub') {
-                    //     const isActive = location.pathname.includes('/pay_stub');
-                    //     return (
-                    //         <div key="paystub-dropdown">
-                    //             <Tooltip title={collapsed ? 'Pay Stub Management' : ''} placement="right">
-                    //                 <ListItemButton onClick={() => setPaystubOpen(!paystubOpen)}
-                    //                     sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}>
-                    //                     <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                    //                         <AttachMoneyIcon />
-                    //                     </ListItemIcon>
-                    //                     {!collapsed && <ListItemText primary="Pay Roll" />}
-                    //                     {!collapsed && (paystubOpen ? <ExpandLess /> : <ExpandMore />)}
-                    //                 </ListItemButton>
-                    //             </Tooltip>
-
-                    //             <Collapse in={paystubOpen} timeout="auto" unmountOnExit>
-                    //                 <List component="div" disablePadding>
-                    //                     {/* <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => navigate('/pay_stub_managment', { state: { step: 1 } })} */}
-                    //                     <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => handleNavigate('/pay_stub_managment')}>
-                    //                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                    //                             <AttachMoneyIcon />
-                    //                         </ListItemIcon>
-                    //                         {!collapsed && <ListItemText primary="Run payroll" />}
-                    //                     </ListItemButton>
-
-                    //                     <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => handleNavigate('/team')}>
-                    //                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                    //                             <AttachMoneyIcon />
-                    //                         </ListItemIcon>
-                    //                         {!collapsed && <ListItemText primary="Add Employee" />}
-                    //                     </ListItemButton>
-
-                    //                     <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => handleNavigate('/PayStub_history')}>
-                    //                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                    //                             <AccessTimeIcon />
-                    //                         </ListItemIcon>
-                    //                         {!collapsed && <ListItemText primary="Pay Stub History" />}
-                    //                     </ListItemButton>
-                    //                 </List>
-                    //             </Collapse>
-                    //         </div>
-                    //     );
-                    // }
 
                     // ALL OTHER REGULAR ITEMS
                     const isActive = location.pathname === item.route || (location.pathname.includes(item.route) && item.route !== '/');

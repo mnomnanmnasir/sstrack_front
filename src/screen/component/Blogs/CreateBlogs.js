@@ -25,7 +25,7 @@ const RecentBlogs = () => {
             formData.append("description", form.description);
             formData.append("content", form.content);
             formData.append("tags", form.tags);
-            formData.append("image", form.imageUrl); // 👈 attach file
+            formData.append("imageUrl", form.imageUrl); // 👈 attach file
 
             const res = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/blogs/create",
