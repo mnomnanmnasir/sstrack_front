@@ -376,7 +376,7 @@ const PayStubGenerator = () => {
                                             <h5>Total Payroll Cost</h5>
                                             <div className="bg-white border rounded p-3 mt-2">
                                                 <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
-                                                    {currencySymbol} {(totalGrossAmount + employerContrib).toFixed(2)}
+                                                    {currencySymbol} {(totalGrossAmount ).toFixed(2)}
                                                 </div>
                                                 <div className="text-muted">Gross pay <span className="float-end">{currencySymbol} {totalGrossAmount.toFixed(2)}</span></div>
                                                 <div className="text-muted">Net pay <span className="float-end">{currencySymbol} {totalNetAmount.toFixed(2)}</span></div>
