@@ -150,11 +150,17 @@ function OwnerTeamComponent(props) {
                 });
             }
         } catch (error) {
-            console.error('Error updating stub settings:', error.response?.data || error.message);
-            enqueueSnackbar('Failed to update stub settings.', {
+            const errorMessage =
+                error.response?.data?.message ||
+                error.response?.data?.error || // fallback if message is in `error` key
+                "Failed to update stub settings.";
+
+            enqueueSnackbar(errorMessage, {
                 variant: "error",
                 anchorOrigin: { vertical: "top", horizontal: "right" }
             });
+
+            console.error('Error updating stub settings:', errorMessage);
         }
     };
 
