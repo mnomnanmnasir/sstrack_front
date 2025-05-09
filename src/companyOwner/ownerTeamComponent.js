@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import warning from '../images/warning.png'
 import pause from "../images/pauseIcon.webp";
 import archive from "../images/Archive.webp";
@@ -43,6 +43,7 @@ function OwnerTeamComponent(props) {
     const [payPeriodType, setPayPeriodType] = useState('');
     const [ratePerHour, setRatePerHours] = useState('');
     const [pay_type, setPayType] = useState('hourly'); // ✅ Default value
+    const ownerTeamRef = useRef(null);
 
     const token = localStorage.getItem('token');
     const headers = {
@@ -118,6 +119,12 @@ function OwnerTeamComponent(props) {
             console.error('Error updating timezone:', error.response ? error.response.data : error.message);
         }
     };
+
+    useEffect(() => {
+        if (fixId && ownerTeamRef.current) {
+            ownerTeamRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [fixId]);
 
     const updateStubSettings = async () => {
 
@@ -508,7 +515,7 @@ function OwnerTeamComponent(props) {
 
 
     return (
-        <div style={{ width: "100% !important" }}>
+        <div ref={ownerTeamRef} style={{ width: "100% !important" }}>
             <SnackbarProvider />
             {fixId ? (
                 <>
