@@ -211,7 +211,7 @@ function OwnerTeamComponent(props) {
                     // setAppliedTaxState(foundEmployee?.appliedTaxState || '');
                     setAppliedTaxState(
                         foundEmployee?.appliedTaxCountry === "usa"
-                            ? usStateCodeToName[foundEmployee?.appliedTaxState] || foundEmployee?.appliedTaxState
+                            ? usStateNameToCode[foundEmployee?.appliedTaxState] || foundEmployee?.appliedTaxState
                             : foundEmployee?.appliedTaxState
                     );
                     console.log("📍 Applied Tax State:", foundEmployee?.appliedTaxState);
