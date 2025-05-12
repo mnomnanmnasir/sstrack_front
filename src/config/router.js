@@ -70,6 +70,7 @@ import PayStubGenerator from "../screen/PayStub/PayStubGenerator";
 import AssignUsers from "../screen/component/BlogsUsers/blogsAccess";
 // import PayrollTable from "../screen/PayStub/PayrollTable";
 import GeoFance from '../screen/component/GeoFancing/geoFance'
+import AddEmployee from "../screen/PayStub/AddEmployee";
 
 
 export default function AppRouter() {
@@ -215,6 +216,7 @@ export default function AppRouter() {
             {/* <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} /> */}
             <Route path="/attendence-management" element={token ? (suspended ? <Navigate to="/account" /> : <Attendence />) : <Navigate to="/" />} />
             <Route path="/geo-fance" element={token ? (suspended ? <Navigate to="/account" /> : <GeoFance />) : <Navigate to="/" />} />
+            <Route path="/add-employee" element={token ? (suspended ? <Navigate to="/account" /> : <AddEmployee />) : <Navigate to="/" />} />
 
             <Route path="/history" element={token ? (suspended ? <Navigate to="/account" /> : <History />) : <Navigate to="/" />} />
             {/* <Route path="/pay_stub_managment" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubGenerator />) : <Navigate to="/" />} />
