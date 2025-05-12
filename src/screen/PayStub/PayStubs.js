@@ -43,16 +43,17 @@ export default function PayStubs() {
   };
 
   const currencySymbols = {
-    USD: "$",
-    PKR: "PKR",
-    CAD: "CAD",
-    INR: "₹",
-    PHP: "₱",
-    EUR: "€",
-    GBP: "£",
-    AUD: "A",
-    JPY: "¥",
+    USD: "$",     // United States Dollar
+    PKR: "₨",     // Pakistani Rupee
+    CAD: "C$",    // Canadian Dollar
+    INR: "₹",     // Indian Rupee
+    PHP: "₱",     // Philippine Peso
+    EUR: "€",     // Euro
+    GBP: "£",     // British Pound
+    AUD: "A$",    // Australian Dollar
+    JPY: "¥"      // Japanese Yen
   };
+
 
   // const currencySymbol = currencySymbols[data.currency] || '';
   const currencySymbol = currencySymbols[(data.currency || '').toUpperCase()] || '';

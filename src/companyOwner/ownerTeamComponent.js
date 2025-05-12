@@ -73,7 +73,8 @@ function OwnerTeamComponent(props) {
 
     const countryStateMap = {
         canada: ["Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan"],
-        "usa": Object.keys(usStateNameToCode), // <- Only use full names in dropdown
+        // "usa": Object.keys(usStateNameToCode), // <- Only use full names in dropdown
+        "usa": Object.entries(usStateNameToCode).map(([name, code]) => [code, name]),
         // Pakistan: ["Punjab", "Sindh", "KPK", "Balochistan"],
         // Philiphines: ["Metro Manila", "Cebu", "Davao", "Laguna"],
         india: ["Maharashtra", "Karnataka", "West Bengal", "Gujarat", "Tamil Nadu", "Telangana", "Andhra Pradesh", "Assam", "Bihar", "Chhattisgarh", "Kerala", "Punjab", "Odisha"]
@@ -207,11 +208,17 @@ function OwnerTeamComponent(props) {
                     setOvertimeRate(foundEmployee?.billingInfo?.overtimeRate || '');
                     setHourlyRate(foundEmployee?.billingInfo?.ratePerHour || '');
                     setAppliedTaxCountry(foundEmployee?.appliedTaxCountry || '');
-                    setAppliedTaxState(foundEmployee?.appliedTaxState || '');
-                    setCurrency(foundEmployee?.currency || '');
-                    setVacationPay(foundEmployee?.vacationPay || '');
+                    // setAppliedTaxState(foundEmployee?.appliedTaxState || '');
+                    setAppliedTaxState(
+                        foundEmployee?.appliedTaxCountry === "usa"
+                            ? usStateNameToCode[foundEmployee?.appliedTaxState] || foundEmployee?.appliedTaxState
+                            : foundEmployee?.appliedTaxState
+                    );
+                    console.log("📍 Applied Tax State:", foundEmployee?.appliedTaxState);
+                    setCurrency(foundEmployee?.billingInfo?.currency || '');
+                    setVacationPay(foundEmployee?.billingInfo?.vacationPay || '');
                     setPayPeriodType(foundEmployee?.payPeriodType || '');
-                    setPayType(foundEmployee?.pay_type);
+                    setPayType(foundEmployee?.billingInfo?.pay_type);
                     setRatePerHours(foundEmployee?.billingInfo?.ratePerHour || '');
 
                 } else {
@@ -241,10 +248,10 @@ function OwnerTeamComponent(props) {
                     setHourlyRate(responseData?.billingInfo?.ratePerHour || '');
                     setAppliedTaxCountry(responseData?.appliedTaxCountry || '');
                     setAppliedTaxState(responseData?.appliedTaxState || '');
-                    setCurrency(responseData?.currency || '');
+                    setCurrency(responseData?.billingInfo?.currency || '');
                     setVacationPay(responseData?.vacationPay || '');
                     setPayPeriodType(responseData?.payPeriodType || '');
-                    setPayType(responseData?.pay_type);
+                    setPayType(responseData?.billingInfo?.payType);
                     setRatePerHours(responseData?.billingInfo?.ratePerHour || '');
                     setData(responseData); // ✅ Data set for name, email etc.
                 }

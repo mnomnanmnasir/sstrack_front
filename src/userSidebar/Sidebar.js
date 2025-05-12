@@ -24,6 +24,14 @@ import check from "../images/online.webp";
 import offline from "../images/not-active.svg";
 import CircleIcon from '@mui/icons-material/Circle';
 import axios from "axios";
+import CalculateIcon from '@mui/icons-material/Calculate'; // For Run Payroll
+import GroupAddIcon from '@mui/icons-material/GroupAdd';   // For Add Employee
+import HistoryIcon from '@mui/icons-material/History';     // For Pay Stub History
+import TimerIcon from '@mui/icons-material/Timer';              // ⏱ Break Time
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'; // 🧑‍💼 Attendance Management
+import AlarmOnIcon from '@mui/icons-material/AlarmOn';          // ⏰ Punctuality
+import InsightsIcon from '@mui/icons-material/Insights';         // 📊 Detailed Reports
+import QueryStatsIcon from '@mui/icons-material/QueryStats';     // 📈 Punctuality Reports
 
 
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -108,25 +116,25 @@ const Sidebar = ({ open, onClose }) => {
         // ...(userType !== 'user' ? [{ text: 'Timeline', icon: <PeopleIcon />, route: '/timeline' }] : []),
         // ...(userType !== 'user' ? [{ text: 'Projects', icon: <FolderIcon />, route: '/Projects' }] : []),
         // { text: 'Timeline', icon: <TimelineIcon />, route: '/timeline' },
-        
+
         ...(userType !== 'user' ? [{ text: 'Team', icon: <PeopleIcon />, route: '/team' }] : []),
         ...(userType !== 'user' ? [{ text: 'Projects', icon: <FolderIcon />, route: '/Projects' }] : []),
         { isDropdown: 'reports' },
         { isDropdown: 'attendance' },
 
-        { text: 'Geo Fencing', icon: <CalendarTodayIcon />, route: '/geo-fance' },
+        // { text: 'Geo Fencing', icon: <CalendarTodayIcon />, route: '/geo-fance' },
 
         { text: 'Leave Management', icon: <CalendarTodayIcon />, route: '/leave-management' },
         { text: 'Location Tracking', icon: <MapIcon />, route: '/Locationtracking' },
-        
+
         // { text: 'Pay Stub Managment', icon: <AttachMoneyIcon />, route: '/pay_stub_managment' },
-        { isDropdown: 'paystub' },
+        ...(userType === 'owner' || userType === 'admin' ? [{ isDropdown: 'paystub' }] : []),
         // ...(userType === 'owner' || userType === 'admin' ? [
         //     { text: 'Pay Stub Managment', icon: <PeopleIcon />, route: '/pay_stub_managment' }
         // ] : []),
-        
+
         ...(userType === 'manager' ? [{ text: 'Attendence Management', icon: <PeopleIcon />, route: '/attendence-management' }] : []),
-        { text: 'Blogs', icon: <ArticleIcon />, route: '/blogs-assign-users' }, 
+        // { text: 'Blogs', icon: <ArticleIcon />, route: '/blogs-assign-users' },
     ];
 
     const filteredSidebarItems = sidebarItems.filter(item => {
@@ -166,7 +174,7 @@ const Sidebar = ({ open, onClose }) => {
                                 <Tooltip title={collapsed ? 'Timeline' : ''} placement="right">
                                     <ListItemButton
                                         onClick={() => setTimelineOpen(!timelineOpen)}
-                                        sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}
+                                    // sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}
                                     >
                                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
                                             <TimelineIcon />
@@ -433,7 +441,11 @@ const Sidebar = ({ open, onClose }) => {
                                 <Collapse in={timelineOpen} timeout="auto" unmountOnExit>
                                     <List component="div" disablePadding>
                                         <ListItemButton
-                                            sx={{ pl: collapsed ? 2 : 6 }}
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/timeline') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
                                             onClick={() => handleNavigate('/timeline')}
                                         >
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
@@ -454,7 +466,8 @@ const Sidebar = ({ open, onClose }) => {
                             <div key="reports-dropdown">
                                 <Tooltip title={collapsed ? 'Reports' : ''} placement="right">
                                     <ListItemButton onClick={() => setReportsOpen(!reportsOpen)}
-                                        sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}>
+                                    // sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}
+                                    >
                                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
                                             <AssignmentIcon />
                                         </ListItemIcon>
@@ -464,12 +477,24 @@ const Sidebar = ({ open, onClose }) => {
                                 </Tooltip>
                                 <Collapse in={reportsOpen} timeout="auto" unmountOnExit>
                                     <List component="div" disablePadding>
-                                        <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => handleNavigate('/reports')}>
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><ArticleIcon /></ListItemIcon>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/reports') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/reports')}>
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><InsightsIcon /></ListItemIcon>
                                             {!collapsed && <ListItemText primary="Detailed Reports" />}
                                         </ListItemButton>
-                                        <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => handleNavigate('/punctuality-reports')}>
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><AccessTimeIcon /></ListItemIcon>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/punctuality-reports') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/punctuality-reports')}>
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><QueryStatsIcon /></ListItemIcon>
                                             {!collapsed && <ListItemText primary="Punctuality Reports" />}
                                         </ListItemButton>
                                     </List>
@@ -485,7 +510,8 @@ const Sidebar = ({ open, onClose }) => {
                             <div key="attendance-dropdown">
                                 <Tooltip title={collapsed ? 'Attendance' : ''} placement="right">
                                     <ListItemButton onClick={() => setAttendanceOpen(!attendanceOpen)}
-                                        sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}>
+                                    // sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}
+                                    >
                                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><AccessTimeIcon /></ListItemIcon>
                                         {!collapsed && <ListItemText primary="Attendance" />}
                                         {!collapsed && (attendanceOpen ? <ExpandLess /> : <ExpandMore />)}
@@ -493,16 +519,33 @@ const Sidebar = ({ open, onClose }) => {
                                 </Tooltip>
                                 <Collapse in={attendanceOpen} timeout="auto" unmountOnExit>
                                     <List component="div" disablePadding>
-                                        <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => handleNavigate('/settings/break-time')}>
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><AccessTimeIcon /></ListItemIcon>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/settings/break-time') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/settings/break-time')}>
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><TimerIcon /></ListItemIcon>
                                             {!collapsed && <ListItemText primary="Break Time" />}
                                         </ListItemButton>
-                                        <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => handleNavigate('/attendence-management')}>
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><TimelineIcon /></ListItemIcon>
+                                        <ListItemButton sx={{
+                                            pl: collapsed ? 2 : 6,
+                                            backgroundColor: location.pathname.includes('/attendence-management') ? '#7ACB59' : 'transparent',
+                                            color: '#fff'
+                                        }}
+                                            onClick={() => handleNavigate('/attendence-management')}>
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><ManageAccountsIcon /></ListItemIcon>
                                             {!collapsed && <ListItemText primary="Attendance Management" />}
                                         </ListItemButton>
-                                        <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => handleNavigate('/settings/punctuality')}>
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><TimelineIcon /></ListItemIcon>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/settings/punctuality') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/settings/punctuality')}>
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><AlarmOnIcon /></ListItemIcon>
                                             {!collapsed && <ListItemText primary="Punctuality" />}
                                         </ListItemButton>
                                     </List>
@@ -511,17 +554,17 @@ const Sidebar = ({ open, onClose }) => {
                         );
                     }
 
-                    if (item.isDropdown === 'paystub') {
+                    if (item.isDropdown === 'paystub' && userType && ['owner', , 'admin'].includes(userType)) {
                         const isActive = ['/pay_stub_managment', '/PayStub_history', '/pay_stub_View'].some(path =>
                             location.pathname.includes(path)
                         );
                         return (
                             <div key="paystub-dropdown">
                                 <Tooltip title={collapsed ? 'Pay Stub Management' : ''} placement="right">
-                                    <ListItemButton onClick={() => setPaystubOpen(!paystubOpen)}
-                                        sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}>
+                                    <ListItemButton onClick={() => setPaystubOpen(!paystubOpen)}>
+                                        {/* // sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}> */}
                                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                            <AttachMoneyIcon />
+                                            <CalculateIcon />
                                         </ListItemIcon>
                                         {!collapsed && <ListItemText primary="Pay Roll" />}
                                         {!collapsed && (paystubOpen ? <ExpandLess /> : <ExpandMore />)}
@@ -530,23 +573,44 @@ const Sidebar = ({ open, onClose }) => {
 
                                 <Collapse in={paystubOpen} timeout="auto" unmountOnExit>
                                     <List component="div" disablePadding>
-                                        <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => handleNavigate('/pay_stub_managment')}>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/pay_stub_managment') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/pay_stub_managment')}
+                                        >
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
                                                 <AttachMoneyIcon />
                                             </ListItemIcon>
                                             {!collapsed && <ListItemText primary="Run payroll" />}
                                         </ListItemButton>
 
-                                        <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => handleNavigate('/team')}>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/add-employee') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/add-employee')}
+                                        >
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                                <AttachMoneyIcon />
+                                                <GroupAddIcon />
                                             </ListItemIcon>
                                             {!collapsed && <ListItemText primary="Add Employee" />}
                                         </ListItemButton>
 
-                                        <ListItemButton sx={{ pl: collapsed ? 2 : 6 }} onClick={() => handleNavigate('/PayStub_history')}>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/PayStub_history') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/PayStub_history')}
+                                        >
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                                <AccessTimeIcon />
+                                                <HistoryIcon />
                                             </ListItemIcon>
                                             {!collapsed && <ListItemText primary="Pay Stub History" />}
                                         </ListItemButton>
