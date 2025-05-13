@@ -32,6 +32,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'; // 🧑‍�
 import AlarmOnIcon from '@mui/icons-material/AlarmOn';          // ⏰ Punctuality
 import InsightsIcon from '@mui/icons-material/Insights';         // 📊 Detailed Reports
 import QueryStatsIcon from '@mui/icons-material/QueryStats';     // 📈 Punctuality Reports
+import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 
 
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -49,6 +50,7 @@ const Sidebar = ({ open, onClose }) => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [timelineOpen, setTimelineOpen] = useState(false);
     const [paystubOpen, setPaystubOpen] = useState(false);
+    const [geoFenceOpen, setGeoFenceOpen] = useState(false);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -123,6 +125,7 @@ const Sidebar = ({ open, onClose }) => {
         { isDropdown: 'attendance' },
 
         // { text: 'Geo Fencing', icon: <CalendarTodayIcon />, route: '/geo-fance' },
+        { isDropdown: 'geoFence' },
 
         { text: 'Leave Management', icon: <CalendarTodayIcon />, route: '/leave-management' },
         { text: 'Location Tracking', icon: <MapIcon />, route: '/Locationtracking' },
@@ -548,6 +551,57 @@ const Sidebar = ({ open, onClose }) => {
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><AlarmOnIcon /></ListItemIcon>
                                             {!collapsed && <ListItemText primary="Punctuality" />}
                                         </ListItemButton>
+                                    </List>
+                                </Collapse>
+                            </div>
+                        );
+                    }
+
+                    if (item.isDropdown === 'geoFence') {
+                        const isActive = ['/geo-fance', '/geo-fance/add'].some(path =>
+                            location.pathname.includes(path)
+                        );
+                        return (
+                            <div key="geoFence-dropdown">
+                                <Tooltip title={collapsed ? 'Geo Fence' : ''} placement="right">
+                                    <ListItemButton onClick={() => setGeoFenceOpen(!geoFenceOpen)}>
+                                        <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                            <MapIcon />
+                                        </ListItemIcon>
+                                        {!collapsed && <ListItemText primary="Geo Fence" />}
+                                        {!collapsed && (geoFenceOpen ? <ExpandLess /> : <ExpandMore />)}
+                                    </ListItemButton>
+                                </Tooltip>
+                                <Collapse in={geoFenceOpen} timeout="auto" unmountOnExit>
+                                    <List component="div" disablePadding>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/geo-fance') && !location.pathname.includes('/add') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/geo-fance')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <DashboardIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Dashboard" />}
+                                        </ListItemButton>
+
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/geo-fance/add') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/geo-fance/add')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <AddLocationAltIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Create Geofence" />}
+                                        </ListItemButton>
+
                                     </List>
                                 </Collapse>
                             </div>
