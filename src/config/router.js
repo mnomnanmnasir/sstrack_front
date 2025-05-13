@@ -225,7 +225,7 @@ export default function AppRouter() {
 
             {/* <Route path="/effective-settings/break-time" element={<BreakTime />} /> */}
             <Route path="/settings" element={<Setting />}>
-              <Route path="break-time" element={<BreakTime />} />
+              <Route path="break-time" element={< BreakTime />} />
               <Route path="punctuality" element={<Punctuality />} />
 
             </Route>
