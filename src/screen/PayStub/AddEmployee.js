@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SnackbarProvider, enqueueSnackbar } from 'notistack';
 import TimezoneSelect from 'react-timezone-select';
+import SuccessPic from '../../images/Success.jpg'
 
 function AddEmployee() {
     const [formData, setFormData] = useState({
@@ -29,6 +30,8 @@ function AddEmployee() {
     const [timezoneOffset, setTimezoneOffset] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
     const [submittedUsers, setSubmittedUsers] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
     const [editUser, setEditUser] = useState(null);
     const [showModalupload, setShowModalupload] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
@@ -66,7 +69,8 @@ function AddEmployee() {
 
     const handleUpload = async () => {
         if (!selectedFile) {
-            alert('Please select an Excel file to upload.');
+            setSuccessMessage('❌ Please select an Excel file to upload.');
+            setShowSuccessModal(true);
             return;
         }
 
@@ -85,12 +89,14 @@ function AddEmployee() {
                 }
             );
 
-            alert(response.data.message || '✅ File uploaded successfully!');
+            setSuccessMessage(response.data.message || '✅ File uploaded successfully!');
+            setShowSuccessModal(true);
             setShowModalupload(false);
             setSelectedFile(null);
         } catch (error) {
             console.error('❌ Upload failed:', error);
-            alert(error.response?.data?.message || 'Failed to upload file.');
+            setSuccessMessage(error.response?.data?.message || '❌ Failed to upload file.');
+            setShowSuccessModal(true);
         }
     };
 
@@ -527,6 +533,51 @@ function AddEmployee() {
                                 </div>
                             </div>
                         )}
+                        {showSuccessModal && (
+                            <div
+                                className="modal d-block"
+                                tabIndex="-1"
+                                role="dialog"
+                                style={{ background: 'rgba(0,0,0,0.4)' }}
+                            >
+                                <div
+                                    className="modal-dialog"
+                                    role="document"
+                                    style={{ maxWidth: '900px', width: '90%' }}
+                                >
+                                    <div className="modal-content text-center">
+                                        <div className="modal-header">
+                                            <h5 className="modal-title w-100">Status</h5>
+                                            <button
+                                                type="button"
+                                                className="btn-close"
+                                                onClick={() => setShowSuccessModal(false)}
+                                            ></button>
+                                        </div>
+                                        <div className="modal-body">
+                                            <img
+                                                src={SuccessPic}
+                                                alt="Success"
+                                                style={{ width: '200px', marginBottom: '30px' }} // 🔥 Bigger image
+                                            />
+                                            <p style={{ fontSize: '18px', fontWeight: '500' }}>{successMessage}</p>
+                                        </div>
+                                        <div className="modal-footer">
+                                            <button
+                                                className="btn btn-primary w-100"
+                                                onClick={() => setShowSuccessModal(false)}
+                                            >
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+
+
+
                     </div>
                 </div>
             </div >
