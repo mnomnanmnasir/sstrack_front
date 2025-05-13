@@ -1,30 +1,116 @@
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SnackbarProvider } from 'notistack';
+import { SnackbarProvider, enqueueSnackbar } from 'notistack';
+import TimezoneSelect from 'react-timezone-select';
+
+const cellStyle = {
+    padding: '10px',
+    border: '1px solid #ddd',
+    whiteSpace: 'nowrap'
+};
 
 function PayrollHistory() {
-
-    const [step, setStep] = useState(0);
-    const [users, setUsers] = useState([]);
-    const [selectedUserId, setSelectedUserId] = useState('');
-    const [month, setMonth] = useState('');
-    const [frequency, setFrequency] = useState('');
-    const [selectedIds, setSelectedIds] = useState([]);
-    const [selectedPeriodDates, setSelectedPeriodDates] = useState({ start: '', end: '' });
-    const [filteredUsers, setFilteredUsers] = useState([]);
-    const [showSummary, setShowSummary] = useState(false);
-    const [payScheduleCounts, setPayScheduleCounts] = useState({});
-    const [loading, setLoading] = useState(false);
     const [history, setHistory] = useState([]);
+    const [submittedUsers, setSubmittedUsers] = useState([]);
+    const [editUser, setEditUser] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [activeTab, setActiveTab] = useState('history');
+
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const user = jwtDecode(JSON.stringify(token));
     const headers = { Authorization: `Bearer ${token}` };
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
+
+    const usStateNameToCode = {
+        "Alabama": "(AL)", "Alaska": "(AK)", "Arizona": "(AZ)", "Arkansas": "(AR)",
+        "California": "(CA)", "Colorado": "(CO)", "Connecticut": "(CT)", "Delaware": "(DE)",
+        "District of Columbia": "(DC)", "Florida": "(FL)", "Georgia": "(GA)", "Hawaii": "(HI)",
+        "Idaho": "(ID)", "Illinois": "(IL)", "Indiana": "(IN)", "Iowa": "(IA)", "Kansas": "(KS)",
+        "Kentucky": "(KY)", "Louisiana": "(LA)", "Maine": "(ME)", "Maryland": "(MD)",
+        "Massachusetts": "(MA)", "Michigan": "(MI)", "Minnesota": "(MN)", "Mississippi": "(MS)",
+        "Missouri": "(MO)", "Montana": "(MT)", "Nebraska": "(NE)", "Nevada": "(NV)",
+        "New Hampshire": "(NH)", "New Jersey": "(NJ)", "New Mexico": "(NM)", "New York": "(NY)",
+        "North Carolina": "(NC)", "North Dakota": "(ND)", "Ohio": "(OH)", "Oklahoma": "(OK)",
+        "Oregon": "(OR)", "Pennsylvania": "(PA)", "Rhode Island": "(RI)", "South Carolina": "(SC)",
+        "South Dakota": "(SD)", "Tennessee": "(TN)", "Texas": "(TX)", "Utah": "(UT)",
+        "Vermont": "(VT)", "Virginia": "(VA)", "Washington": "(WA)", "West Virginia": "(WV)",
+        "Wisconsin": "(WI)", "Wyoming": "(WY)"
+    };
+
+    const countryStateMap = {
+        canada: ["Alberta", "British Columbia", "Manitoba", "New Brunswick", "Nova Scotia", "Ontario"],
+        usa: Object.keys(usStateNameToCode),
+        india: ["Maharashtra", "Punjab", "Gujarat", "Kerala"]
+    };
 
 
+
+
+    const handleUpdateUser = async () => {
+        try {
+            const payload = {
+                name: editUser.name,
+                email: editUser.email,
+                timezone: editUser.timezone,
+                timezoneOffset: editUser.timezoneOffset,
+                payPeriodType: editUser.payPeriodType,
+                shiftPremiumRate: parseFloat(editUser.billingInfo?.shiftPremiumRate || editUser.shiftPremiumRate || 0),
+                overtimeRate: parseFloat(editUser.billingInfo?.overtimeRate || editUser.overtimeRate || 0),
+                hourlyRate: parseFloat(editUser.billingInfo?.ratePerHour || editUser.hourlyRate || 0),
+                appliedTaxCountry: editUser.appliedTaxCountry,
+                appliedTaxState: editUser.appliedTaxState,
+                vacationPay: parseFloat(editUser.vacationPay),
+                pay_type: editUser.pay_type,
+                currency: editUser.billingInfo?.currency
+            };
+
+            const res = await axios.patch(
+                `https://myuniversallanguages.com:9093/api/v1/owner/updatepayrolUser/${editUser._id}`,
+                payload,
+                { headers }
+            );
+
+            // ✅ Show backend message on success
+            if (res.data.success) {
+                enqueueSnackbar(res.data.message || "✅ User updated successfully.", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
+                });
+
+
+                setShowModal(false);
+                setEditUser(null);
+
+                // Refresh the updated list from server
+                const refreshed = await axios.get(
+                    'https://myuniversallanguages.com:9093/api/v1/owner/getPayrolUsers',
+                    { headers }
+                );
+                setSubmittedUsers(refreshed.data.data);
+            }
+            else {
+                enqueueSnackbar("❌ Something went wrong during update.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
+                });
+            }
+        } catch (error) {
+            console.error("❌ Update failed:", error?.response?.data || error.message);
+
+            const errorMessage =
+                error.response?.data?.message ||
+                error.response?.data?.error ||
+                "❌ Failed to update user.";
+
+            enqueueSnackbar(errorMessage, {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+        }
+    };
 
 
 
@@ -34,16 +120,27 @@ function PayrollHistory() {
             const response = await axios.get(`${apiUrl}/owner/paystubs/getAllStubs`, { headers });
             if (Array.isArray(response.data.data)) {
                 setHistory(response.data.data);
-                console.log('pay stubs history', response.data.data)
             }
         } catch (error) {
             console.error("Failed to fetch all stubs:", error);
         }
     };
 
+    const fetchUsers = async () => {
+        try {
+            const res = await axios.get(`${apiUrl}/owner/getPayrolUsers`, { headers });
+            setSubmittedUsers(res.data.data);
+        } catch (err) {
+            console.error('Failed to fetch payroll users:', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchAllStubs();
+        fetchUsers();
+    }, []);
 
     const handleViewStub = (record) => {
-        console.log("Viewing stub:", record);
         navigate('/pay_stub_View', {
             state: {
                 stub: record,
@@ -51,16 +148,8 @@ function PayrollHistory() {
                 period: record.payPeriod
             }
         });
-
-        // You can also:
-        // - open a modal
-        // - navigate to a stub detail page
-        // - trigger a PDF download
     };
 
-    useEffect(() => {
-        fetchAllStubs();
-    }, []);
     return (
         <>
             <SnackbarProvider />
@@ -68,107 +157,372 @@ function PayrollHistory() {
                 <div className="userHeader">
                     <h5>Pay Stubs</h5>
                 </div>
+
                 <div className='mainwrapper'>
                     <div className="ownerTeamContainer">
-                        <>
-                            {loading ? (
-                                <div className="d-flex justify-content-center align-items-center" style={{ height: '200px' }}>
-                                    <div className="text-center">
-                                        <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
-                                            <span className="visually-hidden">Loading...</span>
-                                        </div>
-                                        <p className="mt-3 text-muted">Fetching pay stub history...</p>
-                                    </div>
-                                </div>
-                            ) : history.length > 0 ? (
-                                <div style={{ marginTop: '2rem' }}>
-                                    <h4>🗂️ Pay Stub History</h4>
-                                    <div
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
+                            {['history', 'submitted'].map((tab) => {
+                                const isActive = activeTab === tab;
+                                const tooltip =
+                                    tab === 'submitted'
+                                        ? 'This shows only employees who are part of the payroll.'
+                                        : 'This shows all SStrack users with history.';
+
+                                return (
+                                    <button
+                                        key={tab}
+                                        title={tooltip}
+                                        onClick={() => setActiveTab(tab)}
                                         style={{
-                                            overflowX: 'auto',
-                                            background: '#fff',
-                                            borderRadius: '8px',
-                                            padding: '20px',
-                                            boxShadow: '0 0 10px rgba(0,0,0,0.05)',
-                                            border: '1px solid #eee',
+                                            padding: '10px 20px',
+                                            border: '1px solid #7ACB59',
+                                            backgroundColor: isActive ? '#7ACB59' : '#ffffff',
+                                            color: isActive ? '#ffffff' : '#7ACB59',
+                                            fontWeight: isActive ? 'bold' : 'normal',
+                                            borderRadius: '5px',
+                                            cursor: 'pointer',
+                                            boxShadow: isActive ? '0 2px 6px rgba(0, 0, 0, 0.15)' : 'none',
+                                            transition: 'all 0.3s ease',
                                         }}
                                     >
-                                        <table style={{ minWidth: '1400px', width: '100%', borderCollapse: 'collapse' }}>
-                                            <thead>
-                                                <tr style={{ background: '#f4f6f8', fontWeight: 'bold' }}>
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd', whiteSpace: 'nowrap' }}>Name</th>
-                                                    {/* <th style={{ padding: '10px', border: '1px solid #ddd' }}>Email</th> */}
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Country</th>
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>State</th>
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Frequency</th>
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Period</th>
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Total Hours</th>
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Gross Pay</th>
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Net Pay</th>
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Total Deductions</th>
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Currency</th>
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Generated At</th>
-                                                    <th style={{ padding: '10px', border: '1px solid #ddd' }}>Action</th>
+                                        {tab === 'history' ? 'SStrack Employees' : 'Payroll Employees'}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+
+
+
+
+                        {activeTab === 'history' && (
+                            <div style={{ marginTop: '2rem' }}>
+                                <h4>🗂️ Pay Stub History</h4>
+                                <div style={{ overflowX: 'auto', background: '#fff', borderRadius: '8px', padding: '20px', boxShadow: '0 0 10px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
+                                    <table style={{ minWidth: '1400px', width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ background: '#f4f6f8', fontWeight: 'bold' }}>
+                                                <th style={cellStyle}>Name</th>
+                                                <th style={cellStyle}>Country</th>
+                                                <th style={cellStyle}>State</th>
+                                                <th style={cellStyle}>Frequency</th>
+                                                <th style={cellStyle}>Period</th>
+                                                <th style={cellStyle}>Total Hours</th>
+                                                <th style={cellStyle}>Gross Pay</th>
+                                                <th style={cellStyle}>Net Pay</th>
+                                                <th style={cellStyle}>Total Deductions</th>
+                                                <th style={cellStyle}>Currency</th>
+                                                <th style={cellStyle}>Generated At</th>
+                                                <th style={cellStyle}>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {history.map((h, idx) => {
+                                                const currencySymbol = {
+                                                    usd: '$', pkr: '₨', inr: '₹', cad: 'C$', eur: '€', gbp: '£'
+                                                }[h.currency?.toLowerCase()] || h.currency || '';
+
+                                                const totalDeductions = (h.taxBreakdown || []).reduce((sum, item) => sum + (item.amount || 0), 0) + (h.totalDeductions || []).reduce((sum, item) => sum + (item.amount || 0), 0);
+
+                                                return (
+                                                    <tr key={idx}>
+                                                        <td style={cellStyle}>{h.name}</td>
+                                                        <td style={cellStyle}>{h.country || '—'}</td>
+                                                        <td style={cellStyle}>{h.state || '—'}</td>
+                                                        <td style={cellStyle}>{h.payPeriod}</td>
+                                                        <td style={cellStyle}>{`${h.StartDate} - ${h.EndDate}`}</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{(h.regHours + h.OTHours).toFixed(2)}</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{currencySymbol} {h.grossPay?.toFixed(2)}</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{currencySymbol} {h.netPay?.toFixed(2)}</td>
+                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{currencySymbol} {totalDeductions.toFixed(2)}</td>
+                                                        <td style={cellStyle}>{h.currency}</td>
+                                                        <td style={cellStyle}>{new Date(h.generateDate || h.payDate).toLocaleString()}</td>
+                                                        <td style={cellStyle}>
+                                                            <button
+                                                                onClick={() => handleViewStub(h)}
+                                                                style={{ padding: '4px 10px', fontSize: '12px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                                            >
+                                                                View
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                        {console.log('submitted users', submittedUsers)}
+                        {activeTab === 'submitted' && submittedUsers.length > 0 && (
+                            <div style={{ marginTop: '2rem' }}>
+                                <h4>📋 Submitted Employees</h4>
+                                <div style={{ overflowX: 'auto', background: '#fff', borderRadius: '8px', padding: '20px', boxShadow: '0 0 10px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
+                                    <table style={{ minWidth: '1300px', width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead style={{ background: '#f4f6f8', fontWeight: 'bold' }}>
+                                            <tr>
+                                                <th style={cellStyle}>Name</th>
+                                                <th style={cellStyle}>Email</th>
+                                                <th style={cellStyle}>Pay Period</th>
+                                                <th style={cellStyle}>Hourly Rate</th>
+                                                <th style={cellStyle}>OT Rate</th>
+                                                <th style={cellStyle}>Shift Premium</th>
+                                                <th style={cellStyle}>Tax Country</th>
+                                                <th style={cellStyle}>Tax State</th>
+                                                <th style={cellStyle}>Pay Type</th>
+                                                <th style={cellStyle}>Currency</th>
+                                                <th style={cellStyle}>Timezone</th>
+                                                <th style={cellStyle}>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {submittedUsers.map((user, index) => (
+                                                <tr key={index}>
+                                                    <td style={cellStyle}>{user.name}</td>
+                                                    <td style={cellStyle}>{user.email}</td>
+                                                    <td style={cellStyle}>{user.payPeriodType}</td>
+                                                    <td style={cellStyle}>{user.billingInfo?.ratePerHour ?? '-'}</td>
+                                                    <td style={cellStyle}>{user.billingInfo?.overtimeRate ?? '-'}</td>
+                                                    <td style={cellStyle}>{user.billingInfo?.shiftPremiumRate ?? '-'}</td>
+                                                    <td style={cellStyle}>{user.appliedTaxCountry}</td>
+                                                    <td style={cellStyle}>{user.appliedTaxState}</td>
+                                                    <td style={cellStyle}>{user.billingInfo?.payType}</td>
+                                                    <td style={cellStyle}>{user.billingInfo?.currency}</td>
+                                                    <td style={cellStyle}>{user.timezone}</td>
+                                                    <td style={cellStyle}>
+                                                        <button
+                                                            onClick={() => {
+                                                                setEditUser(user);
+                                                                setShowModal(true);
+                                                            }}
+                                                            style={{ padding: '4px 10px', fontSize: '12px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                                        >
+                                                            Update
+                                                        </button>
+                                                    </td>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                {history.map((h, idx) => {
-                                                    const currencySymbol = {
-                                                        usd: '$', pkr: '₨', inr: '₹', cad: 'C$', eur: '€', gbp: '£'
-                                                    }[h.currency?.toLowerCase()] || h.currency || '';
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                        {showModal && editUser && (
+                            <div className="modal d-block" tabIndex="-1" role="dialog" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                                <div className="modal-dialog modal-lg" role="document">
+                                    <div className="modal-content">
+                                        <div className="modal-header">
+                                            <h5 className="modal-title">Update Employee</h5>
+                                            <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+                                        </div>
+                                        <div className="modal-body">
+                                            <div className="row">
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Name</label>
+                                                    <input
+                                                        className="form-control"
+                                                        type="text"
+                                                        value={editUser.name || ''}
+                                                        onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Email</label>
+                                                    <input
+                                                        className="form-control"
+                                                        type="email"
+                                                        value={editUser.email || ''}
+                                                        onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Pay Period</label>
+                                                    <select
+                                                        className="form-select"
+                                                        value={editUser.payPeriodType || ''}
+                                                        onChange={(e) => setEditUser({ ...editUser, payPeriodType: e.target.value })}
+                                                    >
+                                                        <option value="">Select Period</option>
+                                                        <option value="weekly">Weekly</option>
+                                                        <option value="biweekly">Bi-Weekly</option>
+                                                        <option value="monthly">Monthly</option>
+                                                    </select>
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Applied Tax Country</label>
+                                                    <select
+                                                        className="form-select"
+                                                        value={editUser.appliedTaxCountry || ''}
+                                                        onChange={(e) => {
+                                                            setEditUser({
+                                                                ...editUser,
+                                                                appliedTaxCountry: e.target.value,
+                                                                appliedTaxState: '' // Reset state on country change
+                                                            });
+                                                        }}
+                                                    >
+                                                        <option value="">Select Country</option>
+                                                        <option value="canada">Canada</option>
+                                                        <option value="usa">USA</option>
+                                                        <option value="pakistan">Pakistan</option>
+                                                        <option value="philiphine">Philipine</option>
+                                                        <option value="india">India</option>
+                                                        <option value="ksa">KSA</option>
+                                                    </select>
+                                                </div>
 
-                                                    const totalDeductions = (h.taxBreakdown || []).reduce((sum, item) => sum + (item.amount || 0), 0) +
-                                                        (h.totalDeductions || []).reduce((sum, item) => sum + (item.amount || 0), 0);
-
-                                                    return (
-                                                        <tr key={idx}>
-                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.name}</td>
-                                                            {/* <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.userId?.email || '—'}</td> */}
-                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.country || '—'}</td>
-                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.state || '—'}</td>
-                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.payPeriod}</td>
-                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{`${h.StartDate} - ${h.EndDate}`}</td>
-                                                            <td style={{ padding: '10px', border: '1px solid #eee', textAlign: 'right' }}>{(h.regHours + h.OTHours).toFixed(2)}</td>
-                                                            <td style={{ padding: '10px', border: '1px solid #eee', textAlign: 'right' }}>{currencySymbol} {h.grossPay?.toFixed(2)}</td>
-                                                            <td style={{ padding: '10px', border: '1px solid #eee', textAlign: 'right' }}>{currencySymbol} {h.netPay?.toFixed(2)}</td>
-                                                            <td style={{ padding: '10px', border: '1px solid #eee', textAlign: 'right' }}>{currencySymbol} {totalDeductions.toFixed(2)}</td>
-                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{h.currency}</td>
-                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>{new Date(h.generateDate || h.payDate).toLocaleString()}</td>
-                                                            <td style={{ padding: '10px', border: '1px solid #eee' }}>
-                                                                <button
-                                                                    onClick={() => handleViewStub(h)}
-                                                                    style={{
-                                                                        padding: '4px 10px',
-                                                                        fontSize: '12px',
-                                                                        backgroundColor: '#007bff',
-                                                                        color: '#fff',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                >
-                                                                    View
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Applied Tax State</label>
+                                                    {["canada", "usa", "india"].includes(editUser.appliedTaxCountry) ? (
+                                                        <select
+                                                            className="form-select"
+                                                            value={editUser.appliedTaxState || ''}
+                                                            onChange={(e) => setEditUser({ ...editUser, appliedTaxState: e.target.value })}
+                                                        >
+                                                            <option value="">Select State</option>
+                                                            {countryStateMap[editUser.appliedTaxCountry]?.map((state) => (
+                                                                <option key={state} value={state}>
+                                                                    {editUser.appliedTaxCountry === "usa" ? usStateNameToCode[state] || state : state}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    ) : (
+                                                        <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            placeholder="No State"
+                                                            disabled
+                                                        />
+                                                    )}
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Select Timezone</label>
+                                                    <TimezoneSelect
+                                                        value={{ value: editUser.timezone, label: editUser.timezone }}
+                                                        onChange={(tz) => {
+                                                            setEditUser({
+                                                                ...editUser,
+                                                                timezone: tz.value,
+                                                                timezoneOffset: tz.offset
+                                                            });
+                                                        }}
+                                                        styles={{
+                                                            control: (base) => ({
+                                                                ...base,
+                                                                minHeight: '38px',
+                                                                height: '32px',
+                                                                fontSize: '0.875rem',
+                                                            }),
+                                                            valueContainer: (base) => ({
+                                                                ...base,
+                                                                padding: '0 6px',
+                                                                height: '32px',
+                                                            }),
+                                                            indicatorsContainer: (base) => ({
+                                                                ...base,
+                                                                height: '38px',
+                                                            }),
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Vacation Pay</label>
+                                                    <input
+                                                        className="form-control"
+                                                        type="number"
+                                                        value={editUser.vacationPay || ''}
+                                                        onChange={(e) => setEditUser({ ...editUser, vacationPay: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Hourly Rate</label>
+                                                    <input
+                                                        className="form-control"
+                                                        type="number"
+                                                        value={editUser.billingInfo?.ratePerHour || ''}
+                                                        onChange={(e) => setEditUser({
+                                                            ...editUser,
+                                                            billingInfo: {
+                                                                ...editUser.billingInfo,
+                                                                ratePerHour: e.target.value
+                                                            }
+                                                        })}
+                                                    />
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">OT Rate</label>
+                                                    <input
+                                                        className="form-control"
+                                                        type="number"
+                                                        value={editUser.billingInfo?.overtimeRate || ''}
+                                                        onChange={(e) => setEditUser({
+                                                            ...editUser,
+                                                            billingInfo: {
+                                                                ...editUser.billingInfo,
+                                                                overtimeRate: e.target.value
+                                                            }
+                                                        })}
+                                                    />
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Shift Premium</label>
+                                                    <input
+                                                        className="form-control"
+                                                        type="number"
+                                                        value={editUser.billingInfo?.shiftPremiumRate || ''}
+                                                        onChange={(e) => setEditUser({
+                                                            ...editUser,
+                                                            billingInfo: {
+                                                                ...editUser.billingInfo,
+                                                                shiftPremiumRate: e.target.value
+                                                            }
+                                                        })}
+                                                    />
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Currency</label>
+                                                    <input
+                                                        className="form-control"
+                                                        value={editUser.billingInfo?.currency || ''}
+                                                        onChange={(e) => setEditUser({
+                                                            ...editUser,
+                                                            billingInfo: {
+                                                                ...editUser.billingInfo,
+                                                                currency: e.target.value
+                                                            }
+                                                        })}
+                                                    />
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label">Pay Type</label>
+                                                    <select
+                                                        className="form-select"
+                                                        value={editUser.pay_type || ''}
+                                                        onChange={(e) => setEditUser({
+                                                            ...editUser,
+                                                            pay_type: e.target.value
+                                                        })}
+                                                    >
+                                                        <option value="">Select Type</option>
+                                                        <option value="hourly">Hourly</option>
+                                                        <option value="monthly">Monthly</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="modal-footer">
+                                            <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+                                            <button className="btn btn-primary" onClick={handleUpdateUser}>Save Changes</button>
+                                        </div>
                                     </div>
                                 </div>
-
-
-                            ) : (
-                                <div className="text-muted mt-4">No pay stubs available at the moment.</div>
-                            )}
-
-                        </>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
         </>
-    )
+    );
 }
 
-export default PayrollHistory
+export default PayrollHistory;

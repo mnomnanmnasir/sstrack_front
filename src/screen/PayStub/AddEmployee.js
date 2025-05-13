@@ -22,6 +22,20 @@ function AddEmployee() {
         currency: ''
     });
     const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
+    const token = localStorage.getItem('token');
+    const user = jwtDecode(JSON.stringify(token));
+    const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    const [timezoneOffset, setTimezoneOffset] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    const [submittedUsers, setSubmittedUsers] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [editUser, setEditUser] = useState(null);
+    const [showModalupload, setShowModalupload] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
 
     const usStateNameToCode = {
         "Alabama": "(AL)", "Alaska": "(AK)", "Arizona": "(AZ)", "Arkansas": "(AR)",
@@ -41,99 +55,43 @@ function AddEmployee() {
 
     const countryStateMap = {
         canada: ["Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan"],
-        // "usa": Object.keys(usStateNameToCode), // <- Only use full names in dropdown
+
         "usa": Object.entries(usStateNameToCode).map(([name, code]) => [code, name]),
-        // Pakistan: ["Punjab", "Sindh", "KPK", "Balochistan"],
-        // Philiphines: ["Metro Manila", "Cebu", "Davao", "Laguna"],
+
         india: ["Maharashtra", "Karnataka", "West Bengal", "Gujarat", "Tamil Nadu", "Telangana", "Andhra Pradesh", "Assam", "Bihar", "Chhattisgarh", "Kerala", "Punjab", "Odisha"]
-        // "Saudia Arabia": ["Riyadh", "Jeddah", "Dammam", "Mecca"],
+
     };
 
-    const [showModal, setShowModal] = useState(false);
-    const [editUser, setEditUser] = useState(null);
 
-    const handleUpdateUser = async () => {
+
+    const handleUpload = async () => {
+        if (!selectedFile) {
+            alert('Please select an Excel file to upload.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
         try {
-            const payload = {
-                name: editUser.name,
-                email: editUser.email,
-                timezone: editUser.timezone,
-                timezoneOffset: editUser.timezoneOffset,
-                payPeriodType: editUser.payPeriodType,
-                shiftPremiumRate: parseFloat(editUser.billingInfo?.shiftPremiumRate || editUser.shiftPremiumRate || 0),
-                overtimeRate: parseFloat(editUser.billingInfo?.overtimeRate || editUser.overtimeRate || 0),
-                hourlyRate: parseFloat(editUser.billingInfo?.ratePerHour || editUser.hourlyRate || 0),
-                appliedTaxCountry: editUser.appliedTaxCountry,
-                appliedTaxState: editUser.appliedTaxState,
-                vacationPay: parseFloat(editUser.vacationPay),
-                pay_type: editUser.pay_type,
-                currency: editUser.billingInfo?.currency
-            };
-
-            const res = await axios.patch(
-                `https://myuniversallanguages.com:9093/api/v1/owner/updatepayrolUser/${editUser._id}`,
-                payload,
-                { headers }
+            const response = await axios.post(
+                'https://myuniversallanguages.com:9093/api/v1/owner/payrolData/upload',
+                formData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
             );
 
-            // ✅ Show backend message on success
-            if (res.data.success) {
-                enqueueSnackbar(res.data.message || "✅ User updated successfully.", {
-                    variant: "success",
-                    anchorOrigin: { vertical: "top", horizontal: "right" }
-                });
-
-
-                setShowModal(false);
-                setEditUser(null);
-
-                // Refresh the updated list from server
-                const refreshed = await axios.get(
-                    'https://myuniversallanguages.com:9093/api/v1/owner/getPayrolUsers',
-                    { headers }
-                );
-                setSubmittedUsers(refreshed.data.data);
-            }
-            else {
-                enqueueSnackbar("❌ Something went wrong during update.", {
-                    variant: "error",
-                    anchorOrigin: { vertical: "top", horizontal: "right" }
-                });
-            }
+            alert(response.data.message || '✅ File uploaded successfully!');
+            setShowModalupload(false);
+            setSelectedFile(null);
         } catch (error) {
-            console.error("❌ Update failed:", error?.response?.data || error.message);
-
-            const errorMessage =
-                error.response?.data?.message ||
-                error.response?.data?.error ||
-                "❌ Failed to update user.";
-
-            enqueueSnackbar(errorMessage, {
-                variant: "error",
-                anchorOrigin: { vertical: "top", horizontal: "right" }
-            });
+            console.error('❌ Upload failed:', error);
+            alert(error.response?.data?.message || 'Failed to upload file.');
         }
-    };
-
-    const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
-    const [timezoneOffset, setTimezoneOffset] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
-    const [submittedUsers, setSubmittedUsers] = useState([]);
-
-    const handleTimezoneChange = (tz) => {
-        setTimezone(tz);
-        setFormData(prev => ({
-            ...prev,
-            timezone: tz.value,
-            timezoneOffset: tz.offset
-        }));
-    };
-
-    const navigate = useNavigate();
-    const token = localStorage.getItem('token');
-    const user = jwtDecode(JSON.stringify(token));
-    const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
     };
 
     const handleChange = (e) => {
@@ -195,15 +153,31 @@ function AddEmployee() {
         }
     };
 
+    const handleDownloadTemplate = async () => {
+        try {
+            const response = await axios.get(
+                'https://myuniversallanguages.com:9093/api/v1/owner/payrolData/template?startDate=2025-05-01&endDate=2025-05-12',
+                {
+                    responseType: 'blob', // Important for file
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
 
-    // const fetchUsers = async () => {
-    //     try {
-    //         const res = await axios.get('https://myuniversallanguages.com:9093/api/v1/owner/getPayrolUsers', { headers });
-    //         setUsers(res.data.data);
-    //     } catch (err) {
-    //         enqueueSnackbar("Error fetching users.", { variant: 'error' });
-    //     }
-    // };
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'payroll_template.xlsx'); // or .csv based on API
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('❌ Error downloading template:', error);
+            alert('Failed to download template.');
+        }
+    };
+
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -224,9 +198,48 @@ function AddEmployee() {
         <>
             <SnackbarProvider />
             <div className="container">
-                <div className="userHeader ">
-                    <h5>Add Employees</h5>
+                <div
+                    className="userHeader"
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        // marginBottom: '1rem',
+                    }}
+                >
+                    <h5 style={{ margin: 0 }}>Add Employees for Payroll</h5>
+
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                            onClick={handleDownloadTemplate}
+                            style={{
+                                padding: '6px 14px',
+                                backgroundColor: '#007bff',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Download Template
+                        </button>
+
+                        <button
+                            onClick={() => setShowModalupload(true)}
+                            style={{
+                                padding: '6px 14px',
+                                backgroundColor: '#28a745',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Upload CSV
+                        </button>
+                    </div>
                 </div>
+
 
                 <div className="mainwrapper">
                     <div className="ownerTeamContainer">
@@ -462,273 +475,53 @@ function AddEmployee() {
 
                         <button
                             className="btn mt-2"
-                            style={{
-
-                            }}
                             onClick={handleSubmit}
+                            style={{
+                                padding: '10px 20px',
+                                backgroundColor: '#7ACB59',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontWeight: '600',
+                                fontSize: '14px',
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.3s ease, transform 0.2s ease',
+                            }}
+                            onMouseOver={(e) => {
+                                e.target.style.backgroundColor = '#6ab64f';
+                                e.target.style.transform = 'translateY(-1px)';
+                            }}
+                            onMouseOut={(e) => {
+                                e.target.style.backgroundColor = '#7ACB59';
+                                e.target.style.transform = 'translateY(0)';
+                            }}
                         >
                             Submit Payroll User
                         </button>
 
-                        {submittedUsers.length > 0 && (
-                            <div className="mt-5">
-                                <div className="table-responsive">
-                                    <table className="table table-bordered table-striped">
-                                        <thead className="table-light">
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Email</th>
-                                                <th>Pay Period</th>
-                                                <th>Hourly Rate</th>
-                                                <th>OT Rate</th>
-                                                <th>Shift Premium</th>
-                                                <th>Tax Country</th>
-                                                <th>Tax State</th>
-                                                <th>Pay Type</th>
-                                                <th>Currency</th>
-                                                <th>Timezone</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {submittedUsers.map((user, index) => (
-                                                <tr key={index}>
-                                                    <td>{user.name}</td>
-                                                    <td>{user.email}</td>
-                                                    <td>{user.payPeriodType}</td>
-                                                    <td>{user.billingInfo?.ratePerHour ?? '-'}</td>
-                                                    <td>{user.billingInfo?.overtimeRate ?? '-'}</td>
-                                                    <td>{user.billingInfo?.shiftPremiumRate ?? '-'}</td>
-                                                    <td>{user.appliedTaxCountry}</td>
-                                                    <td>{user.appliedTaxState}</td>
-                                                    <td>{user.billingInfo?.payType}</td>
-                                                    <td>{user.billingInfo?.currency}</td>
-                                                    <td>{user.timezone}</td>
-                                                    <td>
-                                                        <button
-                                                            className="btn btn-sm btn-primary"
-                                                            onClick={() => {
-                                                                setEditUser(user);
-                                                                setShowModal(true);
-                                                            }}
-                                                        >
-                                                            Update
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
 
-                        {showModal && editUser && (
-                            <div className="modal d-block" tabIndex="-1" role="dialog" style={{ background: 'rgba(0,0,0,0.5)' }}>
-                                <div className="modal-dialog modal-lg" role="document">
+
+                        {/* Modal */}
+                        {showModalupload && (
+                            <div className="modal d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                                <div className="modal-dialog" role="document">
                                     <div className="modal-content">
                                         <div className="modal-header">
-                                            <h5 className="modal-title">Update Employee</h5>
-                                            <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+                                            <h5 className="modal-title">Upload Payroll Excel</h5>
+                                            <button className="btn-close" onClick={() => setShowModal(false)}></button>
                                         </div>
                                         <div className="modal-body">
-                                            <div className="row">
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Name</label>
-                                                    <input
-                                                        className="form-control"
-                                                        type="text"
-                                                        value={editUser.name || ''}
-                                                        onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
-                                                    />
-                                                </div>
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Email</label>
-                                                    <input
-                                                        className="form-control"
-                                                        type="email"
-                                                        value={editUser.email || ''}
-                                                        onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
-                                                    />
-                                                </div>
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Pay Period</label>
-                                                    <select
-                                                        className="form-select"
-                                                        value={editUser.payPeriodType || ''}
-                                                        onChange={(e) => setEditUser({ ...editUser, payPeriodType: e.target.value })}
-                                                    >
-                                                        <option value="">Select Period</option>
-                                                        <option value="weekly">Weekly</option>
-                                                        <option value="biweekly">Bi-Weekly</option>
-                                                        <option value="monthly">Monthly</option>
-                                                    </select>
-                                                </div>
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Applied Tax Country</label>
-                                                    <select
-                                                        className="form-select"
-                                                        value={editUser.appliedTaxCountry || ''}
-                                                        onChange={(e) => {
-                                                            setEditUser({
-                                                                ...editUser,
-                                                                appliedTaxCountry: e.target.value,
-                                                                appliedTaxState: '' // Reset state on country change
-                                                            });
-                                                        }}
-                                                    >
-                                                        <option value="">Select Country</option>
-                                                        <option value="canada">Canada</option>
-                                                        <option value="usa">USA</option>
-                                                        <option value="pakistan">Pakistan</option>
-                                                        <option value="philiphine">Philipine</option>
-                                                        <option value="india">India</option>
-                                                        <option value="ksa">KSA</option>
-                                                    </select>
-                                                </div>
-
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Applied Tax State</label>
-                                                    {["canada", "usa", "india"].includes(editUser.appliedTaxCountry) ? (
-                                                        <select
-                                                            className="form-select"
-                                                            value={editUser.appliedTaxState || ''}
-                                                            onChange={(e) => setEditUser({ ...editUser, appliedTaxState: e.target.value })}
-                                                        >
-                                                            <option value="">Select State</option>
-                                                            {countryStateMap[editUser.appliedTaxCountry]?.map((state) => (
-                                                                <option key={state} value={state}>
-                                                                    {editUser.appliedTaxCountry === "usa" ? usStateNameToCode[state] || state : state}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    ) : (
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            placeholder="No State"
-                                                            disabled
-                                                        />
-                                                    )}
-                                                </div>
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Select Timezone</label>
-                                                    <TimezoneSelect
-                                                        value={{ value: editUser.timezone, label: editUser.timezone }}
-                                                        onChange={(tz) => {
-                                                            setEditUser({
-                                                                ...editUser,
-                                                                timezone: tz.value,
-                                                                timezoneOffset: tz.offset
-                                                            });
-                                                        }}
-                                                        styles={{
-                                                            control: (base) => ({
-                                                                ...base,
-                                                                minHeight: '38px',
-                                                                height: '32px',
-                                                                fontSize: '0.875rem',
-                                                            }),
-                                                            valueContainer: (base) => ({
-                                                                ...base,
-                                                                padding: '0 6px',
-                                                                height: '32px',
-                                                            }),
-                                                            indicatorsContainer: (base) => ({
-                                                                ...base,
-                                                                height: '38px',
-                                                            }),
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Vacation Pay</label>
-                                                    <input
-                                                        className="form-control"
-                                                        type="number"
-                                                        value={editUser.vacationPay || ''}
-                                                        onChange={(e) => setEditUser({ ...editUser, vacationPay: e.target.value })}
-                                                    />
-                                                </div>
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Hourly Rate</label>
-                                                    <input
-                                                        className="form-control"
-                                                        type="number"
-                                                        value={editUser.billingInfo?.ratePerHour || ''}
-                                                        onChange={(e) => setEditUser({
-                                                            ...editUser,
-                                                            billingInfo: {
-                                                                ...editUser.billingInfo,
-                                                                ratePerHour: e.target.value
-                                                            }
-                                                        })}
-                                                    />
-                                                </div>
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">OT Rate</label>
-                                                    <input
-                                                        className="form-control"
-                                                        type="number"
-                                                        value={editUser.billingInfo?.overtimeRate || ''}
-                                                        onChange={(e) => setEditUser({
-                                                            ...editUser,
-                                                            billingInfo: {
-                                                                ...editUser.billingInfo,
-                                                                overtimeRate: e.target.value
-                                                            }
-                                                        })}
-                                                    />
-                                                </div>
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Shift Premium</label>
-                                                    <input
-                                                        className="form-control"
-                                                        type="number"
-                                                        value={editUser.billingInfo?.shiftPremiumRate || ''}
-                                                        onChange={(e) => setEditUser({
-                                                            ...editUser,
-                                                            billingInfo: {
-                                                                ...editUser.billingInfo,
-                                                                shiftPremiumRate: e.target.value
-                                                            }
-                                                        })}
-                                                    />
-                                                </div>
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Currency</label>
-                                                    <input
-                                                        className="form-control"
-                                                        value={editUser.billingInfo?.currency || ''}
-                                                        onChange={(e) => setEditUser({
-                                                            ...editUser,
-                                                            billingInfo: {
-                                                                ...editUser.billingInfo,
-                                                                currency: e.target.value
-                                                            }
-                                                        })}
-                                                    />
-                                                </div>
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Pay Type</label>
-                                                    <select
-                                                        className="form-select"
-                                                        value={editUser.pay_type || ''}
-                                                        onChange={(e) => setEditUser({
-                                                            ...editUser,
-                                                            pay_type: e.target.value
-                                                        })}
-                                                    >
-                                                        <option value="">Select Type</option>
-                                                        <option value="hourly">Hourly</option>
-                                                        <option value="monthly">Monthly</option>
-                                                    </select>
-                                                </div>
-                                            </div>
+                                            <input
+                                                type="file"
+                                                accept=".xlsx"
+                                                className="form-control"
+                                                onChange={(e) => setSelectedFile(e.target.files[0])}
+                                            />
                                         </div>
                                         <div className="modal-footer">
                                             <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                                            <button className="btn btn-primary" onClick={handleUpdateUser}>Save Changes</button>
+                                            <button className="btn btn-primary" onClick={handleUpload}>Upload</button>
                                         </div>
                                     </div>
                                 </div>
