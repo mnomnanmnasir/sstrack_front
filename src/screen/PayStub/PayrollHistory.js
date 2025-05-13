@@ -17,6 +17,10 @@ function PayrollHistory() {
     const [editUser, setEditUser] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [activeTab, setActiveTab] = useState('history');
+    const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [selectedPayrollData, setSelectedPayrollData] = useState(null);
+    const [loadingUserId, setLoadingUserId] = useState(null);
+
 
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
@@ -130,6 +134,7 @@ function PayrollHistory() {
         try {
             const res = await axios.get(`${apiUrl}/owner/getPayrolUsers`, { headers });
             setSubmittedUsers(res.data.data);
+            { console.log('submitted users', res.data.data) }
         } catch (err) {
             console.error('Failed to fetch payroll users:', err);
         }
@@ -149,6 +154,25 @@ function PayrollHistory() {
             }
         });
     };
+
+    const handleViewPayrollData = async (userId) => {
+        setLoadingUserId(userId);
+        try {
+            const res = await axios.get(
+                `https://myuniversallanguages.com:9093/api/v1/owner/payrolData/${userId}/get`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setSelectedPayrollData(res.data);
+            setViewModalOpen(true);
+        } catch (err) {
+            console.error("Failed to fetch payroll data:", err);
+            alert("Record not Found");
+        } finally {
+            setLoadingUserId(null);
+        }
+    };
+
+
 
     return (
         <>
@@ -253,7 +277,7 @@ function PayrollHistory() {
                                 </div>
                             </div>
                         )}
-                        {console.log('submitted users', submittedUsers)}
+
                         {activeTab === 'submitted' && submittedUsers.length > 0 && (
                             <div style={{ marginTop: '2rem' }}>
                                 <h4>📋 Submitted Employees</h4>
@@ -272,6 +296,7 @@ function PayrollHistory() {
                                                 <th style={cellStyle}>Pay Type</th>
                                                 <th style={cellStyle}>Currency</th>
                                                 <th style={cellStyle}>Timezone</th>
+                                                <th style={cellStyle}>View</th>
                                                 <th style={cellStyle}>Action</th>
                                             </tr>
                                         </thead>
@@ -289,6 +314,26 @@ function PayrollHistory() {
                                                     <td style={cellStyle}>{user.billingInfo?.payType}</td>
                                                     <td style={cellStyle}>{user.billingInfo?.currency}</td>
                                                     <td style={cellStyle}>{user.timezone}</td>
+                                                    <td style={cellStyle}>
+                                                        <button
+                                                            onClick={() => handleViewPayrollData(user._id)}
+                                                            style={{
+                                                                padding: '4px 10px',
+                                                                fontSize: '12px',
+                                                                backgroundColor: '#28a745',
+                                                                color: '#fff',
+                                                                border: 'none',
+                                                                borderRadius: '4px',
+                                                                cursor: 'pointer',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '6px'
+                                                            }}
+                                                        >
+                                                            {loadingUserId === user._id ? <span className="spinner-border spinner-border-sm"></span> : 'View'}
+                                                        </button>
+                                                    </td>
+
                                                     <td style={cellStyle}>
                                                         <button
                                                             onClick={() => {
@@ -518,6 +563,49 @@ function PayrollHistory() {
                                 </div>
                             </div>
                         )}
+                        {console.log('Updasteeed,', selectedPayrollData)}
+                        {viewModalOpen && selectedPayrollData && (
+
+                            <div className="modal d-block" tabIndex="-1" style={{ background: 'rgba(0,0,0,0.4)' }}>
+                                <div className="modal-dialog modal-lg" role="document">
+                                    <div className="modal-content">
+                                        <div className="modal-header">
+                                            <h5 className="modal-title">Payroll Data - {selectedPayrollData.name}</h5>
+                                            <button type="button" className="btn-close" onClick={() => setViewModalOpen(false)}></button>
+                                        </div>
+                                        <div className="modal-body">
+                                            <table className="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Date</th>
+                                                        <th>Total Hours</th>
+                                                        <th>Overtime Hours</th>
+                                                        <th>Shift Premium Hours</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {selectedPayrollData.data.entries?.map((entry, idx) => (
+                                                        <tr key={idx}>
+                                                            <td>
+                                                                {new Date(entry.startDate).toLocaleDateString()} - {new Date(entry.endDate).toLocaleDateString()}
+                                                            </td>
+                                                            <td>{entry.totalHours}</td>
+                                                            <td>{entry.overtimeHours}</td>
+                                                            <td>{entry.shiftPremiumHours}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+
+                                            </table>
+                                        </div>
+                                        <div className="modal-footer">
+                                            <button className="btn btn-secondary" onClick={() => setViewModalOpen(false)}>Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                     </div>
                 </div>
             </div>
