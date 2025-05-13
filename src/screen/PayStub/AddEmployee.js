@@ -93,6 +93,8 @@ function AddEmployee() {
             setShowSuccessModal(true);
             setShowModalupload(false);
             setSelectedFile(null);
+
+
         } catch (error) {
             console.error('❌ Upload failed:', error);
             setSuccessMessage(error.response?.data?.message || '❌ Failed to upload file.');
@@ -565,9 +567,12 @@ function AddEmployee() {
                                         <div className="modal-footer">
                                             <button
                                                 className="btn btn-primary w-100"
-                                                onClick={() => setShowSuccessModal(false)}
+                                                onClick={() => {
+                                                    setShowSuccessModal(false);
+                                                    navigate('/PayStub_history'); // Navigate on close
+                                                }}
                                             >
-                                                Close
+                                                Go to See it!
                                             </button>
                                         </div>
                                     </div>
