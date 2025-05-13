@@ -102,13 +102,6 @@ function AddEmployee() {
         }
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value
-        }));
-    };
 
     const handleSubmit = async () => {
         try {
@@ -154,6 +147,7 @@ function AddEmployee() {
                 };
 
                 setSubmittedUsers(prev => [...prev, newUser]);
+                navigate('/PayStub_history');
             }
         } catch (error) {
             console.error("❌ Failed to add payroll user:", error.response?.data || error.message);
@@ -183,6 +177,32 @@ function AddEmployee() {
         } catch (error) {
             console.error('❌ Error downloading template:', error);
             alert('Failed to download template.');
+        }
+    };
+
+    const countryCurrencyMap = {
+        canada: 'CAD',
+        usa: 'USD',
+        pakistan: 'PKR',
+        philiphine: 'PHP',
+        india: 'INR',
+        ksa: 'SAR'
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        if (name === 'appliedTaxCountry') {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value,
+                currency: countryCurrencyMap[value] || ''
+            }));
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value
+            }));
         }
     };
 
@@ -517,7 +537,7 @@ function AddEmployee() {
                                     <div className="modal-content">
                                         <div className="modal-header">
                                             <h5 className="modal-title">Upload Payroll Excel</h5>
-                                            <button className="btn-close" onClick={() => setShowModal(false)}></button>
+                                            <button className="btn-close" onClick={() => setShowModalupload(false)}></button>
                                         </div>
                                         <div className="modal-body">
                                             <input
@@ -528,7 +548,7 @@ function AddEmployee() {
                                             />
                                         </div>
                                         <div className="modal-footer">
-                                            <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+                                            <button className="btn btn-secondary" onClick={() => setShowModalupload(false)}>Cancel</button>
                                             <button className="btn btn-primary" onClick={handleUpload}>Upload</button>
                                         </div>
                                     </div>

@@ -16,7 +16,7 @@ function PayrollHistory() {
     const [submittedUsers, setSubmittedUsers] = useState([]);
     const [editUser, setEditUser] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [activeTab, setActiveTab] = useState('history');
+    const [activeTab, setActiveTab] = useState('submitted');
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedPayrollData, setSelectedPayrollData] = useState(null);
     const [loadingUserId, setLoadingUserId] = useState(null);
