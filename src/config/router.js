@@ -70,6 +70,7 @@ import PayStubGenerator from "../screen/PayStub/PayStubGenerator";
 import AssignUsers from "../screen/component/BlogsUsers/blogsAccess";
 // import PayrollTable from "../screen/PayStub/PayrollTable";
 import GeoFance from '../screen/component/GeoFancing/geoFance'
+import GeoFanceAdd from '../screen/component/GeoFancing/AddGeoFence'
 import AddEmployee from "../screen/PayStub/AddEmployee";
 
 
@@ -216,6 +217,7 @@ export default function AppRouter() {
             {/* <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} /> */}
             <Route path="/attendence-management" element={token ? (suspended ? <Navigate to="/account" /> : <Attendence />) : <Navigate to="/" />} />
             <Route path="/geo-fance" element={token ? (suspended ? <Navigate to="/account" /> : <GeoFance />) : <Navigate to="/" />} />
+            <Route path="/geo-fance/add" element={token ? (suspended ? <Navigate to="/account" /> : <GeoFanceAdd />) : <Navigate to="/" />} />
             <Route path="/add-employee" element={token ? (suspended ? <Navigate to="/account" /> : <AddEmployee />) : <Navigate to="/" />} />
 
             <Route path="/history" element={token ? (suspended ? <Navigate to="/account" /> : <History />) : <Navigate to="/" />} />
@@ -225,7 +227,7 @@ export default function AppRouter() {
 
             {/* <Route path="/effective-settings/break-time" element={<BreakTime />} /> */}
             <Route path="/settings" element={<Setting />}>
-              <Route path="break-time" element={< BreakTime />} />
+              <Route path="break-time" element={<BreakTime />} />
               <Route path="punctuality" element={<Punctuality />} />
 
             </Route>
