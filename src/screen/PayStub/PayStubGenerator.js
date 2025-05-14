@@ -288,7 +288,7 @@ const PayStubGenerator = () => {
                                             style={{ width: '140px', cursor: 'pointer' }}
                                             role="button"
                                             aria-label="Add employee"
-                                            onClick={() => navigate('/team')}
+                                            onClick={() => navigate('/add-employee')}
                                         >
                                             <img
                                                 src="https://img.icons8.com/fluency/48/add-user-group-man-man.png"

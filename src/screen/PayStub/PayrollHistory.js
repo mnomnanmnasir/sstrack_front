@@ -277,7 +277,7 @@ function PayrollHistory() {
                                 </div>
                             </div>
                         )}
-
+                         {console.log('Updasteeed,', submittedUsers)}
                         {activeTab === 'submitted' && submittedUsers.length > 0 && (
                             <div style={{ marginTop: '2rem' }}>
                                 <h4>📋 Submitted Employees</h4>
@@ -563,7 +563,7 @@ function PayrollHistory() {
                                 </div>
                             </div>
                         )}
-                        {console.log('Updasteeed,', selectedPayrollData)}
+                       
                         {viewModalOpen && selectedPayrollData && (
 
                             <div className="modal d-block" tabIndex="-1" style={{ background: 'rgba(0,0,0,0.4)' }}>
