@@ -15,6 +15,8 @@ import 'leaflet/dist/leaflet.css';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { Polyline } from 'react-leaflet';
+import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
+import axios from "axios";
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -40,6 +42,8 @@ const GeoFance = () => {
     const mapRef = useRef(null);
     // Inside your component
     const [activeTab, setActiveTab] = useState('employees'); // or 'geofences'
+    const [query, setQuery] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
 
     useEffect(() => {
         setIsClient(true);
@@ -71,6 +75,7 @@ const GeoFance = () => {
     //         status: 'Active',
     //     }
     // ];
+
     const fetchGeofences = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -169,6 +174,32 @@ const GeoFance = () => {
         { name: 'Sarah Johnson', status: 'online' },
         { name: 'Mike Jones', status: 'offline' },
     ];
+
+    const handleLocationSearch = async (value) => {
+        setQuery(value);
+        if (value.length < 3) return setSuggestions([]);
+
+        try {
+            const res = await axios.get(`https://corsproxy.io/?https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}`);
+            setSuggestions(res.data);
+        } catch (error) {
+            console.error("CORS Error:", error);
+        }
+    };
+
+    const handleSelectSuggestion = (place) => {
+        const updatedForm = {
+            ...form,
+            address: place.display_name,
+            latitude: place.lat,
+            longitude: place.lon
+        };
+        setForm(updatedForm);
+        setQuery(place.display_name);
+        setSuggestions([]);
+
+        console.log("Selected Address:", updatedForm.address); // ✅ For debugging
+    };
 
     return (
         <>
@@ -275,7 +306,6 @@ const GeoFance = () => {
                                     + Create Geofence
                                 </button>
                             </div>
-
                             <div className="card h-100">
                                 <div className="d-flex justify-content-between align-items-center">
                                     <div>
@@ -313,8 +343,7 @@ const GeoFance = () => {
                                             <MapContainer
                                                 center={[parseFloat(form.latitude), parseFloat(form.longitude)]}
                                                 zoom={13}
-                                                style={{ height: "100%", width: "100%" }}
-                                                zoomControl={false} // 👈 This hides the default zoom buttons
+                                                style={{ height: "400px", width: "100%" }}
                                                 whenCreated={(mapInstance) => {
                                                     mapRef.current = mapInstance;
                                                 }}
@@ -495,43 +524,47 @@ const GeoFance = () => {
 
             {/* ✅ Bootstrap Modal */}
             {showModal && (
-                <div
-                    className="modal fade show d-block"
-                    tabIndex="-1"
-                    role="dialog"
-                    style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-                    onClick={() => setShowModal(false)}
-                >
-                    <div
-                        className="modal-dialog"
-                        role="document"
-                        onClick={(e) => e.stopPropagation()}
-                    >
+                <div className="modal fade show d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowModal(false)}>
+                    <div className="modal-dialog" role="document" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">Create New Geofence</h5>
                                 <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
                             </div>
                             <div className="modal-body">
-                                {[
-                                    { label: "Geofence Name", name: "geoFenceName" },
-                                    { label: "Description", name: "description" },
-                                    { label: "Address", name: "address" },
-                                    { label: "Latitude", name: "latitude", type: "number" },
-                                    { label: "Longitude", name: "longitude", type: "number" },
-                                    { label: "Time", name: "time", type: "time" },
-                                    { label: "From Date", name: "fromDate", type: "date" },
-                                    { label: "To Date", name: "toDate", type: "date" }
-                                ].map(({ label, name, type = "text" }) => (
+                                {[{ label: "Geofence Name", name: "geoFenceName" }, { label: "Description", name: "description" }].map(({ label, name }) => (
                                     <div className="mb-3" key={name}>
                                         <label className="form-label">{label}</label>
-                                        <input
-                                            type={type}
-                                            className="form-control"
-                                            name={name}
-                                            value={form[name]}
-                                            onChange={handleChange}
-                                        />
+                                        <input type="text" className="form-control" name={name} value={form[name]} onChange={handleChange} />
+                                    </div>
+                                ))}
+
+                                <div className="mb-3">
+                                    <label className="form-label">Search Location</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={query}
+                                        onChange={(e) => handleLocationSearch(e.target.value)}
+                                        placeholder="Type address..."
+                                    />
+                                    <div className="list-group mt-2">
+                                        {suggestions.map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="list-group-item list-group-item-action"
+                                                onClick={() => handleSelectSuggestion(suggestion)}
+                                            >
+                                                {suggestion.display_name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {[{ label: "Time", name: "time", type: "time" }, { label: "From Date", name: "fromDate", type: "date" }, { label: "To Date", name: "toDate", type: "date" }].map(({ label, name, type }) => (
+                                    <div className="mb-3" key={name}>
+                                        <label className="form-label">{label}</label>
+                                        <input type={type} className="form-control" name={name} value={form[name]} onChange={handleChange} />
                                     </div>
                                 ))}
                             </div>

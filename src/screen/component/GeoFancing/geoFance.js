@@ -17,6 +17,7 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { Polyline } from 'react-leaflet';
 
 
+
 const GeoFance = () => {
 
     return (
@@ -79,11 +80,16 @@ const GeoFance = () => {
                                                 )}
                                             </div>
                                             <div
-                                                className={`bg-${item.iconBg || 'secondary'} bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center`}
-                                                style={{ width: 40, height: 40 }}
+                                                className="rounded-circle d-flex align-items-center justify-content-center"
+                                                style={{
+                                                    width: 40,
+                                                    height: 40,
+                                                    backgroundColor: item.title === 'Alerts Today' ? '#FFB3B3' : '#C8E98A' // 🔴 red for Alerts Today, 🟢 green for others
+                                                }}
                                             >
-                                                <i className={`bi ${item.icon} text-${item.iconBg || 'secondary'}`}></i>
+                                                <i className={`bi ${item.icon} text-dark`}></i> {/* icon color can be changed to white or dark */}
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -106,7 +112,7 @@ const GeoFance = () => {
                                             { name: "John Smith", action: "left", location: "Main Office", time: "Yesterday at 5:30 PM", icon: "bi-door-closed", color: "success" }
                                         ].map((event, idx) => (
                                             <li key={idx} className="d-flex align-items-start mb-3">
-                                                <div className={`bg-${event.color} bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center me-3`} style={{ width: 32, height: 32 }}>
+                                                <div className={` bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center me-3`} style={{ background: '#C8E98A', width: 32, height: 32 }}>
                                                     <i className={`bi ${event.icon} text-${event.color}`}></i>
                                                 </div>
                                                 <div>
@@ -164,6 +170,112 @@ const GeoFance = () => {
                             </div>
                         </div>
                     </div>
+
+                    <div className="row mt-5">
+                        {/* Active Employees */}
+                        <div className="col-md-6 mb-4">
+                            <div className="card h-100">
+                                <div className="card-header d-flex justify-content-between align-items-center">
+                                    <h6 className="mb-0 fw-semibold">Active Employees</h6>
+                                    <button className="btn btn-sm btn-outline-primary">
+                                        <i className="bi bi-geo-alt me-1"></i>View All
+                                    </button>
+                                </div>
+                                <div className="card-body p-0">
+                                    {/* Map Placeholder */}
+                                    <div className="text-center py-0 bg-light text-muted border-bottom">
+                                        <MapContainer
+                                            center={[24.8607, 67.0011]} // Karachi coordinates
+                                            zoom={13}
+                                            style={{ height: "300px", width: "100%", borderRadius: "4px" }}
+                                        >
+                                            <TileLayer
+                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                            />
+                                            <Marker position={[24.8607, 67.0011]}>
+                                                <Popup>Location</Popup>
+                                            </Marker>
+                                        </MapContainer>
+
+                                        {/* Directions Button */}
+                                        {/* <div className="mt-2">
+                                            <a
+                                                href="https://www.google.com/maps/dir/?api=1&destination=24.8607,67.0011"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="btn btn-outline-primary btn-sm mt-2"
+                                            >
+                                                <i className="bi bi-geo-alt me-1"></i> Get Directions
+                                            </a>
+                                        </div> */}
+                                    </div>
+
+                                    {/* Active Employee List */}
+                                    {[
+                                        { name: "John Smith", location: "Main Office", time: "45 min" },
+                                        { name: "Sarah Johnson", location: "Client Site A", time: "2h 15min" },
+                                        { name: "Mike Jones", location: "Warehouse", time: "10 min" },
+                                    ].map((emp, idx) => (
+                                        <div key={idx} className="d-flex align-items-center justify-content-between px-3 py-3 border-bottom">
+                                            <div className="d-flex align-items-center">
+                                                <div
+                                                    className="rounded-circle text-dark d-flex align-items-center justify-content-center me-3"
+                                                    style={{ background: "#C8E98A", width: 40, height: 40 }}
+                                                >
+                                                    <span className="fw-semibold">{emp.name.charAt(0)}</span>
+                                                </div>
+                                                <div>
+                                                    <h6 className="mb-0">{emp.name}</h6>
+                                                    <small className="text-muted">
+                                                        <i className="bi bi-geo-alt me-1 text-success"></i>{emp.location}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div className="d-flex align-items-center">
+                                                <span className="badge bg-primary text-white me-2">{emp.time}</span>
+                                                <i className="bi bi-three-dots-vertical text-muted"></i>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Quick Actions */}
+                        <div className="col-md-6 mb-4">
+                            <div className="card h-100">
+                                <div className="card-header">
+                                    <h6 className="mb-0 fw-semibold">Quick Actions</h6>
+                                </div>
+                                <div className="card-body">
+                                    <div className="row g-3">
+                                        <div className="col-6">
+                                            <button className="btn btn-outline-primary w-100 py-3">
+                                                <i className="bi bi-person-plus me-2"></i> Add Employee
+                                            </button>
+                                        </div>
+                                        <div className="col-6">
+                                            <button className="btn btn-outline-primary w-100 py-3">
+                                                <i className="bi bi-send me-2"></i> Create Geofence
+                                            </button>
+                                        </div>
+                                        <div className="col-6">
+                                            <button className="btn btn-outline-primary w-100 py-3">
+                                                <i className="bi bi-geo me-2"></i> Track Employee
+                                            </button>
+                                        </div>
+                                        <div className="col-6">
+                                            <button className="btn btn-outline-primary w-100 py-3">
+                                                <i className="bi bi-bell me-2"></i> Manage Alerts
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
