@@ -187,7 +187,7 @@ function PayroleUser() {
                                             <td style={cellStyle}>{user.timezone}</td>
                                             <td style={cellStyle}>
                                                 <button
-                                                    onClick={() => handleViewPayrollData(user._id)}
+                                                    onClick={() => handleViewPayrollData(user.userId)}
                                                     disabled={!user.entries}
                                                     style={{
                                                         padding: '4px 10px',
