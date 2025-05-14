@@ -48,69 +48,70 @@ function PayroleUser() {
     };
 
     const handleUpdateUser = async () => {
-        console.log('edit user ki detials', editUser)
-        // try {
-        //     const payload = {
-        //         name: editUser.name,
-        //         email: editUser.email,
-        //         timezone: editUser.timezone,
-        //         timezoneOffset: editUser.timezoneOffset,
-        //         payPeriodType: editUser.payPeriodType,
-        //         shiftPremiumRate: parseFloat(editUser.billingInfo?.shiftPremiumRate || editUser.shiftPremiumRate || 0),
-        //         overtimeRate: parseFloat(editUser.billingInfo?.overtimeRate || editUser.overtimeRate || 0),
-        //         hourlyRate: parseFloat(editUser.billingInfo?.ratePerHour || editUser.hourlyRate || 0),
-        //         appliedTaxCountry: editUser.appliedTaxCountry,
-        //         appliedTaxState: editUser.appliedTaxState,
-        //         vacationPay: parseFloat(editUser.vacationPay),
-        //         pay_type: editUser.pay_type,
-        //         currency: editUser.billingInfo?.currency,
-        //         totalHours: parseFloat(editUser.totalHours || 0),
+        console.log('Updating user ID:', editUser.userId);
 
-        //     };
+        try {
+            const payload = {
+                name: editUser.name,
+                email: editUser.email,
+                timezone: editUser.timezone,
+                timezoneOffset: editUser.timezoneOffset,
+                payPeriodType: editUser.payPeriodType,
+                shiftPremiumRate: parseFloat(editUser.billingInfo?.shiftPremiumRate || editUser.shiftPremiumRate || 0),
+                overtimeRate: parseFloat(editUser.billingInfo?.overtimeRate || editUser.overtimeRate || 0),
+                hourlyRate: parseFloat(editUser.billingInfo?.ratePerHour || editUser.hourlyRate || 0),
+                appliedTaxCountry: editUser.appliedTaxCountry,
+                appliedTaxState: editUser.appliedTaxState,
+                vacationPay: parseFloat(editUser.vacationPay),
+                pay_type: editUser.pay_type,
+                currency: editUser.billingInfo?.currency,
+                totalHours: parseFloat(editUser.totalHours || 0),
 
-        //     const res = await axios.patch(
-        //         `https://myuniversallanguages.com:9093/api/v1/owner/updatepayrolUser/${editUser._id}`,
-        //         payload,
-        //         { headers }
-        //     );
+            };
 
-        //     // ✅ Show backend message on success
-        //     if (res.data.success) {
-        //         enqueueSnackbar(res.data.message || "✅ User updated successfully.", {
-        //             variant: "success",
-        //             anchorOrigin: { vertical: "top", horizontal: "right" }
-        //         });
+            const res = await axios.patch(
+                `https://myuniversallanguages.com:9093/api/v1/owner/updatepayrolUser/${editUser.userId}`,
+                payload,
+                { headers }
+            );
+
+            // ✅ Show backend message on success
+            if (res.data.success) {
+                enqueueSnackbar(res.data.message || "✅ User updated successfully.", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
+                });
 
 
-        //         setShowModal(false);
-        //         setEditUser(null);
+                setShowModal(false);
+                setEditUser(null);
 
-        //         // Refresh the updated list from server
-        //         const refreshed = await axios.get(
-        //             'https://myuniversallanguages.com:9093/api/v1/owner/getPayrolUsers',
-        //             { headers }
-        //         );
-        //         setSubmittedUsers(refreshed.data.data);
-        //     }
-        //     else {
-        //         enqueueSnackbar("❌ Something went wrong during update.", {
-        //             variant: "error",
-        //             anchorOrigin: { vertical: "top", horizontal: "right" }
-        //         });
-        //     }
-        // } catch (error) {
-        //     console.error("❌ Update failed:", error?.response?.data || error.message);
+                // Refresh the updated list from server
+                const refreshed = await axios.get(
+                    'https://myuniversallanguages.com:9093/api/v1/owner/getPayrolUsers',
+                    { headers }
+                );
+                setSubmittedUsers(refreshed.data.data);
+            }
+            else {
+                enqueueSnackbar("❌ Something went wrong during update.", {
+                    variant: "error",
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
+                });
+            }
+        } catch (error) {
+            console.error("❌ Update failed:", error?.response?.data || error.message);
 
-        //     const errorMessage =
-        //         error.response?.data?.message ||
-        //         error.response?.data?.error ||
-        //         "❌ Failed to update user.";
+            const errorMessage =
+                error.response?.data?.message ||
+                error.response?.data?.error ||
+                "❌ Failed to update user.";
 
-        //     enqueueSnackbar(errorMessage, {
-        //         variant: "error",
-        //         anchorOrigin: { vertical: "top", horizontal: "right" }
-        //     });
-        // }
+            enqueueSnackbar(errorMessage, {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+        }
     };
     const usStateNameToCode = {
         "Alabama": "(AL)", "Alaska": "(AK)", "Arizona": "(AZ)", "Arkansas": "(AR)",
@@ -213,6 +214,7 @@ function PayroleUser() {
                                                 <button
                                                     onClick={() => {
                                                         setEditUser(user);
+                                                        console.log('editUser in modal:', user);
                                                         setShowModal(true);
                                                     }}
                                                     style={{ padding: '4px 10px', fontSize: '12px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
