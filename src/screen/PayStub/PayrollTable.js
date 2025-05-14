@@ -122,6 +122,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
           payMethod: 'Bank transfer',
           currency: emp.billingInfo?.currency || 'usd',
           earnings: emp.earnings || {},
+          payrolUser: emp.payrolUser || false
         }));
 
         setEmployees(mappedEmployees);
@@ -231,7 +232,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
             setEmployees(originalEmployees); // ✅ Just restore the original
           }}
         >
-          Reset Filters
+          Reset Filters 
         </Button>
 
       </div>
@@ -261,8 +262,11 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((emp) => {
               const editable = selectedEmployees.includes(emp.id);
+
+              const rowStyle = emp.payrolUser ? { backgroundColor: '#e8f8ec' } : {}; // Highlight if payrolUser
+
               return (
-                <tr key={emp.id}>
+                <tr key={emp.id} style={rowStyle}>
                   <td style={styles.td}>
                     <input
                       type="checkbox"
@@ -298,7 +302,6 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                       style={{ ...styles.input, width: '70px' }}
                     />
                   </td>
-
                   <td style={styles.td}>
                     <input
                       type="number"
@@ -317,14 +320,9 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                       style={{ ...styles.input, width: '80px' }}
                     />
                   </td>
-
                   <td style={styles.td}>
                     {currencySymbols[emp.currency?.toLowerCase()] || '$'} {(emp.earnings?.grossPay || 0).toFixed(2)}
                   </td>
-
-
-
-
                   <td style={styles.td}>
                     <input
                       type="text"
@@ -339,6 +337,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
               );
             })}
         </tbody>
+
 
       </table>
     </div>

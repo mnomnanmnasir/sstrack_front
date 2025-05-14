@@ -33,6 +33,7 @@ import AlarmOnIcon from '@mui/icons-material/AlarmOn';          // ⏰ Punctuali
 import InsightsIcon from '@mui/icons-material/Insights';         // 📊 Detailed Reports
 import QueryStatsIcon from '@mui/icons-material/QueryStats';     // 📈 Punctuality Reports
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 
 
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -667,6 +668,19 @@ const Sidebar = ({ open, onClose }) => {
                                                 <HistoryIcon />
                                             </ListItemIcon>
                                             {!collapsed && <ListItemText primary="Pay Stub History" />}
+                                        </ListItemButton>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/PayStub_user') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/PayStub_user')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <PeopleAltIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Pay Stub User" />}
                                         </ListItemButton>
                                     </List>
                                 </Collapse>

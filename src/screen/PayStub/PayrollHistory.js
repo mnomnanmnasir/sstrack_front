@@ -16,7 +16,7 @@ function PayrollHistory() {
     const [submittedUsers, setSubmittedUsers] = useState([]);
     const [editUser, setEditUser] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [activeTab, setActiveTab] = useState('submitted');
+    const [activeTab, setActiveTab] = useState('history');
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedPayrollData, setSelectedPayrollData] = useState(null);
     const [loadingUserId, setLoadingUserId] = useState(null);
@@ -184,7 +184,7 @@ function PayrollHistory() {
 
                 <div className='mainwrapper'>
                     <div className="ownerTeamContainer">
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
+                        {/* <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
                             {['history', 'submitted'].map((tab) => {
                                 const isActive = activeTab === tab;
                                 const tooltip =
@@ -213,12 +213,12 @@ function PayrollHistory() {
                                     </button>
                                 );
                             })}
-                        </div>
+                        </div> */}
 
 
 
 
-
+                        {console.log('Updasteeed,', history)}
                         {activeTab === 'history' && (
                             <div style={{ marginTop: '2rem' }}>
                                 <h4>🗂️ Pay Stub History</h4>
@@ -246,10 +246,15 @@ function PayrollHistory() {
                                                     usd: '$', pkr: '₨', inr: '₹', cad: 'C$', eur: '€', gbp: '£'
                                                 }[h.currency?.toLowerCase()] || h.currency || '';
 
-                                                const totalDeductions = (h.taxBreakdown || []).reduce((sum, item) => sum + (item.amount || 0), 0) + (h.totalDeductions || []).reduce((sum, item) => sum + (item.amount || 0), 0);
+                                                const totalDeductions = (h.taxBreakdown || []).reduce((sum, item) => sum + (item.amount || 0), 0)
+                                                    + (h.totalDeductions || []).reduce((sum, item) => sum + (item.amount || 0), 0);
+
+                                                const rowStyle = h.payrolUser
+                                                    ? { backgroundColor: '#e8f8ec' } // light green background for payroll users
+                                                    : {};
 
                                                 return (
-                                                    <tr key={idx}>
+                                                    <tr key={idx} style={rowStyle}>
                                                         <td style={cellStyle}>{h.name}</td>
                                                         <td style={cellStyle}>{h.country || '—'}</td>
                                                         <td style={cellStyle}>{h.state || '—'}</td>
@@ -264,7 +269,15 @@ function PayrollHistory() {
                                                         <td style={cellStyle}>
                                                             <button
                                                                 onClick={() => handleViewStub(h)}
-                                                                style={{ padding: '4px 10px', fontSize: '12px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                                                style={{
+                                                                    padding: '4px 10px',
+                                                                    fontSize: '12px',
+                                                                    backgroundColor: '#007bff',
+                                                                    color: '#fff',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer'
+                                                                }}
                                                             >
                                                                 View
                                                             </button>
@@ -273,11 +286,12 @@ function PayrollHistory() {
                                                 );
                                             })}
                                         </tbody>
+
                                     </table>
                                 </div>
                             </div>
                         )}
-                         {console.log('Updasteeed,', submittedUsers)}
+
                         {activeTab === 'submitted' && submittedUsers.length > 0 && (
                             <div style={{ marginTop: '2rem' }}>
                                 <h4>📋 Submitted Employees</h4>
@@ -563,7 +577,7 @@ function PayrollHistory() {
                                 </div>
                             </div>
                         )}
-                       
+
                         {viewModalOpen && selectedPayrollData && (
 
                             <div className="modal d-block" tabIndex="-1" style={{ background: 'rgba(0,0,0,0.4)' }}>

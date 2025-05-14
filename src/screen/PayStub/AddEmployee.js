@@ -501,32 +501,62 @@ function AddEmployee() {
                             </div>
                         </div>
 
-                        <button
-                            className="btn mt-2"
-                            onClick={handleSubmit}
-                            style={{
-                                padding: '10px 20px',
-                                backgroundColor: '#7ACB59',
-                                color: '#ffffff',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontWeight: '600',
-                                fontSize: '14px',
-                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                cursor: 'pointer',
-                                transition: 'background-color 0.3s ease, transform 0.2s ease',
-                            }}
-                            onMouseOver={(e) => {
-                                e.target.style.backgroundColor = '#6ab64f';
-                                e.target.style.transform = 'translateY(-1px)';
-                            }}
-                            onMouseOut={(e) => {
-                                e.target.style.backgroundColor = '#7ACB59';
-                                e.target.style.transform = 'translateY(0)';
-                            }}
-                        >
-                            Submit Payroll User
-                        </button>
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '1rem' }}>
+                            <button
+                                className="btn"
+                                onClick={handleSubmit}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#7ACB59',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    fontWeight: '600',
+                                    fontSize: '14px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.3s ease, transform 0.2s ease',
+                                }}
+                                onMouseOver={(e) => {
+                                    e.target.style.backgroundColor = '#6ab64f';
+                                    e.target.style.transform = 'translateY(-1px)';
+                                }}
+                                onMouseOut={(e) => {
+                                    e.target.style.backgroundColor = '#7ACB59';
+                                    e.target.style.transform = 'translateY(0)';
+                                }}
+                            >
+                                Submit Payroll User
+                            </button>
+
+                            <button
+                                className="btn"
+                                onClick={() => navigate('/PayStub_user')}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#007bff',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    fontWeight: '600',
+                                    fontSize: '14px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.3s ease, transform 0.2s ease',
+                                }}
+                                onMouseOver={(e) => {
+                                    e.target.style.backgroundColor = '#0069d9';
+                                    e.target.style.transform = 'translateY(-1px)';
+                                }}
+                                onMouseOut={(e) => {
+                                    e.target.style.backgroundColor = '#007bff';
+                                    e.target.style.transform = 'translateY(0)';
+                                }}
+                            >
+                                View PayStub Users
+                            </button>
+                        </div>
+
 
 
 

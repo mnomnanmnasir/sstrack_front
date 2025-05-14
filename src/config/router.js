@@ -72,6 +72,7 @@ import AssignUsers from "../screen/component/BlogsUsers/blogsAccess";
 import GeoFance from '../screen/component/GeoFancing/geoFance'
 import GeoFanceAdd from '../screen/component/GeoFancing/AddGeoFence'
 import AddEmployee from "../screen/PayStub/AddEmployee";
+import PayroleUser from "../screen/PayStub/PayroleUser";
 
 
 export default function AppRouter() {
@@ -190,6 +191,7 @@ export default function AppRouter() {
             <Route path="/pay_stub_View" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubs />) : <Navigate to="/" />} />
             <Route path="/punctuality-reports" element={token ? (suspended ? <Navigate to="/account" /> : <PunctualityReports />) : <Navigate to="/" />} />
             <Route path="/PayStub_history" element={token ? (suspended ? <Navigate to="/account" /> : <PayrollHistory/>) : <Navigate to="/" />} />
+            <Route path="/PayStub_user" element={token ? (suspended ? <Navigate to="/account" /> : <PayroleUser/>) : <Navigate to="/" />} />
 
             {/* <Route path="/team" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerTeam />) : <Navigate to="/" />} /> */}
             <Route
