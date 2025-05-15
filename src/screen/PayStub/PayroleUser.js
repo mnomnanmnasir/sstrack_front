@@ -138,7 +138,15 @@ function PayroleUser() {
     useEffect(() => {
         fetchUsers();
     }, []);
-    console.log('again', submittedUsers)
+    const countryCurrencyMap = {
+        canada: 'CAD',
+        usa: 'USD',
+        pakistan: 'PKR',
+        philiphine: 'PHP',
+        india: 'INR',
+        ksa: 'SAR'
+    };
+
 
     return (
         <>
@@ -312,11 +320,18 @@ function PayroleUser() {
                                                         className="form-select"
                                                         value={editUser.appliedTaxCountry || ''}
                                                         onChange={(e) => {
-                                                            setEditUser({
-                                                                ...editUser,
-                                                                appliedTaxCountry: e.target.value,
-                                                                appliedTaxState: '' // Reset state on country change
-                                                            });
+                                                            const selectedCountry = e.target.value;
+                                                            const defaultCurrency = countryCurrencyMap[selectedCountry] || '';
+
+                                                            setEditUser((prev) => ({
+                                                                ...prev,
+                                                                appliedTaxCountry: selectedCountry,
+                                                                appliedTaxState: '',
+                                                                billingInfo: {
+                                                                    ...prev.billingInfo,
+                                                                    currency: defaultCurrency // ✅ Always update based on country
+                                                                }
+                                                            }));
                                                         }}
                                                     >
                                                         <option value="">Select Country</option>
