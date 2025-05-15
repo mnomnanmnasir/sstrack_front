@@ -160,7 +160,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
         memo: emp.memo,
         bonus: parseFloat(emp.bonus) || 0,
         adjustments: parseFloat(emp.adjustments) || 0,
-        payrolUser: emp.payrolUser || false 
+        payrolUser: emp.payrolUser || false
       }));
       onSelectionChange({
         selectedEmployeeIds: selectedEmployees,
@@ -197,7 +197,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
       flexWrap: 'wrap',
       alignItems: 'center',       // Corrected property name
       justifyContent: 'center'    // Optional: horizontal centering
-    }, 
+    },
     input: { padding: '8px 10px', fontSize: '14px', borderRadius: '4px', border: '1px solid #ccc' },
     table: { width: '100%', borderCollapse: 'collapse', backgroundColor: 'white', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' },
     th: { backgroundColor: '#e9eff5', padding: '10px', fontWeight: 600, textAlign: 'left', borderBottom: '1px solid #d4d4d4' },
@@ -235,7 +235,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
         <Button
           variant="secondary"
           className="py-1 px-2 text-sm"
-          style={{ height: '28px' ,marginTop: '20px',}}
+          style={{ height: '28px', marginTop: '20px', }}
           onClick={() => {
             setMonth('');
             setSelectedPeriod('');
@@ -276,7 +276,8 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
         <tbody>
           {employees
             .slice()
-            .sort((a, b) => a.name.localeCompare(b.name))
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+
             .map((emp) => {
               const editable = selectedEmployees.includes(emp.id);
 
