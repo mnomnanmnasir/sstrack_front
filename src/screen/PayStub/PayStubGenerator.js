@@ -72,10 +72,15 @@ const PayStubGenerator = () => {
                     startDate,
                     endDate,
                     userIds: selectedIds,
-                    // country: "Philippines",  // Replace if dynamic
-                    // state: "maharashtra",    // Replace if dynamic
-                    employeeData: selectedEmployeeData || []
+                    employeeData: selectedEmployeeData.map(emp => ({
+                        userId: emp.userId,
+                        memo: emp.memo,
+                        bonus: emp.bonus,
+                        adjustments: emp.adjustments,
+                        payrolUser: !!emp.payrolUser  // ✅ Ensure it's always a boolean
+                    }))
                 };
+
 
                 const res = await axios.post(`${apiUrl}/owner/generatePayStubs`, payload, { headers });
                 if (res.data?.data) {
@@ -103,6 +108,8 @@ const PayStubGenerator = () => {
             console.log("Total Gross:", totalGross);
             console.log("Employer Contribution:", employerContrib);
             console.log("Pay Date:", payDate);
+            // console.log("📤 Sending payload:", JSON.stringify(payload, null, 2));
+
         }
     };
 
