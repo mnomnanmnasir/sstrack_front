@@ -66,7 +66,7 @@ const CompanyEmployess = (props) => {
         try {
             const { startTime, duration } = timeFields[employeeId];
 
-            if (!startTime || !duration) {
+            if (!duration) {
                 enqueueSnackbar("Both Break Start Time and Total Duration are required.", {
                     variant: "error",
                     anchorOrigin: { vertical: "top", horizontal: "right" },
@@ -79,7 +79,10 @@ const CompanyEmployess = (props) => {
             const timezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
             const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
 
-            const breakStartTime = moment.tz(`${currentDate}T${startTime}`, moment.tz.guess()).format();
+            const breakStartTime = startTime
+                ? moment.tz(`${currentDate}T${startTime}`, moment.tz.guess()).format()
+                : null;
+
 
             const requestData = {
                 userId: employeeId,
@@ -88,13 +91,14 @@ const CompanyEmployess = (props) => {
                         {
                             TotalHours: duration,
                             breakStartTime,
-                            breakEndTime: null, // hardcoded
+                            breakEndTime: null, // always null
                         },
                     ],
                     timezone,
                     timezoneOffset,
                 },
             };
+
 
             setTimeFields((prev) => ({
                 ...prev,
@@ -306,7 +310,7 @@ const CompanyEmployess = (props) => {
                                     <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: "flex", gap: '10px' }}>
                                         <div>
                                             <label>
-                                                Break Start Time:
+                                                (optional) Break Start Time:
                                                 <input
                                                     type="time"
                                                     value={timeFields[employee._id]?.startTime || ""}

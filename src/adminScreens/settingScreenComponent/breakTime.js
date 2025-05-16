@@ -186,12 +186,9 @@ function Screenshot() {
 
   const handleSubmit = async () => {
     try {
-      // Validate that all break times have a start time
-      breakTimes.forEach((slot, index) => {
-        if (!slot.start) {
-          throw new Error(`Please fill the start time for Break ${index + 1}.`);
-        }
-      });
+      if (!totalDuration || !/^(\d+)h:(\d+)m$/.test(totalDuration)) {
+        throw new Error("Please provide a valid total duration.");
+      }
 
       const currentDate = new Date().toISOString().split("T")[0];
       const defaultTimezone = moment.tz.guess();
@@ -200,23 +197,30 @@ function Screenshot() {
         const employeeTimezone = employee?.timezone || defaultTimezone;
         const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
 
-        const formattedBreakTimes = breakTimes.map((slot) => {
-          const breakStartRaw = `${currentDate}T${slot.start}`;
-          const offsetMinutes = -new Date().getTimezoneOffset();
+        const formattedBreakTimes =
+          breakTimes.length > 0
+            ? breakTimes.map((slot) => {
+              const breakStartTime = slot.start
+                ? moment
+                  .utc(`${currentDate}T${slot.start}`)
+                  .utcOffset(-new Date().getTimezoneOffset())
+                  .format("YYYY-MM-DDTHH:mm:ssZ")
+                : null;
 
-          const breakStartTime = moment.utc(breakStartRaw)
-            .utcOffset(offsetMinutes)
-            .format('YYYY-MM-DDTHH:mm:ssZ');
+              return {
+                TotalHours: totalDuration,
+                breakStartTime,
+                breakEndTime: null,
+              };
+            })
+            : [
+              {
+                TotalHours: totalDuration,
+                breakStartTime: null,
+                breakEndTime: null,
+              },
+            ];
 
-          // Hardcode breakEndTime as null
-          const breakEndTime = null;
-
-          return {
-            TotalHours: totalDuration, // or set to null if preferred
-            breakStartTime,
-            breakEndTime,
-          };
-        });
 
         return {
           userId: employee._id,
@@ -604,7 +608,7 @@ function Screenshot() {
             />
 
             <label htmlFor="breakStartTime" style={{ fontWeight: 600, color: "#333" }}>
-              Break Start Time:
+              (optional) Break Start Time:
             </label>
             <select
               id="breakStartTime"

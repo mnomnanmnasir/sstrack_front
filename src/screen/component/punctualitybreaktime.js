@@ -233,19 +233,7 @@ const CompanyEmployess = (props) => {
     };
 
 
-    // useEffect(() => {
-    //     localStorage.setItem("isUsehasVisitedPuncutlity", "true");
-    //     // const persistedTimeFields = JSON.parse(localStorage.getItem("timeFields")) || {};
-    //     const updatedTimeFields = employees.reduce((fields, employee) => {
-    //         fields[employee._id] = {
-    //             ...persistedTimeFields[employee._id], // Load from localStorage if available
-    //             puncStartTime: persistedTimeFields[employee._id]?.puncStartTime || "hh:mm",
-    //             puncEndTime: persistedTimeFields[employee._id]?.puncEndTime || "hh:mm",
-    //         };
-    //         return fields;
-    //     }, {});
-    //     setTimeFields(updatedTimeFields);
-    // }, [employees]);
+
 
     const handleTimeChange = (employeeId, field, value) => {
         setTimeFields((prev) => {
@@ -263,8 +251,6 @@ const CompanyEmployess = (props) => {
 
 
 
-    // ✅ user visited this component
-    // ✅ user visited this component
     const handleSave = async (employeeId) => {
         try {
             const { puncStartTime, puncEndTime, implementStartDate, implementStartTime } = timeFields[employeeId];
