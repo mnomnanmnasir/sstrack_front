@@ -32,7 +32,7 @@ const CompanyEmployess = (props) => {
                 acc[employee?._id] = {
                     showFields: employee?.punctualityData?.individualbreakTime || false,
                     startTime: timeFields[employee?._id]?.startTime || "",
-                    endTime: timeFields[employee?._id]?.endTime || "",
+                    duration: timeFields[employee?._id]?.duration || "",
                 };
                 return acc;
             }, {});
@@ -52,10 +52,9 @@ const CompanyEmployess = (props) => {
     };
 
 
-    const handleTimeChange = (employeeId, field, value) => {
+    const handleFieldChange = (employeeId, field, value) => {
         setTimeFields((prev) => ({
             ...prev,
-
             [employeeId]: {
                 ...prev[employeeId],
                 [field]: value,
@@ -65,46 +64,35 @@ const CompanyEmployess = (props) => {
 
     const handleSave = async (employeeId) => {
         try {
-            const { startTime, endTime } = timeFields[employeeId];
+            const { startTime, duration } = timeFields[employeeId];
 
-            if (!startTime || !endTime) {
-                enqueueSnackbar("Both Break Start Time and Break End Time are required.", {
+            if (!startTime || !duration) {
+                enqueueSnackbar("Both Break Start Time and Total Duration are required.", {
                     variant: "error",
                     anchorOrigin: { vertical: "top", horizontal: "right" },
                 });
                 return;
             }
 
-            const totalHours = calculateTotalHours(startTime, endTime);
             const currentDate = new Date().toISOString().split("T")[0];
-
             const employee = employees.find(emp => emp._id === employeeId);
-
-            // ✅ **Subtract 2 hours before sending in request**
-            const adjustedStartTime = moment(`${currentDate}T${startTime}`).format("HH:mm");
-            const adjustedEndTime = moment(`${currentDate}T${endTime}`).format("HH:mm");
             const timezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
             const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
+
+            const breakStartTime = moment.tz(`${currentDate}T${startTime}`, moment.tz.guess()).format();
 
             const requestData = {
                 userId: employeeId,
                 settings: {
                     breakTime: [
                         {
-                            TotalHours: totalHours,
-                            // breakStartTime: moment(`${currentDate} ${startTime}`, "YYYY-MM-DD HH:mm").format("YYYY-MM-DDTHH:mm:ss"),
-                            // breakEndTime: moment(`${currentDate} ${endTime}`, "YYYY-MM-DD HH:mm").format("YYYY-MM-DDTHH:mm:ss"),
-                            // breakStartTime: new Date(`${currentDate}T${startTime}:00`),
-                            // breakEndTime: new Date(`${currentDate}T${endTime}:00`),
-                            // breakStartTime: moment.tz(`${currentDate}T${startTime}`, moment.tz.guess()).format(),
-                            // breakEndTime: moment.tz(`${currentDate}T${endTime}`, moment.tz.guess()).format(),
-                            breakStartTime: moment.tz(`${currentDate}T${startTime}`, moment.tz.guess()).format(),
-                            breakEndTime: moment.tz(`${currentDate}T${endTime}`, moment.tz.guess()).format(),
+                            TotalHours: duration,
+                            breakStartTime,
+                            breakEndTime: null, // hardcoded
                         },
                     ],
-                    timezone: timezone,
-                    timezoneOffset: timezoneOffset
-                    // individualbreakTime: true,
+                    timezone,
+                    timezoneOffset,
                 },
             };
 
@@ -112,8 +100,8 @@ const CompanyEmployess = (props) => {
                 ...prev,
                 [employeeId]: {
                     ...prev[employeeId],
-                    showFields: true
-                }
+                    showFields: true,
+                },
             }));
 
             const response = await axios.post(
@@ -130,13 +118,10 @@ const CompanyEmployess = (props) => {
             if (response.status === 200) {
                 enqueueSnackbar("Break Time successfully submitted!", {
                     variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right",
-                    },
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
                 });
 
-                // ✅ **Update only if API response is successful**
+                // Fetch updated break data
                 const updatedResponse = await axios.get(
                     `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
                     {
@@ -148,21 +133,16 @@ const CompanyEmployess = (props) => {
 
                 if (updatedResponse.status === 200) {
                     const updatedData = updatedResponse.data?.employeeSettings?.breakTime?.[0] || {};
-
                     const breakStart = updatedData.breakStartTime
                         ? new Date(updatedData.breakStartTime).toISOString().split("T")[1].substring(0, 5)
                         : startTime;
-
-                    const breakEnd = updatedData.breakEndTime
-                        ? new Date(updatedData.breakEndTime).toISOString().split("T")[1].substring(0, 5)
-                        : endTime;
 
                     setTimeFields((prev) => ({
                         ...prev,
                         [employeeId]: {
                             showFields: true,
                             startTime: breakStart,
-                            endTime: breakEnd,
+                            duration: updatedData.TotalHours || duration,
                         },
                     }));
                 }
@@ -175,6 +155,7 @@ const CompanyEmployess = (props) => {
         }
     };
 
+
     const calculateTotalHours = (startTime, endTime) => {
         const start = new Date(`1970-01-01T${startTime}:00`);
         const end = new Date(`1970-01-01T${endTime}:00`);
@@ -183,11 +164,7 @@ const CompanyEmployess = (props) => {
         const minutes = totalMinutes % 60;
         return `${hours}h:${minutes}m`; // Return in "Xh:Ym" format
     };
-    // useEffect(() => {
-    //     // Set allowBlur based on the Redux store
-    //     const employeeWithBlur = employees.find(employee => employee.effectiveSettings?.screenshots?.allowBlur);
-    //     setAllowBlur(!!employeeWithBlur); // Use double negation to convert to boolean
-    // }, [employees]);
+
     useEffect(() => {
         if (Array.isArray(employees)) {
             const employeeWithBlur = employees.find(employee => employee?.effectiveSettings?.screenshots?.allowBlur);
@@ -327,18 +304,15 @@ const CompanyEmployess = (props) => {
                                 </div>
                                 {timeFields[employee._id]?.showFields && (
                                     <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: "flex", gap: '10px' }}>
-
                                         <div>
                                             <label>
                                                 Break Start Time:
-
                                                 <input
                                                     type="time"
-
-                                                    value={timeFields[employee._id]?.startTime || ""} // Default to 00:00 if null
-                                                    onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
+                                                    value={timeFields[employee._id]?.startTime || ""}
+                                                    onFocus={(e) => e.target.showPicker()}
                                                     onChange={(e) =>
-                                                        handleTimeChange(employee._id, "startTime", e.target.value)
+                                                        handleFieldChange(employee._id, "startTime", e.target.value)
                                                     }
                                                     style={{ marginLeft: 10 }}
                                                 />
@@ -346,18 +320,17 @@ const CompanyEmployess = (props) => {
                                         </div>
                                         <div>
                                             <label>
-                                                Break End Time:
+                                                Total Duration:
                                                 <input
-                                                    type="time"
-                                                    value={timeFields[employee._id]?.endTime || ""} // Default to 00:00 if null
-                                                    onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
+                                                    type="text"
+                                                    placeholder="e.g. 0h:15m"
+                                                    value={timeFields[employee._id]?.duration || ""}
                                                     onChange={(e) =>
-                                                        handleTimeChange(employee._id, "endTime", e.target.value)
+                                                        handleFieldChange(employee._id, "duration", e.target.value)
                                                     }
                                                     style={{ marginLeft: 10 }}
                                                 />
                                             </label>
-                                            {/* <button onClick={handleSave}>Save Break Time</button> */}
                                         </div>
                                         <button
                                             onClick={() => handleSave(employee._id)}
@@ -372,8 +345,8 @@ const CompanyEmployess = (props) => {
                                         >
                                             Save
                                         </button>
-
                                     </div>
+
                                 )}
 
                                 {(

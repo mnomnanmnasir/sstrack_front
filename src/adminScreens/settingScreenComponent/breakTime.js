@@ -18,79 +18,7 @@ function Screenshot() {
   const ids = useSelector((state) => state.adminSlice.ids);
   const employees = useSelector((state) => state?.adminSlice?.employess);
   const [filter, setfilter] = useState([])
-  const handleApplySettings = async (employee, type, setting) => {
-    const settings = {
-      ...employee.effectiveSettings,
-      screenshots: {
-        ...employee.effectiveSettings.screenshots,
-        enabled: setting,
-      },
-    };
-    const settings2 = {
-      ...employee.effectiveSettings,
-      screenshots: {
-        ...employee.effectiveSettings.screenshots,
-        frequency: `${setting}/hr`,
-      },
-    };
-    const settings3 = {
-      ...employee.effectiveSettings,
-      screenshots: {
-        ...employee.effectiveSettings.screenshots,
-        allowBlur: setting,
-      },
-    };
-    try {
-      const res = await axios.patch(
-        `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${employee._id}`,
-        {
-          userId: employee._id,
-          effectiveSettings:
-            type === "setting1"
-              ? settings
-              : type === "setting2"
-                ? settings2
-                : settings3,
-        },
-        { headers }
-      );
 
-      console.log("Response owner", res);
-
-      if (res.status === 200) {
-        enqueueSnackbar("Employee settings updated", {
-          variant: "success",
-          anchorOrigin: {
-            vertical: "top",
-            horizontal: "right",
-          },
-        });
-      } else {
-        if (res.status === 403) {
-          alert("Access denied. Please check your permissions.");
-        } else if (res.data.success === false) {
-          alert(res.data.message);
-        }
-      }
-      // console.log('Employee setting ka message', response?.data?.message);
-    } catch (error) {
-      if (error.response && error.response.data) {
-        if (
-          error.response.status === 403 &&
-          error.response.data.success === false
-        ) {
-          // alert(error.response.data.message)
-          enqueueSnackbar(error.response.data.message, {
-            variant: "error",
-            anchorOrigin: {
-              vertical: "top",
-              horizontal: "right",
-            },
-          });
-        }
-      }
-    }
-  };
 
   function Setting({ setting, setSetting, employee }) {
     const salaryString = employee?.effectiveSettings?.screenshots?.frequency;
@@ -252,53 +180,39 @@ function Screenshot() {
   const [puncStartTime, setPuncStartTime] = useState("");
   const [puncEndTime, setPuncEndTime] = useState("");
 
-  const handleInputChange = (index, field, value) => {
-    const updatedBreakTime = [...breakTime];
-    updatedBreakTime[index][field] = value;
-    setBreakTime(updatedBreakTime);
-  };
+
 
   const [clickCount, setClickCount] = useState(0); // Counter to track clicks
 
   const handleSubmit = async () => {
     try {
-      // Validate that all break times have start and end
+      // Validate that all break times have a start time
       breakTimes.forEach((slot, index) => {
-        if (!slot.start || !slot.end) {
-          throw new Error(`Please fill both start and end time for Break ${index + 1}.`);
+        if (!slot.start) {
+          throw new Error(`Please fill the start time for Break ${index + 1}.`);
         }
       });
 
       const currentDate = new Date().toISOString().split("T")[0];
-      const forcedTimezone = 'Asia/Karachi'; // This ensures +05:00
-      const defaultTimezone = moment.tz.guess(); // e.g., browser/user fallback
+      const defaultTimezone = moment.tz.guess();
 
       const requestData = employees.map((employee) => {
-        const employeeTimezone = employee?.timezone || defaultTimezone; // 🧠 use employee-specific timezone if present
+        const employeeTimezone = employee?.timezone || defaultTimezone;
         const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
 
         const formattedBreakTimes = breakTimes.map((slot) => {
           const breakStartRaw = `${currentDate}T${slot.start}`;
-          const breakEndRaw = `${currentDate}T${slot.end}`;
+          const offsetMinutes = -new Date().getTimezoneOffset();
 
-          // const breakStartTime = moment.tz(breakStartRaw, 'Asia/Karachi').format('YYYY-MM-DDTHH:mm:ssZ');
-          // const breakEndTime = moment.tz(breakEndRaw, 'Asia/Karachi').format('YYYY-MM-DDTHH:mm:ssZ');
-          const offsetMinutes = -new Date().getTimezoneOffset(); // e.g., 300 for +05:00
-
-          const breakStartTime = moment.utc(`${currentDate}T${slot.start}`)
+          const breakStartTime = moment.utc(breakStartRaw)
             .utcOffset(offsetMinutes)
             .format('YYYY-MM-DDTHH:mm:ssZ');
 
-          const breakEndTime = moment.utc(`${currentDate}T${slot.end}`)
-            .utcOffset(offsetMinutes)
-            .format('YYYY-MM-DDTHH:mm:ssZ');
-
-          const durationMinutes = (moment(breakEndTime).toDate() - moment(breakStartTime).toDate()) / (1000 * 60);
-          const hours = Math.floor(durationMinutes / 60);
-          const minutes = durationMinutes % 60;
+          // Hardcode breakEndTime as null
+          const breakEndTime = null;
 
           return {
-            TotalHours: `${hours}h:${minutes}m`,
+            TotalHours: totalDuration, // or set to null if preferred
             breakStartTime,
             breakEndTime,
           };
@@ -343,6 +257,7 @@ function Screenshot() {
       console.error("Error submitting punctuality rule:", error);
     }
   };
+
 
 
 
@@ -504,6 +419,87 @@ function Screenshot() {
     localStorage.setItem("totalDuration", totalDuration);
   }, [totalDuration]);
 
+  const isDurationFilled = () => {
+    const regex = /^(\d+)h:(\d+)m$/;
+    const match = totalDuration.match(regex);
+
+    if (!match) return false;
+
+    const hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+
+    return hours > 0 || minutes > 0;
+  };
+
+  const handleBreakStartChange = (value) => {
+    const currentDate = new Date().toISOString().split("T")[0];
+    const utcTime = new Date(`${currentDate}T${value}:00Z`).toISOString();
+
+    const updatedBreakTimes = [...breakTimes];
+    const index = 0;
+
+    // Ensure the first break object exists
+    if (!updatedBreakTimes[index]) {
+      updatedBreakTimes[index] = { start: "", end: "", duration: "" };
+    }
+
+    // Update start time and UTC
+    updatedBreakTimes[index].start = value;
+    updatedBreakTimes[index].startUTC = utcTime;
+
+    const { startUTC, endUTC } = updatedBreakTimes[index];
+
+    if (startUTC && endUTC) {
+      const startTime = new Date(startUTC);
+      const endTime = new Date(endUTC);
+
+      if (endTime <= startTime) {
+        enqueueSnackbar("End Time must be after Start Time.", {
+          variant: "error",
+          anchorOrigin: { vertical: "top", horizontal: "right" },
+        });
+        return;
+      }
+
+      const durationMinutes = Math.floor((endTime - startTime) / (1000 * 60));
+
+      if (durationMinutes > 60) {
+        enqueueSnackbar("Duration cannot exceed 1 hour.", {
+          variant: "warning",
+          anchorOrigin: { vertical: "top", horizontal: "right" },
+        });
+        return;
+      }
+
+      updatedBreakTimes[index].duration = `${Math.floor(durationMinutes / 60)}h:${durationMinutes % 60}m`;
+    }
+
+    setBreakTimes(updatedBreakTimes);
+    calculateTotalDuration();
+  };
+
+  const generateTimeOptions = () => {
+    const options = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let min = 0; min < 60; min += 15) {
+        const h24 = hour.toString().padStart(2, "0");
+        const m = min.toString().padStart(2, "0");
+
+        const suffix = hour < 12 ? "AM" : "PM";
+        const h12 = ((hour + 11) % 12 + 1).toString().padStart(2, "0");
+
+        const display = `${h12}:${m} ${suffix}`; // e.g., 01:15 PM
+        const value = `${h24}:${m}`;              // e.g., 13:15 for backend
+
+        options.push(
+          <option key={value} value={value}>
+            {display}
+          </option>
+        );
+      }
+    }
+    return options;
+  };
 
 
   const calculateTotalDuration = () => {
@@ -525,9 +521,7 @@ function Screenshot() {
     // Cap total minutes at 60 (1 hour)
     totalMinutes = Math.min(totalMinutes, 60);
 
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-    setTotalDuration(`${hours}h:${minutes}m`);
+
 
     // Disable the button if total duration equals 1 hour
     setIsAddButtonDisabled(totalMinutes >= 60);
@@ -558,110 +552,82 @@ function Screenshot() {
         </p>
       </div>
       <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} />
-         <p className="settingScreenshotIndividual">Group Break Time Setting</p>
-          <div className="settingScreenshotDiv">
-                {/* <p>How frequently screenshots will be taken.</p> */}
-                <p>These breaktime will applied throught out the organization.</p>
-            </div>
+      <p className="settingScreenshotIndividual">Group Break Time Setting</p>
+      <div className="settingScreenshotDiv">
+        {/* <p>How frequently screenshots will be taken.</p> */}
+        <p>These breaktime will applied throught out the organization.</p>
+      </div>
       {/* Total Duration */}
       {(
         <>
-          <div>
-            <h3 style={{ marginTop: 20 }}>Total Break Time:</h3>
-            <label htmlFor="totalDuration">Total Duration:</label>
+          <div
+            className="gap-3"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "16px",
+              marginTop: "20px",
+              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+            }}
+          >
+            <label htmlFor="totalDuration" style={{ fontWeight: 600, color: "#333" }}>
+              Total Duration:
+            </label>
             <input
               id="totalDuration"
               type="text"
               value={totalDuration}
-              readOnly // Prevent direct editing
+              onChange={(e) => setTotalDuration(e.target.value)}
+              placeholder="e.g., 0h:15m"
               style={{
-                marginLeft: "10px",
-                padding: "5px",
-                borderRadius: "4px",
+                padding: "10px 14px",
+                borderRadius: "8px",
                 border: "1px solid #ccc",
+                backgroundColor: "#f9f9f9",
+                color: "#333",
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                fontSize: "14px",
+                minWidth: "120px",
+                transition: "all 0.3s ease-in-out",
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#7fc45a";
+                e.target.style.backgroundColor = "#fff";
+                e.target.style.boxShadow = "0 0 5px rgba(127, 196, 90, 0.5)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#ccc";
+                e.target.style.backgroundColor = "#f9f9f9";
+                e.target.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.1)";
               }}
             />
-          </div>
-          {/* <input type="text" value={totalDuration} readOnly placeholder="Total Duration" /> */}
 
-          <div className="takeScreenShotDiv">
-            <div className="d-flex gap-3">
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column", // Ensures new rows are added below each other
-                  gap: "10px", // Adds spacing between rows
-                }}
-              >
-
-                {/* {breakTimes.map((breakTime, index) => ( */}
-                {breakTimes.map((breakTime, index) =>
-                  <div
-                    key={index}
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    {/* <h3>Break Time {index + 1}</h3> */}
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <label style={{ marginRight: "10px" }}>Break Start Time: {" "}</label>
-                      <input
-                        type="time"
-                        value={breakTime.start || ""}
-                        onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
-                        onChange={(e) =>
-                          handleBreakTimeChange(index, "start", e.target.value)
-                        }
-                      />
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <label style={{ marginRight: "10px" }}>Break End Time:</label>
-                      <input
-                        type="time"
-                        value={breakTime.end || ""}
-                        onFocus={(e) => e.target.showPicker()}
-                        onChange={(e) => handleBreakTimeChange(index, "end", e.target.value)}
-                      />
-                    </div>
-                    <button
-                      onClick={() => handleRemoveBreakTime(index)} // Pass index here
-                      style={{
-                        backgroundColor: "#7fc45a",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "5px",
-                        padding: "5px 10px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                )}
-              </div>
-
-            </div>
-          </div>
-
-          <div className="d-flex gap-3">
-            <button
-              onClick={handleAddBreakTime}
-              disabled={isAddButtonDisabled} // Disable based on calculated total duration
-              // disabled={clickCount >= 2} // Disable button after 2 clicks
+            <label htmlFor="breakStartTime" style={{ fontWeight: 600, color: "#333" }}>
+              Break Start Time:
+            </label>
+            <select
+              id="breakStartTime"
+              value={breakTimes[0]?.start || ""}
+              disabled={!isDurationFilled()}
+              onChange={(e) => handleBreakStartChange(e.target.value)}
               style={{
-                padding: "10px 20px",
-                backgroundColor: clickCount >= 2 ? "#ccc" : "#7fc45a",
-                color: "#fff",
-                gap: "10px",
-                border: "none",
-                borderRadius: "5px",
-                cursor: clickCount >= 2 ? "not-allowed" : "pointer",
+                padding: "10px 14px",
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                backgroundColor: !isDurationFilled() ? "#eee" : "#f9f9f9",
+                color: "#333",
+                fontSize: "14px",
+                minWidth: "140px",
+                cursor: !isDurationFilled() ? "not-allowed" : "pointer",
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                transition: "all 0.3s ease-in-out",
               }}
             >
-              Add Break Time
-            </button>
+              <option value="">-- Select Time --</option>
+              {generateTimeOptions()}
+            </select>
+
 
             <button
               onClick={handleSubmit}
@@ -670,13 +636,25 @@ function Screenshot() {
                 backgroundColor: "#7fc45a",
                 color: "#fff",
                 border: "none",
-                borderRadius: "5px",
-
+                borderRadius: "8px",
+                fontWeight: 600,
+                fontSize: "14px",
+                cursor: "pointer",
+                transition: "background-color 0.3s ease",
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+              }}
+              onMouseOver={(e) => {
+                e.target.style.backgroundColor = "#6db84d";
+              }}
+              onMouseOut={(e) => {
+                e.target.style.backgroundColor = "#7fc45a";
               }}
             >
               Save
             </button>
           </div>
+
+
         </>
       )}
 
