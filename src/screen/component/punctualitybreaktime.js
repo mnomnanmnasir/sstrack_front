@@ -53,7 +53,7 @@ const CompanyEmployess = (props) => {
 
 
                     if (response.status === 200) {
-                        console.log('RESPONCE',response.data.data)
+                        console.log('RESPONCE', response.data.data)
                         const { puncStartTime, puncEndTime, implementStartTime } = response.data.data;
 
                         updatedFields[employee._id] = {
@@ -79,22 +79,22 @@ const CompanyEmployess = (props) => {
 
 
 
-    useEffect(() => {
-        const persistedTimeFields = JSON.parse(localStorage.getItem("timeFields")) || {};
-        const updatedTimeFields = employees.reduce((fields, employee) => {
-            fields[employee._id] = {
-                ...persistedTimeFields[employee._id], // Load from localStorage if available
-                // showFields: persistedTimeFields[employee._id]?.showFields ?? employee?.punctualityData?.individualPuncStart || false,
-                puncStartTime: persistedTimeFields[employee._id]?.puncStartTime || "00:00",
-                puncEndTime: persistedTimeFields[employee._id]?.puncEndTime || "00:00",
-                implementStartDate: timeFields[employee._id]?.implementStartDate || "",
-                implementStartTime: timeFields[employee._id]?.implementStartTime || ""
-            };
-            return fields;
-        }, {});
+    // useEffect(() => {
+    //     // const persistedTimeFields = JSON.parse(localStorage.getItem("timeFields")) || {};
+    //     const updatedTimeFields = employees.reduce((fields, employee) => {
+    //         fields[employee._id] = {
+    //             ...persistedTimeFields[employee._id], // Load from localStorage if available
+    //             // showFields: persistedTimeFields[employee._id]?.showFields ?? employee?.punctualityData?.individualPuncStart || false,
+    //             puncStartTime: persistedTimeFields[employee._id]?.puncStartTime || "00:00",
+    //             puncEndTime: persistedTimeFields[employee._id]?.puncEndTime || "00:00",
+    //             implementStartDate: timeFields[employee._id]?.implementStartDate || "",
+    //             implementStartTime: timeFields[employee._id]?.implementStartTime || ""
+    //         };
+    //         return fields;
+    //     }, {});
 
-        setTimeFields(updatedTimeFields);
-    }, [employees]);
+    //     setTimeFields(updatedTimeFields);
+    // }, [employees]);
 
     // useEffect(() => {
     //     // Synchronize `timeFields` state with `employees` data on mount or update
@@ -188,7 +188,7 @@ const CompanyEmployess = (props) => {
                 };
 
                 setTimeFields(updatedState);
-                localStorage.setItem("timeFields", JSON.stringify(updatedState));
+                // localStorage.setItem("timeFields", JSON.stringify(updatedState));
 
             } else {
                 throw new Error("Failed to update punctuality setting.");
@@ -233,19 +233,19 @@ const CompanyEmployess = (props) => {
     };
 
 
-    useEffect(() => {
-        localStorage.setItem("isUsehasVisitedPuncutlity", "true");
-        const persistedTimeFields = JSON.parse(localStorage.getItem("timeFields")) || {};
-        const updatedTimeFields = employees.reduce((fields, employee) => {
-            fields[employee._id] = {
-                ...persistedTimeFields[employee._id], // Load from localStorage if available
-                puncStartTime: persistedTimeFields[employee._id]?.puncStartTime || "hh:mm",
-                puncEndTime: persistedTimeFields[employee._id]?.puncEndTime || "hh:mm",
-            };
-            return fields;
-        }, {});
-        setTimeFields(updatedTimeFields);
-    }, [employees]);
+    // useEffect(() => {
+    //     localStorage.setItem("isUsehasVisitedPuncutlity", "true");
+    //     // const persistedTimeFields = JSON.parse(localStorage.getItem("timeFields")) || {};
+    //     const updatedTimeFields = employees.reduce((fields, employee) => {
+    //         fields[employee._id] = {
+    //             ...persistedTimeFields[employee._id], // Load from localStorage if available
+    //             puncStartTime: persistedTimeFields[employee._id]?.puncStartTime || "hh:mm",
+    //             puncEndTime: persistedTimeFields[employee._id]?.puncEndTime || "hh:mm",
+    //         };
+    //         return fields;
+    //     }, {});
+    //     setTimeFields(updatedTimeFields);
+    // }, [employees]);
 
     const handleTimeChange = (employeeId, field, value) => {
         setTimeFields((prev) => {
@@ -256,7 +256,7 @@ const CompanyEmployess = (props) => {
                     [field]: value, // Store the selected time directly in HH:mm format
                 },
             };
-            localStorage.setItem("timeFields", JSON.stringify(updatedFields)); // Save to localStorage
+            // localStorage.setItem("timeFields", JSON.stringify(updatedFields)); // Save to localStorage
             return updatedFields;
         });
     };
@@ -450,6 +450,7 @@ const CompanyEmployess = (props) => {
 
 
                                 </div>
+                                {console.log('time fieldsss', timeFields)}
                                 {timeFields[employee._id]?.showFields && (
                                     <>
                                         <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: 'flex', gap: '10px' }}>
