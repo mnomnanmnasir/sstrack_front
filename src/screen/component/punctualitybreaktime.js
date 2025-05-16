@@ -1,11 +1,16 @@
-import axios from "axios";
-import moment from "moment-timezone";
-import { enqueueSnackbar, SnackbarProvider } from 'notistack';
-import { useEffect, useState } from "react";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import React, { useEffect, useState } from "react";
+import Switch from "../../screen/component/switch";
+import userIcon from '../../images/groupImg.svg'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 import { useDispatch, useSelector } from "react-redux";
-import userIcon from '../../images/groupImg.svg';
+import { setEmployess, setEmployessSetting, setPunctualitySettings } from "../../store/breakSlice";
+import axios from "axios";
+import { enqueueSnackbar, SnackbarProvider } from 'notistack'
+import brushIcon from '../../images/brush.svg'
+import UserDetails from "../userDetails";
+import EmployeeFilter from "./EmployeeFilter";
+import moment from "moment-timezone";
 
 
 
@@ -48,13 +53,14 @@ const CompanyEmployess = (props) => {
 
 
                     if (response.status === 200) {
-                        console.log('response',response.data.data)
+                        console.log('RESPONCE',response.data.data)
                         const { puncStartTime, puncEndTime, implementStartTime } = response.data.data;
 
                         updatedFields[employee._id] = {
                             showFields: employee.punctualityData?.individualPuncStart || false,
                             puncStartTime: (puncStartTime && !puncStartTime.includes("00:00")) ? puncStartTime.split("T")[1].substring(0, 5) : "",
                             puncEndTime: (puncEndTime && !puncEndTime.includes("00:00")) ? puncEndTime.split("T")[1].substring(0, 5) : "",
+                            // ✅ split implementStartDate into date and time
                             implementStartDate: implementStartTime ? implementStartTime.split("T")[0] : "",
                             implementStartTime: implementStartTime ? implementStartTime.split("T")[1].substring(0, 5) : "",
                         };
