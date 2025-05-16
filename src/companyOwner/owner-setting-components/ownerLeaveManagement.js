@@ -263,7 +263,7 @@ const OwnerTeam = () => {
             setModalOpen(false); // Close the modal
         } catch (error) {
 
-            alert("Failed to set leave allowance. Please try again.");
+            alert("Failed to Set Group Leave Policy. Please try again.");
         } finally {
             setIsSubmitting(false); // Stop loading
         }
@@ -1090,7 +1090,7 @@ const OwnerTeam = () => {
                                 // fontSize: '17px'
                             }}
                         >
-                            Set Leave Allowances
+                            Set Group Leave Policy
                         </button>
                         {items?.userType !== "owner" && (
                             <button
@@ -1124,7 +1124,7 @@ const OwnerTeam = () => {
                                         marginLeft: "10px",
                                     }}
                                 >
-                                    Add Manual
+                                    Set Individual Leave
                                 </button>
                             </Link>
                         )}
@@ -1384,7 +1384,7 @@ const OwnerTeam = () => {
                 <Modal show={modalOpen} onHide={() => setModalOpen(false)} centered>
                     <Modal.Header closeButton>
                         <Modal.Title style={{ color: "#1E477A", fontWeight: "bold" }}>
-                            Set Leave Allowance
+                            Set Group Leave Policy
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>

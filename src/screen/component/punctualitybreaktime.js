@@ -1,16 +1,11 @@
-import React, { useEffect, useState } from "react";
-import Switch from "../../screen/component/switch";
-import userIcon from '../../images/groupImg.svg'
-import Skeleton from 'react-loading-skeleton'
-import 'react-loading-skeleton/dist/skeleton.css'
-import { useDispatch, useSelector } from "react-redux";
-import { setEmployess, setEmployessSetting, setPunctualitySettings } from "../../store/breakSlice";
 import axios from "axios";
-import { enqueueSnackbar, SnackbarProvider } from 'notistack'
-import brushIcon from '../../images/brush.svg'
-import UserDetails from "../userDetails";
-import EmployeeFilter from "./EmployeeFilter";
 import moment from "moment-timezone";
+import { enqueueSnackbar, SnackbarProvider } from 'notistack';
+import { useEffect, useState } from "react";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { useDispatch, useSelector } from "react-redux";
+import userIcon from '../../images/groupImg.svg';
 
 
 
@@ -50,16 +45,16 @@ const CompanyEmployess = (props) => {
                             },
                         }
                     );
-                    console.log("punch debug", response)
+
 
                     if (response.status === 200) {
+                        console.log('response',response.data.data)
                         const { puncStartTime, puncEndTime, implementStartTime } = response.data.data;
 
                         updatedFields[employee._id] = {
                             showFields: employee.punctualityData?.individualPuncStart || false,
                             puncStartTime: (puncStartTime && !puncStartTime.includes("00:00")) ? puncStartTime.split("T")[1].substring(0, 5) : "",
                             puncEndTime: (puncEndTime && !puncEndTime.includes("00:00")) ? puncEndTime.split("T")[1].substring(0, 5) : "",
-                            // ✅ split implementStartDate into date and time
                             implementStartDate: implementStartTime ? implementStartTime.split("T")[0] : "",
                             implementStartTime: implementStartTime ? implementStartTime.split("T")[1].substring(0, 5) : "",
                         };
@@ -130,8 +125,9 @@ const CompanyEmployess = (props) => {
             [employee._id]: {
                 ...prev[employee._id],
                 showFields: isSelected,
-                puncStartTime: isSelected ? "" : "00:00",
-                puncEndTime: isSelected ? "" : "00:00",
+                puncStartTime: prev[employee._id]?.puncStartTime || "",
+                puncEndTime: prev[employee._id]?.puncEndTime || "",
+
             },
         }));
 
@@ -237,8 +233,8 @@ const CompanyEmployess = (props) => {
         const updatedTimeFields = employees.reduce((fields, employee) => {
             fields[employee._id] = {
                 ...persistedTimeFields[employee._id], // Load from localStorage if available
-                puncStartTime: persistedTimeFields[employee._id]?.puncStartTime || "00:00",
-                puncEndTime: persistedTimeFields[employee._id]?.puncEndTime || "00:00",
+                puncStartTime: persistedTimeFields[employee._id]?.puncStartTime || "hh:mm",
+                puncEndTime: persistedTimeFields[employee._id]?.puncEndTime || "hh:mm",
             };
             return fields;
         }, {});
@@ -302,7 +298,7 @@ const CompanyEmployess = (props) => {
             //         // individualPuncStart: true,
             //     },
             // };
-            
+
             const formatWithOffset = (datetimeStr, offset) => {
                 // Convert to number (in case it's a string like "-3")
                 const offsetHours = parseInt(offset, 10);
@@ -492,7 +488,7 @@ const CompanyEmployess = (props) => {
                                                         }
                                                     />
                                                 </label> */}
-                                                <label>
+                                                {/* <label>
                                                     Policy Time:
                                                     <input
                                                         type="time"
@@ -507,7 +503,7 @@ const CompanyEmployess = (props) => {
                                                             }))
                                                         }
                                                     />
-                                                </label>
+                                                </label> */}
                                                 <label style={{ marginLeft: 10 }}>
                                                     Policy Date:
                                                     <input

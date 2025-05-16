@@ -5,6 +5,8 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { useDispatch, useSelector } from "react-redux";
 import EmployeeFilter from "../../screen/component/EmployeeFilter";
 import CompanyEmployess from "../../screen/component/punctualitybreaktime";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 function Screenshot() {
 
@@ -19,8 +21,9 @@ function Screenshot() {
     const employees = useSelector((state) => state.adminSlice.employess)
     const [filter, setfilter] = useState([])
 
-    const [puncStartTime, setPuncStartTime] = useState("");
+    const [puncStartTime, setPuncStartTime] = useState('');
     const [puncEndTime, setPuncEndTime] = useState("");
+
     const [implementStartDate, setImplementStartDate] = useState(""); // 👈 Add this line
     const [implementStartTime, setImplementStartTime] = useState(""); // 👈 Add this line
 
@@ -30,76 +33,33 @@ function Screenshot() {
         if (employees?.length > 0) {
             const firstEmployee = employees[0];
             const punctualityData = firstEmployee?.punctualityData || {};
-            setPuncStartTime(punctualityData.convertedpuncStartTime || "");
-            setPuncEndTime(punctualityData.convertedpuncEndTime || "");
-            // setPuncStartTime(punctualityData.convertedpuncStartTime);
-            //     setPuncEndTime(punctualityData.convertedpuncEndTime);
+            setPuncStartTime(punctualityData.convertedpuncStartTime || "00:00");
+            setPuncEndTime(punctualityData.convertedpuncEndTime || "00:00");
         }
     }, [employees]);
 
 
-    const handleApplySettings = async (employee, type, setting) => {
-        const settings = {
-            ...employee.effectiveSettings,
-            screenshots: {
-                ...employee.effectiveSettings.screenshots,
-                enabled: setting
-            }
-        }
-        const settings2 = {
-            ...employee.effectiveSettings,
-            screenshots: {
-                ...employee.effectiveSettings.screenshots,
-                frequency: `${setting}/hr`
-            }
-        }
-        const settings3 = {
-            ...employee.effectiveSettings,
-            screenshots: {
-                ...employee.effectiveSettings.screenshots,
-                allowBlur: setting
-            }
-        }
-        try {
-            const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${employee._id}`,
-                {
-                    userId: employee._id,
-                    effectiveSettings: type === "setting1" ? settings : type === "setting2" ? settings2 : settings3
-                }, { headers })
 
-
-            if (res.status === 200) {
-                enqueueSnackbar("Employee settings updated", {
-                    variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right"
-                    }
-                })
-            }
-            else {
-                if (res.status === 403) {
-                    alert("Access denied. Please check your permissions.")
-                } else if (res.data.success === false) {
-                    alert(res.data.message)
-                }
-            }
-
-        } catch (error) {
-            if (error.response && error.response.data) {
-                if (error.response.status === 403 && error.response.data.success === false) {
-                    // alert(error.response.data.message)
-                    enqueueSnackbar(error.response.data.message, {
-                        variant: "error",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right"
-                        }
-                    })
-                }
-            }
-        }
+    function convertTimeStringToDate(timeStr) {
+        if (!timeStr) return new Date(); // fallback to now
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        const now = new Date();
+        now.setHours(hours);
+        now.setMinutes(minutes);
+        now.setSeconds(0);
+        now.setMilliseconds(0);
+        return now;
     }
+
+    function formatDateToTimeString(date) {
+        if (!(date instanceof Date)) return '';
+        return date.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        }); // returns "HH:mm"
+    }
+
 
     function Setting({ employee }) {
         const salaryString = employee?.effectiveSettings?.screenshots?.frequency;
@@ -192,7 +152,7 @@ function Screenshot() {
                         puncEndTime: `${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`,
                         timezone: userTimezone,
                         timezoneOffset: userTimezoneOffset,
-                        implementStartDate: `${implementStartDate}T${implementStartTime}:00`, 
+                        implementStartDate: `${implementStartDate}T${implementStartTime}:00`,
                     },
                 };
             });
@@ -259,7 +219,7 @@ function Screenshot() {
                 <p>You can set the timeout duration to control how frequently screenshots are taken, with captures occurring at random intervals.</p>
             </div>
             <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} />
-
+            <p className="settingScreenshotIndividual">Group Punctuality Setting</p>
             {(
                 <>
                     <div className="takeScreenShotDiv">
@@ -268,9 +228,9 @@ function Screenshot() {
                             <input
                                 type="time"
                                 value={puncStartTime}
-                                onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
+                                onFocus={(e) => e.target.showPicker()}
                                 onChange={(e) => setPuncStartTime(e.target.value)}
-                            // onChange={(e) => console.log(e.target.value)}
+                                className="styled-input"
                             />
                         </div>
 
@@ -279,43 +239,23 @@ function Screenshot() {
                             <input
                                 type="time"
                                 value={puncEndTime}
-                                onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
-                                onChange={(e) => setPuncEndTime(e.target.value)}
-                            // onChange={(e) => console.log(e.target.value)}
-                            />
-                        </div>
-                        <div>
-                            <label>Policy Time:</label>
-                            {/* <input
-                                type="time"
-                                value={puncEndTime}
-                                onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
-                                onChange={(e) => setPuncEndTime(e.target.value)}
-                            // onChange={(e) => console.log(e.target.value)}
-                            /> */}
-                            <input
-                                type="time"
-                                value={implementStartTime}
                                 onFocus={(e) => e.target.showPicker()}
-                                onChange={(e) => setImplementStartTime(e.target.value)}
+                                onChange={(e) => setPuncEndTime(e.target.value)}
+                                className="styled-input"
                             />
                         </div>
+
                         <div>
                             <label>Policy Date:</label>
-                            {/* <input
-                                type="time"
-                                value={puncEndTime}
-                                onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
-                                onChange={(e) => setPuncEndTime(e.target.value)}
-                            // onChange={(e) => console.log(e.target.value)}
-                            /> */}
                             <input
                                 type="date"
                                 value={implementStartDate}
                                 onFocus={(e) => e.target.showPicker()}
                                 onChange={(e) => setImplementStartDate(e.target.value)}
+                                className="styled-input"
                             />
                         </div>
+
                     </div>
 
                     <button onClick={handleSubmit} style={{
@@ -338,6 +278,60 @@ function Screenshot() {
                 <CompanyEmployess Setting={Setting} employees={filter.length > 0 ? filter : employees} />
 
             </div>
+            <style>
+                {`
+  .takeScreenShotDiv {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+
+  .takeScreenShotDiv > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: "Segoe UI", sans-serif;
+    min-width: 160px;
+  }
+
+  .takeScreenShotDiv label {
+    font-size: 14px;
+    color: #444;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .styled-input {
+    padding: 10px 14px;
+    border: 2px solid #cdd5cd;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+    color: #333;
+    font-size: 14px;
+    transition: border 0.2s ease, background 0.2s ease;
+    font-family: "Segoe UI", sans-serif;
+  }
+
+  .styled-input:focus {
+    border-color: #7fc45a;
+    outline: none;
+    background-color: #fff;
+  }
+
+  button {
+    transition: background 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #69a94b;
+  }
+`}
+            </style>
+
+
+
         </div>
     )
 }
