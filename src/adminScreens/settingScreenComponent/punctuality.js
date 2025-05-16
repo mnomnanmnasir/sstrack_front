@@ -220,6 +220,10 @@ function Screenshot() {
             </div>
             <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} />
             <p className="settingScreenshotIndividual">Group Punctuality Setting</p>
+            <div className="settingScreenshotDiv">
+                {/* <p>How frequently screenshots will be taken.</p> */}
+                <p>These setting will applied throught out the organization.</p>
+            </div>
             {(
                 <>
                     <div className="takeScreenShotDiv">

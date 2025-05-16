@@ -57,7 +57,7 @@ const CompanyEmployess = (props) => {
                         const { puncStartTime, puncEndTime, implementStartTime } = response.data.data;
 
                         updatedFields[employee._id] = {
-                            showFields: employee.punctualityData?.individualPuncStart || false,
+                            showFields: false,
                             puncStartTime: (puncStartTime && !puncStartTime.includes("00:00")) ? puncStartTime.split("T")[1].substring(0, 5) : "",
                             puncEndTime: (puncEndTime && !puncEndTime.includes("00:00")) ? puncEndTime.split("T")[1].substring(0, 5) : "",
                             // ✅ split implementStartDate into date and time

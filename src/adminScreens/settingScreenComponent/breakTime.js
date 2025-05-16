@@ -559,6 +559,10 @@ function Screenshot() {
       </div>
       <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} />
          <p className="settingScreenshotIndividual">Group Break Time Setting</p>
+          <div className="settingScreenshotDiv">
+                {/* <p>How frequently screenshots will be taken.</p> */}
+                <p>These breaktime will applied throught out the organization.</p>
+            </div>
       {/* Total Duration */}
       {(
         <>
