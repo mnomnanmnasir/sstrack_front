@@ -7,6 +7,7 @@ import EmployeeFilter from "../../screen/component/EmployeeFilter";
 import CompanyEmployess from "../../screen/component/punctualitybreaktime";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import moment from "moment";
 
 function Screenshot() {
 
@@ -130,17 +131,11 @@ function Screenshot() {
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             const timezoneOffset = new Date().getTimezoneOffset(); // in minutes
 
-            // Prepare the API payload for each user
-            // const requestData = userIds.map((userId) => ({
-            //     userId,
-            //     settings: {
-            //         puncStartTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncStartTime}:00`),
-            //         puncEndTime: new Date(`${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`),
-            //         timezone: timezone,
-            //         timezoneOffset: timezoneOffset,
-            //         // individualPuncStart: true, // Ensure toggle is ON
-            //     },
-            // }));
+            const userTimezone = moment.tz.guess(); // or derive from employee later if needed
+            const formattedImplementStart = implementStartDate
+                ? moment.tz(`${implementStartDate}T${moment().format("HH:mm")}`, userTimezone).format()
+                : null;
+
             const requestData = employees.map((employee) => {
                 const userTimezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
                 const userTimezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
@@ -148,11 +143,15 @@ function Screenshot() {
                 return {
                     userId: employee._id,
                     settings: {
-                        puncStartTime: `${new Date().toISOString().split('T')[0]}T${puncStartTime}:00`,
-                        puncEndTime: `${new Date().toISOString().split('T')[0]}T${puncEndTime}:00`,
+                        puncStartTime: puncStartTime
+                            ? moment.tz(`${implementStartDate}T${puncStartTime}`, userTimezone).format()
+                            : null,
+                        puncEndTime: puncEndTime
+                            ? moment.tz(`${implementStartDate}T${puncEndTime}`, userTimezone).format()
+                            : null,
                         timezone: userTimezone,
                         timezoneOffset: userTimezoneOffset,
-                        implementStartDate: `${implementStartDate}T${implementStartTime}:00`,
+                        implementStartDate: formattedImplementStart, // ← this may need similar fix if time is involved
                     },
                 };
             });
