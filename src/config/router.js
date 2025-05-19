@@ -73,6 +73,7 @@ import GeoFance from '../screen/component/GeoFancing/geoFance'
 import GeoFanceAdd from '../screen/component/GeoFancing/AddGeoFence'
 import AddEmployee from "../screen/PayStub/AddEmployee";
 import PayroleUser from "../screen/PayStub/PayroleUser";
+import AddEmployees from "../screen/component/GeoFancing/AddEmployees";
 
 
 export default function AppRouter() {
@@ -174,11 +175,11 @@ export default function AppRouter() {
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/blogs" element={<CreateBlogs />} />
+            <Route path="/Training" element={ <TrainingPage />} />
 
             <Route path="/dashboard" element={token ? (suspended ? <Navigate to="/account" /> : <UserDashboard />) : <Navigate to="/" />} />
             <Route path="/blogs-assign-users" element={token ? (suspended ? <Navigate to="/account" /> : <AssignUsers />) : <Navigate to="/" />} />
 
-            {/* <Route path="/splash" element={token ? (suspended ? <Navigate to="/account" /> : <DashboardSplash/>) : <Navigate to="/" />} /> */}
             <Route path="/timeline" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
             <Route path="/timeline/:id" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
             <Route path="/account" element={token ? <Account /> : <Navigate to="/" />} />
@@ -220,8 +221,9 @@ export default function AppRouter() {
             <Route path="/attendence-management" element={token ? (suspended ? <Navigate to="/account" /> : <Attendence />) : <Navigate to="/" />} />
             <Route path="/geo-fance" element={token ? (suspended ? <Navigate to="/account" /> : <GeoFance />) : <Navigate to="/" />} />
             <Route path="/geo-fance/add" element={token ? (suspended ? <Navigate to="/account" /> : <GeoFanceAdd />) : <Navigate to="/" />} />
-            <Route path="/add-employee" element={token ? (suspended ? <Navigate to="/account" /> : <AddEmployee />) : <Navigate to="/" />} />
+            <Route path="/geo-fance/add-employees" element={token ? (suspended ? <Navigate to="/account" /> : <AddEmployees />) : <Navigate to="/" />} />
 
+            <Route path="/add-employee" element={token ? (suspended ? <Navigate to="/account" /> : <AddEmployee />) : <Navigate to="/" />} />
             <Route path="/history" element={token ? (suspended ? <Navigate to="/account" /> : <History />) : <Navigate to="/" />} />
             {/* <Route path="/pay_stub_managment" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubGenerator />) : <Navigate to="/" />} />
             <Route path="/pay_stub_View" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubs />) : <Navigate to="/" />} />
@@ -229,9 +231,10 @@ export default function AppRouter() {
 
             {/* <Route path="/effective-settings/break-time" element={<BreakTime />} /> */}
             <Route path="/settings" element={<Setting />}>
+
               <Route path="break-time" element={<BreakTime />} />
               <Route path="punctuality" element={<Punctuality />} />
-
+            
             </Route>
             {/* <Route
                 path="/profile"
