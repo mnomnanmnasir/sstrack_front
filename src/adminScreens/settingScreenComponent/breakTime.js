@@ -183,8 +183,8 @@ function Screenshot() {
 
   const [breakTime, setBreakTime] = useState(() => {
     // Load break times from localStorage when the component mounts
-    const savedBreakTimes = localStorage.getItem("breakTimes");
-    return savedBreakTimes ? JSON.parse(savedBreakTimes) : []; // Default to an empty array if nothing is saved
+    // const savedBreakTimes = localStorage.getItem("breakTimes");
+    // return savedBreakTimes ? JSON.parse(savedBreakTimes) : []; // Default to an empty array if nothing is saved
   });
 
   const [puncStartTime, setPuncStartTime] = useState("");
@@ -217,7 +217,7 @@ function Screenshot() {
 
             return {
               TotalHours: totalDuration,
-              breakStartTime,
+              breakStartTime: null,
               breakEndTime: null,
             };
           })
@@ -350,7 +350,7 @@ function Screenshot() {
 
   useEffect(() => {
     localStorage.setItem("isUsehasVisitedbreak", "true");
-    localStorage.setItem("breakTimes", JSON.stringify(breakTimes));
+    // localStorage.setItem("breakTimes", JSON.stringify(breakTimes));
   }, [breakTimes]);
 
   const calculateBreakDuration = (start, end) => {
@@ -425,9 +425,9 @@ function Screenshot() {
 
 
   // Update localStorage whenever totalDuration changes
-  useEffect(() => {
-    localStorage.setItem("totalDuration", totalDuration);
-  }, [totalDuration]);
+  // useEffect(() => {
+  //   localStorage.setItem("totalDuration", totalDuration);
+  // }, [totalDuration]);
 
   const isDurationFilled = () => {
     const regex = /^(\d+)h:(\d+)m$/;
@@ -441,52 +441,52 @@ function Screenshot() {
     return hours > 0 || minutes > 0;
   };
 
-  const handleBreakStartChange = (value) => {
-    const currentDate = new Date().toISOString().split("T")[0];
-    const utcTime = new Date(`${currentDate}T${value}:00Z`).toISOString();
+  // const handleBreakStartChange = (value) => {
+  //   const currentDate = new Date().toISOString().split("T")[0];
+  //   const utcTime = new Date(`${currentDate}T${value}:00Z`).toISOString();
 
-    const updatedBreakTimes = [...breakTimes];
-    const index = 0;
+  //   const updatedBreakTimes = [...breakTimes];
+  //   const index = 0;
 
-    // Ensure the first break object exists
-    if (!updatedBreakTimes[index]) {
-      updatedBreakTimes[index] = { start: "", end: "", duration: "" };
-    }
+  //   // Ensure the first break object exists
+  //   if (!updatedBreakTimes[index]) {
+  //     updatedBreakTimes[index] = { start: "", end: "", duration: "" };
+  //   }
 
-    // Update start time and UTC
-    updatedBreakTimes[index].start = value;
-    updatedBreakTimes[index].startUTC = utcTime;
+  //   // Update start time and UTC
+  //   updatedBreakTimes[index].start = value;
+  //   updatedBreakTimes[index].startUTC = utcTime;
 
-    const { startUTC, endUTC } = updatedBreakTimes[index];
+  //   const { startUTC, endUTC } = updatedBreakTimes[index];
 
-    if (startUTC && endUTC) {
-      const startTime = new Date(startUTC);
-      const endTime = new Date(endUTC);
+  //   if (startUTC && endUTC) {
+  //     const startTime = new Date(startUTC);
+  //     const endTime = new Date(endUTC);
 
-      if (endTime <= startTime) {
-        enqueueSnackbar("End Time must be after Start Time.", {
-          variant: "error",
-          anchorOrigin: { vertical: "top", horizontal: "right" },
-        });
-        return;
-      }
+  //     if (endTime <= startTime) {
+  //       enqueueSnackbar("End Time must be after Start Time.", {
+  //         variant: "error",
+  //         anchorOrigin: { vertical: "top", horizontal: "right" },
+  //       });
+  //       return;
+  //     }
 
-      const durationMinutes = Math.floor((endTime - startTime) / (1000 * 60));
+  //     const durationMinutes = Math.floor((endTime - startTime) / (1000 * 60));
 
-      if (durationMinutes > 60) {
-        enqueueSnackbar("Duration cannot exceed 1 hour.", {
-          variant: "warning",
-          anchorOrigin: { vertical: "top", horizontal: "right" },
-        });
-        return;
-      }
+  //     if (durationMinutes > 60) {
+  //       enqueueSnackbar("Duration cannot exceed 1 hour.", {
+  //         variant: "warning",
+  //         anchorOrigin: { vertical: "top", horizontal: "right" },
+  //       });
+  //       return;
+  //     }
 
-      updatedBreakTimes[index].duration = `${Math.floor(durationMinutes / 60)}h:${durationMinutes % 60}m`;
-    }
+  //     updatedBreakTimes[index].duration = `${Math.floor(durationMinutes / 60)}h:${durationMinutes % 60}m`;
+  //   }
 
-    setBreakTimes(updatedBreakTimes);
-    calculateTotalDuration();
-  };
+  //   setBreakTimes(updatedBreakTimes);
+  //   calculateTotalDuration();
+  // };
 
   const generateTimeOptions = () => {
     const options = [];

@@ -30,7 +30,8 @@ const CompanyEmployess = (props) => {
         if (Array.isArray(employees)) {
             const initialFields = employees.reduce((acc, employee) => {
                 acc[employee?._id] = {
-                    showFields: employee?.punctualityData?.individualbreakTime || false,
+                    // showFields: employee?.punctualityData?.individualbreakTime || false,
+                    showFields: false,
                     startTime: timeFields[employee?._id]?.startTime || "",
                     duration: timeFields[employee?._id]?.duration || "",
                 };
@@ -272,7 +273,7 @@ const CompanyEmployess = (props) => {
         fetchAllEmployeeData();
     }, [employees]);
 
-    console.log("empllllll:", timeFields);
+    // console.log("empllllll:", timeFields);
 
     return (
         <>
