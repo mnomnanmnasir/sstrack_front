@@ -44,37 +44,20 @@ const GeoFance = () => {
     const [activeTab, setActiveTab] = useState('employees'); // or 'geofences'
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
+    const [liveLocation, setLiveLocation] = useState(null);
+    const defaultLat = 51.5074;
+    const defaultLng = -0.1278;
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         setIsClient(true);
     }, []);
 
-    // const geofences = [
-    //     {
-    //         name: 'Main Office',
-    //         address: '123 Business Ave, Suite 200',
-    //         size: '100m',
-    //         employees: '2/5',
-    //         lastEvent: '5 min ago',
-    //         status: 'Active',
-    //     },
-    //     {
-    //         name: 'Warehouse',
-    //         address: '456 Industrial Park Road',
-    //         size: 'Custom',
-    //         employees: '1/4',
-    //         lastEvent: '15 min ago',
-    //         status: 'Active',
-    //     },
-    //     {
-    //         name: 'Client Site A',
-    //         address: '789 Customer Lane',
-    //         size: '—',
-    //         employees: '—',
-    //         lastEvent: '—',
-    //         status: 'Active',
-    //     }
-    // ];
+    useEffect(() => {
+        if (mapRef.current && liveLocation) {
+            mapRef.current.flyTo([liveLocation.lat, liveLocation.lng], 14);
+        }
+    }, [liveLocation]);
 
     const fetchGeofences = async () => {
         try {
@@ -169,6 +152,32 @@ const GeoFance = () => {
         fetchGeofences();  // on load
     }, []);
 
+    useEffect(() => {
+        const reverseGeocode = async () => {
+            if (form.latitude && form.longitude) {
+                try {
+                    const res = await axios.get(`https://nominatim.openstreetmap.org/reverse`, {
+                        params: {
+                            format: 'json',
+                            lat: form.latitude,
+                            lon: form.longitude
+                        }
+                    });
+
+                    const address = res.data.display_name;
+                    if (address) {
+                        setQuery(address); // update Search Location input
+                        setForm(prev => ({ ...prev, address }));
+                    }
+                } catch (error) {
+                    console.error("Reverse geocoding failed:", error);
+                }
+            }
+        };
+
+        reverseGeocode();
+    }, [form.latitude, form.longitude]);
+
     const employees = [
         { name: 'John Smith', status: 'online' },
         { name: 'Sarah Johnson', status: 'online' },
@@ -198,7 +207,13 @@ const GeoFance = () => {
         setQuery(place.display_name);
         setSuggestions([]);
 
-        console.log("Selected Address:", updatedForm.address); // ✅ For debugging
+        // ✅ Set liveLocation so map and marker update
+        setLiveLocation({
+            lat: parseFloat(place.lat),
+            lng: parseFloat(place.lon)
+        });
+
+        console.log("Selected Address:", updatedForm.address);
     };
 
     return (
@@ -206,7 +221,7 @@ const GeoFance = () => {
             <SnackbarProvider />
             <div className="container">
                 <div className="userHeader">
-                    <h5>Geo Fancing</h5>
+                    <h5>Geo Fencing</h5>
                 </div>
                 <div className="mainwrapper ownerTeamContainer" style={{ justifyContent: "center", paddingBottom: "90px" }}>
                     <div className="row">
@@ -216,78 +231,92 @@ const GeoFance = () => {
 
                                 <div className="card-header bg-white">
                                     <strong>Geofence Management</strong>
-                                    <input className="form-control mt-2" placeholder="Search geofences..." />
+                                    <input
+                                        className="form-control mt-2"
+                                        placeholder="Search by name or address..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                    {/* <input className="form-control mt-2" placeholder="Search geofences..." /> */}
                                 </div>
 
                                 <div className="card-body" style={{ maxHeight: '520px', overflowY: 'auto' }}>
-                                    {geofences.map((g, i) => (
-                                        <div
-                                            className="bg-white rounded-4 border px-4 py-3 mb-3 shadow-sm"
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => {
-                                                setSelectedGeofence(g);
-                                                setShowModal(false);
-                                            }}
-                                        >
-                                            <div className="d-flex justify-content-between">
-                                                {/* LEFT: Icon + Name + Address */}
-                                                <div className="d-flex">
-                                                    {/* Icon */}
-                                                    <div className="me-3">
-                                                        <div className="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ width: 40, height: 40 }}>
-                                                            <i className="bi bi-geo-alt-fill text-primary fs-5"></i>
+                                    {geofences
+                                        .filter((g) => {
+                                            const keyword = searchTerm.toLowerCase();
+                                            return (
+                                                g.geoFenceName?.toLowerCase().includes(keyword) ||
+                                                g.address?.toLowerCase().includes(keyword)
+                                            );
+                                        })
+                                        .map((g, i) => (
+                                            <div
+                                                className="bg-white rounded-4 border px-4 py-3 mb-3 shadow-sm"
+                                                style={{ cursor: 'pointer' }}
+                                                onClick={() => {
+                                                    setSelectedGeofence(g);
+                                                    setShowModal(false);
+                                                }}
+                                            >
+                                                <div className="d-flex justify-content-between">
+                                                    {/* LEFT: Icon + Name + Address */}
+                                                    <div className="d-flex">
+                                                        {/* Icon */}
+                                                        <div className="me-3">
+                                                            <div className="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ width: 40, height: 40 }}>
+                                                                <i className="bi bi-geo-alt-fill text-primary fs-5"></i>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Name + Status + Address */}
+                                                        <div>
+                                                            <div className="d-flex align-items-center mb-1">
+                                                                <h6 className="mb-0 fw-semibold me-2">{g.geoFenceName || "Untitled"}</h6>
+                                                                <span className={`badge rounded-pill px-2 py-1 ${g.status === 'Active' ? 'bg-primary' : 'bg-secondary'}`}>
+                                                                    {g.status || "Inactive"}
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-muted small mb-0">{g.address || "No address available"}</p>
                                                         </div>
                                                     </div>
 
-                                                    {/* Name + Status + Address */}
+                                                    {/* RIGHT: 3 dots icon */}
                                                     <div>
-                                                        <div className="d-flex align-items-center mb-1">
-                                                            <h6 className="mb-0 fw-semibold me-2">{g.geoFenceName || "Untitled"}</h6>
-                                                            <span className={`badge rounded-pill px-2 py-1 ${g.status === 'Active' ? 'bg-primary' : 'bg-secondary'}`}>
-                                                                {g.status || "Inactive"}
-                                                            </span>
+                                                        <i className="bi bi-three-dots-vertical text-muted fs-5"></i>
+                                                    </div>
+                                                </div>
+
+                                                {/* BOTTOM: 3 Info Cards */}
+                                                <div className="row mt-3 px-1">
+                                                    {/* Employees */}
+                                                    <div className="col-12 col-md-4 mb-2 mb-md-0">
+                                                        <div className="bg-light rounded-3 text-center py-2 px-3 h-100">
+                                                            <i className="bi bi-people text-primary"></i>
+                                                            <div className="fw-semibold">{g.userId?.length || 0}/3</div>
+                                                            <small className="text-muted">Employees</small>
                                                         </div>
-                                                        <p className="text-muted small mb-0">{g.address || "No address available"}</p>
                                                     </div>
-                                                </div>
 
-                                                {/* RIGHT: 3 dots icon */}
-                                                <div>
-                                                    <i className="bi bi-three-dots-vertical text-muted fs-5"></i>
-                                                </div>
-                                            </div>
-
-                                            {/* BOTTOM: 3 Info Cards */}
-                                            <div className="row mt-3 px-1">
-                                                {/* Employees */}
-                                                <div className="col-12 col-md-4 mb-2 mb-md-0">
-                                                    <div className="bg-light rounded-3 text-center py-2 px-3 h-100">
-                                                        <i className="bi bi-people text-primary"></i>
-                                                        <div className="fw-semibold">{g.userId?.length || 0}/3</div>
-                                                        <small className="text-muted">Employees</small>
+                                                    {/* Size */}
+                                                    <div className="col-12 col-md-4 mb-2 mb-md-0">
+                                                        <div className="bg-light rounded-3 text-center py-2 px-3 h-100">
+                                                            <i className="bi bi-map text-primary"></i>
+                                                            <div className="fw-semibold">{g.size || '—'}</div>
+                                                            <small className="text-muted">Size</small>
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                {/* Size */}
-                                                <div className="col-12 col-md-4 mb-2 mb-md-0">
-                                                    <div className="bg-light rounded-3 text-center py-2 px-3 h-100">
-                                                        <i className="bi bi-map text-primary"></i>
-                                                        <div className="fw-semibold">{g.size || '—'}</div>
-                                                        <small className="text-muted">Size</small>
-                                                    </div>
-                                                </div>
-
-                                                {/* Last Event */}
-                                                <div className="col-12 col-md-4">
-                                                    <div className="bg-light rounded-3 text-center py-2 px-3 h-100">
-                                                        <i className="bi bi-clock text-primary"></i>
-                                                        <div className="fw-semibold">{g.reachedTime || '—'}</div>
-                                                        <small className="text-muted">Last Event</small>
+                                                    {/* Last Event */}
+                                                    <div className="col-12 col-md-4">
+                                                        <div className="bg-light rounded-3 text-center py-2 px-3 h-100">
+                                                            <i className="bi bi-clock text-primary"></i>
+                                                            <div className="fw-semibold">{g.reachedTime || '—'}</div>
+                                                            <small className="text-muted">Last Event</small>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
                                 </div>
                             </div>
                         </div>
@@ -309,40 +338,21 @@ const GeoFance = () => {
                             <div className="card h-100">
                                 <div className="d-flex justify-content-between align-items-center">
                                     <div>
-                                        {/* <button className="btn btn-light btn-sm me-2 active">Employees</button>
-                                        <button className="btn btn-light btn-sm">Geofences</button> */}
+
                                     </div>
                                 </div>
 
                                 <div className="card-body p-0 d-flex">
 
-                                    {/* Employees */}
-                                    {/* <div style={{ width: '250px', borderRight: '1px solid #ccc' }} className="p-3"> */}
-                                    {/* <div style={{ width: '250px', borderRight: '1px solid #ccc' }} className="p-3">
-                                        {geofences.slice(0, 3).map((geo, idx) => (
-                                            <div key={idx} className="d-flex align-items-center mb-3">
-                                                <span
-                                                    className="me-2 rounded-circle"
-                                                    style={{
-                                                        width: '10px',
-                                                        height: '10px',
-                                                        backgroundColor: geo.status === 'assigned' ? 'green' : 'gray',
-                                                    }}
-                                                ></span>
-                                                <span>{geo.geoFenceName || "Untitled"}</span>
-                                                <i className="bi bi-geo-alt ms-auto"></i>
-                                            </div>
-                                        ))}
-                                    </div> */}
-                                    {/* </div> */}
 
                                     {/* Map Placeholder */}
                                     <div className="card-body p-0 position-relative" style={{ height: '100%', minHeight: '525px' }}>
                                         {/* Map Placeholder */}
-                                        {isClient && form.latitude && form.longitude && (
+                                        {isClient && (
                                             <MapContainer
-                                                center={[parseFloat(form.latitude), parseFloat(form.longitude)]}
+                                                center={liveLocation ? [liveLocation.lat, liveLocation.lng] : [defaultLat, defaultLng]}
                                                 zoom={13}
+                                                zoomControl={false} // ✅ This removes the default zoom buttons
                                                 style={{ height: "400px", width: "100%" }}
                                                 whenCreated={(mapInstance) => {
                                                     mapRef.current = mapInstance;
@@ -352,46 +362,17 @@ const GeoFance = () => {
                                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                                 />
-                                                <Marker position={[parseFloat(form.latitude), parseFloat(form.longitude)]}>
-                                                    <Popup>{form.geoFenceName || "Selected Location"}</Popup>
-                                                </Marker>
+
+                                                {/* Live Location Marker */}
+                                                {liveLocation && (
+                                                    <Marker position={[liveLocation.lat, liveLocation.lng]}>
+                                                        <Popup>📍 Live Location</Popup>
+                                                    </Marker>
+                                                )}
                                             </MapContainer>
                                         )}
 
-                                        {/* Zoom In / Zoom Out Buttons on Right */}
-                                        {/* <div
-                                            className="position-absolute d-flex flex-column"
-                                            style={{
-                                                right: '20px',
-                                                top: '50%',
-                                                transform: 'translateY(-50%)',
-                                                zIndex: 1000
-                                            }}
-                                        >
-                                            <button
-                                                className="btn btn-info text-white rounded-circle mb-2"
-                                                onClick={() => {
-                                                    if (mapRef.current) {
-                                                        mapRef.current.zoomIn();
-                                                    }
-                                                }}
-                                            >
-                                                <i className="bi bi-plus"></i>
-                                            </button>
-                                            <button
-                                                className="btn btn-info text-white rounded-circle mb-2"
-                                                onClick={() => {
-                                                    if (mapRef.current) {
-                                                        mapRef.current.zoomOut();
-                                                    }
-                                                }}
-                                            >
-                                                <i className="bi bi-dash"></i>
-                                            </button>
-                                        </div> */}
-
                                         {/* Geofence List Floating Box */}
-
                                         <div
                                             className="position-absolute bg-white shadow rounded-3 p-3"
                                             style={{
@@ -559,8 +540,34 @@ const GeoFance = () => {
                                             </div>
                                         ))}
                                     </div>
+                                    {/* ✅ Display Lat/Lng if available */}
+                                    {/* {form.latitude && form.longitude && ( */}
+                                        <div className="row mt-3">
+                                            <div className="col-md-6 mb-3">
+                                                <label className="form-label">Latitude</label>
+                                                <input
+                                                    type="text"
+                                                    name="latitude"
+                                                    value={form.latitude}
+                                                    onChange={handleChange}
+                                                    className="form-control"
+                                                    placeholder="Latitude"
+                                                />
+                                            </div>
+                                            <div className="col-md-6 mb-3">
+                                                <label className="form-label">Longitude</label>
+                                                <input
+                                                    type="text"
+                                                    name="longitude"
+                                                    value={form.longitude}
+                                                    onChange={handleChange}
+                                                    className="form-control"
+                                                    placeholder="Longitude"
+                                                />
+                                            </div>
+                                        </div>
+                                    {/* )} */}
                                 </div>
-
                                 {[{ label: "Time", name: "time", type: "time" }, { label: "From Date", name: "fromDate", type: "date" }, { label: "To Date", name: "toDate", type: "date" }].map(({ label, name, type }) => (
                                     <div className="mb-3" key={name}>
                                         <label className="form-label">{label}</label>
@@ -574,54 +581,56 @@ const GeoFance = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div >
             )}
 
-            {!showModal && selectedGeofence && (
-                <div
-                    className="modal fade show d-block"
-                    tabIndex="-1"
-                    role="dialog"
-                    style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-                    onClick={() => {
-                        setSelectedGeofence(null); // hide detail modal
-                        setShowModal(false);        // show create modal
-                    }}
-
-                >
+            {
+                !showModal && selectedGeofence && (
                     <div
-                        className="modal-dialog"
-                        role="document"
-                        onClick={(e) => e.stopPropagation()}
+                        className="modal fade show d-block"
+                        tabIndex="-1"
+                        role="dialog"
+                        style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+                        onClick={() => {
+                            setSelectedGeofence(null); // hide detail modal
+                            setShowModal(false);        // show create modal
+                        }}
+
                     >
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Geofence Details</h5>
-                                <button type="button" className="btn-close" onClick={() => {
-                                    setShowModal(false);
-                                    setSelectedGeofence(null);
-                                }}></button>
-                            </div>
-                            <div className="modal-body">
-                                <p><strong>Name:</strong> {selectedGeofence.geoFenceName}</p>
-                                <p><strong>Address:</strong> {selectedGeofence.address}</p>
-                                <p><strong>Size:</strong> {selectedGeofence.size}</p>
-                                <p><strong>Description:</strong> {selectedGeofence.description}</p>
-                                <p><strong>Last Event:</strong> {selectedGeofence.lastEvent}</p>
-                                <p><strong>Status:</strong> {selectedGeofence.status}</p>
-                            </div>
-                            <div className="modal-footer">
-                                <button className="btn btn-danger">Delete</button>
-                                <button className="btn btn-secondary" onClick={() => {
-                                    setShowModal(false);
-                                    setSelectedGeofence(null);
-                                }}>Cancel</button>
-                                <button className="btn btn-success">Edit</button>
+                        <div
+                            className="modal-dialog"
+                            role="document"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Geofence Details</h5>
+                                    <button type="button" className="btn-close" onClick={() => {
+                                        setShowModal(false);
+                                        setSelectedGeofence(null);
+                                    }}></button>
+                                </div>
+                                <div className="modal-body">
+                                    <p><strong>Name:</strong> {selectedGeofence.geoFenceName}</p>
+                                    <p><strong>Address:</strong> {selectedGeofence.address}</p>
+                                    <p><strong>Size:</strong> {selectedGeofence.size}</p>
+                                    <p><strong>Description:</strong> {selectedGeofence.description}</p>
+                                    <p><strong>Last Event:</strong> {selectedGeofence.lastEvent}</p>
+                                    <p><strong>Status:</strong> {selectedGeofence.status}</p>
+                                </div>
+                                <div className="modal-footer">
+                                    <button className="btn btn-danger">Delete</button>
+                                    <button className="btn btn-secondary" onClick={() => {
+                                        setShowModal(false);
+                                        setSelectedGeofence(null);
+                                    }}>Cancel</button>
+                                    <button className="btn btn-success">Edit</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
         </>
     );
 };
