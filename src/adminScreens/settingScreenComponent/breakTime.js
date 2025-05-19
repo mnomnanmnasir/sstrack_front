@@ -191,36 +191,33 @@ function Screenshot() {
       }
 
       const currentDate = new Date().toISOString().split("T")[0];
-      const defaultTimezone = moment.tz.guess();
+      const defaultTimezone = moment.tz.guess(); // Fallback timezone
 
       const requestData = employees.map((employee) => {
         const employeeTimezone = employee?.timezone || defaultTimezone;
         const timezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
 
-        const formattedBreakTimes =
-          breakTimes.length > 0
-            ? breakTimes.map((slot) => {
-              const breakStartTime = slot.start
-                ? moment
-                  .utc(`${currentDate}T${slot.start}`)
-                  .utcOffset(-new Date().getTimezoneOffset())
-                  .format("YYYY-MM-DDTHH:mm:ssZ")
-                : null;
+        const hasStart = breakTimes.some(slot => slot.start && slot.start.trim() !== "");
 
-              return {
-                TotalHours: totalDuration,
-                breakStartTime,
-                breakEndTime: null,
-              };
-            })
-            : [
-              {
-                TotalHours: totalDuration,
-                breakStartTime: null,
-                breakEndTime: null,
-              },
-            ];
+        const formattedBreakTimes = hasStart
+          ? breakTimes.map((slot) => {
+            const breakStartTime = slot.start
+              ? moment.tz(`${currentDate}T${slot.start}`, "YYYY-MM-DDTHH:mm", employeeTimezone).format()
+              : null;
 
+            return {
+              TotalHours: totalDuration,
+              breakStartTime,
+              breakEndTime: null,
+            };
+          })
+          : [
+            {
+              TotalHours: totalDuration,
+              breakStartTime: null,
+              breakEndTime: null,
+            },
+          ];
 
         return {
           userId: employee._id,
@@ -251,7 +248,10 @@ function Screenshot() {
           anchorOrigin: { vertical: "top", horizontal: "right" },
         });
       } else {
-        enqueueSnackbar("Failed to submit punctuality rule.", { variant: "error" });
+        enqueueSnackbar("Failed to submit punctuality rule.", {
+          variant: "error",
+          anchorOrigin: { vertical: "top", horizontal: "right" },
+        });
       }
     } catch (error) {
       enqueueSnackbar(
@@ -261,6 +261,8 @@ function Screenshot() {
       console.error("Error submitting punctuality rule:", error);
     }
   };
+
+
 
 
 

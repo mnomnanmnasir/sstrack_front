@@ -67,7 +67,7 @@ const CompanyEmployess = (props) => {
             const { startTime, duration } = timeFields[employeeId];
 
             if (!duration) {
-                enqueueSnackbar("Both Break Start Time and Total Duration are required.", {
+                enqueueSnackbar("Total Duration are required.", {
                     variant: "error",
                     anchorOrigin: { vertical: "top", horizontal: "right" },
                 });
