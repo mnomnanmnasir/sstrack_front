@@ -1,8 +1,11 @@
 import PersonIcon from '@mui/icons-material/Person';
-import { Box, Button, Card, CardContent, CircularProgress, Grid, MenuItem, Select, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, CircularProgress, Grid, MenuItem, Select, Typography, Modal } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import TopBar from '../topBar';
+import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
+import { useSnackbar } from 'notistack';
+
 
 function TotalCompanies() {
   const [companies, setCompanies] = useState([]); // State for companies data
@@ -15,7 +18,11 @@ function TotalCompanies() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
   const [companyHours, setCompanyHours] = useState({});
-
+  const [mergeModalOpen, setMergeModalOpen] = useState(false);
+  const [sourceCompanyId, setSourceCompanyId] = useState('');
+  const [targetCompanyId, setTargetCompanyId] = useState('');
+  const [selectedName, setSelectedName] = useState('');
+  const { enqueueSnackbar } = useSnackbar();
 
   const calculateCompanyTotalHours = (companyId) => {
     const usersMap = companyHours[companyId];
@@ -64,11 +71,15 @@ function TotalCompanies() {
           companyHours: company.companyHours || '-',
           ownerEmail: company.users.find(u => u.userType === 'owner')?.email || 'No email',
           ownerName: company.users.find(u => u.userType === 'owner')?.name || 'No Owner',
+          phoneNumber: company.users.find(u => u.userType === 'owner')?.phoneNumber || 'No phone number',
+
+          // phoneNumber: user.phoneNumber || 'No phone number',
           type: 'suspended', // Indicate that it's a suspended company
           users: company.users.map((user) => ({
             lastActiveUser: user.lastActiveUser || 'No last active user',
             name: user.name || 'Unknown', // Placeholder if name is missing
             email: user.email || 'No email',
+            phoneNumber: user.phoneNumber || 'No phone number',
             createdAt: user.createdAt || '-',
             role: user.userType || 'User', // Add role if available
             phone: user.phone || '(123) 456-7890', // Placeholder if phone is missing
@@ -84,12 +95,15 @@ function TotalCompanies() {
           createdAt: company.createdAt || '-', // ✅ Add this line
           ownerEmail: company.users.find(u => u.userType === 'owner')?.email || 'No email',
           ownerName: company.users.find(u => u.userType === 'owner')?.name || 'No Owner',
+          phoneNumber: company.users.find(u => u.userType === 'owner')?.phoneNumber || 'No phone number',
+
           type: 'other', // Indicate that it's another company
           users: company.users.map((user) => ({
             id: user._id, // ✅ required to reference totalHours correctly
             lastActiveUser: user.lastActiveUser || 'No last active user',
             name: user.name || 'Unknown', // Placeholder if name is missing
             email: user.email || 'No email',
+            phoneNumber: user.phoneNumber || 'No phone number',
             createdAt: user.createdAt || '-',
             role: user.userType || 'User', // Add role if available
             phone: user.phone || '(123) 456-7890', // Placeholder if phone is missing
@@ -102,13 +116,14 @@ function TotalCompanies() {
           lastActiveCompany: company.lastActiveCompany || 'No last active company',
           companyCreatedAt: company.companyCreatedAt || '-', // ✅ Add this line
           companyHours: company.companyHours || '0h 0m',  // ✅ Add this line
-          phone: company.users[0]?.name || 'no user name found⚠️', // Company phone with default value
+          phoneNumber: company.users.find(u => u.userType === 'owner')?.phoneNumber || 'No phone number',
           email: company.users[0]?.email || 'No email',
           type: 'archive', // Indicate that it's another company
           users: company.users.map((user) => ({
             lastActiveUser: user.lastActiveUser || 'No last active user',
             name: user.name || 'Unknown', // Placeholder if name is missing
             email: user.email || 'No email',
+            phoneNumber: user.phoneNumber || 'No phone number',
             role: user.userType || 'User', // Add role if available
             phone: user.phone || '(123) 456-7890', // Placeholder if phone is missing
           })),
@@ -358,7 +373,6 @@ function TotalCompanies() {
   if (error) return <Typography color="error">{error}</Typography>;
 
 
-
   return (
     <Box sx={{ padding: 3, fontFamily: 'Arial, sans-serif', alignSelf: 'start', width: '98%' }}>
       <TopBar />
@@ -374,14 +388,138 @@ function TotalCompanies() {
           {!selectedCompany && (
             <>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                   <Typography variant="h6" fontWeight="bold">
                     Total Companies
                   </Typography>
-                  {/* <Button startIcon={<ListAltIcon />} variant="text" sx={{ color: '#333' }}>
+                  <Button startIcon={<ListAltIcon />} variant="text" sx={{ color: '#333' }}>
                     List View
-                  </Button> */}
+                  </Button>
+                </Box> */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Typography variant="h6" fontWeight="bold">
+                    Total Companies
+                  </Typography>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => setMergeModalOpen(true)}
+                    sx={{
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      borderRadius: '20px',
+                      padding: '6px 16px',
+                      fontSize: '14px',
+                    }}
+                  >
+                    Merge Companies
+                  </Button>
                 </Box>
+
+                <Modal
+                  open={mergeModalOpen}
+                  onClose={() => setMergeModalOpen(false)}
+                  aria-labelledby="merge-modal-title"
+                  aria-describedby="merge-modal-description"
+                >
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: 400,
+                      bgcolor: 'background.paper',
+                      boxShadow: 24,
+                      p: 4,
+                      borderRadius: 2,
+                    }}
+                  >
+                    <Typography id="merge-modal-title" variant="h6" mb={2}>
+                      Merge Companies
+                    </Typography>
+
+                    <Select
+                      fullWidth
+                      displayEmpty
+                      value={sourceCompanyId}
+                      onChange={(e) => setSourceCompanyId(e.target.value)}
+                      sx={{ mb: 2 }}
+                    >
+                      <MenuItem disabled value="">Select Source Company</MenuItem>
+                      {companies.map((company) => (
+                        <MenuItem key={company.id} value={company.id}>{company.name}</MenuItem>
+                      ))}
+                    </Select>
+
+                    <Select
+                      fullWidth
+                      displayEmpty
+                      value={targetCompanyId}
+                      onChange={(e) => {
+                        setTargetCompanyId(e.target.value);
+                        const selectedCompany = companies.find(c => c.id === e.target.value);
+                        setSelectedName(selectedCompany?.name || '');
+                      }}
+                      sx={{ mb: 2 }}
+                    >
+                      <MenuItem disabled value="">Select Target Company</MenuItem>
+                      {companies.map((company) => (
+                        <MenuItem key={company.id} value={company.id}>{company.name}</MenuItem>
+                      ))}
+                    </Select>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                      <Button onClick={() => setMergeModalOpen(false)}>Cancel</Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={async () => {
+                          const token = localStorage.getItem('token_for_sa');
+                          if (!sourceCompanyId || !targetCompanyId || !selectedName) {
+                            alert("Please fill all fields.");
+                            return;
+                          }
+
+                          try {
+                            const res = await axios.patch(
+                              'https://myuniversallanguages.com:9093/api/v1/SystemAdmin/mergeCompanies',
+                              {
+                                sourceCompanyId,
+                                targetCompanyId,
+                                selectedName
+                              },
+                              {
+                                headers: { Authorization: `Bearer ${token}` }
+                              }
+                            );
+
+                            if (res.status === 200) {
+                              enqueueSnackbar(res.data.message, {
+                                variant: "success",
+                                anchorOrigin: { vertical: "top", horizontal: "right" }
+                              });
+
+                              // alert("Companies merged successfully!");
+                              setMergeModalOpen(false);
+                              setSourceCompanyId('');
+                              setTargetCompanyId('');
+                              setSelectedName('');
+                              fetchCompanies(); // Refresh data
+                            }
+                          } catch (err) {
+                            console.error(err);
+                            alert("Merge failed.");
+                          }
+                        }}
+                      >
+                        Merge
+                      </Button>
+                    </Box>
+                  </Box>
+                </Modal>
+
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                   <Select
                     value={selectedFilter}
@@ -486,6 +624,10 @@ function TotalCompanies() {
                         >
                           <Typography variant="body2" sx={{ fontSize: '14px', marginBottom: '4px' }}>
                             📧 {company.ownerEmail}
+                          </Typography>
+
+                          <Typography variant="body" sx={{ fontSize: '14px', marginBottom: '4px' }}>
+                            <PhoneOutlinedIcon fontSize="small" /> {company.phoneNumber}
                           </Typography>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
                             {/* Left Section */}
@@ -724,7 +866,6 @@ function TotalCompanies() {
                         <Typography variant="body2" sx={{ color: '#555', marginBottom: '4px' }}>
                           📧 {user.email}
                         </Typography>
-
                         <Typography variant="body2" sx={{ color: '#888' }}>
                           Created At: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                         </Typography>
