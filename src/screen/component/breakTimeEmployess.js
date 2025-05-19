@@ -249,13 +249,16 @@ const CompanyEmployess = (props) => {
                         const breakData = response.data.data?.convertedBreakTimes?.[0]; // ✅ Correct name & safe access
 
                         updatedFields[employee._id] = {
-                            showFields: employee.punctualityData?.individualbreakTime || false,
+                            // showFields: employee.punctualityData?.individualbreakTime || false,
+                            showFields: false,
                             startTime: breakData?.breakStartTime
                                 ? moment(breakData.breakStartTime).format("HH:mm") // ✅ NO .utc() here
                                 : "",
                             endTime: breakData?.breakEndTime
                                 ? moment(breakData.breakEndTime).format("HH:mm")
                                 : "",
+                            duration: breakData?.TotalHours || "0h:0m"
+
                         };
                     }
                 }
@@ -269,7 +272,7 @@ const CompanyEmployess = (props) => {
         fetchAllEmployeeData();
     }, [employees]);
 
-
+    console.log("empllllll:", timeFields);
 
     return (
         <>
@@ -291,15 +294,21 @@ const CompanyEmployess = (props) => {
                                         <p style={{ marginLeft: 10, fontSize: 12, color: 'black' }}>
                                             {employee?.timezone} (UTC {employee?.timezoneOffset >= 0 ? `+${employee?.timezoneOffset}` : employee?.timezoneOffset})
                                             {timeFields[employee._id]?.startTime && timeFields[employee._id]?.endTime && (
-                                                <> | Break: {timeFields[employee._id].startTime} to {timeFields[employee._id].endTime}</>
+                                                <>
+                                                    {" | Break: "}
+                                                    {timeFields[employee._id].startTime} to {timeFields[employee._id].endTime}
+                                                    {timeFields[employee._id]?.duration && ` (${timeFields[employee._id].duration})`}
+                                                </>
                                             )}
                                         </p>
+
                                     </div>
                                     <div style={{ marginRight: 10 }}>
                                         <label className="switch">
                                             <input
                                                 type="checkbox"
                                                 checked={timeFields[employee._id]?.showFields || false} // Reflect updated toggle state
+                                                // checked={false} // Reflect updated toggle state
                                                 onChange={(e) => handleToggleChange(employee, e.target.checked)}
                                             />
                                             <span className="slider round"></span>

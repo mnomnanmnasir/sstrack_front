@@ -17,7 +17,11 @@ function Screenshot() {
   const [number, setNumber] = useState(null);
   const ids = useSelector((state) => state.adminSlice.ids);
   const employees = useSelector((state) => state?.adminSlice?.employess);
+  const [totalDuration, setTotalDuration] = useState(
+
+  );
   const [filter, setfilter] = useState([])
+
 
 
   function Setting({ setting, setSetting, employee }) {
@@ -51,25 +55,31 @@ function Screenshot() {
   async function getData() {
     try {
       const response = await fetch(
-        `https://myuniversallanguages.com:9093/api/v1/manager/employees`,
+        `https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`,
         { headers }
       );
       const json = await response.json();
+
       const employeesData = json?.convertedEmployees || [];
 
       // Transform and set breakTimes to show in UTC format
       const transformedBreakTimes =
         employeesData[0]?.punctualityData?.breakTime.map((breakEntry) => {
-          const breakStartUTC = new Date(breakEntry.breakStartTime)?.substring(11, 16); // Store in UTC
-          const breakEndUTC = new Date(breakEntry.breakEndTime)?.substring(11, 16); // Store in UTC
+          const start = breakEntry.breakStartTime
+            ? new Date(breakEntry.breakStartTime).toISOString().substring(11, 16)
+            : "";
+          const end = breakEntry.breakEndTime
+            ? new Date(breakEntry.breakEndTime).toISOString().substring(11, 16)
+            : "";
           const duration = breakEntry.TotalHours || "0h:0m";
 
           return {
-            start: breakStartUTC.substring(11, 16), // Display as HH:MM in UTC
-            end: breakEndUTC.substring(11, 16), // Display as HH:MM in UTC
+            start,
+            end,
             duration,
           };
         }) || [];
+
 
       setBreakTimes(transformedBreakTimes);
 
@@ -229,7 +239,7 @@ function Screenshot() {
         };
       });
 
-      console.log("breaktimeDta ===>", requestData);
+
 
       const response = await axios.post(
         "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
@@ -261,10 +271,6 @@ function Screenshot() {
       console.error("Error submitting punctuality rule:", error);
     }
   };
-
-
-
-
 
 
 
@@ -416,9 +422,7 @@ function Screenshot() {
 
 
   // Initialize state with value from localStorage or default value
-  const [totalDuration, setTotalDuration] = useState(
-    localStorage.getItem("totalDuration") || "0h:0m"
-  );
+
 
   // Update localStorage whenever totalDuration changes
   useEffect(() => {
@@ -533,7 +537,7 @@ function Screenshot() {
     setIsAddButtonDisabled(totalMinutes >= 60);
   };
   const handleFilteredEmployees = (filteredEmployees) => {
-    console.log("Filtered Employees:", filteredEmployees);
+
     setfilter(filteredEmployees)
   };
   return (
@@ -557,7 +561,7 @@ function Screenshot() {
           You can set a total break duration that determines how long an employee can be on break.
         </p>
       </div>
-      <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} />
+      {/* <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} /> */}
       <p className="settingScreenshotIndividual">Group Break Time Setting</p>
       <div className="settingScreenshotDiv">
         {/* <p>How frequently screenshots will be taken.</p> */}
@@ -609,7 +613,7 @@ function Screenshot() {
               }}
             />
 
-            <label htmlFor="breakStartTime" style={{ fontWeight: 600, color: "#333" }}>
+            {/* <label htmlFor="breakStartTime" style={{ fontWeight: 600, color: "#333" }}>
               (optional) Break Start Time:
             </label>
             <select
@@ -632,7 +636,7 @@ function Screenshot() {
             >
               <option value="">-- Select Time --</option>
               {generateTimeOptions()}
-            </select>
+            </select> */}
 
 
             <button
@@ -667,7 +671,7 @@ function Screenshot() {
 
 
       <div className="activityLevelIndividual">
-        <p className="settingScreenshotIndividual">Individual Settings</p>
+        <p className="settingScreenshotIndividual">Optional Individual Settings</p>
         <p className="individualSettingFont">
           If enabled, the individual setting will be used instead of the team
           setting
