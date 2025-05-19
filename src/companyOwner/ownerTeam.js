@@ -508,7 +508,7 @@ function OwnerTeam() {
         setLoading(true)
         try {
             setLoading2(true)
-            const response = await axios.get(`${apiUrl} / manager / employees`, { headers })
+            const response = await axios.get(`${apiUrl}/manager/employees`, { headers })
             if (response.status) {
                 setLoading(false)
                 setLoading2(false)
@@ -704,7 +704,7 @@ function OwnerTeam() {
 
                 getData(); // Refresh user list
                 setEmail("");
-                setShowNewModal(true); // Show company policy modal
+                // setShowNewModal(true); // Show company policy modal
             }
         } catch (error) {
             enqueueSnackbar(error?.response?.data?.message || "Network error", {
@@ -1252,7 +1252,11 @@ function OwnerTeam() {
                                     </div>
                                 </div>
                                 <div id="lisstofallusers" className="container-fluid">
-                                    {Array.isArray(users) &&
+                                    {loading || !Array.isArray(users) ? (
+                                        <div style={{ padding: "40px 0", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                                            <FerrisWheelSpinner loading={true} size={40} color="#28659C" message="Loading users..." />
+                                        </div>
+                                    ) : (
                                         [...users]
                                             .sort((a, b) => {
                                                 if (a.inviteStatus && !b.inviteStatus) return 1;
@@ -1267,31 +1271,23 @@ function OwnerTeam() {
                                                 return nameA.localeCompare(nameB);
                                             })
                                             .map((e, i, arr) => {
-                                                // Previous user for comparison
                                                 const prev = arr[i - 1];
                                                 const currentRole = e.userType;
                                                 const prevRole = prev?.userType;
 
-                                                // Check section heading conditions
-                                                const isNewSection = !prev ||
-                                                    (prev?.inviteStatus !== e?.inviteStatus) ||
-                                                    (prev?.isArchived !== e?.isArchived) ||
-                                                    (prevRole !== currentRole);
+                                                const isNewSection =
+                                                    !prev ||
+                                                    prev?.inviteStatus !== e?.inviteStatus ||
+                                                    prev?.isArchived !== e?.isArchived ||
+                                                    prevRole !== currentRole;
 
                                                 let sectionTitle = "";
-                                                if (e.inviteStatus) {
-                                                    sectionTitle = "Invited Users";
-                                                } else if (e.isArchived) {
-                                                    sectionTitle = "Archived Users";
-                                                } else if (e.userType === "owner") {
-                                                    sectionTitle = "Owners";
-                                                } else if (e.userType === "admin") {
-                                                    sectionTitle = "Admins";
-                                                } else if (e.userType === "manager") {
-                                                    sectionTitle = "Managers";
-                                                } else {
-                                                    sectionTitle = "Users";
-                                                }
+                                                if (e.inviteStatus) sectionTitle = "Invited Users";
+                                                else if (e.isArchived) sectionTitle = "Archived Users";
+                                                else if (e.userType === "owner") sectionTitle = "Owners";
+                                                else if (e.userType === "admin") sectionTitle = "Admins";
+                                                else if (e.userType === "manager") sectionTitle = "Managers";
+                                                else sectionTitle = "Users";
 
                                                 return (
                                                     <React.Fragment key={e._id}>
@@ -1302,7 +1298,7 @@ function OwnerTeam() {
                                                         )}
 
                                                         <div
-                                                            className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align - items - center gap - 1`}
+                                                            className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center gap-1`}
                                                             onClick={() => {
                                                                 setMainId(e._id);
                                                                 setActiveId(e._id);
@@ -1318,7 +1314,7 @@ function OwnerTeam() {
                                                                     <div className="groupContentMainImg">
                                                                         <p>{i + 1}</p>
                                                                     </div>
-                                                                    <p className="groupContent">{e?.inviteStatus === true ? e?.email : e?.name}</p>
+                                                                    <p className="groupContent">{e?.inviteStatus ? e?.email : e?.name}</p>
                                                                 </div>
 
                                                                 {e?.inviteStatus && (
@@ -1358,7 +1354,8 @@ function OwnerTeam() {
                                                         </div>
                                                     </React.Fragment>
                                                 );
-                                            })}
+                                            })
+                                    )}
                                 </div>
 
                             </div>
