@@ -4,6 +4,7 @@ import {
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import axios from 'axios';
+import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 
 function DCompanies() {
     const [loading, setLoading] = useState(true);
@@ -81,6 +82,7 @@ function DCompanies() {
                     name: company.companyName,
                     ownerEmail: company.users.find(u => u.userType === 'owner')?.email || 'No email',
                     ownerName: company.users.find(u => u.userType === 'owner')?.name || 'No Owner',
+                    phoneNumber: company.users.find(u => u.userType === 'owner')?.phoneNumber || 'No phone number',
                     type: company.suspended ? 'suspended' : 'active',
                     //   createdAt: company.createdAt,
                     companyCreatedAt: company.companyCreatedAt || '-',
@@ -89,6 +91,7 @@ function DCompanies() {
                         lastActiveUser: user.lastActiveUser || 'No last active user',
                         name: user.name || 'No name',
                         email: user.email || 'No email',
+                        phoneNumber: user.phoneNumber || 'No phone number',
                         phone: user.phone || 'No phone',
                         createdAt: user.createdAt || null,
                         role: user.userType || 'User'
@@ -177,6 +180,9 @@ function DCompanies() {
                                             <Typography variant="body2" sx={{ fontSize: '14px', marginBottom: '4px' }}>
                                                 📧 {company.ownerEmail}
                                             </Typography>
+                                            <Typography variant="body2" sx={{ color: '#555' }}>
+                                                <PhoneOutlinedIcon fontSize="small" /> {company.phoneNumber}
+                                            </Typography>
                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
                                                 {/* Left Section */}
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -185,7 +191,9 @@ function DCompanies() {
                                                         {company.ownerName}
                                                     </Typography>
                                                 </Box>
-
+                                                {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <PersonIcon sx={{ color: '#555' }} />
+                                                </Box> */}
                                                 {/* Right Section */}
                                                 <Box sx={{ textAlign: 'right' }}>
                                                     <Typography variant="caption" sx={{ color: '#888' }}>
@@ -319,6 +327,7 @@ function DCompanies() {
                                         <Box>
                                             <Typography variant="h6" fontWeight="bold">{user.name}</Typography>
                                             <Typography variant="body2" sx={{ color: '#555' }}>📧 {user.email}</Typography>
+
                                             {/* <Typography variant="body2" sx={{ color: '#555' }}>📞 {user.phone}</Typography> */}
                                             <Typography variant="body2" sx={{ color: '#888' }}>
                                                 Created At: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
