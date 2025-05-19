@@ -99,21 +99,21 @@ const AddEmployees = () => {
         emp.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    useEffect(() => {
-        if (window.bootstrap) {
-            const dropdownTriggers = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-            dropdownTriggers.forEach(triggerEl => {
-                new window.bootstrap.Dropdown(triggerEl);
-            });
-        }
-    }, [viewType, filteredEmployees]);
+    // useEffect(() => {
+    //     if (window.bootstrap) {
+    //         const dropdownTriggers = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+    //         dropdownTriggers.forEach(triggerEl => {
+    //             new window.bootstrap.Dropdown(triggerEl);
+    //         });
+    //     }
+    // }, [viewType, filteredEmployees]);
 
-    useEffect(() => {
-        const dropdownTriggers = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-        dropdownTriggers.forEach(triggerEl => {
-            new bootstrap.Dropdown(triggerEl); // using the imported bootstrap, not window.bootstrap
-        });
-    }, [viewType, filteredEmployees]);
+    // useEffect(() => {
+    //     const dropdownTriggers = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+    //     dropdownTriggers.forEach(triggerEl => {
+    //         new bootstrap.Dropdown(triggerEl); // using the imported bootstrap, not window.bootstrap
+    //     });
+    // }, [viewType, filteredEmployees]);
 
 
     return (
@@ -294,10 +294,10 @@ const AddEmployees = () => {
                                                                     }}
                                                                 >
                                                                     <li><a className="dropdown-item text-dark" href="#">View Profile</a></li>
-                                                                    <li><a className="dropdown-item text-dark" href="#">Edit</a></li>
-                                                                    <li><a className="dropdown-item text-dark" href="#">Assign to Geofence</a></li>
-                                                                    <li><a className="dropdown-item text-dark" href="#">View Location History</a></li>
-                                                                    <li><a className="dropdown-item text-danger" href="#">Deactivate</a></li>
+                                                                    <li><a class="dropdown-item text-dark" href="#">Edit</a></li>
+                                                                    <li><a class="dropdown-item text-dark" href="#">Assign to Geofence</a></li>
+                                                                    <li><a class="dropdown-item text-dark" href="#">View Location History</a></li>
+                                                                    <li><a class="dropdown-item text-danger" href="#">Deactivate</a></li>
                                                                 </ul>
                                                             </div>
 
