@@ -119,7 +119,7 @@ function Screenshot() {
         try {
             // Check if both start and end times are provided
             if (!puncStartTime || !puncEndTime || !implementStartDate) {
-                throw new Error("Both Punctuality Start Time and End Time are required.");
+                throw new Error("Both Punctuality Start Time and End Time and policy date are required.");
             }
 
             // Log punctuality times to console
