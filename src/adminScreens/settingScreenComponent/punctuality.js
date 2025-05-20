@@ -118,7 +118,7 @@ function Screenshot() {
     const handleSubmit = async () => {
         try {
             // Check if both start and end times are provided
-            if (!puncStartTime || !puncEndTime || !implementStartDate) {
+            if (!puncStartTime || !puncEndTime ) {
                 throw new Error("Both Punctuality Start Time and End Time are required.");
             }
 
