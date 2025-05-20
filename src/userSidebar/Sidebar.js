@@ -685,7 +685,7 @@ const Sidebar = ({ open, onClose }) => {
                                         <ListItemButton
                                             sx={{
                                                 pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname.includes('/add-employee') ? '#7ACB59' : 'transparent',
+                                                backgroundColor: location.pathname === '/add-employee' ? '#7ACB59' : 'transparent',
                                                 color: '#fff'
                                             }}
                                             onClick={() => handleNavigate('/add-employee')}
