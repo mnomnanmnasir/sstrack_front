@@ -61,9 +61,38 @@ const GeoFance = () => {
         }
     }, [liveLocation]);
 
+    // const fetchGeofences = async () => {
+    //     try {
+    //         setLoading(true); // Start loading
+    //         const token = localStorage.getItem("token");
+    //         const response = await fetch("https://myuniversallanguages.com:9093/api/v1/tracker/getGeofencesByAssignmentStatus", {
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`
+    //             }
+    //         });
+    //         const result = await response.json();
+
+    //         if (response.ok && result.success) {
+    //             // ✅ Combine assigned + unassigned arrays
+    //             setGeofences([
+    //                 ...(result.data.assigned || []),
+    //                 ...(result.data.unassigned || [])
+    //             ]);
+    //         } else {
+    //             throw new Error(result?.message || "Failed to fetch geofences");
+    //         }
+    //     } catch (error) {
+    //         console.error("Error fetching geofences:", error.message);
+    //         enqueueSnackbar(error.message, {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" }
+    //         });
+    //     }
+    // };
+
     const fetchGeofences = async () => {
         try {
-            setLoading(true); // Start loading
+            setLoading(true); // Start loader
             const token = localStorage.getItem("token");
             const response = await fetch("https://myuniversallanguages.com:9093/api/v1/tracker/getGeofencesByAssignmentStatus", {
                 headers: {
@@ -73,7 +102,6 @@ const GeoFance = () => {
             const result = await response.json();
 
             if (response.ok && result.success) {
-                // ✅ Combine assigned + unassigned arrays
                 setGeofences([
                     ...(result.data.assigned || []),
                     ...(result.data.unassigned || [])
@@ -87,6 +115,8 @@ const GeoFance = () => {
                 variant: "error",
                 anchorOrigin: { vertical: "top", horizontal: "right" }
             });
+        } finally {
+            setLoading(false); // ✅ Always stop loader
         }
     };
 
@@ -435,52 +465,60 @@ const GeoFance = () => {
                                     </button>
                                 </div>
                             </div>
-
-                            {geofences
-                                .filter((g) => {
-                                    const keyword = searchTerm.toLowerCase();
-                                    return (
-                                        g.geoFenceName?.toLowerCase().includes(keyword) ||
-                                        g.address?.toLowerCase().includes(keyword)
-                                    );
-                                })
-                                .map((g, i) => (
-                                    <div className="col-md-6 col-lg-4 mb-3" key={i}>
-                                        <div
-                                            className="card border rounded-4 shadow-sm p-3 h-100"
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => {
-                                                setSelectedGeofence(g);
-                                                setShowModal(false);
-                                            }}
-                                        >
-                                            <div className="d-flex align-items-center justify-content-between mb-2">
-                                                <h6 className="fw-bold mb-0">{g.geoFenceName || "Untitled"}</h6>
-                                                <span className={`badge rounded-pill px-2 py-1 ${g.status === 'Active' ? 'bg-primary' : 'bg-secondary'}`}>
-                                                    {g.status || "Inactive"}
-                                                </span>
-                                            </div>
-                                            <p className="text-muted small mb-2">{g.address || "No address available"}</p>
-                                            <div className="d-flex justify-content-between text-center">
-                                                <div>
-                                                    <i className="bi bi-people text-primary"></i>
-                                                    <div>{g.userId?.length || 0}/3</div>
-                                                    <small className="text-muted">Employees</small>
+                            
+                            {loading ? (
+                                <div className="d-flex justify-content-center align-items-center py-5">
+                                    <div className="spinner-border text-primary" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                geofences
+                                    .filter((g) => {
+                                        const keyword = searchTerm.toLowerCase();
+                                        return (
+                                            g.geoFenceName?.toLowerCase().includes(keyword) ||
+                                            g.address?.toLowerCase().includes(keyword)
+                                        );
+                                    })
+                                    .map((g, i) => (
+                                        <div className="col-md-6 col-lg-4 mb-3" key={i}>
+                                            <div
+                                                className="card border rounded-4 shadow-sm p-3 h-100"
+                                                style={{ cursor: 'pointer' }}
+                                                onClick={() => {
+                                                    setSelectedGeofence(g);
+                                                    setShowModal(false);
+                                                }}
+                                            >
+                                                <div className="d-flex align-items-center justify-content-between mb-2">
+                                                    <h6 className="fw-bold mb-0">{g.geoFenceName || "Untitled"}</h6>
+                                                    <span className={`badge rounded-pill px-2 py-1 ${g.status === 'Active' ? 'bg-primary' : 'bg-secondary'}`}>
+                                                        {g.status || "Inactive"}
+                                                    </span>
                                                 </div>
-                                                <div>
-                                                    <i className="bi bi-map text-primary"></i>
-                                                    <div>{g.size || '—'}</div>
-                                                    <small className="text-muted">Size</small>
-                                                </div>
-                                                <div>
-                                                    <i className="bi bi-clock text-primary"></i>
-                                                    <div>{g.reachedTime || '—'}</div>
-                                                    <small className="text-muted">Last Event</small>
+                                                <p className="text-muted small mb-2">{g.address || "No address available"}</p>
+                                                <div className="d-flex justify-content-between text-center">
+                                                    <div>
+                                                        <i className="bi bi-people text-primary"></i>
+                                                        <div>{g.userId?.length || 0}/3</div>
+                                                        <small className="text-muted">Employees</small>
+                                                    </div>
+                                                    <div>
+                                                        <i className="bi bi-map text-primary"></i>
+                                                        <div>{g.size || '—'}</div>
+                                                        <small className="text-muted">Size</small>
+                                                    </div>
+                                                    <div>
+                                                        <i className="bi bi-clock text-primary"></i>
+                                                        <div>{g.reachedTime || '—'}</div>
+                                                        <small className="text-muted">Last Event</small>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))
+                            )}
 
                         </div>
 
