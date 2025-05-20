@@ -559,7 +559,7 @@ const Sidebar = ({ open, onClose }) => {
                     }
 
                     if (item.isDropdown === 'geoFence') {
-                        const isActive = ['/geo-fance', '/geo-fance/add'].some(path =>
+                        const isActive = ['/geo-fance', '/geo-fance/add', '/geo-fance/add-employees'].some(path =>
                             location.pathname.includes(path)
                         );
                         return (
@@ -589,7 +589,7 @@ const Sidebar = ({ open, onClose }) => {
                                             {!collapsed && <ListItemText primary="Dashboard" />}
                                         </ListItemButton>
 
-                                        <ListItemButton
+                                        {/* <ListItemButton
                                             sx={{
                                                 pl: collapsed ? 2 : 6,
                                                 backgroundColor: location.pathname.includes('/geo-fance/add') ? '#7ACB59' : 'transparent',
@@ -601,6 +601,46 @@ const Sidebar = ({ open, onClose }) => {
                                                 <AddLocationAltIcon />
                                             </ListItemIcon>
                                             {!collapsed && <ListItemText primary="Create Geofence" />}
+                                        </ListItemButton>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname.includes('/geo-fance/add-employees') ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/geo-fance/add-employees')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <AddLocationAltIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Add Employees" />}
+                                        </ListItemButton> */}
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname === '/geo-fance/add' ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/geo-fance/add')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <AddLocationAltIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Create Geofence" />}
+                                        </ListItemButton>
+
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname === '/geo-fance/add-employees' ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/geo-fance/add-employees')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <AddLocationAltIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Add Employees" />}
                                         </ListItemButton>
 
                                     </List>
