@@ -51,6 +51,7 @@ const AddEmployees = () => {
     const defaultLng = -0.1278;
     const [searchTerm, setSearchTerm] = useState('');
     const [viewType, setViewType] = useState("list"); // or "grid"
+    const [employeeFilter, setEmployeeFilter] = useState('all'); // all | active | inactive
 
     const employees = [
         {
@@ -95,9 +96,20 @@ const AddEmployees = () => {
         },
     ];
 
-    const filteredEmployees = employees.filter(emp =>
-        emp.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // const filteredEmployees = employees.filter(emp =>
+    //     emp.name.toLowerCase().includes(searchTerm.toLowerCase())
+    // );
+
+    const activeCount = employees.filter(emp => emp.status === 'online').length;
+    const inactiveCount = employees.filter(emp => emp.status === 'offline').length;
+
+    const filteredEmployees = employees
+        .filter(emp => emp.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        .filter(emp => {
+            if (employeeFilter === 'active') return emp.status === 'online';
+            if (employeeFilter === 'inactive') return emp.status === 'offline';
+            return true; // for 'all'
+        });
 
     // useEffect(() => {
     //     if (window.bootstrap) {
@@ -134,38 +146,35 @@ const AddEmployees = () => {
                                     <p className="text-muted mb-2" style={{ fontSize: '0.9rem' }}>
                                         Manage your field employees and their assigned geofences.
                                     </p>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        placeholder="Search employees..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
 
+                                    {/* 👇 This row aligns search left, filter right */}
                                     <div className="d-flex justify-content-between align-items-center mb-3">
-                                        {/* <div className="d-flex align-items-center gap-2">
-                                            <button className={`btn btn-sm ${viewType === 'list' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setViewType('list')}>
-                                                List
-                                            </button>
-                                            <button className={`btn btn-sm ${viewType === 'grid' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setViewType('grid')}>
-                                                Grid
-                                            </button>
-                                        </div> */}
-                                        <div className="d-flex gap-2">
+                                        <div className="flex-grow-1 me-2">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Search employees..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                            />
+                                        </div>
+                                        <div>
                                             <button className="btn btn-outline-secondary btn-sm">
                                                 <i className="bi bi-funnel"></i> Filter
                                             </button>
                                         </div>
                                     </div>
+
+                                    {/* View Switch Buttons */}
                                     <div className="d-flex align-items-center gap-2">
                                         <button
-                                            className={`btn btn-toggle-view ${viewType === 'list' ? 'active' : ''}`}
+                                            className={`btn btn-sm px-3 py-1 ${viewType === 'list' ? 'text-dark fw-bold' : 'text-muted'} border-0 bg-transparent`}
                                             onClick={() => setViewType('list')}
                                         >
                                             List
                                         </button>
                                         <button
-                                            className={`btn btn-toggle-view ${viewType === 'grid' ? 'active' : ''}`}
+                                            className={`btn btn-sm px-3 py-1 ${viewType === 'grid' ? 'text-dark fw-bold' : 'text-muted'} border-0 bg-transparent`}
                                             onClick={() => setViewType('grid')}
                                         >
                                             Grid
@@ -173,16 +182,37 @@ const AddEmployees = () => {
                                     </div>
                                 </div>
 
+                                {/* <div className="d-inline-flex bg-secondary-subtle px-2 py-1 mb-3 mt-2 rounded-2">
+                                    <button
+                                        className={`btn btn-sm me-1 ${employeeFilter === 'all' ? 'btn-light fw-bold rounded-2' : 'btn-link text-muted rounded-2'}`}
+                                        onClick={() => setEmployeeFilter('all')}
+                                    >
+                                        All Employees
+                                    </button>
+                                    <button
+                                        className={`btn btn-sm me-1 ${employeeFilter === 'active' ? 'btn-light fw-bold rounded-2' : 'btn-link text-muted rounded-2'}`}
+                                        onClick={() => setEmployeeFilter('active')}
+                                    >
+                                        Active ({activeCount})
+                                    </button>
+                                    <button
+                                        className={`btn btn-sm ${employeeFilter === 'inactive' ? 'btn-light fw-bold rounded-2' : 'btn-link text-muted rounded-2'}`}
+                                        onClick={() => setEmployeeFilter('inactive')}
+                                    >
+                                        Inactive ({inactiveCount})
+                                    </button>
+                                </div> */}
+
                                 <div className="card-body p-0" style={{ overflow: 'visible' }}>
                                     {viewType === "list" ? (
                                         <table className="table table-hover table-bordered align-middle">
                                             <thead className="table-light">
                                                 <tr>
-                                                    <th>Employee</th>
-                                                    <th>Current Location</th>
-                                                    <th>Assigned Geofences</th>
-                                                    <th>Last Active</th>
-                                                    <th className="text-end">Actions</th>
+                                                    <th className='text-center'>Employee</th>
+                                                    <th className='text-center'>Current Location</th>
+                                                    <th className='text-center'>Assigned Geofences</th>
+                                                    <th className='text-center'>Last Active</th>
+                                                    <th className='text-center'>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -201,23 +231,34 @@ const AddEmployees = () => {
                                                         </td>
                                                         <td><i className="bi bi-clock me-1"></i>{emp.lastActive}</td>
                                                         {/* <td className="text-end">...</td> */}
-                                                        <div class="btn-group">
-                                                            <button
-                                                                type="button"
-                                                                className="btn p-0 border-0 bg-transparent"
-                                                                data-bs-toggle="dropdown"
-                                                                aria-expanded="false"
-                                                            >
-                                                                <i className="bi bi-three-dots-vertical text-muted"></i>
-                                                            </button>
-                                                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
-                                                                <li><a class="dropdown-item" href="#">Action</a></li>
-                                                                <li><a class="dropdown-item" href="#">Another action</a></li>
-                                                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                                                <li><hr class="dropdown-divider" /></li>
-                                                                <li><a class="dropdown-item" href="#">Separated link</a></li>
-                                                            </ul>
-                                                        </div>
+                                                        <td className="text-center">
+                                                            <div class="btn-group">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn p-0 border-0 bg-transparent"
+                                                                    data-bs-toggle="dropdown"
+                                                                    aria-expanded="false"
+                                                                >
+                                                                    <i className="bi bi-three-dots-vertical text-muted"></i>
+                                                                </button>
+                                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3"
+                                                                    style={{
+                                                                        backgroundColor: '#fff',
+                                                                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                                                                        border: 'none',
+                                                                        borderRadius: '0.5rem',
+                                                                        padding: '0.5rem',
+                                                                        minWidth: '200px',
+                                                                    }}
+                                                                >
+                                                                    <li><a class="dropdown-item text-dark" href="#">View Profile</a></li>
+                                                                    <li><a class="dropdown-item text-dark" href="#">Edit</a></li>
+                                                                    <li><a class="dropdown-item text-dark" href="#">Assign to Geofence</a></li>
+                                                                    <li><a class="dropdown-item text-dark" href="#">View Location History</a></li>
+                                                                    {/* <li><a class="dropdown-item text-danger" href="#">Deactivate</a></li> */}
+                                                                </ul>
+                                                            </div>
+                                                        </td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -293,11 +334,11 @@ const AddEmployees = () => {
                                                                         minWidth: '200px',
                                                                     }}
                                                                 >
-                                                                    <li><a className="dropdown-item text-dark" href="#">View Profile</a></li>
+                                                                    <li><a class="dropdown-item text-dark" href="#">View Profile</a></li>
                                                                     <li><a class="dropdown-item text-dark" href="#">Edit</a></li>
                                                                     <li><a class="dropdown-item text-dark" href="#">Assign to Geofence</a></li>
                                                                     <li><a class="dropdown-item text-dark" href="#">View Location History</a></li>
-                                                                    <li><a class="dropdown-item text-danger" href="#">Deactivate</a></li>
+                                                                    {/* <li><a class="dropdown-item text-danger" href="#">Deactivate</a></li> */}
                                                                 </ul>
                                                             </div>
 
