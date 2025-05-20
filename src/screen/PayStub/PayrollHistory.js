@@ -20,6 +20,7 @@ function PayrollHistory() {
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedPayrollData, setSelectedPayrollData] = useState(null);
     const [loadingUserId, setLoadingUserId] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
 
     const navigate = useNavigate();
@@ -141,9 +142,16 @@ function PayrollHistory() {
     };
 
     useEffect(() => {
-        fetchAllStubs();
-        fetchUsers();
+        const fetchAllData = async () => {
+            setIsLoading(true);
+            await fetchAllStubs();
+            await fetchUsers();
+            setIsLoading(false);
+        };
+
+        fetchAllData();
     }, []);
+
 
     const handleViewStub = (record) => {
         navigate('/pay_stub_View', {
@@ -218,79 +226,112 @@ function PayrollHistory() {
 
 
 
-                        {console.log('Updasteeed,', history)}
+
                         {activeTab === 'history' && (
                             <div style={{ marginTop: '2rem' }}>
                                 <h4>🗂️ Pay Stub History</h4>
-                                <div style={{ overflowX: 'auto', background: '#fff', borderRadius: '8px', padding: '20px', boxShadow: '0 0 10px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
-                                    <table style={{ minWidth: '1400px', width: '100%', borderCollapse: 'collapse' }}>
-                                        <thead>
-                                            <tr style={{ background: '#f4f6f8', fontWeight: 'bold' }}>
-                                                <th style={cellStyle}>Name</th>
-                                                <th style={cellStyle}>Country</th>
-                                                <th style={cellStyle}>State</th>
-                                                <th style={cellStyle}>Frequency</th>
-                                                <th style={cellStyle}>Period</th>
-                                                <th style={cellStyle}>Total Hours</th>
-                                                <th style={cellStyle}>Gross Pay</th>
-                                                <th style={cellStyle}>Net Pay</th>
-                                                <th style={cellStyle}>Total Deductions</th>
-                                                <th style={cellStyle}>Currency</th>
-                                                <th style={cellStyle}>Generated At</th>
-                                                <th style={cellStyle}>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {history.map((h, idx) => {
-                                                const currencySymbol = {
-                                                    usd: '$', pkr: '₨', inr: '₹', cad: 'C$', eur: '€', gbp: '£'
-                                                }[h.currency?.toLowerCase()] || h.currency || '';
 
-                                                const totalDeductions = (h.taxBreakdown || []).reduce((sum, item) => sum + (item.amount || 0), 0)
-                                                    + (h.totalDeductions || []).reduce((sum, item) => sum + (item.amount || 0), 0);
+                                {isLoading ? (
+                                    <div style={{ textAlign: "center", marginTop: "40px" }}>
+                                        <div
+                                            style={{
+                                                border: "6px solid #f3f3f3",
+                                                borderTop: "6px solid #7fc45a",
+                                                borderRadius: "50%",
+                                                width: "40px",
+                                                height: "40px",
+                                                animation: "spin 1s linear infinite",
+                                                margin: "0 auto"
+                                            }}
+                                        />
+                                        <p style={{ marginTop: "10px", fontSize: "14px", color: "#555" }}>
+                                            Loading payroll history...
+                                        </p>
+                                        <style>
+                                            {`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}
+                                        </style>
+                                    </div>
+                                ) : (
+                                    <div style={{
+                                        overflowX: 'auto',
+                                        background: '#fff',
+                                        borderRadius: '8px',
+                                        padding: '20px',
+                                        boxShadow: '0 0 10px rgba(0,0,0,0.05)',
+                                        border: '1px solid #eee'
+                                    }}>
+                                        <table style={{ minWidth: '1400px', width: '100%', borderCollapse: 'collapse' }}>
+                                            <thead>
+                                                <tr style={{ background: '#f4f6f8', fontWeight: 'bold' }}>
+                                                    <th style={cellStyle}>Name</th>
+                                                    <th style={cellStyle}>Country</th>
+                                                    <th style={cellStyle}>State</th>
+                                                    <th style={cellStyle}>Frequency</th>
+                                                    <th style={cellStyle}>Period</th>
+                                                    <th style={cellStyle}>Total Hours</th>
+                                                    <th style={cellStyle}>Gross Pay</th>
+                                                    <th style={cellStyle}>Net Pay</th>
+                                                    <th style={cellStyle}>Total Deductions</th>
+                                                    <th style={cellStyle}>Currency</th>
+                                                    <th style={cellStyle}>Generated At</th>
+                                                    <th style={cellStyle}>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {history.map((h, idx) => {
+                                                    const currencySymbol = {
+                                                        usd: '$', pkr: '₨', inr: '₹', cad: 'C$', eur: '€', gbp: '£'
+                                                    }[h.currency?.toLowerCase()] || h.currency || '';
 
-                                                const rowStyle = h.payrolUser
-                                                    ? { backgroundColor: '#e8f8ec' } // light green background for payroll users
-                                                    : {};
+                                                    const totalDeductions = (h.taxBreakdown || []).reduce((sum, item) => sum + (item.amount || 0), 0)
+                                                        + (h.totalDeductions || []).reduce((sum, item) => sum + (item.amount || 0), 0);
 
-                                                return (
-                                                    <tr key={idx} style={rowStyle}>
-                                                        <td style={cellStyle}>{h.name}</td>
-                                                        <td style={cellStyle}>{h.country || '—'}</td>
-                                                        <td style={cellStyle}>{h.state || '—'}</td>
-                                                        <td style={cellStyle}>{h.payPeriod}</td>
-                                                        <td style={cellStyle}>{`${h.StartDate} - ${h.EndDate}`}</td>
-                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{(h.regHours + h.OTHours).toFixed(2)}</td>
-                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{currencySymbol} {h.grossPay?.toFixed(2)}</td>
-                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{currencySymbol} {h.netPay?.toFixed(2)}</td>
-                                                        <td style={{ ...cellStyle, textAlign: 'right' }}>{currencySymbol} {totalDeductions.toFixed(2)}</td>
-                                                        <td style={cellStyle}>{h.currency}</td>
-                                                        <td style={cellStyle}>{new Date(h.generateDate || h.payDate).toLocaleString()}</td>
-                                                        <td style={cellStyle}>
-                                                            <button
-                                                                onClick={() => handleViewStub(h)}
-                                                                style={{
-                                                                    padding: '4px 10px',
-                                                                    fontSize: '12px',
-                                                                    backgroundColor: '#007bff',
-                                                                    color: '#fff',
-                                                                    border: 'none',
-                                                                    borderRadius: '4px',
-                                                                    cursor: 'pointer'
-                                                                }}
-                                                            >
-                                                                View
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
+                                                    const rowStyle = h.payrolUser ? { backgroundColor: '#e8f8ec' } : {};
 
-                                    </table>
-                                </div>
+                                                    return (
+                                                        <tr key={idx} style={rowStyle}>
+                                                            <td style={cellStyle}>{h.name}</td>
+                                                            <td style={cellStyle}>{h.country || '—'}</td>
+                                                            <td style={cellStyle}>{h.state || '—'}</td>
+                                                            <td style={cellStyle}>{h.payPeriod}</td>
+                                                            <td style={cellStyle}>{`${h.StartDate} - ${h.EndDate}`}</td>
+                                                            <td style={{ ...cellStyle, textAlign: 'right' }}>{(h.regHours + h.OTHours).toFixed(2)}</td>
+                                                            <td style={{ ...cellStyle, textAlign: 'right' }}>{currencySymbol} {h.grossPay?.toFixed(2)}</td>
+                                                            <td style={{ ...cellStyle, textAlign: 'right' }}>{currencySymbol} {h.netPay?.toFixed(2)}</td>
+                                                            <td style={{ ...cellStyle, textAlign: 'right' }}>{currencySymbol} {totalDeductions.toFixed(2)}</td>
+                                                            <td style={cellStyle}>{h.currency}</td>
+                                                            <td style={cellStyle}>{new Date(h.generateDate || h.payDate).toLocaleString()}</td>
+                                                            <td style={cellStyle}>
+                                                                <button
+                                                                    onClick={() => handleViewStub(h)}
+                                                                    style={{
+                                                                        padding: '4px 10px',
+                                                                        fontSize: '12px',
+                                                                        backgroundColor: '#007bff',
+                                                                        color: '#fff',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                >
+                                                                    View
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
                         )}
+
 
                         {activeTab === 'submitted' && submittedUsers.length > 0 && (
                             <div style={{ marginTop: '2rem' }}>

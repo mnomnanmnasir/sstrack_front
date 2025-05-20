@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import CompanyEmployess from "../../screen/component/breakTimeEmployess";
 import EmployeeFilter from "../../screen/component/EmployeeFilter";
 import moment from "moment-timezone";
-
+import { TextField } from "@mui/material";
 
 function Screenshot() {
   let token = localStorage.getItem("token");
@@ -17,9 +17,11 @@ function Screenshot() {
   const [number, setNumber] = useState(null);
   const ids = useSelector((state) => state.adminSlice.ids);
   const employees = useSelector((state) => state?.adminSlice?.employess);
-  const [totalDuration, setTotalDuration] = useState(
+  const [totalDuration, setTotalDuration] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedHours, setSelectedHours] = useState(0);
+  const [selectedMinutes, setSelectedMinutes] = useState(1); // 0h:1m minimum valid
 
-  );
   const [filter, setfilter] = useState([])
 
 
@@ -51,8 +53,8 @@ function Screenshot() {
 
 
 
-
   async function getData() {
+    setIsLoading(true); // Show loader before fetching
     try {
       const response = await fetch(
         `https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`,
@@ -61,37 +63,25 @@ function Screenshot() {
       const json = await response.json();
 
       const employeesData = json?.convertedEmployees || [];
+      const transformedBreakTimes = employeesData[0]?.punctualityData?.breakTime.map((breakEntry) => {
+        const start = breakEntry.breakStartTime
+          ? new Date(breakEntry.breakStartTime).toISOString().substring(11, 16)
+          : "";
+        const end = breakEntry.breakEndTime
+          ? new Date(breakEntry.breakEndTime).toISOString().substring(11, 16)
+          : "";
+        const duration = breakEntry.TotalHours || "0h:0m";
 
-      // Transform and set breakTimes to show in UTC format
-      const transformedBreakTimes =
-        employeesData[0]?.punctualityData?.breakTime.map((breakEntry) => {
-          const start = breakEntry.breakStartTime
-            ? new Date(breakEntry.breakStartTime).toISOString().substring(11, 16)
-            : "";
-          const end = breakEntry.breakEndTime
-            ? new Date(breakEntry.breakEndTime).toISOString().substring(11, 16)
-            : "";
-          const duration = breakEntry.TotalHours || "0h:0m";
-
-          return {
-            start,
-            end,
-            duration,
-          };
-        }) || [];
-
+        return { start, end, duration };
+      }) || [];
 
       setBreakTimes(transformedBreakTimes);
 
-      // Calculate total duration
       const totalMinutes = transformedBreakTimes.reduce((acc, curr) => {
-        const [hours, minutes] = curr.duration
-          .split("h:")
-          .map((val) => parseInt(val) || 0);
+        const [hours, minutes] = curr.duration.split("h:").map((val) => parseInt(val) || 0);
         return acc + hours * 60 + minutes;
       }, 0);
 
-      // Convert total minutes back to "Xh:Ym" format
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
       setTotalDuration(`${hours}h:${minutes}m`);
@@ -99,14 +89,12 @@ function Screenshot() {
       console.error("Error fetching employees:", error);
       enqueueSnackbar("Failed to fetch employees.", {
         variant: "error",
-        anchorOrigin: {
-          vertical: "top",
-          horizontal: "right",
-        },
+        anchorOrigin: { vertical: "top", horizontal: "right" },
       });
+    } finally {
+      setIsLoading(false); // Hide loader after fetch
     }
   }
-
 
 
 
@@ -510,7 +498,90 @@ function Screenshot() {
     }
     return options;
   };
+  const handleIncrement = () => {
+    let hours = getHours();
+    let minutes = getMinutes();
 
+    if (minutes < 59) {
+      minutes++;
+    } else {
+      minutes = 0;
+      hours++;
+    }
+
+    if (hours > 12) {
+      hours = 12;
+      minutes = 59;
+    }
+
+    setTotalDuration(`${hours}h:${minutes}m`);
+  };
+
+  const handleDecrement = () => {
+    let hours = getHours();
+    let minutes = getMinutes();
+
+    if (minutes > 0) {
+      minutes--;
+    } else if (hours > 0) {
+      hours--;
+      minutes = 59;
+    }
+
+    // Don't allow below 0h:1m
+    if (hours === 0 && minutes === 0) {
+      minutes = 1;
+    }
+
+    setTotalDuration(`${hours}h:${minutes}m`);
+  };
+  const getHours = () => {
+    if (!totalDuration) return 0;
+    const match = totalDuration.match(/^(\d+)h:(\d+)m$/);
+    return match ? parseInt(match[1]) : 0;
+  };
+
+  const getMinutes = () => {
+    if (!totalDuration) return 0;
+    const match = totalDuration.match(/^(\d+)h:(\d+)m$/);
+    return match ? parseInt(match[2]) : 0;
+  };
+  const generateDurationOptions = () => {
+    const options = [];
+    for (let h = 0; h <= 12; h++) {
+      for (let m = 0; m <= 59; m++) {
+        if (h === 0 && m === 0) continue; // skip 0h:0m
+        const value = `${h}h:${m}m`;
+        options.push(
+          <option key={value} value={value}>
+            {value}
+          </option>
+        );
+      }
+    }
+    return options;
+  };
+
+  const updateDuration = (type, value) => {
+    let hours = selectedHours;
+    let minutes = selectedMinutes;
+
+    if (type === "hours") {
+      hours = value;
+      setSelectedHours(value);
+    } else {
+      minutes = value;
+      setSelectedMinutes(value);
+    }
+
+    // prevent 0h:0m
+    if (hours === 0 && minutes === 0) {
+      minutes = 1;
+      setSelectedMinutes(1);
+    }
+
+    setTotalDuration(`${hours}h:${minutes}m`);
+  };
 
   const calculateTotalDuration = () => {
     let totalMinutes = 0;
@@ -570,6 +641,7 @@ function Screenshot() {
       {/* Total Duration */}
       {(
         <>
+
           <div
             className="gap-3"
             style={{
@@ -581,89 +653,81 @@ function Screenshot() {
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
             }}
           >
-            <label htmlFor="totalDuration" style={{ fontWeight: 600, color: "#333" }}>
-              Total Duration:
-            </label>
-            <input
-              id="totalDuration"
-              type="text"
-              value={totalDuration}
-              onChange={(e) => setTotalDuration(e.target.value)}
-              placeholder="e.g., 0h:15m"
-              style={{
-                padding: "10px 14px",
-                borderRadius: "8px",
-                border: "1px solid #ccc",
-                backgroundColor: "#f9f9f9",
-                color: "#333",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-                fontSize: "14px",
-                minWidth: "120px",
-                transition: "all 0.3s ease-in-out",
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = "#7fc45a";
-                e.target.style.backgroundColor = "#fff";
-                e.target.style.boxShadow = "0 0 5px rgba(127, 196, 90, 0.5)";
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = "#ccc";
-                e.target.style.backgroundColor = "#f9f9f9";
-                e.target.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.1)";
-              }}
-            />
+            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "20px" }}>
+              <label htmlFor="totalDuration" style={{ fontWeight: 600, color: "#333" }}>
+                Total Duration:
+              </label>
 
-            {/* <label htmlFor="breakStartTime" style={{ fontWeight: 600, color: "#333" }}>
-              (optional) Break Start Time:
-            </label>
-            <select
-              id="breakStartTime"
-              value={breakTimes[0]?.start || ""}
-              disabled={!isDurationFilled()}
-              onChange={(e) => handleBreakStartChange(e.target.value)}
-              style={{
-                padding: "10px 14px",
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                backgroundColor: !isDurationFilled() ? "#eee" : "#f9f9f9",
-                color: "#333",
-                fontSize: "14px",
-                minWidth: "140px",
-                cursor: !isDurationFilled() ? "not-allowed" : "pointer",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-                transition: "all 0.3s ease-in-out",
-              }}
-            >
-              <option value="">-- Select Time --</option>
-              {generateTimeOptions()}
-            </select> */}
+              {/* Hours Dropdown */}
+              <select
+                value={selectedHours}
+                onChange={(e) => updateDuration("hours", parseInt(e.target.value))}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid #ccc",
+                  backgroundColor: "#f9f9f9",
+                  color: "#333",
+                  fontSize: "14px",
+                  width: "100px",
+                  cursor: "pointer",
+                }}
+              >
+                {Array.from({ length: 13 }, (_, i) => (
+                  <option key={i} value={i}>
+                    {i} hour{i !== 1 ? "s" : ""}
+                  </option>
+                ))}
+              </select>
 
+              {/* Minutes Dropdown */}
+              <select
+                value={selectedMinutes}
+                onChange={(e) => updateDuration("minutes", parseInt(e.target.value))}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid #ccc",
+                  backgroundColor: "#f9f9f9",
+                  color: "#333",
+                  fontSize: "14px",
+                  width: "100px",
+                  cursor: "pointer",
+                }}
+              >
+                {Array.from({ length: 60 }, (_, i) => (
+                  <option key={i} value={i}>
+                    {i} min{i !== 1 ? "s" : ""}
+                  </option>
+                ))}
+              </select>
 
-            <button
-              onClick={handleSubmit}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#7fc45a",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                fontWeight: 600,
-                fontSize: "14px",
-                cursor: "pointer",
-                transition: "background-color 0.3s ease",
-                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
-              }}
-              onMouseOver={(e) => {
-                e.target.style.backgroundColor = "#6db84d";
-              }}
-              onMouseOut={(e) => {
-                e.target.style.backgroundColor = "#7fc45a";
-              }}
-            >
-              Save
-            </button>
+              {/* Save Button */}
+              <button
+                onClick={handleSubmit}
+                style={{
+                  padding: "10px 20px",
+                  backgroundColor: "#7fc45a",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  transition: "background-color 0.3s ease",
+                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.backgroundColor = "#6db84d";
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.backgroundColor = "#7fc45a";
+                }}
+              >
+                Save
+              </button>
+            </div>
           </div>
-
 
         </>
       )}
@@ -677,7 +741,36 @@ function Screenshot() {
           setting
         </p>
 
-        <CompanyEmployess Setting={Setting} employees={filter.length > 0 ? filter : employees} />
+        {isLoading ? (
+          <div style={{ textAlign: "center", marginTop: "40px" }}>
+            <div style={{
+              border: "6px solid #f3f3f3",
+              borderTop: "6px solid #7fc45a",
+              borderRadius: "50%",
+              width: "40px",
+              height: "40px",
+              animation: "spin 1s linear infinite",
+              margin: "0 auto"
+            }} />
+
+            <p style={{ marginTop: "10px", fontSize: "14px", color: "#555" }}>
+              Loading employees...
+            </p>
+
+            <style>
+              {`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}
+            </style>
+          </div>
+        ) : (
+          <CompanyEmployess Setting={Setting} employees={filter.length > 0 ? filter : employees} />
+        )}
+
+
 
       </div>
     </div>
