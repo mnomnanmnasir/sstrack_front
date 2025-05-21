@@ -85,6 +85,9 @@ function Screenshot() {
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
       setTotalDuration(`${hours}h:${minutes}m`);
+      setSelectedHours(hours);
+      setSelectedMinutes(minutes);
+
     } catch (error) {
       console.error("Error fetching employees:", error);
       enqueueSnackbar("Failed to fetch employees.", {
@@ -227,7 +230,7 @@ function Screenshot() {
         };
       });
 
-
+      console.log("its obaid", requestData)
 
       const response = await axios.post(
         "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
@@ -639,6 +642,7 @@ function Screenshot() {
         <p>These breaktime will applied throught out the organization.</p>
       </div>
       {/* Total Duration */}
+      {console.log("setTotalDuration", totalDuration)}
       {(
         <>
 
