@@ -34,21 +34,27 @@ function Screenshot() {
         if (employees?.length > 0) {
             const firstEmployee = employees[0];
             const punctualityData = firstEmployee?.punctualityData || {};
-
-            const start = punctualityData.puncStartTime
-                ? moment(punctualityData.puncStartTime).format("HH:mm")
-                : "";
-            const end = punctualityData.puncEndTime
-                ? moment(punctualityData.puncEndTime).format("HH:mm")
-                : "";
-
-            setPuncStartTime(start);
-            setPuncEndTime(end);
+            setPuncStartTime(punctualityData.puncStartTime || "");
+            setPuncEndTime(punctualityData.puncEndTime || "");
         }
     }, [employees]);
 
+    // useEffect(() => {
+    //   if (employees?.length > 0) {
+    //     const firstEmployee = employees[0];
+    //     const punctualityData = firstEmployee?.punctualityData || {};
 
+    //     const start = punctualityData.puncStartTime
+    //       ? moment(punctualityData.puncStartTime).format("HH:mm")
+    //       : "";
+    //     const end = punctualityData.puncEndTime
+    //       ? moment(punctualityData.puncEndTime).format("HH:mm")
+    //       : "";
 
+    //     setPuncStartTime(start);
+    //     setPuncEndTime(end);
+    //   }
+    // }, [employees]);
 
 
     function convertTimeStringToDate(timeStr) {
@@ -104,12 +110,14 @@ function Screenshot() {
             // console.log("checkk", employeesData);
             if (employeesData.length > 0) {
                 const punctualityData = employeesData[0]?.punctualityData || {};
-                setPuncStartTime(
-                    punctualityData.puncStartTime ? moment(punctualityData.puncStartTime).format("HH:mm") : ""
-                );
-                setPuncEndTime(
-                    punctualityData.puncEndTime ? moment(punctualityData.puncEndTime).format("HH:mm") : ""
-                );
+                setPuncStartTime(punctualityData.puncStartTime);
+                setPuncEndTime(punctualityData.puncEndTime);
+                // setPuncStartTime(
+                //     punctualityData.puncStartTime ? moment(punctualityData.puncStartTime).format("HH:mm") : ""
+                // );
+                // setPuncEndTime(
+                //     punctualityData.puncEndTime ? moment(punctualityData.puncEndTime).format("HH:mm") : ""
+                // );
 
             } else {
                 console.warn("No employee data found.");
