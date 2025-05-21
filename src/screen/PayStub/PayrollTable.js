@@ -206,7 +206,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>Run Payroll: Every Friday 2</div>
+      <div style={styles.header}>Run Payroll: {frequency.charAt(0).toUpperCase() + frequency.slice(1)}</div>
 
       <div style={styles.controls}>
         <Form.Group className="mb-3">
@@ -256,108 +256,121 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
       <div style={{ alignSelf: 'flex-end', fontWeight: 600, padding: '8px 0' }}>
         Total Employees: {employees.length}
       </div>
+      {month && selectedPeriod ? (
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>✔</th>
+                <th style={styles.th}>Name</th>
+                <th style={styles.th}>Type</th>
+                <th style={styles.th}> Rate ($)</th>
+                <th style={styles.th}>Regular Hours</th>
+                <th style={styles.th}>Overtime</th>
+                <th style={styles.th}>Bonus</th>
+                {frequency === 'monthly' && (
+                  <th style={styles.th}>Adjustments</th>
+                )}
+                <th style={styles.th}>Gross Pay</th>
+                <th style={styles.th}>Memo</th>
+                <th style={styles.th}>Pay Method</th>
+              </tr>
+            </thead>
+            <tbody>
+              {employees
+                .slice()
+                .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
 
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th style={styles.th}>✔</th>
-            <th style={styles.th}>Name</th>
-            <th style={styles.th}>Type</th>
-            <th style={styles.th}> Rate ($)</th>
-            <th style={styles.th}>Regular Hours</th>
-            <th style={styles.th}>Overtime</th>
-            <th style={styles.th}>Bonus</th>
-            <th style={styles.th}>Adjustments</th>
-            <th style={styles.th}>Gross Pay</th>
-            <th style={styles.th}>Memo</th>
-            <th style={styles.th}>Pay Method</th>
-          </tr>
-        </thead>
-        <tbody>
-          {employees
-            .slice()
-            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+                .map((emp) => {
+                  const editable = selectedEmployees.includes(emp.id);
 
-            .map((emp) => {
-              const editable = selectedEmployees.includes(emp.id);
+                  const rowStyle = emp.payrolUser ? { backgroundColor: '#e8f8ec' } : {}; // Highlight if payrolUser
 
-              const rowStyle = emp.payrolUser ? { backgroundColor: '#e8f8ec' } : {}; // Highlight if payrolUser
+                  return (
+                    <tr key={emp.id} style={rowStyle}>
+                      <td style={styles.td}>
+                        <input
+                          type="checkbox"
+                          checked={editable}
+                          onChange={() => toggleEmployee(emp.id)}
+                        />
+                      </td>
+                      <td style={styles.td}>{emp.name}</td>
+                      <td style={styles.td}>{emp.type}</td>
+                      <td style={styles.td}>
+                        <input
+                          type="number"
+                          value={parseFloat(emp.hourlyRate || 0).toFixed(2)}
+                          onChange={(e) => handleChange(emp.id, 'hourlyRate', e.target.value)}
+                          disabled={!editable}
+                          style={{ ...styles.input, width: '90px' }}
+                        />
+                      </td>
+                      <td style={styles.td}>
+                        <input
+                          type="number"
+                          value={parseFloat(emp.regularHours || 0).toFixed(2)}
+                          onChange={(e) => handleChange(emp.id, 'regularHours', e.target.value)}
+                          disabled={!editable}
+                          style={{ ...styles.input, width: '70px' }}
+                        />
+                      </td>
+                      <td style={styles.td}>
+                        <input
+                          type="number"
+                          value={parseFloat(emp.earnings?.overtime || 0).toFixed(2)}
+                          disabled
+                          style={{ ...styles.input, width: '70px' }}
+                        />
+                      </td>
+                      <td style={styles.td}>
+                        <input
+                          type="number"
+                          value={parseFloat(emp.bonus || 0).toFixed(2)}
+                          onChange={(e) => handleChange(emp.id, 'bonus', e.target.value)}
+                          disabled={!editable}
+                          style={{ ...styles.input, width: '80px' }}
+                        />
+                      </td>
+                      {frequency === 'monthly' && (
+                        <td style={styles.td}>
+                          <input
+                            type="number"
+                            value={parseFloat(emp.adjustments || 0).toFixed(2)}
+                            onChange={(e) => handleChange(emp.id, 'adjustments', e.target.value)}
+                            disabled={!editable}
+                            step="0.01"
+                            style={{ ...styles.input, width: '80px' }}
+                          />
+                        </td>
+                      )}
 
-              return (
-                <tr key={emp.id} style={rowStyle}>
-                  <td style={styles.td}>
-                    <input
-                      type="checkbox"
-                      checked={editable}
-                      onChange={() => toggleEmployee(emp.id)}
-                    />
-                  </td>
-                  <td style={styles.td}>{emp.name}</td>
-                  <td style={styles.td}>{emp.type}</td>
-                  <td style={styles.td}>
-                    <input
-                      type="number"
-                      value={emp.hourlyRate}
-                      onChange={(e) => handleChange(emp.id, 'hourlyRate', e.target.value)}
-                      disabled={!editable}
-                      style={{ ...styles.input, width: '90px' }}
-                    />
-                  </td>
-                  <td style={styles.td}>
-                    <input
-                      type="number"
-                      value={emp.regularHours}
-                      onChange={(e) => handleChange(emp.id, 'regularHours', e.target.value)}
-                      disabled={!editable}
-                      style={{ ...styles.input, width: '70px' }}
-                    />
-                  </td>
-                  <td style={styles.td}>
-                    <input
-                      type="number"
-                      value={emp.earnings?.overtime || 0}
-                      disabled
-                      style={{ ...styles.input, width: '70px' }}
-                    />
-                  </td>
-                  <td style={styles.td}>
-                    <input
-                      type="number"
-                      value={emp.bonus}
-                      onChange={(e) => handleChange(emp.id, 'bonus', e.target.value)}
-                      disabled={!editable}
-                      style={{ ...styles.input, width: '80px' }}
-                    />
-                  </td>
-                  <td style={styles.td}>
-                    <input
-                      type="number"
-                      value={emp.adjustments}
-                      onChange={(e) => handleChange(emp.id, 'adjustments', e.target.value)}
-                      disabled={!editable}
-                      style={{ ...styles.input, width: '80px' }}
-                    />
-                  </td>
-                  <td style={styles.td}>
-                    {currencySymbols[emp.currency?.toLowerCase()] || '$'} {(emp.earnings?.grossPay || 0).toFixed(2)}
-                  </td>
-                  <td style={styles.td}>
-                    <input
-                      type="text"
-                      value={emp.memo}
-                      onChange={(e) => handleChange(emp.id, 'memo', e.target.value)}
-                      disabled={!editable}
-                      style={{ ...styles.input, width: '100%' }}
-                    />
-                  </td>
-                  <td style={styles.td}>{emp.payMethod}</td>
-                </tr>
-              );
-            })}
-        </tbody>
+                      <td style={styles.td}>
+                        {currencySymbols[emp.currency?.toLowerCase()] || ''} {(emp.earnings?.grossPay || 0).toFixed(2)}
+                      </td>
+                      <td style={styles.td}>
+                        <input
+                          type="text"
+                          value={emp.memo}
+                          onChange={(e) => handleChange(emp.id, 'memo', e.target.value)}
+                          disabled={!editable}
+                          style={{ ...styles.input, width: '100%' }}
+                        />
+                      </td>
+                      <td style={styles.td}>{emp.payMethod}</td>
+                    </tr>
+                  );
+                })}
+            </tbody>
 
 
-      </table>
+          </table>
+        </div>
+      ) : (
+        <div style={{ padding: '10px', fontStyle: 'italic', color: '#666' }}>
+          Please select both Month and Pay Period to view the payroll table.
+        </div>
+      )}
     </div>
   );
 };
