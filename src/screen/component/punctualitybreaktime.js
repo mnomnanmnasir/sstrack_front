@@ -58,8 +58,8 @@ const CompanyEmployess = (props) => {
 
                         updatedFields[employee._id] = {
                             showFields: false,
-                            puncStartTime: (puncStartTime && !puncStartTime.includes("00:00")) ? puncStartTime.split("T")[1].substring(0, 5) : "",
-                            puncEndTime: (puncEndTime && !puncEndTime.includes("00:00")) ? puncEndTime.split("T")[1].substring(0, 5) : "",
+                            puncStartTime: puncStartTime ? moment(puncStartTime).format("HH:mm") : "",
+                            puncEndTime: puncEndTime ? moment(puncEndTime).format("HH:mm") : "",
                             // ✅ split implementStartDate into date and time
                             implementStartDate: implementStartTime ? implementStartTime.split("T")[0] : "",
                             implementStartTime: implementStartTime ? implementStartTime.split("T")[1].substring(0, 5) : "",

@@ -34,10 +34,20 @@ function Screenshot() {
         if (employees?.length > 0) {
             const firstEmployee = employees[0];
             const punctualityData = firstEmployee?.punctualityData || {};
-            setPuncStartTime(punctualityData.convertedpuncStartTime || "00:00");
-            setPuncEndTime(punctualityData.convertedpuncEndTime || "00:00");
+
+            const start = punctualityData.puncStartTime
+                ? moment(punctualityData.puncStartTime).format("HH:mm")
+                : "";
+            const end = punctualityData.puncEndTime
+                ? moment(punctualityData.puncEndTime).format("HH:mm")
+                : "";
+
+            setPuncStartTime(start);
+            setPuncEndTime(end);
         }
     }, [employees]);
+
+
 
 
 
@@ -94,8 +104,13 @@ function Screenshot() {
             // console.log("checkk", employeesData);
             if (employeesData.length > 0) {
                 const punctualityData = employeesData[0]?.punctualityData || {};
-                setPuncStartTime(punctualityData.convertedpuncStartTime);
-                setPuncEndTime(punctualityData.convertedpuncEndTime);
+                setPuncStartTime(
+                    punctualityData.puncStartTime ? moment(punctualityData.puncStartTime).format("HH:mm") : ""
+                );
+                setPuncEndTime(
+                    punctualityData.puncEndTime ? moment(punctualityData.puncEndTime).format("HH:mm") : ""
+                );
+
             } else {
                 console.warn("No employee data found.");
             }
@@ -178,6 +193,7 @@ function Screenshot() {
                         horizontal: "right",
                     },
                 });
+                getData()
 
 
 
@@ -205,6 +221,7 @@ function Screenshot() {
         console.log("Filtered Employees:", filteredEmployees);
         setfilter(filteredEmployees)
     };
+    console.log(" Employees:", puncStartTime, 'end', puncEndTime);
     return (
         <div>
             <SnackbarProvider />
