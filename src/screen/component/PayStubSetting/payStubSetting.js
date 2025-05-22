@@ -114,11 +114,13 @@ const PayStubSettings = ({
                     >
                         <option value="">Select Currency</option>
                         <option value="USD">USD</option>
+                        <option value="CAD">CAD</option>
                         <option value="QAR">QAR</option>
                         <option value="PKR">PKR</option>
                         <option value="SAR">SAR</option>
                         <option value="AED">AED</option>
                         <option value="PHP">PHP</option>
+                        <option value="INR">INR</option>
                     </select>
                 </div>
                 <div className="col-md-6 mb-3">
