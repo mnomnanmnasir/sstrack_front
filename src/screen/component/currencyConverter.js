@@ -3,7 +3,7 @@ import { enqueueSnackbar, SnackbarProvider } from 'notistack';
 import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 
-const CurrencyConverter = ({ userId, payrate }) => {
+const CurrencyConverter = ({ userId, payrate, onPayrateUpdate }) => {
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem("token");
@@ -26,6 +26,7 @@ const CurrencyConverter = ({ userId, payrate }) => {
         });
     }
 
+
     const handleConvert = async () => {
         const { value: inputValue } = await Swal.fire({
             title: 'Set payrate',
@@ -33,12 +34,15 @@ const CurrencyConverter = ({ userId, payrate }) => {
                 `<input type="number" name="amount" value=" placeholder='Set your pay amount' ${formData.amount}" required placeholder='Set your pay amount' step="any" min="0" class="swal2-input">` +
                 // <input type="number" name="amount" placeholder="Set your pay amount" value="${formData.amount || ''}">
                 `<select name="currency" class="swal2-input" id="swal-currency-select" value="${formData.currency}">
-           <option value="usd">USD</option>
-           <option value="qar">QAR</option>
-           <option value="pkr">PKR</option>
-           <option value="sar">SAR</option>
-           <option value="aed">AED</option>
-           <option value="php">PHP</option>
+           <option value="USD">USD</option>
+           <option value="CAD">CAD</option>
+           <option value="QAR">QAR</option>
+           <option value="PKR">PKR</option>
+           <option value="SAR">SAR</option>
+           <option value="AED">AED</option>
+           <option value="PHP">PHP</option>
+           <option value="INR">INR</option>
+
 
          </select>` +
                 `<select name="rateType" class="swal2-input" id="swal-rate-select" value="${formData.rateType}">
@@ -75,35 +79,6 @@ const CurrencyConverter = ({ userId, payrate }) => {
         }
     }
 
-    // async function setPayrate() {
-    //     console.log(formData);
-    //     try {
-    //         const res = await axios.patch(`${apiUrl}/superAdmin/UpdateBillingInfo/${userId}`, {
-    //             ratePerHour: formData.amount,
-    //             currency: formData.currency,
-    //         }, {
-    //             headers: headers
-    //         })
-    //         console.log("Curreny", res)
-    //         if (res.status) {
-    //             setFormData({
-    //                 amount: null,
-    //                 currency: "",
-    //                 rateType: ""
-    //             });
-    //             enqueueSnackbar("Payrate successfully set", {
-    //                 variant: "success",
-    //                 anchorOrigin: {
-    //                     vertical: "top",
-    //                     horizontal: "right"
-    //                 }
-    //             })
-    //         }
-    //         console.log(res);
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // }
     async function setPayrate() {
         console.log(formData);
         try {
@@ -122,6 +97,16 @@ const CurrencyConverter = ({ userId, payrate }) => {
                     currency: "",
                     payType: ""
                 });
+
+                // ⬇️ Notify parent of update
+                if (onPayrateUpdate) {
+                    onPayrateUpdate({
+                        ratePerHour: formData.amount,
+                        currency: formData.currency,
+                        payType: formData.rateType
+                    });
+                }
+
                 enqueueSnackbar("Payrate successfully set", {
                     variant: "success",
                     anchorOrigin: {
@@ -130,6 +115,7 @@ const CurrencyConverter = ({ userId, payrate }) => {
                     }
                 });
             }
+
             console.log(res);
         } catch (error) {
             console.log(error);

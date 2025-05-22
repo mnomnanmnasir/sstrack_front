@@ -55,6 +55,12 @@ function OwnerTeamComponent(props) {
 
     );
 
+    const [updatedPayrate, setUpdatedPayrate] = useState({
+        ratePerHour: '',
+        currency: '',
+        payType: ''
+    });
+
     const usStateNameToCode = {
         "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR",
         "California": "CA", "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE",
@@ -81,7 +87,32 @@ function OwnerTeamComponent(props) {
         // "Saudia Arabia": ["Riyadh", "Jeddah", "Dammam", "Mecca"],
     };
 
+    const [payrateState, setPayrateState] = useState(null);
+
+    const handlePayrateUpdate = (data) => {
+        setUpdatedPayrate(data); // update local state
+        setHourlyRate(data.ratePerHour); // directly update PayStubSettings too
+        setCurrency(data.currency);
+        setPayType(data.payType);
+
+        // ✅ Update internal billingInfo state to show "Edit payrate"
+        setPayrateState({ billingInfo: data });
+    };
+
     const [selectedGroupId, setSelectedGroupId] = useState(null);
+
+    const currencySymbols = {
+        USD: "$",     // United States Dollar
+        PKR: "PKR",   // Pakistani Rupee (capitalize)
+        // pkr: "PKR",   // Pakistani Rupee (without capitalize)
+        CAD: "C$",    // Canadian Dollar
+        INR: "₹",     // Indian Rupee
+        PHP: "₱",     // Philippine Peso
+        EUR: "€",     // Euro
+        GBP: "£",     // British Pound
+        AUD: "A$",    // Australian Dollar
+        JPY: "¥"      // Japanese Yen
+    };
 
     useEffect(() => {
         if (selectedUser?.timezone) {
@@ -90,8 +121,11 @@ function OwnerTeamComponent(props) {
     }, [selectedUser]);
     console.log("Current Timezone:", timezone);
     const handleStartDateChange = async (selectedTimezone) => {
+
         setSelectedTimezone(selectedTimezone);
+
         const apiUrl = `https://myuniversallanguages.com:9093/api/v1/owner/updateUsersTimezone/${fixId}`;
+
         const payload = {
             timezone: selectedTimezone.value.toString(),  // Example: "Asia/Kabul"
             timezoneOffset: selectedTimezone.offset.toString()  // Example: "4.5"
@@ -237,7 +271,7 @@ function OwnerTeamComponent(props) {
             if (!selectedUser || !selectedUser._id) return;
 
             try {
-                const response = await axios.get(`${apiUrl}/owner/${selectedUser._id}`, { headers });
+                const response = await axios.get(`${apiUrl}/owner/user/${selectedUser._id}`, { headers });
                 console.log("📥 Selected User API Response:", response.data);
 
                 if (response.status === 200 && response.data) {
@@ -405,7 +439,7 @@ function OwnerTeamComponent(props) {
     const getData = async (fixId) => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/owner/${fixId}`, { headers });
+            const response = await axios.get(`${apiUrl}/owner/user/${fixId}`, { headers });
 
             console.log("API Response:", response); // Log the entire response for debugging
 
@@ -612,7 +646,14 @@ function OwnerTeamComponent(props) {
                                 {user?.userType !== 'manager' && !selectedUser?.inviteStatus && (
                                     <>
                                         {selectedUser?.userType !== 'owner' && (
-                                            <CurrencyConverter userId={fixId} payrate={payrate} />
+                                            // <CurrencyConverter userId={fixId} payrate={payrate} />
+                                            <CurrencyConverter
+                                                userId={fixId}
+                                                // payrate={payrate}
+                                                payrate={payrateState || payrate}
+                                                onPayrateUpdate={handlePayrateUpdate}
+                                            />
+
                                         )}
                                     </>
                                 )}
@@ -628,9 +669,14 @@ function OwnerTeamComponent(props) {
                             <>
                                 {selectedUser?.userType !== 'owner' && (
                                     <>
-                                        {ratePerHour && (
+                                        {(updatedPayrate.ratePerHour || ratePerHour) && (
                                             <p className="employeeDetailName2 mb-1" style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
-                                                PayRate:<span>${ratePerHour}</span>
+                                                PayRate:
+                                                <span>
+                                                    {currencySymbols[updatedPayrate.currency || currency] || updatedPayrate.currency || currency}
+                                                    {updatedPayrate.ratePerHour || ratePerHour}
+                                                    {/* {currencySymbols[currency] || currency}{ratePerHour} */}
+                                                </span>
                                             </p>
                                         )}
                                     </>
