@@ -25,7 +25,7 @@ import Sidebar from '../../userSidebar/Sidebar'
 import { useTheme, useMediaQuery } from '@mui/material';
 import { FaUserCircle } from 'react-icons/fa';
 
-function UserHeader({ setSidebarOpen, sidebarOpen }) {
+function UserHeader({ setSidebarOpen, sidebarOpen, userType, setUserType }) {
     const token = localStorage.getItem("token");
     let user = null;
 
@@ -40,7 +40,7 @@ function UserHeader({ setSidebarOpen, sidebarOpen }) {
     }
 
     const [showContent, setShowContent] = useState(false);
-    const [userType, setUserType] = useState(user?.userType);
+    // const [userType, setUserType] = useState(user?.userType);
 
     const navigate = useNavigate("");
     const dispatch = useDispatch()
