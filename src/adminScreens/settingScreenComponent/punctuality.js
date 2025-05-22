@@ -20,11 +20,13 @@ function Screenshot() {
     const [number, setNumber] = useState(null)
     const ids = useSelector((state) => state.adminSlice.ids)
     const employees = useSelector((state) => state.adminSlice.employess)
+    const [editTZ, setEditTZ] = useState(null); // Which timezone is being edited
+    const [editValues, setEditValues] = useState({}); // Edited values for start/end/date
     const [filter, setfilter] = useState([])
 
     const [puncStartTime, setPuncStartTime] = useState('');
     const [puncEndTime, setPuncEndTime] = useState("");
-
+    const [globalPunctuality, setGlobalPunctuality] = useState({});
     const [implementStartDate, setImplementStartDate] = useState(""); // 👈 Add this line
     const [implementStartTime, setImplementStartTime] = useState(""); // 👈 Add this line
 
@@ -106,6 +108,8 @@ function Screenshot() {
                 { headers }
             );
             const json = await response.json();
+            const global = json?.globalPunctuality || {};
+            setGlobalPunctuality(global);
             const employeesData = json?.convertedEmployees || [];
             // console.log("checkk", employeesData);
             if (employeesData.length > 0) {
@@ -140,27 +144,19 @@ function Screenshot() {
 
     const handleSubmit = async () => {
         try {
-            // Check if both start and end times are provided
             if (!puncStartTime || !puncEndTime || !implementStartDate) {
                 throw new Error("Both Punctuality Start Time and End Time and policy date are required.");
             }
 
-            // Log punctuality times to console
-            console.log("Punctuality Start Time (HH:MM):", puncStartTime);
-            console.log("Punctuality End Time (HH:MM):", puncEndTime);
-
-            const userIds = employees.map((employee) => employee._id);
+            const selectedEmployees = filter.length > 0 ? filter : employees;
 
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const timezoneOffset = new Date().getTimezoneOffset(); // in minutes
-
-            const userTimezone = moment.tz.guess(); // or derive from employee later if needed
             const formattedImplementStart = implementStartDate
-                ? moment.tz(`${implementStartDate}T${moment().format("HH:mm")}`, userTimezone).format()
+                ? moment.tz(`${implementStartDate}T${moment().format("HH:mm")}`, timezone).format()
                 : null;
 
-            const requestData = employees.map((employee) => {
-                const userTimezone = employee?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const requestData = selectedEmployees.map((employee) => {
+                const userTimezone = employee?.timezone || timezone;
                 const userTimezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
 
                 return {
@@ -174,13 +170,13 @@ function Screenshot() {
                             : null,
                         timezone: userTimezone,
                         timezoneOffset: userTimezoneOffset,
-                        implementStartDate: formattedImplementStart, // ← this may need similar fix if time is involved
+                        implementStartDate: formattedImplementStart,
                     },
                 };
             });
 
-            console.log('request====>', requestData)
-            // Make the API call
+            console.log('request====>', requestData);
+
             const response = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
                 requestData,
@@ -192,19 +188,12 @@ function Screenshot() {
                 }
             );
 
-            // Handle success
             if (response.status === 200) {
                 enqueueSnackbar("Punctuality Time successfully submitted!", {
                     variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right",
-                    },
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
                 });
-                getData()
-
-
-
+                getData();
             } else {
                 enqueueSnackbar("Failed to submit punctuality rule.", {
                     variant: "error",
@@ -215,13 +204,56 @@ function Screenshot() {
                 error.message || "Error submitting punctuality rule. Please try again later.",
                 {
                     variant: "error",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right",
-                    },
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
                 }
             );
             console.error("Error submitting punctuality rule:", error);
+        }
+    };
+
+    const handleTimezoneSave = async (timezone) => {
+        const selectedEmployees = (filter.length > 0 ? filter : employees).filter(emp =>
+            emp.timezone?.toLowerCase() === timezone.toLowerCase()
+        );
+
+        if (selectedEmployees.length === 0) {
+            enqueueSnackbar("No employees found for selected timezone", { variant: "warning" });
+            return;
+        }
+
+        const requestData = selectedEmployees.map((employee) => ({
+            userId: employee._id,
+            settings: {
+                puncStartTime: moment.tz(`${editValues.policyDate}T${editValues.startTime}`, timezone).format(),
+                puncEndTime: moment.tz(`${editValues.policyDate}T${editValues.endTime}`, timezone).format(),
+                timezone: timezone,
+                timezoneOffset: employee?.timezoneOffset ?? new Date().getTimezoneOffset(),
+                implementStartDate: moment.tz(`${editValues.policyDate}T${moment().format("HH:mm")}`, timezone).format(),
+            }
+        }));
+
+        try {
+            const response = await axios.post(
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                enqueueSnackbar(`Successfully updated for ${timezone}`, { variant: "success" });
+                setEditTZ(null);
+                getData();
+            } else {
+                throw new Error("API response not OK");
+            }
+        } catch (error) {
+            console.error("Error saving:", error);
+            enqueueSnackbar("Failed to save punctuality rule.", { variant: "error" });
         }
     };
 
@@ -238,17 +270,13 @@ function Screenshot() {
                     <p className="settingScreenshotHeading">Punctuality</p>
                 </div>
             </div>
-            <div className="settingScreenshotDiv">
-                {/* <p>How frequently screenshots will be taken.</p> */}
-                <p>You can set the timeout duration to control how frequently screenshots are taken, with captures occurring at random intervals.</p>
-            </div>
-            <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} />
+
             <p className="settingScreenshotIndividual">Group Punctuality Setting</p>
             <div className="settingScreenshotDiv">
                 {/* <p>How frequently screenshots will be taken.</p> */}
                 <p>These setting will applied throught out the organization.</p>
             </div>
-            {(
+            {/* {(
                 <>
                     <div className="takeScreenShotDiv">
                         <div>
@@ -296,12 +324,142 @@ function Screenshot() {
                         Save
                     </button>
                 </>
-            )}
+            )} */}
+            {Object.entries(globalPunctuality).map(([tz, times]) => {
+                const startFormatted = moment(times.punctualityStartTime).format("HH:mm");
+                const endFormatted = moment(times.punctualityEndTime).format("HH:mm");
+                const dateFormatted = moment(times.punctualityStartTime).format("YYYY-MM-DD");
+                const isEditing = editTZ === tz;
 
+                const cardStyle = {
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    marginBottom: '20px',
+                    backgroundColor: '#fff',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                };
+
+                const gridStyle = {
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                    gap: '16px',
+                    alignItems: 'center',
+                };
+
+                const labelStyle = {
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#444',
+                    marginBottom: '4px',
+                };
+
+                const readOnlyBoxStyle = {
+                    padding: '8px 10px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    backgroundColor: '#f8f8f8',
+                    fontSize: '14px',
+                    color: '#333',
+                };
+
+                const inputStyle = {
+                    padding: '8px 10px',
+                    fontSize: '14px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    width: '100%',
+                };
+
+                const buttonStyle = {
+                    padding: '8px 16px',
+                    border: 'none',
+                    borderRadius: '5px',
+                    color: '#fff',
+                    backgroundColor: '#7fc45a',
+                    cursor: 'pointer',
+                    marginTop: 'auto',
+                    alignSelf: 'end',
+                };
+
+                return (
+                    <div key={tz} style={cardStyle}>
+                        <h4 style={{ marginBottom: '12px', fontSize: '16px', color: '#333' }}>{tz}</h4>
+
+                        {isEditing ? (
+                            <div style={gridStyle}>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <label style={labelStyle}>Start Time:</label>
+                                    <input
+                                        type="time"
+                                        style={inputStyle}
+                                        value={editValues.startTime}
+                                        onChange={(e) => setEditValues({ ...editValues, startTime: e.target.value })}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <label style={labelStyle}>End Time:</label>
+                                    <input
+                                        type="time"
+                                        style={inputStyle}
+                                        value={editValues.endTime}
+                                        onChange={(e) => setEditValues({ ...editValues, endTime: e.target.value })}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <label style={labelStyle}>Policy Date:</label>
+                                    <input
+                                        type="date"
+                                        style={inputStyle}
+                                        value={editValues.policyDate}
+                                        onChange={(e) => setEditValues({ ...editValues, policyDate: e.target.value })}
+                                    />
+                                </div>
+                                <button style={buttonStyle} onClick={() => handleTimezoneSave(tz)}>Save</button>
+                            </div>
+                        ) : (
+                            <div style={gridStyle}>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <label style={labelStyle}>Start Time:</label>
+                                    <div style={readOnlyBoxStyle}>{startFormatted}</div>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <label style={labelStyle}>End Time:</label>
+                                    <div style={readOnlyBoxStyle}>{endFormatted}</div>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <label style={labelStyle}>Policy Date:</label>
+                                    <div style={readOnlyBoxStyle}>{dateFormatted}</div>
+                                </div>
+                                <button
+                                    style={buttonStyle}
+                                    onClick={() => {
+                                        setEditTZ(tz);
+                                        setEditValues({
+                                            startTime: startFormatted,
+                                            endTime: endFormatted,
+                                            policyDate: dateFormatted
+                                        });
+                                    }}
+                                >
+                                    Edit
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+
+            <div className="settingScreenshotDiv">
+                {/* <p>How frequently screenshots will be taken.</p> */}
+                <p>You can set the timeout duration to control how frequently screenshots are taken, with captures occurring at random intervals.</p>
+            </div>
+            <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} />
 
             <div className="activityLevelIndividual">
                 <p className="settingScreenshotIndividual">Individual Settings</p>
                 <p className="individualSettingFont">If enabled, the individual setting will be used instead of the team setting</p>
+
 
                 <CompanyEmployess Setting={Setting} employees={filter.length > 0 ? filter : employees} />
 

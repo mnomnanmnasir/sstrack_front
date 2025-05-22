@@ -245,7 +245,7 @@ const PayStubGenerator = () => {
     };
 
     const displayCurrency = generatedStubs[0]?.currency?.toLowerCase() || 'usd';
-    const currencySymbol = currencySymbolMap[displayCurrency] || '$';
+    const currencySymbol = currencySymbolMap[displayCurrency] || '';
 
     const totalGrossAmount = generatedStubs.reduce((sum, stub) => sum + (stub.grossPay || 0), 0);
     const totalNetAmount = generatedStubs.reduce((sum, stub) => sum + (stub.netPay || 0), 0);
@@ -339,7 +339,7 @@ const PayStubGenerator = () => {
                                         return (
                                             <div key={index} onClick={() => setFrequency(value)} style={{ border: frequency === value ? '2px solid green' : '1px solid #ccc', borderRadius: '8px', padding: '12px 16px', marginBottom: '12px', cursor: 'pointer', backgroundColor: frequency === value ? '#f6fff6' : '#fff' }}>
                                                 <div style={{ fontWeight: 'bold' }}>{`${label} (${count} ${count === 1 ? 'employee' : 'employees'})`}</div>
-                                                <div style={{ fontSize: '14px', color: '#666' }}>Next pay date: {nextPay}</div>
+                                                {/* <div style={{ fontSize: '14px', color: '#666' }}>Next pay date: {nextPay}</div> */}
                                             </div>
                                         );
                                     })}
@@ -418,7 +418,7 @@ const PayStubGenerator = () => {
                                                 {generatedStubs.map((stub, idx) => {
                                                     const currencySymbol = {
                                                         usd: '$', pkr: '₨', inr: '₹', cad: 'C$', eur: '€', gbp: '£'
-                                                    }[stub.currency?.toLowerCase()] || '$';
+                                                    }[stub.currency?.toLowerCase()] || '';
 
                                                     const totalDeductions = (stub.taxBreakdown || []).reduce((sum, item) => sum + (item.amount || 0), 0) +
                                                         (stub.totalDeductions || []).reduce((sum, item) => sum + (item.amount || 0), 0);
@@ -445,7 +445,7 @@ const PayStubGenerator = () => {
                                                             const curr = generatedStubs[0].currency?.toLowerCase() || 'usd';
                                                             const symbol = {
                                                                 usd: '$', pkr: '₨', inr: '₹', cad: 'C$', eur: '€', gbp: '£'
-                                                            }[curr] || '$';
+                                                            }[curr] || '';
                                                             const total = generatedStubs.reduce((sum, s) => sum + (s.grossPay || 0), 0);
                                                             return `${symbol} ${total.toFixed(2)}`;
                                                         })()}
