@@ -246,8 +246,12 @@ function Screenshot() {
 
             if (response.status === 200) {
                 enqueueSnackbar(`Successfully updated for ${timezone}`, { variant: "success" });
-                setEditTZ(null);
-                getData();
+
+                // ✅ Fetch latest data
+                await getData();
+
+                // ✅ Stay in edit mode for same timezone after refresh
+                setEditTZ(timezone);
             } else {
                 throw new Error("API response not OK");
             }

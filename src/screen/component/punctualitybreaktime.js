@@ -57,7 +57,7 @@ const CompanyEmployess = (props) => {
                         const { puncStartTime, puncEndTime, implementStartTime } = response.data.data;
 
                         updatedFields[employee._id] = {
-                            showFields: false,
+                            showFields: employee?.punctualityData?.individualPuncStart || false,
                             puncStartTime: puncStartTime ? moment(puncStartTime).format("HH:mm") : "",
                             puncEndTime: puncEndTime ? moment(puncEndTime).format("HH:mm") : "",
                             // ✅ split implementStartDate into date and time
@@ -302,6 +302,7 @@ const CompanyEmployess = (props) => {
                     implementStartDate: formatWithOffset(implementRaw, timezoneOffset),
                     timezone: timezone,
                     timezoneOffset: timezoneOffset,
+                    individualPuncStart: true,
                 },
             };
 
