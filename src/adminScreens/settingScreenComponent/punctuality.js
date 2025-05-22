@@ -19,7 +19,9 @@ function Screenshot() {
     const dispatch = useDispatch()
     const [number, setNumber] = useState(null)
     const ids = useSelector((state) => state.adminSlice.ids)
-    const employees = useSelector((state) => state.adminSlice.employess)
+    // const employees = useSelector((state) => state.adminSlice.employess)
+    const [employees, setemployees] = useState([]); // ✅ Always an array
+
     const [editTZ, setEditTZ] = useState(null); // Which timezone is being edited
     const [editValues, setEditValues] = useState({}); // Edited values for start/end/date
     const [filter, setfilter] = useState([])
@@ -110,8 +112,9 @@ function Screenshot() {
             const json = await response.json();
             const global = json?.globalPunctuality || {};
             setGlobalPunctuality(global);
+            setemployees(json?.convertedEmployees)
             const employeesData = json?.convertedEmployees || [];
-            // console.log("checkk", employeesData);
+            console.log("checkk", json);
             if (employeesData.length > 0) {
                 const punctualityData = employeesData[0]?.punctualityData || {};
                 setPuncStartTime(punctualityData.puncStartTime);
@@ -251,7 +254,8 @@ function Screenshot() {
                 await getData();
 
                 // ✅ Stay in edit mode for same timezone after refresh
-                setEditTZ(timezone);
+                setEditTZ(null);
+                setEditValues({});
             } else {
                 throw new Error("API response not OK");
             }
@@ -265,7 +269,16 @@ function Screenshot() {
         console.log("Filtered Employees:", filteredEmployees);
         setfilter(filteredEmployees)
     };
-    console.log(" Employees:", puncStartTime, 'end', puncEndTime);
+    console.log(" Employees:", employees);
+    const punctualityCards = Object.entries(globalPunctuality).map(([tz, times]) => {
+        return {
+            timezone: tz,
+            startFormatted: moment(times.punctualityStartTime).format("HH:mm"),
+            endFormatted: moment(times.punctualityEndTime).format("HH:mm"),
+            dateFormatted: moment(times.punctualityStartTime).format("YYYY-MM-DD"),
+            isEditing: editTZ === tz,
+        };
+    });
     return (
         <div>
             <SnackbarProvider />
@@ -329,130 +342,185 @@ function Screenshot() {
                     </button>
                 </>
             )} */}
-            {Object.entries(globalPunctuality).map(([tz, times]) => {
-                const startFormatted = moment(times.punctualityStartTime).format("HH:mm");
-                const endFormatted = moment(times.punctualityEndTime).format("HH:mm");
-                const dateFormatted = moment(times.punctualityStartTime).format("YYYY-MM-DD");
-                const isEditing = editTZ === tz;
+            {console.log('hahahahaah', punctualityCards)}
+            {punctualityCards.map(({ timezone, startFormatted, endFormatted, dateFormatted, isEditing }) => (
+                <div
+                    key={timezone}
+                    style={{
+                        border: '1px solid #ddd',
+                        borderRadius: '8px',
+                        padding: '16px',
+                        marginBottom: '20px',
+                        backgroundColor: '#fff',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                    }}
+                >
+                    <h4 style={{ marginBottom: '12px', fontSize: '16px', color: '#333' }}>{timezone}</h4>
 
-                const cardStyle = {
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    padding: '16px',
-                    marginBottom: '20px',
-                    backgroundColor: '#fff',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                };
-
-                const gridStyle = {
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                    gap: '16px',
-                    alignItems: 'center',
-                };
-
-                const labelStyle = {
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: '#444',
-                    marginBottom: '4px',
-                };
-
-                const readOnlyBoxStyle = {
-                    padding: '8px 10px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    backgroundColor: '#f8f8f8',
-                    fontSize: '14px',
-                    color: '#333',
-                };
-
-                const inputStyle = {
-                    padding: '8px 10px',
-                    fontSize: '14px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    width: '100%',
-                };
-
-                const buttonStyle = {
-                    padding: '8px 16px',
-                    border: 'none',
-                    borderRadius: '5px',
-                    color: '#fff',
-                    backgroundColor: '#7fc45a',
-                    cursor: 'pointer',
-                    marginTop: 'auto',
-                    alignSelf: 'end',
-                };
-
-                return (
-                    <div key={tz} style={cardStyle}>
-                        <h4 style={{ marginBottom: '12px', fontSize: '16px', color: '#333' }}>{tz}</h4>
-
-                        {isEditing ? (
-                            <div style={gridStyle}>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <label style={labelStyle}>Start Time:</label>
-                                    <input
-                                        type="time"
-                                        style={inputStyle}
-                                        value={editValues.startTime}
-                                        onChange={(e) => setEditValues({ ...editValues, startTime: e.target.value })}
-                                    />
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <label style={labelStyle}>End Time:</label>
-                                    <input
-                                        type="time"
-                                        style={inputStyle}
-                                        value={editValues.endTime}
-                                        onChange={(e) => setEditValues({ ...editValues, endTime: e.target.value })}
-                                    />
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <label style={labelStyle}>Policy Date:</label>
-                                    <input
-                                        type="date"
-                                        style={inputStyle}
-                                        value={editValues.policyDate}
-                                        onChange={(e) => setEditValues({ ...editValues, policyDate: e.target.value })}
-                                    />
-                                </div>
-                                <button style={buttonStyle} onClick={() => handleTimezoneSave(tz)}>Save</button>
+                    {isEditing ? (
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                                gap: '16px',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                    Start Time:
+                                </label>
+                                <input
+                                    type="time"
+                                    value={editValues.startTime}
+                                    onChange={(e) => setEditValues({ ...editValues, startTime: e.target.value })}
+                                    style={{
+                                        padding: '8px 10px',
+                                        fontSize: '14px',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '4px',
+                                        width: '100%',
+                                    }}
+                                />
                             </div>
-                        ) : (
-                            <div style={gridStyle}>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <label style={labelStyle}>Start Time:</label>
-                                    <div style={readOnlyBoxStyle}>{startFormatted}</div>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <label style={labelStyle}>End Time:</label>
-                                    <div style={readOnlyBoxStyle}>{endFormatted}</div>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <label style={labelStyle}>Policy Date:</label>
-                                    <div style={readOnlyBoxStyle}>{dateFormatted}</div>
-                                </div>
-                                <button
-                                    style={buttonStyle}
-                                    onClick={() => {
-                                        setEditTZ(tz);
-                                        setEditValues({
-                                            startTime: startFormatted,
-                                            endTime: endFormatted,
-                                            policyDate: dateFormatted
-                                        });
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                    End Time:
+                                </label>
+                                <input
+                                    type="time"
+                                    value={editValues.endTime}
+                                    onChange={(e) => setEditValues({ ...editValues, endTime: e.target.value })}
+                                    style={{
+                                        padding: '8px 10px',
+                                        fontSize: '14px',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '4px',
+                                        width: '100%',
+                                    }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                    Policy Date:
+                                </label>
+                                <input
+                                    type="date"
+                                    value={editValues.policyDate}
+                                    onChange={(e) => setEditValues({ ...editValues, policyDate: e.target.value })}
+                                    style={{
+                                        padding: '8px 10px',
+                                        fontSize: '14px',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '4px',
+                                        width: '100%',
+                                    }}
+                                />
+                            </div>
+                            <button
+                                style={{
+                                    padding: '8px 16px',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    color: '#fff',
+                                    backgroundColor: '#7fc45a',
+                                    cursor: 'pointer',
+                                    marginTop: 'auto',
+                                    alignSelf: 'end',
+                                }}
+                                onClick={() => handleTimezoneSave(timezone)}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    ) : (
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                                gap: '16px',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                    Start Time:
+                                </label>
+                                <div
+                                    style={{
+                                        padding: '8px 10px',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '4px',
+                                        backgroundColor: '#f8f8f8',
+                                        fontSize: '14px',
+                                        color: '#333',
                                     }}
                                 >
-                                    Edit
-                                </button>
+                                    {startFormatted}
+                                </div>
                             </div>
-                        )}
-                    </div>
-                );
-            })}
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                    End Time:
+                                </label>
+                                <div
+                                    style={{
+                                        padding: '8px 10px',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '4px',
+                                        backgroundColor: '#f8f8f8',
+                                        fontSize: '14px',
+                                        color: '#333',
+                                    }}
+                                >
+                                    {endFormatted}
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                    Policy Date:
+                                </label>
+                                <div
+                                    style={{
+                                        padding: '8px 10px',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '4px',
+                                        backgroundColor: '#f8f8f8',
+                                        fontSize: '14px',
+                                        color: '#333',
+                                    }}
+                                >
+                                    {dateFormatted}
+                                </div>
+                            </div>
+                            <button
+                                style={{
+                                    padding: '8px 16px',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    color: '#fff',
+                                    backgroundColor: '#7fc45a',
+                                    cursor: 'pointer',
+                                    marginTop: 'auto',
+                                    alignSelf: 'end',
+                                }}
+                                onClick={() => {
+                                    setEditTZ(timezone);
+                                    setEditValues({
+                                        startTime: startFormatted,
+                                        endTime: endFormatted,
+                                        policyDate: dateFormatted,
+                                    });
+                                }}
+                            >
+                                Edit
+                            </button>
+                        </div>
+                    )}
+                </div>
+            ))}
+
+
 
             <div className="settingScreenshotDiv">
                 {/* <p>How frequently screenshots will be taken.</p> */}

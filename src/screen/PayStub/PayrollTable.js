@@ -182,7 +182,9 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
     eur: '€',
     gbp: '£',
     inr: '₹',
+    aed: 'د.إ', // <-- added symbol for AED
   };
+
 
 
 
