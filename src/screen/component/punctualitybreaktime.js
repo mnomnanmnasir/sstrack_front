@@ -21,6 +21,7 @@ const CompanyEmployess = (props) => {
     const [setting, setSetting] = useState([])
     const { Setting, loading, employees } = props
     const [filteredEmployeesbyutc, setFilteredEmployeesbyutc] = useState([]);
+    const [isEmployeeDataLoading, setIsEmployeeDataLoading] = useState(true);
     // const employees = useSelector((state) => state?.adminSlice?.employess) || []
     // console.log('Employees', employees) 
     // const employees = useSelector((state) => state.adminSlice.employess)
@@ -38,10 +39,10 @@ const CompanyEmployess = (props) => {
 
     useEffect(() => {
         const fetchAllEmployeeData = async () => {
+            setIsEmployeeDataLoading(true); // 👈 Start loader
             try {
                 const updatedFields = {};
-
-                for (const employee of employees) {
+                await Promise.all(employees.map(async (employee) => {
                     const response = await axios.get(
                         `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
                         {
@@ -50,7 +51,6 @@ const CompanyEmployess = (props) => {
                             },
                         }
                     );
-
 
                     if (response.status === 200) {
                         const { puncStartTime, puncEndTime, implementStartTime } = response.data.data;
@@ -67,18 +67,21 @@ const CompanyEmployess = (props) => {
                                 : "",
                         };
                     }
+                }));
 
-                }
-                console.log("punch", updatedFields)
                 setTimeFields(updatedFields);
-                // localStorage.setItem("timeFields", JSON.stringify(updatedFields)); // ✅ Local Storage update karein
             } catch (error) {
                 console.error("Error fetching employee data:", error);
+            } finally {
+                setIsEmployeeDataLoading(false); // 👈 End loader
             }
         };
 
-        fetchAllEmployeeData();
+        if (employees && employees.length > 0) {
+            fetchAllEmployeeData();
+        }
     }, [employees]);
+
 
 
 
@@ -385,7 +388,7 @@ const CompanyEmployess = (props) => {
     const userCount = employees !== null && employees !== undefined ? employees.filter(employee => employee !== null && Object.keys(employee).length > 0).length : 0;
 
     const filteredEmployees = employees.filter(employee => employee.name && employee.userType !== "owner");
-     console.log('e,ployees', filteredEmployees, 'filter',employees)
+    console.log('e,ployees', filteredEmployees, 'filter', employees)
     return (
         <>
             <div>
@@ -405,11 +408,15 @@ const CompanyEmployess = (props) => {
 
                                         <p style={{ marginLeft: 10, fontSize: 12, color: 'black' }}>
                                             {employee?.timezone} (UTC {employee?.timezoneOffset >= 0 ? `+${employee?.timezoneOffset}` : employee?.timezoneOffset})
-                                            {timeFields[employee._id]?.puncStartTime && timeFields[employee._id]?.puncEndTime && (
-                                                <>
-                                                    &nbsp;|&nbsp;
-                                                    Punctuality: {timeFields[employee._id]?.puncStartTime} - {timeFields[employee._id]?.puncEndTime}
-                                                </>
+                                            {isEmployeeDataLoading ? (
+                                                <Skeleton width={120} height={14} style={{ display: "inline-block", marginLeft: 6 }} />
+                                            ) : (
+                                                timeFields[employee._id]?.puncStartTime && timeFields[employee._id]?.puncEndTime && (
+                                                    <>
+                                                        &nbsp;|&nbsp;
+                                                        Punctuality: {timeFields[employee._id]?.puncStartTime} - {timeFields[employee._id]?.puncEndTime}
+                                                    </>
+                                                )
                                             )}
 
                                         </p>

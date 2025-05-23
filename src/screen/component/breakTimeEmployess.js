@@ -21,6 +21,8 @@ const CompanyEmployess = (props) => {
     const [setting, setSetting] = useState([])
     const { Setting, loading, employees } = props
     const [allowBlur, setAllowBlur] = useState(false);
+    const [isEmployeeDataLoading, setIsEmployeeDataLoading] = useState(true);
+
     // const employees = useSelector((state) => state?.adminSlice?.employess)|| []
 
 
@@ -233,10 +235,13 @@ const CompanyEmployess = (props) => {
 
     useEffect(() => {
         const fetchAllEmployeeData = async () => {
-            try {
-                const updatedFields = {};
+            if (!Array.isArray(employees)) return;
 
-                for (const employee of employees) {
+            setIsEmployeeDataLoading(true);
+            const updatedFields = {};
+
+            try {
+                await Promise.all(employees.map(async (employee) => {
                     const response = await axios.get(
                         `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
                         {
@@ -247,31 +252,31 @@ const CompanyEmployess = (props) => {
                     );
 
                     if (response.status === 200) {
-                        const breakData = response.data.data?.convertedBreakTimes?.[0]; // ✅ Correct name & safe access
-
+                        const breakData = response.data.data?.convertedBreakTimes?.[0] || {};
                         updatedFields[employee._id] = {
-                            // showFields: employee.punctualityData?.individualbreakTime || false,
                             showFields: false,
                             startTime: breakData?.breakStartTime
-                                ? moment(breakData.breakStartTime).format("HH:mm") // ✅ NO .utc() here
+                                ? moment(breakData.breakStartTime).format("HH:mm")
                                 : "",
                             endTime: breakData?.breakEndTime
                                 ? moment(breakData.breakEndTime).format("HH:mm")
                                 : "",
                             duration: breakData?.TotalHours || "0h:0m"
-
                         };
                     }
-                }
+                }));
 
                 setTimeFields(updatedFields);
             } catch (error) {
                 console.error("Error fetching employee data:", error);
+            } finally {
+                setIsEmployeeDataLoading(false); // Finished all API calls
             }
         };
 
         fetchAllEmployeeData();
     }, [employees]);
+
 
     // console.log("empllllll:", timeFields);
 
@@ -294,12 +299,17 @@ const CompanyEmployess = (props) => {
                                         </p> */}
                                         <p style={{ marginLeft: 10, fontSize: 12, color: 'black' }}>
                                             {employee?.timezone} (UTC {employee?.timezoneOffset >= 0 ? `+${employee?.timezoneOffset}` : employee?.timezoneOffset})
-                                            {timeFields[employee._id]?.startTime && timeFields[employee._id]?.endTime && (
-                                                <>
-                                                    {" | Break: "}
-                                                    {timeFields[employee._id].startTime} to {timeFields[employee._id].endTime}
-                                                    {timeFields[employee._id]?.duration && ` (${timeFields[employee._id].duration})`}
-                                                </>
+                                            {isEmployeeDataLoading ? (
+                                                <Skeleton width={120} height={14} style={{ display: "inline-block", marginLeft: 6 }} />
+                                            ) : (
+                                                timeFields[employee._id]?.startTime &&
+                                                timeFields[employee._id]?.endTime && (
+                                                    <>
+                                                        {" | Break: "}
+                                                        {timeFields[employee._id].startTime} to {timeFields[employee._id].endTime}
+                                                        {timeFields[employee._id]?.duration && ` (${timeFields[employee._id].duration})`}
+                                                    </>
+                                                )
                                             )}
                                         </p>
 

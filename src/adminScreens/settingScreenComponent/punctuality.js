@@ -238,7 +238,7 @@ function Screenshot() {
                             <p className="settingScreenshotIndividual">Group Punctuality Setting</p>
                             <div className="settingScreenshotDiv">
                                 {/* <p>How frequently screenshots will be taken.</p> */}
-                                <p>These setting will applied throught out the organization.</p>
+                                <p>These setting will applied throught out the organization with respect to there timezone.</p>
                             </div>
                             {/* {(
                 <>
@@ -490,10 +490,7 @@ function Screenshot() {
                                 ))
                             )}
 
-                            <div className="settingScreenshotDiv">
-                                {/* <p>How frequently screenshots will be taken.</p> */}
-                                <p>You can set the timeout duration to control how frequently screenshots are taken, with captures occurring at random intervals.</p>
-                            </div>
+                         
                             {loading ? (
                                 <div style={{ marginBottom: '20px' }}>
                                     <Skeleton height={40} width={300} />
