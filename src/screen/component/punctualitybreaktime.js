@@ -385,7 +385,7 @@ const CompanyEmployess = (props) => {
     const userCount = employees !== null && employees !== undefined ? employees.filter(employee => employee !== null && Object.keys(employee).length > 0).length : 0;
 
     const filteredEmployees = employees.filter(employee => employee.name && employee.userType !== "owner");
-
+     console.log('e,ployees', filteredEmployees, 'filter',employees)
     return (
         <>
             <div>
@@ -430,7 +430,7 @@ const CompanyEmployess = (props) => {
 
 
                                 </div>
-                                {/* {console.log('time fieldsss', timeFields)} */}
+                                {console.log('time fieldsss', timeFields)}
                                 {timeFields[employee._id]?.showFields && (
                                     <>
                                         <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: 'flex', gap: '10px' }}>
@@ -575,7 +575,7 @@ const CompanyEmployess = (props) => {
                             </div>
                         )
                     )
-                }) : <p>please select any UTC</p>
+                }) : <p></p>
                 }
 
             </div >

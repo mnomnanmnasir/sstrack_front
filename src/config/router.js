@@ -177,7 +177,7 @@ export default function AppRouter() {
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/blogs" element={<CreateBlogs />} />
-            <Route path="/Training" element={ <TrainingPage />} />
+            <Route path="/Training" element={<TrainingPage />} />
 
             <Route path="/dashboard" element={token ? (suspended ? <Navigate to="/account" /> : <UserDashboard />) : <Navigate to="/" />} />
             <Route path="/blogs-assign-users" element={token ? (suspended ? <Navigate to="/account" /> : <AssignUsers />) : <Navigate to="/" />} />
@@ -193,8 +193,8 @@ export default function AppRouter() {
             <Route path="/pay_stub_managment" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubGenerator />) : <Navigate to="/" />} />
             <Route path="/pay_stub_View" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubs />) : <Navigate to="/" />} />
             <Route path="/punctuality-reports" element={token ? (suspended ? <Navigate to="/account" /> : <PunctualityReports />) : <Navigate to="/" />} />
-            <Route path="/PayStub_history" element={token ? (suspended ? <Navigate to="/account" /> : <PayrollHistory/>) : <Navigate to="/" />} />
-            <Route path="/PayStub_user" element={token ? (suspended ? <Navigate to="/account" /> : <PayroleUser/>) : <Navigate to="/" />} />
+            <Route path="/PayStub_history" element={token ? (suspended ? <Navigate to="/account" /> : <PayrollHistory />) : <Navigate to="/" />} />
+            <Route path="/PayStub_user" element={token ? (suspended ? <Navigate to="/account" /> : <PayroleUser />) : <Navigate to="/" />} />
 
             <Route path="/team" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerTeam />) : <Navigate to="/" />} />
             {/* <Route
@@ -232,12 +232,13 @@ export default function AppRouter() {
             <Route path="/pay_stub_View" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubs />) : <Navigate to="/" />} />
             <Route path="/punctuality-reports" element={token ? (suspended ? <Navigate to="/account" /> : <PunctualityReports />) : <Navigate to="/" />} /> */}
 
-            {/* <Route path="/effective-settings/break-time" element={<BreakTime />} /> */}
+            <Route path="/punctuality" element={<Punctuality />} />
+            <Route path="/break-time" element={<BreakTime />} />
             <Route path="/settings" element={<Setting />}>
 
-              <Route path="break-time" element={<BreakTime />} />
-              <Route path="punctuality" element={<Punctuality />} />
-            
+              {/* <Route path="break-time" element={<BreakTime />} /> */}
+              {/* <Route path="punctuality" element={<Punctuality />} /> */}
+
             </Route>
             {/* <Route
                 path="/profile"

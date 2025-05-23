@@ -6,7 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import CompanyEmployess from "../../screen/component/breakTimeEmployess";
 import EmployeeFilter from "../../screen/component/EmployeeFilter";
 import moment from "moment-timezone";
-import { TextField } from "@mui/material";
+
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 function Screenshot() {
   let token = localStorage.getItem("token");
@@ -16,12 +18,14 @@ function Screenshot() {
 
   const [number, setNumber] = useState(null);
   const ids = useSelector((state) => state.adminSlice.ids);
-  const employees = useSelector((state) => state?.adminSlice?.employess);
+  // const employees = useSelector((state) => state.adminSlice.employess)
+  const [employees, setemployees] = useState([]); // ✅ Always an array
   const [totalDuration, setTotalDuration] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedHours, setSelectedHours] = useState(0);
   const [selectedMinutes, setSelectedMinutes] = useState(1); // 0h:1m minimum valid
-
+  const [isEditingDuration, setIsEditingDuration] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [filter, setfilter] = useState([])
 
 
@@ -61,7 +65,7 @@ function Screenshot() {
         { headers }
       );
       const json = await response.json();
-
+      setemployees(json?.convertedEmployees)
       const employeesData = json?.convertedEmployees || [];
       const transformedBreakTimes = employeesData[0]?.punctualityData?.breakTime.map((breakEntry) => {
         const start = breakEntry.breakStartTime
@@ -106,48 +110,13 @@ function Screenshot() {
   }, []);
 
 
-  const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
+
 
 
 
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [calculatedDuration, setCalculatedDuration] = useState("");
-
-  const handleDurationChange = (e) => {
-    const input = e.target.value; // Capture user input
-    setCalculatedDuration(input); // Update the field value immediately
-
-    // Only validate if input matches the complete format
-    const regex = /^(\d+)\s*hr\s*(\d+)?\s*min?$/i; // Match "X hr Y min"
-    const match = input.match(regex);
-
-    if (match) {
-      const hours = parseInt(match[1], 10) || 0; // Extract hours
-      const minutes = parseInt(match[2], 10) || 0; // Extract minutes
-
-      if (
-        (hours === 0 && minutes >= 1 && minutes <= 59) ||
-        (hours === 1 && minutes === 0)
-      ) {
-        // Valid duration range
-        calculateStartAndEndTime(hours, minutes);
-      } else {
-        enqueueSnackbar(
-          "Please enter a valid duration between 0 hr 1 min and 1 hr 0 min.",
-          {
-            variant: "warning",
-            anchorOrigin: {
-              vertical: "top",
-              horizontal: "right",
-            },
-          }
-        );
-      }
-    }
-  };
-
-
 
   const calculateStartAndEndTime = (hours, minutes) => {
     const startDate = new Date();
@@ -172,18 +141,6 @@ function Screenshot() {
 
 
 
-  const [breakTime, setBreakTime] = useState(() => {
-    // Load break times from localStorage when the component mounts
-    // const savedBreakTimes = localStorage.getItem("breakTimes");
-    // return savedBreakTimes ? JSON.parse(savedBreakTimes) : []; // Default to an empty array if nothing is saved
-  });
-
-  const [puncStartTime, setPuncStartTime] = useState("");
-  const [puncEndTime, setPuncEndTime] = useState("");
-
-
-
-  const [clickCount, setClickCount] = useState(0); // Counter to track clicks
 
   const handleSubmit = async () => {
     try {
@@ -265,76 +222,9 @@ function Screenshot() {
 
 
 
-  const handleRemoveBreakTime = (index) => {
-    if (breakTimes.length > 0) {
-      const updatedBreakTimes = breakTimes.filter((_, i) => i !== index); // Remove the specified index
-      setBreakTimes(updatedBreakTimes);
-
-      if (updatedBreakTimes.length === 0) {
-        // If all break times are removed, reset total duration to 0h 0m
-        setTotalDuration("0h:0m");
-      } else {
-        // Recalculate total duration
-        let totalMinutes = 0;
-        updatedBreakTimes.forEach(({ start, end }) => {
-          if (start && end) {
-            const startTime = new Date(`1970-01-01T${start}:00`);
-            const endTime = new Date(`1970-01-01T${end}:00`);
-            totalMinutes += Math.floor((endTime - startTime) / (1000 * 60));
-          }
-        });
-
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-        setTotalDuration(`${hours}h:${minutes}m`);
-      }
-
-      enqueueSnackbar("Break time removed!", {
-        variant: "success",
-        anchorOrigin: {
-          vertical: "top",
-          horizontal: "right",
-        },
-      });
-    } else {
-      enqueueSnackbar("No break times to remove.", {
-        variant: "warning",
-        anchorOrigin: {
-          vertical: "top",
-          horizontal: "right",
-        },
-      });
-    }
-  };
 
 
 
-  const handleAddBreakTime = () => {
-    if (breakTimes.length < 3) {
-      setBreakTimes([...breakTimes, { start: "", end: "", duration: "" }]);
-      // setBreakTimes((prevBreakTimes) => [
-      //   ...prevBreakTimes,
-      //   { start: "", end: "", duration: "" }, // Add new break time
-      // ]);
-      enqueueSnackbar("Break time added!", {
-        variant: "success",
-        anchorOrigin: {
-          vertical: "top",
-          horizontal: "right",
-        },
-      });
-
-      // calculateTotalDuration(newBreakTimes);
-    } else {
-      enqueueSnackbar("You can only add 3 break times.", {
-        variant: "warning",
-        anchorOrigin: {
-          vertical: "top",
-          horizontal: "right",
-        },
-      });
-    }
-  };
 
 
   const [breakTimes, setBreakTimes] = useState([]);
@@ -615,169 +505,244 @@ function Screenshot() {
     setfilter(filteredEmployees)
   };
   return (
-    <div>
+    <>
       <SnackbarProvider />
-      <div id='breakTime'
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 10,
-        }}
-      >
-        <div>
-          <p className="settingScreenshotHeading">Break Time</p>
-        </div>
-      </div>
-      <div className="settingScreenshotDiv">
-        <p>Break time allows employees to take short pauses during their work hours.</p>
-        <p>
-          You can set a total break duration that determines how long an employee can be on break.
-        </p>
-      </div>
-      {/* <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} /> */}
-      <p className="settingScreenshotIndividual">Group Break Time Setting</p>
-      <div className="settingScreenshotDiv">
-        {/* <p>How frequently screenshots will be taken.</p> */}
-        <p>These breaktime will applied throught out the organization.</p>
-      </div>
-      {/* Total Duration */}
-      {console.log("setTotalDuration", totalDuration)}
-      {(
-        <>
-
-          <div
-            className="gap-3"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "16px",
-              marginTop: "20px",
-              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "20px" }}>
-              <label htmlFor="totalDuration" style={{ fontWeight: 600, color: "#333" }}>
-                Total Duration:
-              </label>
-
-              {/* Hours Dropdown */}
-              <select
-                value={selectedHours}
-                onChange={(e) => updateDuration("hours", parseInt(e.target.value))}
-                style={{
-                  padding: "10px 14px",
-                  borderRadius: "8px",
-                  border: "1px solid #ccc",
-                  backgroundColor: "#f9f9f9",
-                  color: "#333",
-                  fontSize: "14px",
-                  width: "100px",
-                  cursor: "pointer",
-                }}
-              >
-                {Array.from({ length: 13 }, (_, i) => (
-                  <option key={i} value={i}>
-                    {i} hour{i !== 1 ? "s" : ""}
-                  </option>
-                ))}
-              </select>
-
-              {/* Minutes Dropdown */}
-              <select
-                value={selectedMinutes}
-                onChange={(e) => updateDuration("minutes", parseInt(e.target.value))}
-                style={{
-                  padding: "10px 14px",
-                  borderRadius: "8px",
-                  border: "1px solid #ccc",
-                  backgroundColor: "#f9f9f9",
-                  color: "#333",
-                  fontSize: "14px",
-                  width: "100px",
-                  cursor: "pointer",
-                }}
-              >
-                {Array.from({ length: 60 }, (_, i) => (
-                  <option key={i} value={i}>
-                    {i} min{i !== 1 ? "s" : ""}
-                  </option>
-                ))}
-              </select>
-
-              {/* Save Button */}
-              <button
-                onClick={handleSubmit}
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: "#7fc45a",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  cursor: "pointer",
-                  transition: "background-color 0.3s ease",
-                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.backgroundColor = "#6db84d";
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.backgroundColor = "#7fc45a";
-                }}
-              >
-                Save
-              </button>
-            </div>
+      <div className="container">
+        <div className="userHeader">
+          <div className="headerTop">
+            {/* <img src={setting} /> */}
+            <h5>Settings</h5>
           </div>
+        </div>
+        <div className="mainwrapper">
+          <div className="settingContainer">
+            <div>
+              <div id='breakTime'
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 10,
+                }}
+              >
+                <div>
+                  <p className="settingScreenshotHeading">Break Time</p>
+                </div>
+              </div>
+              <div className="settingScreenshotDiv">
+                <p>Break time allows employees to take short pauses during their work hours.</p>
+                <p>
+                  You can set a total break duration that determines how long an employee can be on break.
+                </p>
+              </div>
+              {/* <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} /> */}
+              <p className="settingScreenshotIndividual">Group Break Time Setting</p>
+              <div className="settingScreenshotDiv">
+                {/* <p>How frequently screenshots will be taken.</p> */}
+                <p>These breaktime will applied throught out the organization.</p>
+              </div>
+              {/* Total Duration */}
+              {console.log("setTotalDuration", totalDuration)}
+              {isLoading ? (
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "16px",
+                  marginTop: "20px",
+                  flexWrap: "wrap"
+                }}>
+                  <Skeleton width={120} height={40} style={{ borderRadius: "8px" }} />
+                  <Skeleton width={100} height={40} style={{ borderRadius: "8px" }} />
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: "16px",
+                    marginTop: "20px",
+                    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+                  }}
+                >
+                  <label
+                    htmlFor="totalDuration"
+                    style={{
+                      fontWeight: 600,
+                      color: "#333",
+                      marginRight: "8px",
+                      fontSize: "14px",
+                    }}
+                  >
+                    Total Duration:
+                  </label>
 
-        </>
-      )}
+                  {isEditingDuration ? (
+                    <>
+                      <select
+                        value={selectedHours}
+                        onChange={(e) => updateDuration("hours", parseInt(e.target.value))}
+                        style={{
+                          padding: "10px 14px",
+                          borderRadius: "8px",
+                          border: "1px solid #ccc",
+                          backgroundColor: "#f9f9f9",
+                          color: "#333",
+                          fontSize: "14px",
+                          width: "100px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {Array.from({ length: 13 }, (_, i) => (
+                          <option key={i} value={i}>
+                            {i} hour{i !== 1 ? "s" : ""}
+                          </option>
+                        ))}
+                      </select>
+
+                      <select
+                        value={selectedMinutes}
+                        onChange={(e) => updateDuration("minutes", parseInt(e.target.value))}
+                        style={{
+                          padding: "10px 14px",
+                          borderRadius: "8px",
+                          border: "1px solid #ccc",
+                          backgroundColor: "#f9f9f9",
+                          color: "#333",
+                          fontSize: "14px",
+                          width: "100px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {Array.from({ length: 60 }, (_, i) => (
+                          <option key={i} value={i}>
+                            {i} min{i !== 1 ? "s" : ""}
+                          </option>
+                        ))}
+                      </select>
+
+                      <button
+                        onClick={async () => {
+                          setIsSubmitting(true);
+                          await handleSubmit();
+                          setIsSubmitting(false);
+                          setIsEditingDuration(false);
+                        }}
+                        disabled={isSubmitting}
+                        style={{
+                          padding: "10px 20px",
+                          backgroundColor: "#7fc45a",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "8px",
+                          fontWeight: 600,
+                          fontSize: "14px",
+                          cursor: isSubmitting ? "not-allowed" : "pointer",
+                          transition: "background-color 0.3s ease",
+                          boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+                        }}
+                        onMouseOver={(e) => {
+                          if (!isSubmitting) e.target.style.backgroundColor = "#6db84d";
+                        }}
+                        onMouseOut={(e) => {
+                          if (!isSubmitting) e.target.style.backgroundColor = "#7fc45a";
+                        }}
+                      >
+                        {isSubmitting ? "Saving..." : "Save"}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div
+                        style={{
+                          padding: "10px 14px",
+                          backgroundColor: "#f4f4f4",
+                          border: "1px solid #ccc",
+                          borderRadius: "8px",
+                          fontSize: "14px",
+                          color: "#333",
+                          width: "120px",
+                          textAlign: "center",
+                        }}
+                      >
+                        {totalDuration}
+                      </div>
+
+                      <button
+                        onClick={() => setIsEditingDuration(true)}
+                        style={{
+                          padding: "10px 20px",
+                          backgroundColor: "#7fc45a",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "8px",
+                          fontWeight: 600,
+                          fontSize: "14px",
+                          cursor: "pointer",
+                          transition: "background-color 0.3s ease",
+                          boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.backgroundColor = "#6db84d";
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.backgroundColor = "#7fc45a";
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
 
 
 
-      <div className="activityLevelIndividual">
-        <p className="settingScreenshotIndividual">Optional Individual Settings</p>
-        <p className="individualSettingFont">
-          If enabled, the individual setting will be used instead of the team
-          setting
-        </p>
 
-        {isLoading ? (
-          <div style={{ textAlign: "center", marginTop: "40px" }}>
-            <div style={{
-              border: "6px solid #f3f3f3",
-              borderTop: "6px solid #7fc45a",
-              borderRadius: "50%",
-              width: "40px",
-              height: "40px",
-              animation: "spin 1s linear infinite",
-              margin: "0 auto"
-            }} />
+              <div className="activityLevelIndividual">
+                <p className="settingScreenshotIndividual">Optional Individual Settings</p>
+                <p className="individualSettingFont">
+                  If enabled, the individual setting will be used instead of the team
+                  setting
+                </p>
 
-            <p style={{ marginTop: "10px", fontSize: "14px", color: "#555" }}>
-              Loading employees...
-            </p>
+                {isLoading ? (
+                  <div style={{ textAlign: "center", marginTop: "40px" }}>
+                    <div style={{
+                      border: "6px solid #f3f3f3",
+                      borderTop: "6px solid #7fc45a",
+                      borderRadius: "50%",
+                      width: "40px",
+                      height: "40px",
+                      animation: "spin 1s linear infinite",
+                      margin: "0 auto"
+                    }} />
 
-            <style>
-              {`
+                    <p style={{ marginTop: "10px", fontSize: "14px", color: "#555" }}>
+                      Loading employees...
+                    </p>
+
+                    <style>
+                      {`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
       `}
-            </style>
+                    </style>
+                  </div>
+                ) : (
+                  <CompanyEmployess Setting={Setting} employees={filter.length > 0 ? filter : employees} />
+                )}
+
+
+
+              </div>
+            </div>
           </div>
-        ) : (
-          <CompanyEmployess Setting={Setting} employees={filter.length > 0 ? filter : employees} />
-        )}
-
-
-
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

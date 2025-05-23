@@ -1,13 +1,14 @@
 import axios from "axios";
+import moment from "moment";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import 'react-datepicker/dist/react-datepicker.css';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useDispatch, useSelector } from "react-redux";
 import EmployeeFilter from "../../screen/component/EmployeeFilter";
 import CompanyEmployess from "../../screen/component/punctualitybreaktime";
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import moment from "moment";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 function Screenshot() {
 
@@ -21,11 +22,10 @@ function Screenshot() {
     const ids = useSelector((state) => state.adminSlice.ids)
     // const employees = useSelector((state) => state.adminSlice.employess)
     const [employees, setemployees] = useState([]); // ✅ Always an array
-
     const [editTZ, setEditTZ] = useState(null); // Which timezone is being edited
     const [editValues, setEditValues] = useState({}); // Edited values for start/end/date
     const [filter, setfilter] = useState([])
-
+    const [loading, setLoading] = useState(true);
     const [puncStartTime, setPuncStartTime] = useState('');
     const [puncEndTime, setPuncEndTime] = useState("");
     const [globalPunctuality, setGlobalPunctuality] = useState({});
@@ -105,6 +105,7 @@ function Screenshot() {
 
     async function getData() {
         try {
+            setLoading(true);
             const response = await fetch(
                 `https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`,
                 { headers }
@@ -138,6 +139,8 @@ function Screenshot() {
                     horizontal: "right",
                 },
             });
+        } finally {
+            setLoading(false); // ✅ End loading state
         }
     }
 
@@ -145,74 +148,7 @@ function Screenshot() {
         getData()
     }, [])
 
-    const handleSubmit = async () => {
-        try {
-            if (!puncStartTime || !puncEndTime || !implementStartDate) {
-                throw new Error("Both Punctuality Start Time and End Time and policy date are required.");
-            }
 
-            const selectedEmployees = filter.length > 0 ? filter : employees;
-
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const formattedImplementStart = implementStartDate
-                ? moment.tz(`${implementStartDate}T${moment().format("HH:mm")}`, timezone).format()
-                : null;
-
-            const requestData = selectedEmployees.map((employee) => {
-                const userTimezone = employee?.timezone || timezone;
-                const userTimezoneOffset = employee?.timezoneOffset ?? new Date().getTimezoneOffset();
-
-                return {
-                    userId: employee._id,
-                    settings: {
-                        puncStartTime: puncStartTime
-                            ? moment.tz(`${implementStartDate}T${puncStartTime}`, userTimezone).format()
-                            : null,
-                        puncEndTime: puncEndTime
-                            ? moment.tz(`${implementStartDate}T${puncEndTime}`, userTimezone).format()
-                            : null,
-                        timezone: userTimezone,
-                        timezoneOffset: userTimezoneOffset,
-                        implementStartDate: formattedImplementStart,
-                    },
-                };
-            });
-
-            // console.log('request====>', requestData);
-
-            const response = await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
-                requestData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-
-            if (response.status === 200) {
-                enqueueSnackbar("Punctuality Time successfully submitted!", {
-                    variant: "success",
-                    anchorOrigin: { vertical: "top", horizontal: "right" },
-                });
-                getData();
-            } else {
-                enqueueSnackbar("Failed to submit punctuality rule.", {
-                    variant: "error",
-                });
-            }
-        } catch (error) {
-            enqueueSnackbar(
-                error.message || "Error submitting punctuality rule. Please try again later.",
-                {
-                    variant: "error",
-                    anchorOrigin: { vertical: "top", horizontal: "right" },
-                }
-            );
-            console.error("Error submitting punctuality rule:", error);
-        }
-    };
 
     const handleTimezoneSave = async (timezone) => {
         const selectedEmployees = (filter.length > 0 ? filter : employees).filter(emp =>
@@ -266,7 +202,7 @@ function Screenshot() {
     };
 
     const handleFilteredEmployees = (filteredEmployees) => {
-        // console.log("Filtered Employees:", filteredEmployees);
+        console.log("Filtered Employees:", filteredEmployees);
         setfilter(filteredEmployees)
     };
     // console.log(" Employees:", employees);
@@ -280,20 +216,31 @@ function Screenshot() {
 
 
     return (
-        <div>
+        <>
             <SnackbarProvider />
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <div>
-                    <p className="settingScreenshotHeading">Punctuality</p>
+            <div className="container">
+                <div className="userHeader">
+                    <div className="headerTop">
+                        {/* <img src={setting} /> */}
+                        <h5>Settings</h5>
+                    </div>
                 </div>
-            </div>
+                <div className="mainwrapper">
+                    <div className="settingContainer">
+                        <div>
 
-            <p className="settingScreenshotIndividual">Group Punctuality Setting</p>
-            <div className="settingScreenshotDiv">
-                {/* <p>How frequently screenshots will be taken.</p> */}
-                <p>These setting will applied throught out the organization.</p>
-            </div>
-            {/* {(
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                                <div>
+                                    <p className="settingScreenshotHeading">Punctuality</p>
+                                </div>
+                            </div>
+
+                            <p className="settingScreenshotIndividual">Group Punctuality Setting</p>
+                            <div className="settingScreenshotDiv">
+                                {/* <p>How frequently screenshots will be taken.</p> */}
+                                <p>These setting will applied throught out the organization.</p>
+                            </div>
+                            {/* {(
                 <>
                     <div className="takeScreenShotDiv">
                         <div>
@@ -342,202 +289,254 @@ function Screenshot() {
                     </button>
                 </>
             )} */}
-            {/* {console.log('hahahahaah', punctualityCards)} */}
-            {punctualityCards.map(({ timezone, startFormatted, endFormatted, dateFormatted, isEditing }) => (
-                <div
-                    key={timezone}
-                    style={{
-                        border: '1px solid #ddd',
-                        borderRadius: '8px',
-                        padding: '16px',
-                        marginBottom: '20px',
-                        backgroundColor: '#fff',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                    }}
-                >
-                    <h4 style={{ marginBottom: '12px', fontSize: '16px', color: '#333' }}>{timezone}</h4>
+                            {/* {console.log('hahahahaah', punctualityCards)} */}
+                            {loading ? (
+                                Array(2).fill(0).map((_, index) => (
+                                    <div
+                                        key={index}
+                                        style={{
+                                            border: '1px solid #ddd',
+                                            borderRadius: '8px',
+                                            padding: '16px',
+                                            marginBottom: '20px',
+                                            backgroundColor: '#fff',
+                                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                                        }}
+                                    >
+                                        <Skeleton height={24} width={150} style={{ marginBottom: 12 }} />
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                                            <Skeleton height={30} />
+                                            <Skeleton height={30} />
+                                            <Skeleton height={30} />
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                punctualityCards.map(({ timezone, startFormatted, endFormatted, dateFormatted, isEditing }) => (
+                                    <div
+                                        key={timezone}
+                                        style={{
+                                            border: '1px solid #ddd',
+                                            borderRadius: '8px',
+                                            padding: '16px',
+                                            marginBottom: '20px',
+                                            backgroundColor: '#fff',
+                                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                                        }}
+                                    >
+                                        <h4 style={{ marginBottom: '12px', fontSize: '16px', color: '#333' }}>{timezone}</h4>
 
-                    {isEditing ? (
-                        <div
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                                gap: '16px',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
-                                    Start Time:
-                                </label>
-                                <input
-                                    type="time"
-                                    value={editValues.startTime}
-                                    onChange={(e) => setEditValues({ ...editValues, startTime: e.target.value })}
-                                    style={{
-                                        padding: '8px 10px',
-                                        fontSize: '14px',
-                                        border: '1px solid #ccc',
-                                        borderRadius: '4px',
-                                        width: '100%',
-                                    }}
-                                />
+                                        {isEditing ? (
+                                            <div
+                                                style={{
+                                                    display: 'grid',
+                                                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                                                    gap: '16px',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                                        Start Time:
+                                                    </label>
+                                                    <input
+                                                        type="time"
+                                                        value={editValues.startTime}
+                                                        onChange={(e) => setEditValues({ ...editValues, startTime: e.target.value })}
+                                                        style={{
+                                                            padding: '8px 10px',
+                                                            fontSize: '14px',
+                                                            border: '1px solid #ccc',
+                                                            borderRadius: '4px',
+                                                            width: '100%',
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                                        End Time:
+                                                    </label>
+                                                    <input
+                                                        type="time"
+                                                        value={editValues.endTime}
+                                                        onChange={(e) => setEditValues({ ...editValues, endTime: e.target.value })}
+                                                        style={{
+                                                            padding: '8px 10px',
+                                                            fontSize: '14px',
+                                                            border: '1px solid #ccc',
+                                                            borderRadius: '4px',
+                                                            width: '100%',
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                                        Policy Date:
+                                                    </label>
+                                                    <input
+                                                        type="date"
+                                                        value={editValues.policyDate}
+                                                        onChange={(e) => setEditValues({ ...editValues, policyDate: e.target.value })}
+                                                        style={{
+                                                            padding: '8px 10px',
+                                                            fontSize: '14px',
+                                                            border: '1px solid #ccc',
+                                                            borderRadius: '4px',
+                                                            width: '100%',
+                                                        }}
+                                                    />
+                                                </div>
+                                                <button
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        border: 'none',
+                                                        borderRadius: '5px',
+                                                        color: '#fff',
+                                                        backgroundColor: '#7fc45a',
+                                                        cursor: 'pointer',
+                                                        marginTop: 'auto',
+                                                        alignSelf: 'end',
+                                                    }}
+                                                    onClick={() => handleTimezoneSave(timezone)}
+                                                >
+                                                    Save
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                style={{
+                                                    display: 'grid',
+                                                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                                                    gap: '16px',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                                        Start Time:
+                                                    </label>
+                                                    <div
+                                                        style={{
+                                                            padding: '8px 10px',
+                                                            border: '1px solid #ccc',
+                                                            borderRadius: '4px',
+                                                            backgroundColor: '#f8f8f8',
+                                                            fontSize: '14px',
+                                                            color: '#333',
+                                                        }}
+                                                    >
+                                                        {startFormatted}
+                                                    </div>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                                        End Time:
+                                                    </label>
+                                                    <div
+                                                        style={{
+                                                            padding: '8px 10px',
+                                                            border: '1px solid #ccc',
+                                                            borderRadius: '4px',
+                                                            backgroundColor: '#f8f8f8',
+                                                            fontSize: '14px',
+                                                            color: '#333',
+                                                        }}
+                                                    >
+                                                        {endFormatted}
+                                                    </div>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
+                                                        Policy Date:
+                                                    </label>
+                                                    <div
+                                                        style={{
+                                                            padding: '8px 10px',
+                                                            border: '1px solid #ccc',
+                                                            borderRadius: '4px',
+                                                            backgroundColor: '#f8f8f8',
+                                                            fontSize: '14px',
+                                                            color: '#333',
+                                                        }}
+                                                    >
+                                                        {dateFormatted}
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        border: 'none',
+                                                        borderRadius: '5px',
+                                                        color: '#fff',
+                                                        backgroundColor: '#7fc45a',
+                                                        cursor: 'pointer',
+                                                        marginTop: 'auto',
+                                                        alignSelf: 'end',
+                                                    }}
+                                                    onClick={() => {
+                                                        setEditTZ(timezone);
+                                                        setEditValues({
+                                                            startTime: startFormatted,
+                                                            endTime: endFormatted,
+                                                            policyDate: dateFormatted,
+                                                        });
+                                                    }}
+                                                >
+                                                    Edit
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+
+                            <div className="settingScreenshotDiv">
+                                {/* <p>How frequently screenshots will be taken.</p> */}
+                                <p>You can set the timeout duration to control how frequently screenshots are taken, with captures occurring at random intervals.</p>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
-                                    End Time:
-                                </label>
-                                <input
-                                    type="time"
-                                    value={editValues.endTime}
-                                    onChange={(e) => setEditValues({ ...editValues, endTime: e.target.value })}
-                                    style={{
-                                        padding: '8px 10px',
-                                        fontSize: '14px',
-                                        border: '1px solid #ccc',
-                                        borderRadius: '4px',
-                                        width: '100%',
-                                    }}
-                                />
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
-                                    Policy Date:
-                                </label>
-                                <input
-                                    type="date"
-                                    value={editValues.policyDate}
-                                    onChange={(e) => setEditValues({ ...editValues, policyDate: e.target.value })}
-                                    style={{
-                                        padding: '8px 10px',
-                                        fontSize: '14px',
-                                        border: '1px solid #ccc',
-                                        borderRadius: '4px',
-                                        width: '100%',
-                                    }}
-                                />
-                            </div>
-                            <button
-                                style={{
-                                    padding: '8px 16px',
-                                    border: 'none',
-                                    borderRadius: '5px',
-                                    color: '#fff',
-                                    backgroundColor: '#7fc45a',
-                                    cursor: 'pointer',
-                                    marginTop: 'auto',
-                                    alignSelf: 'end',
-                                }}
-                                onClick={() => handleTimezoneSave(timezone)}
-                            >
-                                Save
-                            </button>
-                        </div>
-                    ) : (
-                        <div
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                                gap: '16px',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
-                                    Start Time:
-                                </label>
-                                <div
-                                    style={{
-                                        padding: '8px 10px',
-                                        border: '1px solid #ccc',
-                                        borderRadius: '4px',
-                                        backgroundColor: '#f8f8f8',
-                                        fontSize: '14px',
-                                        color: '#333',
-                                    }}
-                                >
-                                    {startFormatted}
+                            {loading ? (
+                                <div style={{ marginBottom: '20px' }}>
+                                    <Skeleton height={40} width={300} />
                                 </div>
+                            ) : (
+                                <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} />
+                            )}
+
+                            <div className="activityLevelIndividual">
+                                <p className="settingScreenshotIndividual">Individual Settings</p>
+                                <p className="individualSettingFont">If enabled, the individual setting will be used instead of the team setting</p>
+
+                                {loading ? (
+                                    <div style={{ textAlign: "center", marginTop: "40px" }}>
+                                        <div style={{
+                                            border: "6px solid #f3f3f3",
+                                            borderTop: "6px solid #7fc45a",
+                                            borderRadius: "50%",
+                                            width: "40px",
+                                            height: "40px",
+                                            animation: "spin 1s linear infinite",
+                                            margin: "0 auto"
+                                        }} />
+
+                                        <p style={{ marginTop: "10px", fontSize: "14px", color: "#555" }}>
+                                            Loading employees...
+                                        </p>
+
+                                        <style>
+                                            {`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}
+                                        </style>
+                                    </div>
+                                ) : (
+                                    <CompanyEmployess Setting={Setting} employees={filter.length > 0 ? filter : employees} />
+                                )}
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
-                                    End Time:
-                                </label>
-                                <div
-                                    style={{
-                                        padding: '8px 10px',
-                                        border: '1px solid #ccc',
-                                        borderRadius: '4px',
-                                        backgroundColor: '#f8f8f8',
-                                        fontSize: '14px',
-                                        color: '#333',
-                                    }}
-                                >
-                                    {endFormatted}
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <label style={{ fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '4px' }}>
-                                    Policy Date:
-                                </label>
-                                <div
-                                    style={{
-                                        padding: '8px 10px',
-                                        border: '1px solid #ccc',
-                                        borderRadius: '4px',
-                                        backgroundColor: '#f8f8f8',
-                                        fontSize: '14px',
-                                        color: '#333',
-                                    }}
-                                >
-                                    {dateFormatted}
-                                </div>
-                            </div>
-                            <button
-                                style={{
-                                    padding: '8px 16px',
-                                    border: 'none',
-                                    borderRadius: '5px',
-                                    color: '#fff',
-                                    backgroundColor: '#7fc45a',
-                                    cursor: 'pointer',
-                                    marginTop: 'auto',
-                                    alignSelf: 'end',
-                                }}
-                                onClick={() => {
-                                    setEditTZ(timezone);
-                                    setEditValues({
-                                        startTime: startFormatted,
-                                        endTime: endFormatted,
-                                        policyDate: dateFormatted,
-                                    });
-                                }}
-                            >
-                                Edit
-                            </button>
-                        </div>
-                    )}
-                </div>
-            ))}
-
-
-
-            <div className="settingScreenshotDiv">
-                {/* <p>How frequently screenshots will be taken.</p> */}
-                <p>You can set the timeout duration to control how frequently screenshots are taken, with captures occurring at random intervals.</p>
-            </div>
-            <EmployeeFilter employees={employees} onFilter={handleFilteredEmployees} />
-
-            <div className="activityLevelIndividual">
-                <p className="settingScreenshotIndividual">Individual Settings</p>
-                <p className="individualSettingFont">If enabled, the individual setting will be used instead of the team setting</p>
-
-
-                <CompanyEmployess Setting={Setting} employees={filter.length > 0 ? filter : employees} />
-
-            </div>
-            <style>
-                {`
+                            <style>
+                                {`
   .takeScreenShotDiv {
     display: flex;
     gap: 40px;
@@ -586,11 +585,15 @@ function Screenshot() {
     background-color: #69a94b;
   }
 `}
-            </style>
+                            </style>
 
 
 
-        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
     )
 }
 

@@ -559,20 +559,20 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                         <ListItemButton
                                             sx={{
                                                 pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname.includes('/settings/break-time') ? '#7ACB59' : 'transparent',
+                                                backgroundColor: location.pathname.includes('/break-time') ? '#7ACB59' : 'transparent',
                                                 color: '#fff'
                                             }}
-                                            onClick={() => handleNavigate('/settings/break-time')}>
+                                            onClick={() => handleNavigate('/break-time')}>
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><TimerIcon /></ListItemIcon>
                                             {!collapsed && <ListItemText primary="Break Time" />}
                                         </ListItemButton>
                                         <ListItemButton
                                             sx={{
                                                 pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname.includes('/settings/punctuality') ? '#7ACB59' : 'transparent',
+                                                backgroundColor: location.pathname.includes('/punctuality') ? '#7ACB59' : 'transparent',
                                                 color: '#fff'
                                             }}
-                                            onClick={() => handleNavigate('/settings/punctuality')}>
+                                            onClick={() => handleNavigate('/punctuality')}>
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><AlarmOnIcon /></ListItemIcon>
                                             {!collapsed && <ListItemText primary="Punctuality" />}
                                         </ListItemButton>
