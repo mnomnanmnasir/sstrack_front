@@ -114,7 +114,7 @@ function Screenshot() {
             setGlobalPunctuality(global);
             setemployees(json?.convertedEmployees)
             const employeesData = json?.convertedEmployees || [];
-            console.log("checkk", json);
+            // console.log("checkk", json);
             if (employeesData.length > 0) {
                 const punctualityData = employeesData[0]?.punctualityData || {};
                 setPuncStartTime(punctualityData.puncStartTime);
@@ -178,7 +178,7 @@ function Screenshot() {
                 };
             });
 
-            console.log('request====>', requestData);
+            // console.log('request====>', requestData);
 
             const response = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
@@ -266,19 +266,19 @@ function Screenshot() {
     };
 
     const handleFilteredEmployees = (filteredEmployees) => {
-        console.log("Filtered Employees:", filteredEmployees);
+        // console.log("Filtered Employees:", filteredEmployees);
         setfilter(filteredEmployees)
     };
-    console.log(" Employees:", employees);
-    const punctualityCards = Object.entries(globalPunctuality).map(([tz, times]) => {
-        return {
-            timezone: tz,
-            startFormatted: moment(times.punctualityStartTime).format("HH:mm"),
-            endFormatted: moment(times.punctualityEndTime).format("HH:mm"),
-            dateFormatted: moment(times.punctualityStartTime).format("YYYY-MM-DD"),
-            isEditing: editTZ === tz,
-        };
-    });
+    // console.log(" Employees:", employees);
+    const punctualityCards = Object.entries(globalPunctuality).map(([tz, times]) => ({
+        timezone: tz,
+        startFormatted: moment.parseZone(times.punctualityStartTime).format("HH:mm"),
+        endFormatted: moment.parseZone(times.punctualityEndTime).format("HH:mm"),
+        dateFormatted: moment.parseZone(times.punctualityStartTime).format("YYYY-MM-DD"),
+        isEditing: editTZ === tz,
+    }));
+
+
     return (
         <div>
             <SnackbarProvider />
@@ -342,7 +342,7 @@ function Screenshot() {
                     </button>
                 </>
             )} */}
-            {console.log('hahahahaah', punctualityCards)}
+            {/* {console.log('hahahahaah', punctualityCards)} */}
             {punctualityCards.map(({ timezone, startFormatted, endFormatted, dateFormatted, isEditing }) => (
                 <div
                     key={timezone}

@@ -53,7 +53,7 @@ const CompanyEmployess = (props) => {
 
 
                     if (response.status === 200) {
-                        console.log('RESPONCE', response.data.data)
+                        // console.log('RESPONCE', response.data.data)
                         const { puncStartTime, puncEndTime, implementStartTime } = response.data.data;
 
                         updatedFields[employee._id] = {
@@ -66,7 +66,7 @@ const CompanyEmployess = (props) => {
                         };
                     }
                 }
-                console.log("punch", updatedFields)
+                // console.log("punch", updatedFields)
                 setTimeFields(updatedFields);
                 // localStorage.setItem("timeFields", JSON.stringify(updatedFields)); // ✅ Local Storage update karein
             } catch (error) {
@@ -426,7 +426,7 @@ const CompanyEmployess = (props) => {
 
 
                                 </div>
-                                {console.log('time fieldsss', timeFields)}
+                                {/* {console.log('time fieldsss', timeFields)} */}
                                 {timeFields[employee._id]?.showFields && (
                                     <>
                                         <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: 'flex', gap: '10px' }}>
