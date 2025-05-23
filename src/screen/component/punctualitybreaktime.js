@@ -53,20 +53,23 @@ const CompanyEmployess = (props) => {
 
 
                     if (response.status === 200) {
-                        // console.log('RESPONCE', response.data.data)
                         const { puncStartTime, puncEndTime, implementStartTime } = response.data.data;
 
                         updatedFields[employee._id] = {
                             showFields: employee?.punctualityData?.individualPuncStart || false,
-                            puncStartTime: puncStartTime ? moment(puncStartTime).format("HH:mm") : "",
-                            puncEndTime: puncEndTime ? moment(puncEndTime).format("HH:mm") : "",
-                            // ✅ split implementStartDate into date and time
-                            implementStartDate: implementStartTime ? implementStartTime.split("T")[0] : "",
-                            implementStartTime: implementStartTime ? implementStartTime.split("T")[1].substring(0, 5) : "",
+                            puncStartTime: puncStartTime ? moment.parseZone(puncStartTime).format("HH:mm") : "",
+                            puncEndTime: puncEndTime ? moment.parseZone(puncEndTime).format("HH:mm") : "",
+                            implementStartDate: implementStartTime
+                                ? moment.parseZone(implementStartTime).format("YYYY-MM-DD")
+                                : "",
+                            implementStartTime: implementStartTime
+                                ? moment.parseZone(implementStartTime).format("HH:mm")
+                                : "",
                         };
                     }
+
                 }
-                // console.log("punch", updatedFields)
+                console.log("punch", updatedFields)
                 setTimeFields(updatedFields);
                 // localStorage.setItem("timeFields", JSON.stringify(updatedFields)); // ✅ Local Storage update karein
             } catch (error) {
@@ -405,9 +408,10 @@ const CompanyEmployess = (props) => {
                                             {timeFields[employee._id]?.puncStartTime && timeFields[employee._id]?.puncEndTime && (
                                                 <>
                                                     &nbsp;|&nbsp;
-                                                    Punctuality: {convertTo12HourFormat(timeFields[employee._id]?.puncStartTime)} - {convertTo12HourFormat(timeFields[employee._id]?.puncEndTime)}
+                                                    Punctuality: {timeFields[employee._id]?.puncStartTime} - {timeFields[employee._id]?.puncEndTime}
                                                 </>
                                             )}
+
                                         </p>
 
                                     </div>
