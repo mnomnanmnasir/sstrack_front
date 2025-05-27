@@ -39,7 +39,7 @@ const LocaitonTracking = () => {
         totalDistance: "0 KM",
     });
 
-
+    const [dataAvailability, setDataAvailability] = useState([]); // To hold dates with dataExist=true
     const [activeSummary, setActiveSummary] = useState([]);
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
@@ -84,7 +84,8 @@ const LocaitonTracking = () => {
             const formattedDate = date.toISOString().split("T")[0]; // Format to YYYY-MM-DD
             const token = localStorage.getItem("token");
             const apiUrl = items?.userType === "user"
-                ? `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerData?date=${formattedDate}`
+                // ? `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerData?date=${formattedDate}`
+                ? `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerDataByDate/${userID}?date=${formattedDate}`
                 : `https://myuniversallanguages.com:9093/api/v1/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
             const response = await fetch(apiUrl, {
                 method: "GET",
@@ -155,20 +156,52 @@ const LocaitonTracking = () => {
         }
     };
 
+    const fetchAvailableDates = async (uid) => {
+        try {
+            const today = new Date();
+            const formattedToday = today.toISOString().split("T")[0];
+            const response = await axios.get(
+                `${apiUrl}/tracker/getTrackerDataByDate/${uid}?date=${formattedToday}`,
+                { headers }
+            );
+
+            if (response.data.success) {
+                const availableDates = response.data.data.dataByDay
+                    .filter(day => day.dataExist)
+                    .map(day => {
+                        const [d, m, y] = day.date.split("-");
+                        return new Date(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
+                    });
+                setDataAvailability(availableDates);
+            }
+        } catch (err) {
+            console.error("Error fetching availability:", err);
+            setDataAvailability([]);
+        }
+    };
+
     // Fetch data whenever the selected date changes
     useEffect(() => {
         fetchData(selectedDate);
     }, [selectedDate, userID]);
 
+    // const handleSelectUsers = (e) => {
+    //     setuserId(e?.value)
+    //     console.log('here', e?.value)
+    // }
     const handleSelectUsers = (e) => {
-        setuserId(e?.value)
-        console.log('here', e?.value)
-    }
-
-
+        const selectedUserId = e?.value;
+        setuserId(selectedUserId);
+        fetchAvailableDates(selectedUserId);  // <-- this line
+    };
 
     const animatedComponents = makeAnimated();
 
+    useEffect(() => {
+        if (userID) {
+            fetchAvailableDates(userID);
+        }
+    }, [userID]);
 
     useEffect(() => {
         if (!polylinePath || polylinePath.length === 0) return;
@@ -452,11 +485,11 @@ const LocaitonTracking = () => {
 
                                 {/* DatePicker Input */}
                                 <DatePicker
-
                                     selected={selectedDate}
                                     onChange={handleDateChange}
                                     dateFormat="MMM d, yyyy EEEE" // Example: Dec 9, 2024 Monday
                                     popperPlacement="bottom-start"
+                                    highlightDates={dataAvailability} // ✅ Add this line
                                     popperModifiers={[
                                         {
                                             name: "preventOverflow",
@@ -494,6 +527,7 @@ const LocaitonTracking = () => {
                                     }
                                 />
                             </div>
+
                         </div>
 
                         {/* Map View */}
@@ -512,25 +546,7 @@ const LocaitonTracking = () => {
                                 }}
                             ></div>
                         </div>
-                        {/* <LoadScript googleMapsApiKey="AIzaSyAkuGHrq6iEysHhbYV7hchbKAs7nvMHc1g">
-                            <GoogleMap
-                                mapContainerStyle={mapContainerStyle}
-                                center={initialCenter}
-                                zoom={13}
-                            >
-                                {convertedPolylines.map((path, index) => (
-                                    <Polyline
-                                        key={index}
-                                        path={path}
-                                        options={{
-                                            strokeColor: "blue",
-                                            strokeWeight: 4,
-                                        }}
-                                    />
-                                ))}
-                            </GoogleMap>
-                        </LoadScript> */}
-                        {/* Active Summary */}
+
                         <div>
                             <h3 style={{ fontSize: "23px", color: "#28659C", fontWeight: "600" }}>Active Summary</h3>
 
