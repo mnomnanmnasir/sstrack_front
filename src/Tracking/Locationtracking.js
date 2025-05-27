@@ -16,6 +16,7 @@ import { useSnackbar } from 'notistack';
 
 
 
+
 const LocaitonTracking = () => {
     const [run, setRun] = useState(true);
     const [stepIndex, setStepIndex] = useState(0);
@@ -28,6 +29,7 @@ const LocaitonTracking = () => {
 
     const mapRef = useRef(null);
 
+    
     const summaryPreviewCount = 3;
     const items = jwtDecode(JSON.stringify(tokens));
     const [userID, setuserId] = useState(items?._id)
@@ -43,6 +45,19 @@ const LocaitonTracking = () => {
         totalTime: "0h : 0m",
         totalDistance: "0 KM",
     });
+
+    const getPreviousMonthStart = () => {
+        const date = new Date();
+        date.setMonth(date.getMonth() - 1);
+        date.setDate(1);
+        return date;
+    };
+
+    const getCurrentMonthEnd = () => {
+        const date = new Date();
+        date.setMonth(date.getMonth() + 1, 0); // Last day of current month
+        return date;
+    };
 
     const [dataAvailability, setDataAvailability] = useState([]); // To hold dates with dataExist=true
     const [activeSummary, setActiveSummary] = useState([]);
@@ -520,16 +535,26 @@ const LocaitonTracking = () => {
                                 <DatePicker
                                     selected={selectedDate}
                                     onChange={handleDateChange}
-                                    dateFormat="MMM d, yyyy EEEE" // Example: Dec 9, 2024 Monday
-                                    popperPlacement="bottom-start"
-                                    highlightDates={[{ 'light-green': dataAvailability }]}  // Apply custom class
-                                    // highlightDates={dataAvailability}  // ✅ class-based highlight
-                                    includeDates={dataAvailability} // ✅ This disables other dates
+                                    dateFormat="MMM d, yyyy EEEE"
+                                    highlightDates={[{ 'light-green': dataAvailability }]}
+                                    filterDate={(date) =>
+                                        dataAvailability.some(
+                                            (available) =>
+                                                date.getFullYear() === available.getFullYear() &&
+                                                date.getMonth() === available.getMonth() &&
+                                                date.getDate() === available.getDate()
+                                        )
+                                    }
+                                    maxDate={new Date()} // ✅ This prevents next/future months from showing
+                                    // showMonthDropdown
+                                    // showYearDropdown
+                                    // scrollableMonthYearDropdown
+                                    // popperPlacement="bottom-start"
                                     popperModifiers={[
                                         {
                                             name: "preventOverflow",
                                             options: {
-                                                boundary: "viewport", // Prevents hiding in limited spaces
+                                                boundary: "viewport",
                                             },
                                         },
                                     ]}
@@ -550,14 +575,7 @@ const LocaitonTracking = () => {
                                                     weekday: "long",
                                                 })}
                                             </span>
-                                            <span
-                                                style={{
-                                                    fontSize: "14px",
-                                                    color: "#666",
-                                                }}
-                                            >
-                                                ▼
-                                            </span>
+                                            <span style={{ fontSize: "14px", color: "#666" }}>▼</span>
                                         </div>
                                     }
                                 />
