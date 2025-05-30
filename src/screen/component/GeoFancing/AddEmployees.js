@@ -19,6 +19,10 @@ import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-au
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import AddEmployeeModal from './AddEmployeeModal';  // Import the modal you just created
+import InviteEmployeeModal from './InviteEmployeeModal';
+import EmployeeStats from './EmployeeStats';
+
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -52,6 +56,8 @@ const AddEmployees = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [viewType, setViewType] = useState("list"); // or "grid"
     const [employeeFilter, setEmployeeFilter] = useState('all'); // all | active | inactive
+    // const [showModal, setShowModal] = useState(false);
+    const [showInviteModal, setShowInviteModal] = useState(false);
 
     const employees = [
         {
@@ -137,30 +143,74 @@ const AddEmployees = () => {
                 </div>
                 <div className="mainwrapper ownerTeamContainer" style={{ justifyContent: "center", paddingBottom: "90px" }}>
                     <div className="row">
+
+                        {/* Top Title & Add Button Row */}
+                        <div className="d-flex justify-content-between align-items-center mb-3">
+                            <h4 className="fw-bold mb-0">Employees</h4>
+
+
+                            <div className="d-flex gap-2">
+                                {/* Invite Button */}
+                                <button
+                                    className="btn btn-light d-flex align-items-center gap-2 px-3 py-2 border"
+                                    style={{ borderColor: '#e0e0e0', borderRadius: '8px' }}
+                                    onClick={() => setShowInviteModal(true)}
+                                >
+                                    <i className="bi bi-person-plus" style={{ fontSize: '14px' }}></i> Invite
+                                </button>
+
+                                {/* Add Employee Button */}
+                                <button
+                                    className="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                                    onClick={() => setShowModal(true)}
+                                >
+                                    <i className="bi bi-plus-lg"></i> Add Employee
+                                </button>
+                            </div>
+
+
+                            <AddEmployeeModal show={showModal} handleClose={() => setShowModal(false)} />
+
+                            {/* Invite Modal (You can build similar like AddEmployeeModal) */}
+                            <InviteEmployeeModal show={showInviteModal} handleClose={() => setShowInviteModal(false)} />
+
+                        </div>
+
+                        <EmployeeStats />
+
                         {/* Left Panel */}
-                        <div className="col-md-12">
+                        <div className="col-md-12 mt-1">
                             {/* Employee List View UI */}
                             <div className="card border-0 shadow-sm rounded-4">
                                 <div className="card-header bg-white">
-                                    <h5 className="mb-1 fw-bold">Employee Management</h5>
+                                    {/* <h5 className="mb-1 fw-bold">Employee Management</h5>
                                     <p className="text-muted mb-2" style={{ fontSize: '0.9rem' }}>
                                         Manage your field employees and their assigned geofences.
-                                    </p>
+                                    </p> */}
 
                                     {/* 👇 This row aligns search left, filter right */}
-                                    <div className="d-flex justify-content-between align-items-center mb-3">
-                                        <div className="flex-grow-1 me-2">
+                                    <div className="d-flex justify-content-between mb-3">
+                                        <div className="flex-grow-1 me-2 position-relative">
+                                            <i className="bi bi-search position-absolute text-muted"
+                                                style={{ top: '50%', left: '14px', transform: 'translateY(-50%)', fontSize: '14px' }}>
+                                            </i>
                                             <input
                                                 type="text"
-                                                className="form-control"
+                                                className="form-control ps-5 py-2"
+                                                style={{
+                                                    borderRadius: '8px',
+                                                    borderColor: '#e0e0e0',
+                                                    fontSize: '13px'
+                                                }}
                                                 placeholder="Search employees..."
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
                                             />
                                         </div>
+
                                         <div>
-                                            <button className="btn btn-outline-secondary btn-sm">
-                                                <i className="bi bi-funnel"></i> Filter
+                                            <button className="btn btn-outline-secondary btn-sm" style={{ fontSize: '12px', padding: '6px 12px' }}>
+                                                <i className="bi bi-funnel me-1"></i> Filter
                                             </button>
                                         </div>
                                     </div>
@@ -205,31 +255,67 @@ const AddEmployees = () => {
 
                                 <div className="card-body p-0" style={{ overflow: 'visible' }}>
                                     {viewType === "list" ? (
-                                        <table className="table table-hover table-bordered align-middle">
+                                        <table className="table table-hover align-middle">
                                             <thead className="table-light">
                                                 <tr>
-                                                    <th className='text-center'>Employee</th>
-                                                    <th className='text-center'>Current Location</th>
-                                                    <th className='text-center'>Assigned Geofences</th>
-                                                    <th className='text-center'>Last Active</th>
-                                                    <th className='text-center'>Actions</th>
+                                                    <th className="text-secondary fw-normal small">Employee</th>
+                                                    <th className="text-secondary fw-normal small">Current Location</th>
+                                                    <th className="text-secondary fw-normal small">Assigned Geofences</th>
+                                                    <th className="text-secondary fw-normal small">Last Active</th>
+                                                    <th className="text-secondary fw-normal small text-center">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {filteredEmployees.map((emp, index) => (
                                                     <tr key={index}>
-                                                        <td>
-                                                            {/* Avatar + Name + Role */}
-                                                            <h6 className="mb-0 fw-bold">{emp.name}</h6>
+                                                        {/* Employee: Avatar + Name + Role */}
+                                                        {/* Employee */}
+                                                        <td className="ps-4 py-3">
+                                                            <div className="d-flex align-items-center gap-3">
+                                                                <div className="rounded-circle d-flex justify-content-center align-items-center"
+                                                                    style={{ width: 42, height: 42, backgroundColor: '#EAF3FB' }}>
+                                                                    <i className="bi bi-person text-primary fs-5"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="fw-semibold" style={{ fontSize: '14px' }}>{emp.name}</div>
+                                                                    <div className="text-muted" style={{ fontSize: '12px' }}>{emp.role || "Field Employee"}</div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
 
+                                                        {/* Current Location */}
+                                                        <td className="py-3">
+                                                            {emp.location && emp.location !== 'Offline' ? (
+                                                                <span className="d-flex align-items-center text-dark" style={{ fontSize: '13px' }}>
+                                                                    <i class="bi bi-geo-alt me-1 text-primary"></i>{emp.location}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="badge rounded-pill bg-light text-muted px-3 py-2" style={{ fontSize: '12px' }}>Offline</span>
+                                                            )}
                                                         </td>
-                                                        <td>{emp.location || <span className="badge bg-light text-muted">Offline</span>}</td>
-                                                        <td>
-                                                            {(emp.geofences || []).map((g, i) => (
-                                                                <span key={i} className="badge bg-info me-1 mb-1">{g}</span>
-                                                            ))}
+
+                                                        {/* Assigned Geofences */}
+                                                        <td className="py-3">
+                                                            <div className="d-flex flex-wrap gap-2">
+                                                                {(emp.geofences || []).map((g, i) => (
+                                                                    <span key={i} className="badge rounded-pill" style={{
+                                                                        backgroundColor: '#0ea5e9',
+                                                                        fontSize: '12px',
+                                                                        padding: '6px 12px'
+                                                                    }}>
+                                                                        {g}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
                                                         </td>
-                                                        <td><i className="bi bi-clock me-1"></i>{emp.lastActive}</td>
+
+                                                        {/* Last Active */}
+                                                        <td className="py-3">
+                                                            <span className="d-flex align-items-center text-muted" style={{ fontSize: '13px' }}>
+                                                                <i className="bi bi-clock me-1"></i>{emp.lastActive}
+                                                            </span>
+                                                        </td>
+
                                                         {/* <td className="text-end">...</td> */}
                                                         <td className="text-center">
                                                             <div class="btn-group">
