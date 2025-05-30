@@ -20,6 +20,8 @@ import {
     AccessTime as AccessTimeIcon,
     AttachMoney as AttachMoneyIcon
 } from '@mui/icons-material';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import check from "../images/online.webp";
 import offline from "../images/not-active.svg";
 import CircleIcon from '@mui/icons-material/Circle';
@@ -27,9 +29,9 @@ import axios from "axios";
 import CalculateIcon from '@mui/icons-material/Calculate'; // For Run Payroll
 import GroupAddIcon from '@mui/icons-material/GroupAdd';   // For Add Employee
 import HistoryIcon from '@mui/icons-material/History';     // For Pay Stub History
-import TimerIcon from '@mui/icons-material/Timer';              // ⏱ Break Time
+import TimerIcon from '@mui/icons-material/Timer';         // ⏱ Break Time
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'; // 🧑‍💼 Attendance Management
-import AlarmOnIcon from '@mui/icons-material/AlarmOn';          // ⏰ Punctuality
+import AlarmOnIcon from '@mui/icons-material/AlarmOn';     // ⏰ Punctuality
 import InsightsIcon from '@mui/icons-material/Insights';         // 📊 Detailed Reports
 import QueryStatsIcon from '@mui/icons-material/QueryStats';     // 📈 Punctuality Reports
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
@@ -56,6 +58,8 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
     const [geoFenceOpen, setGeoFenceOpen] = useState(false);
     const socket = useSocket();
     const [userType, setUserType] = useState(parentUserType); // initial from props
+    const [loadingUsers, setLoadingUsers] = useState(false);
+    const [token, setToken] = useState(localStorage.getItem("token"));
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -63,7 +67,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
+        // const token = localStorage.getItem("token");
         if (token) {
             try {
                 const decoded = jwtDecode(token);
@@ -146,6 +150,18 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
         if (isMobile) setMobileOpen(false);
     };
 
+    useEffect(() => {
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                setUserType(decoded?.userType);
+            } catch (err) {
+                console.error("Token decode error", err);
+            }
+        }
+    }, [token]);
+
+
     const sidebarItems = useMemo(() => [
         { text: 'Dashboard', icon: <DashboardIcon />, route: '/dashboard' },
         { isDropdown: 'timeline' },
@@ -180,6 +196,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
     });
 
     const drawerContent = (
+
         <div>
             <div style={{ display: 'flex', alignItems: 'center', padding: '16px 10px' }}>
                 {!collapsed && (
@@ -222,13 +239,17 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                 </Tooltip>
 
                                 {/* 🟢 This shows on hover only */}
-                                {showUsersDropdown && !collapsed && userType !== "user" && (
+                                {showUsersDropdown && !collapsed && userType !== "user" && userType !== "manager" && (
                                     <div
                                         key="timeline-tab"
                                         onMouseEnter={async (e) => {
                                             const rect = e.currentTarget.getBoundingClientRect();
                                             setUsersDropdownPos({ top: rect.top, left: rect.right });
+                                            // setShowUsersDropdown(true);
+                                            // setLoadingUsers(true); // start loading
                                             setShowUsersDropdown(true);
+                                            setLoadingUsers(true);      // start loading
+                                            setUserStats(null);         // clear old data
 
                                             try {
                                                 const res = await fetch("https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee", {
@@ -250,6 +271,9 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                                 }
                                             } catch (err) {
                                                 console.error("Failed to fetch user stats on hover", err);
+                                            }
+                                            finally {
+                                                setLoadingUsers(false); // stop loading
                                             }
                                         }}
                                         onMouseLeave={() => setShowUsersDropdown(false)}
@@ -278,7 +302,9 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                                 }}
                                             >
 
-                                                {userStats ? (
+                                                {loadingUsers ? (
+                                                    <p style={{ color: "#ccc" }}>Loading...</p>
+                                                ) : userStats ? (
                                                     isMobile ? (
                                                         <>
                                                             <div style={{ borderTop: '1px solid #ffffff33', paddingTop: 8 }}>
@@ -583,7 +609,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                     }
 
                     if (item.isDropdown === 'geoFence') {
-                        const isActive = ['/geo-fance', '/geo-fance/add', '/geo-fance/add-employees', '/geo-fance/alert'].some(path =>
+                        const isActive = ['/geo-fance', '/geo-fance/add', '/geo-fance/add-employees', '/geo-fance/alert', 'geo-fance/incident'].some(path =>
                             location.pathname.includes(path)
                         );
                         return (
@@ -636,10 +662,24 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                             onClick={() => handleNavigate('/geo-fance/add-employees')}
                                         >
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                                <AddLocationAltIcon />
+                                                <GroupAddIcon />
                                             </ListItemIcon>
                                             {!collapsed && <ListItemText primary="Add Employees" />}
                                         </ListItemButton>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname === '/geo-fance/incident' ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('geo-fance/incident')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <ReportProblemIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Incident" />}
+                                        </ListItemButton>
+
                                         <ListItemButton
                                             sx={{
                                                 pl: collapsed ? 2 : 6,
@@ -663,7 +703,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                             onClick={() => handleNavigate('/geo-fance/reports')}
                                         >
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                                <AddLocationAltIcon />
+                                                <BarChartIcon />
                                             </ListItemIcon>
                                             {!collapsed && <ListItemText primary="Reports" />}
                                         </ListItemButton>
@@ -734,6 +774,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                             </ListItemIcon>
                                             {!collapsed && <ListItemText primary="Pay Stub History" />}
                                         </ListItemButton>
+
                                         <ListItemButton
                                             sx={{
                                                 pl: collapsed ? 2 : 6,
@@ -766,9 +807,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                     );
                 })}
 
-
             </List>
-
 
         </div>
     );
