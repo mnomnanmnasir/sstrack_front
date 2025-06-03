@@ -15,10 +15,22 @@ import 'leaflet/dist/leaflet.css';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { Polyline } from 'react-leaflet';
+import QuickStartModal from './QuickStartModal';
 
 
 
 const GeoFance = () => {
+
+
+    const [showModal, setShowModal] = useState(false);
+
+    const handleOpenModal = () => {
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
 
     return (
         <>
@@ -138,10 +150,10 @@ const GeoFance = () => {
                         </div>
 
                         {/* Geofence Status */}
-                        <div className="col-md-4">
+                        <div className="col-md-4 mb-3">
                             <div className="card h-100 shadow-sm border-0 rounded-4">
                                 <div className="card-body">
-                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                    <div className="d-flex justify-content-between align-items-center">
                                         <h6 className="mb-0 fw-semibold fs-6">Geofence Status</h6>
                                         <span className="badge bg-light text-muted fw-normal" style={{ fontSize: '12px' }}>3 Active</span>
                                     </div>
@@ -327,6 +339,28 @@ const GeoFance = () => {
                     </div>
 
                 </div>
+                {/* Floating Button */}
+                <button
+                    onClick={handleOpenModal}
+                    style={{
+                        position: 'fixed',
+                        bottom: '30px',
+                        right: '30px',
+                        backgroundColor: '#A4DC3F',
+                        borderRadius: '50%',
+                        width: '60px',
+                        height: '60px',
+                        border: 'none',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                        zIndex: 9999
+                    }}
+                >
+                    <i className="bi bi-question-circle" style={{ fontSize: '28px', color: '#000' }}></i>
+                </button>
+
+                {/* Modal */}
+                <QuickStartModal show={showModal} onClose={() => setShowModal(false)} />
+
             </div>
 
         </>

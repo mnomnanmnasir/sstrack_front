@@ -22,6 +22,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import AddEmployeeModal from './AddEmployeeModal';  // Import the modal you just created
 import InviteEmployeeModal from './InviteEmployeeModal';
 import EmployeeStats from './EmployeeStats';
+import QuickStartModal from './QuickStartModal';
 
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -41,6 +42,7 @@ L.Marker.prototype.options.icon = L.icon({
 
 const AddEmployees = () => {
 
+    const [showModal1, setShowModal1] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedGeofence, setSelectedGeofence] = useState(null);
     const [isClient, setIsClient] = useState(false); // Ensures MapContainer only loads in browser
@@ -105,6 +107,10 @@ const AddEmployees = () => {
     // const filteredEmployees = employees.filter(emp =>
     //     emp.name.toLowerCase().includes(searchTerm.toLowerCase())
     // );
+
+    const handleOpenModal = () => {
+        setShowModal1(true);
+    };
 
     const activeCount = employees.filter(emp => emp.status === 'online').length;
     const inactiveCount = employees.filter(emp => emp.status === 'offline').length;
@@ -180,6 +186,106 @@ const AddEmployees = () => {
 
                         {/* Left Panel */}
                         <div className="col-md-12 mt-1">
+                            <div className="d-flex justify-content-between align-items-center mt-2 gap-2">
+
+                                {/* Search Bar */}
+                                <div className="flex-grow-1 position-relative">
+                                    <i className="bi bi-search position-absolute text-muted"
+                                        style={{ top: '50%', left: '14px', transform: 'translateY(-50%)', fontSize: '14px' }}>
+                                    </i>
+                                    <input
+                                        type="text"
+                                        className="form-control ps-5"
+                                        style={{
+                                            borderRadius: '8px',
+                                            borderColor: '#e0e0e0',
+                                            fontSize: '13px',
+                                            height: '40px'
+                                        }}
+                                        placeholder="Search employees..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+
+                                {/* Department Dropdown */}
+                                <div>
+                                    <select className="form-select" style={{
+                                        borderRadius: '8px',
+                                        fontSize: '13px',
+                                        height: '40px',
+                                        width: '150px'
+                                    }}>
+                                        <option>All Departments</option>
+                                        <option>HR</option>
+                                        <option>Sales</option>
+                                        <option>IT</option>
+                                        {/* You can map dynamic departments here */}
+                                    </select>
+                                </div>
+
+                                {/* View Switch Icons */}
+                                <div className="d-flex align-items-center gap-2">
+                                    <button
+                                        className={`btn ${viewType === 'list' ? 'btn-primary' : 'btn-outline-secondary'} rounded-3 p-2`}
+                                        onClick={() => setViewType('list')}
+                                    >
+                                        <i className="bi bi-person" style={{ fontSize: '16px' }}></i>
+                                    </button>
+
+                                    <button
+                                        className={`btn ${viewType === 'grid' ? 'btn-primary' : 'btn-outline-secondary'} rounded-3 p-2`}
+                                        onClick={() => setViewType('grid')}
+                                    >
+                                        <i className="bi bi-funnel" style={{ fontSize: '16px' }}></i>
+                                    </button>
+                                </div>
+
+                            </div>
+
+                            <div className="d-flex align-items-center p-1 mb-0 mt-2"
+                                style={{ backgroundColor: "grey", borderRadius: "10px", width: "fit-content" }}>
+
+                                <button
+                                    className={`btn btn-sm px-3 py-2 fw-semibold ${employeeFilter === 'all' ? 'btn-light text-dark' : 'btn-transparent text-white'}`}
+                                    style={{
+                                        borderRadius: "8px",
+                                        backgroundColor: employeeFilter === 'all' ? '#fff' : 'transparent',
+                                        border: 'none',
+                                        boxShadow: employeeFilter === 'all' ? '0 0 2px rgba(0,0,0,0.2)' : 'none'
+                                    }}
+                                    onClick={() => setEmployeeFilter('all')}
+                                >
+                                    All Employees
+                                </button>
+
+                                <button
+                                    className={`btn btn-sm px-3 py-2 fw-semibold ${employeeFilter === 'active' ? 'btn-light text-dark' : 'btn-transparent text-white'}`}
+                                    style={{
+                                        borderRadius: "8px",
+                                        backgroundColor: employeeFilter === 'active' ? '#fff' : 'transparent',
+                                        border: 'none',
+                                        boxShadow: employeeFilter === 'active' ? '0 0 2px rgba(0,0,0,0.2)' : 'none'
+                                    }}
+                                    onClick={() => setEmployeeFilter('active')}
+                                >
+                                    Active ({activeCount})
+                                </button>
+
+                                <button
+                                    className={`btn btn-sm px-3 py-2 fw-semibold ${employeeFilter === 'inactive' ? 'btn-light text-dark' : 'btn-transparent text-white'}`}
+                                    style={{
+                                        borderRadius: "8px",
+                                        backgroundColor: employeeFilter === 'inactive' ? '#fff' : 'transparent',
+                                        border: 'none',
+                                        boxShadow: employeeFilter === 'inactive' ? '0 0 2px rgba(0,0,0,0.2)' : 'none'
+                                    }}
+                                    onClick={() => setEmployeeFilter('inactive')}
+                                >
+                                    Inactive ({inactiveCount})
+                                </button>
+                            </div>
+
                             {/* Employee List View UI */}
                             <div className="card border-0 shadow-sm rounded-4">
                                 <div className="card-header bg-white">
@@ -189,34 +295,10 @@ const AddEmployees = () => {
                                     </p> */}
 
                                     {/* 👇 This row aligns search left, filter right */}
-                                    <div className="d-flex justify-content-between mb-3">
-                                        <div className="flex-grow-1 me-2 position-relative">
-                                            <i className="bi bi-search position-absolute text-muted"
-                                                style={{ top: '50%', left: '14px', transform: 'translateY(-50%)', fontSize: '14px' }}>
-                                            </i>
-                                            <input
-                                                type="text"
-                                                className="form-control ps-5 py-2"
-                                                style={{
-                                                    borderRadius: '8px',
-                                                    borderColor: '#e0e0e0',
-                                                    fontSize: '13px'
-                                                }}
-                                                placeholder="Search employees..."
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                            />
-                                        </div>
 
-                                        <div>
-                                            <button className="btn btn-outline-secondary btn-sm" style={{ fontSize: '12px', padding: '6px 12px' }}>
-                                                <i className="bi bi-funnel me-1"></i> Filter
-                                            </button>
-                                        </div>
-                                    </div>
 
                                     {/* View Switch Buttons */}
-                                    <div className="d-flex align-items-center gap-2">
+                                    {/* <div className="d-flex align-items-center gap-2">
                                         <button
                                             className={`btn btn-sm px-3 py-1 ${viewType === 'list' ? 'text-dark fw-bold' : 'text-muted'} border-0 bg-transparent`}
                                             onClick={() => setViewType('list')}
@@ -229,29 +311,10 @@ const AddEmployees = () => {
                                         >
                                             Grid
                                         </button>
-                                    </div>
+                                    </div> */}
                                 </div>
 
-                                {/* <div className="d-inline-flex bg-secondary-subtle px-2 py-1 mb-3 mt-2 rounded-2">
-                                    <button
-                                        className={`btn btn-sm me-1 ${employeeFilter === 'all' ? 'btn-light fw-bold rounded-2' : 'btn-link text-muted rounded-2'}`}
-                                        onClick={() => setEmployeeFilter('all')}
-                                    >
-                                        All Employees
-                                    </button>
-                                    <button
-                                        className={`btn btn-sm me-1 ${employeeFilter === 'active' ? 'btn-light fw-bold rounded-2' : 'btn-link text-muted rounded-2'}`}
-                                        onClick={() => setEmployeeFilter('active')}
-                                    >
-                                        Active ({activeCount})
-                                    </button>
-                                    <button
-                                        className={`btn btn-sm ${employeeFilter === 'inactive' ? 'btn-light fw-bold rounded-2' : 'btn-link text-muted rounded-2'}`}
-                                        onClick={() => setEmployeeFilter('inactive')}
-                                    >
-                                        Inactive ({inactiveCount})
-                                    </button>
-                                </div> */}
+
 
                                 <div className="card-body p-0" style={{ overflow: 'visible' }}>
                                     {viewType === "list" ? (
@@ -441,7 +504,29 @@ const AddEmployees = () => {
                         </div>
                     </div>
                 </div>
-            </div >
+
+                {/* Floating Button */}
+                <button
+                    onClick={handleOpenModal}
+                    style={{
+                        position: 'fixed',
+                        bottom: '30px',
+                        right: '30px',
+                        backgroundColor: '#A4DC3F',
+                        borderRadius: '50%',
+                        width: '60px',
+                        height: '60px',
+                        border: 'none',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                        zIndex: 9999
+                    }}
+                >
+                    <i className="bi bi-question-circle" style={{ fontSize: '28px', color: '#000' }}></i>
+                </button>
+
+                {/* Modal */}
+                <QuickStartModal show={showModal1} onClose={() => setShowModal1(false)} />
+            </div>
 
         </>
     );
