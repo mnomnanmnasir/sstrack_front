@@ -77,8 +77,8 @@ import AddEmployees from "../screen/component/GeoFancing/AddEmployees";
 import AlertComp from "../screen/component/GeoFancing/AlertComp";
 import Reports from "../screen/component/GeoFancing/Reports";
 import Incident from "../screen/component/GeoFancing/Incident";
-import TestingBlogPost from "../screen/component/Blogs/TestingBlogPost";
-import TestingBlogList from "../screen/component/Blogs/TestingBlogList";
+// import TestingBlogPost from "../screen/component/Blogs/TestingBlogPost";
+// import TestingBlogList from "../screen/component/Blogs/TestingBlogList";
 
 
 
@@ -250,9 +250,9 @@ export default function AppRouter() {
             <Route path="/add-employee" element={token ? (suspended ? <Navigate to="/account" /> : <AddEmployee />) : <Navigate to="/" />} />
             <Route path="/history" element={token ? (suspended ? <Navigate to="/account" /> : <History />) : <Navigate to="/" />} />
 
-            <Route path="/testingBlogPost" element={token ? (suspended ? <Navigate to="/account" /> : <TestingBlogPost />) : <Navigate to="/" />} />
+            {/* <Route path="/testingBlogPost" element={token ? (suspended ? <Navigate to="/account" /> : <TestingBlogPost />) : <Navigate to="/" />} />
             <Route path="/blog/:slug" element={token ? (suspended ? <Navigate to="/account" /> : <TestingBlogList />) : <Navigate to="/" />} />
-
+ */}
 
             {/* <Route path="/pay_stub_managment" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubGenerator />) : <Navigate to="/" />} />
             <Route path="/pay_stub_View" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubs />) : <Navigate to="/" />} />
