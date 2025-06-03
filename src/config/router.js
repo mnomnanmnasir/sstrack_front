@@ -76,6 +76,10 @@ import PayroleUser from "../screen/PayStub/PayroleUser";
 import AddEmployees from "../screen/component/GeoFancing/AddEmployees";
 import AlertComp from "../screen/component/GeoFancing/AlertComp";
 import Reports from "../screen/component/GeoFancing/Reports";
+import Incident from "../screen/component/GeoFancing/Incident";
+import TestingBlogPost from "../screen/component/Blogs/TestingBlogPost";
+import TestingBlogList from "../screen/component/Blogs/TestingBlogList";
+
 
 
 export default function AppRouter() {
@@ -135,7 +139,21 @@ export default function AppRouter() {
     }
   }, [token]);
 
-  const userInfo = token ? jwtDecode(token) : null;
+  // const userInfo = token ? jwtDecode(token) : null;
+  const [userInfo, setUserInfo] = useState(token ? jwtDecode(token) : null);
+
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserInfo(decoded);
+      } catch {
+        setUserInfo(null);
+      }
+    } else {
+      setUserInfo(null);
+    }
+  }, [token]);
 
   return (
     <>
@@ -196,8 +214,8 @@ export default function AppRouter() {
             <Route path="/PayStub_history" element={token ? (suspended ? <Navigate to="/account" /> : <PayrollHistory />) : <Navigate to="/" />} />
             <Route path="/PayStub_user" element={token ? (suspended ? <Navigate to="/account" /> : <PayroleUser />) : <Navigate to="/" />} />
 
-            <Route path="/team" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerTeam />) : <Navigate to="/" />} />
-            {/* <Route
+            {/* <Route path="/team" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerTeam />) : <Navigate to="/" />} /> */}
+            <Route
               path="/team"
               element={
                 token
@@ -208,36 +226,42 @@ export default function AppRouter() {
                       : <OwnerTeam />
                   : <Navigate to="/" />
               }
-            /> */}
+            />
 
             <Route path="/reports" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerReport />) : <Navigate to="/" />} />
             <Route path="/Projects" element={token ? (suspended ? <Navigate to="/account" /> : <Project />) : <Navigate to="/" />} />
             <Route path="/company-owner-user" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserSignup />) : <Navigate to="/" />} />
             <Route path="/activity/:id" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserTimeline />) : <Navigate to="/" />} />
             <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} />
-            <Route path="/leave-management" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerLeaveManagement />) : <Navigate to="/" />} />
+            <Route path="/leave-management" element={token ? (suspended ? <Navigate to="/ac count" /> : <OwnerLeaveManagement />) : <Navigate to="/" />} />
             <Route path="/applyForLeave" element={token ? (suspended ? <Navigate to="/account" /> : <ApplyForLeave />) : <Navigate to="/" />} />
             <Route path="/ownerManualLeave" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerManualLeave />) : <Navigate to="/" />} />
             <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} />
             {/* <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} /> */}
             <Route path="/attendence-management" element={token ? (suspended ? <Navigate to="/account" /> : <Attendence />) : <Navigate to="/" />} />
+
             <Route path="/geo-fance" element={token ? (suspended ? <Navigate to="/account" /> : <GeoFance />) : <Navigate to="/" />} />
             <Route path="/geo-fance/add" element={token ? (suspended ? <Navigate to="/account" /> : <GeoFanceAdd />) : <Navigate to="/" />} />
             <Route path="/geo-fance/add-employees" element={token ? (suspended ? <Navigate to="/account" /> : <AddEmployees />) : <Navigate to="/" />} />
             <Route path="/geo-fance/alert" element={token ? (suspended ? <Navigate to="/account" /> : <AlertComp />) : <Navigate to="/" />} />
             <Route path="/geo-fance/reports" element={token ? (suspended ? <Navigate to="/account" /> : <Reports />) : <Navigate to="/" />} />
+            <Route path="/geo-fance/incident" element={token ? (suspended ? <Navigate to="/account" /> : <Incident />) : <Navigate to="/" />} />
+
             <Route path="/add-employee" element={token ? (suspended ? <Navigate to="/account" /> : <AddEmployee />) : <Navigate to="/" />} />
             <Route path="/history" element={token ? (suspended ? <Navigate to="/account" /> : <History />) : <Navigate to="/" />} />
+
+            <Route path="/testingBlogPost" element={token ? (suspended ? <Navigate to="/account" /> : <TestingBlogPost />) : <Navigate to="/" />} />
+            <Route path="/blog/:slug" element={token ? (suspended ? <Navigate to="/account" /> : <TestingBlogList />) : <Navigate to="/" />} />
+
+
             {/* <Route path="/pay_stub_managment" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubGenerator />) : <Navigate to="/" />} />
             <Route path="/pay_stub_View" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubs />) : <Navigate to="/" />} />
             <Route path="/punctuality-reports" element={token ? (suspended ? <Navigate to="/account" /> : <PunctualityReports />) : <Navigate to="/" />} /> */}
 
+            {/* <Route path="/effective-settings/break-time" element={<BreakTime />} /> */}
             <Route path="/punctuality" element={<Punctuality />} />
             <Route path="/break-time" element={<BreakTime />} />
             <Route path="/settings" element={<Setting />}>
-
-              {/* <Route path="break-time" element={<BreakTime />} /> */}
-              {/* <Route path="punctuality" element={<Punctuality />} /> */}
 
             </Route>
             {/* <Route
@@ -265,7 +289,7 @@ export default function AppRouter() {
           <Route path="/sADashboard" element={<SaMain />} />
           <Route path="/chrome" element={<Chrome />} />
           <Route path="/app_store" element={<Appstore />} />
-          <Route path="/play_store" element={<PlayStore />} />
+          <Route path="/app_store" element={<PlayStore />} />
           <Route path="/windows" element={<Windows />} />
           <Route path="/macos" element={<Macos />} />
 
