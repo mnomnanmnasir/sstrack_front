@@ -29,8 +29,7 @@ function Screenshot() {
     const [puncStartTime, setPuncStartTime] = useState('');
     const [puncEndTime, setPuncEndTime] = useState("");
     const [globalPunctuality, setGlobalPunctuality] = useState({});
-    const [implementStartDate, setImplementStartDate] = useState(""); // 👈 Add this line
-    const [implementStartTime, setImplementStartTime] = useState(""); // 👈 Add this line
+
 
 
 
@@ -210,7 +209,7 @@ function Screenshot() {
         timezone: tz,
         startFormatted: moment.parseZone(times.punctualityStartTime).format("HH:mm"),
         endFormatted: moment.parseZone(times.punctualityEndTime).format("HH:mm"),
-        dateFormatted: moment.parseZone(times.punctualityStartTime).format("YYYY-MM-DD"),
+        dateFormatted: moment().format("YYYY-MM-DD"),
         isEditing: editTZ === tz,
     }));
 
@@ -490,7 +489,7 @@ function Screenshot() {
                                 ))
                             )}
 
-                         
+
                             {loading ? (
                                 <div style={{ marginBottom: '20px' }}>
                                     <Skeleton height={40} width={300} />
