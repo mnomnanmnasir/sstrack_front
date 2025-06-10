@@ -99,7 +99,12 @@ const PayStubSettings = ({
                     <select
                         className="form-control"
                         value={appliedTaxCountry}
-                        onChange={(e) => setAppliedTaxCountry(e.target.value)}
+                        onChange={(e) => {
+                            const newCountry = e.target.value;
+                            setAppliedTaxCountry(newCountry);
+                            setAppliedTaxes([]);         // Reset taxes
+                            setAppliedDeductions([]);    // Reset deductions
+                        }}
                     >
                         <option value="">Select Country</option>
                         <option value="canada">Canada</option>
