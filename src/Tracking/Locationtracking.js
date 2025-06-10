@@ -1,6 +1,6 @@
 
 import { SnackbarProvider } from 'notistack';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { GoogleMap, LoadScript, Polyline } from "@react-google-maps/api";
@@ -11,6 +11,9 @@ import jwtDecode from 'jwt-decode';
 import SelectBox from '../companyOwner/ownerComponent/selectBox';
 import makeAnimated from 'react-select/animated';
 import axios from 'axios';
+// import { useRef } from 'react';
+import { useSnackbar } from 'notistack';
+
 
 
 
@@ -22,7 +25,11 @@ const LocaitonTracking = () => {
     const [totalTime, setTotalTime] = useState("0h 0m");
     const tokens = localStorage.getItem("token");
     const [showFullSummary, setShowFullSummary] = useState(false);
+    const { enqueueSnackbar } = useSnackbar();
 
+    const mapRef = useRef(null);
+
+    
     const summaryPreviewCount = 3;
     const items = jwtDecode(JSON.stringify(tokens));
     const [userID, setuserId] = useState(items?._id)
@@ -39,7 +46,20 @@ const LocaitonTracking = () => {
         totalDistance: "0 KM",
     });
 
+    const getPreviousMonthStart = () => {
+        const date = new Date();
+        date.setMonth(date.getMonth() - 1);
+        date.setDate(1);
+        return date;
+    };
 
+    const getCurrentMonthEnd = () => {
+        const date = new Date();
+        date.setMonth(date.getMonth() + 1, 0); // Last day of current month
+        return date;
+    };
+
+    const [dataAvailability, setDataAvailability] = useState([]); // To hold dates with dataExist=true
     const [activeSummary, setActiveSummary] = useState([]);
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
@@ -84,7 +104,8 @@ const LocaitonTracking = () => {
             const formattedDate = date.toISOString().split("T")[0]; // Format to YYYY-MM-DD
             const token = localStorage.getItem("token");
             const apiUrl = items?.userType === "user"
-                ? `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerData?date=${formattedDate}`
+                // ? `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerData?date=${formattedDate}`
+                ? `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerDataByDate/${userID}?date=${formattedDate}`
                 : `https://myuniversallanguages.com:9093/api/v1/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
             const response = await fetch(apiUrl, {
                 method: "GET",
@@ -155,33 +176,98 @@ const LocaitonTracking = () => {
         }
     };
 
+    const hasShownNoDataSnackbar = useRef(false);
+
+    const fetchAvailableDates = async (uid) => {
+        try {
+            hasShownNoDataSnackbar.current = false; // reset on each new user fetch
+
+            const today = new Date();
+            const formattedToday = today.toISOString().split("T")[0];
+
+            const response = await axios.get(
+                `${apiUrl}/tracker/getTrackerDataByDate/${uid}?date=${formattedToday}`,
+                { headers }
+            );
+
+            if (response.data.success) {
+                const availableDates = response.data.data.dataByDay
+                    .filter(day => day.dataExist)
+                    .map(day => {
+                        const [d, m, y] = day.date.split("-");
+                        return new Date(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
+                    });
+
+                setDataAvailability(availableDates);
+
+                if (availableDates.length > 0) {
+                    setSelectedDate(availableDates[0]);
+                } else {
+                    setSelectedDate(today);
+
+                    if (!hasShownNoDataSnackbar.current) {
+                        enqueueSnackbar("Data not found", { variant: "warning" });
+                        hasShownNoDataSnackbar.current = true;
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("Error fetching availability:", err);
+            setDataAvailability([]);
+            setSelectedDate(new Date());
+
+            if (!hasShownNoDataSnackbar.current) {
+                enqueueSnackbar("Error fetching data", { variant: "error" });
+                hasShownNoDataSnackbar.current = true;
+            }
+        }
+    };
+
     // Fetch data whenever the selected date changes
     useEffect(() => {
         fetchData(selectedDate);
-    }, [selectedDate, userID]);
+    }, [selectedDate]);
+
+    // const handleSelectUsers = (e) => {
+    //     setuserId(e?.value)
+    //     console.log('here', e?.value)
+    // }
 
     const handleSelectUsers = (e) => {
-        setuserId(e?.value)
-        console.log('here', e?.value)
-    }
-
-
+        const selectedUserId = e?.value;
+        setuserId(selectedUserId);
+        fetchAvailableDates(selectedUserId);  // <-- this line
+    };
 
     const animatedComponents = makeAnimated();
 
+    useEffect(() => {
+        if (userID) {
+            fetchAvailableDates(userID);
+        }
+    }, [userID]);
 
     useEffect(() => {
+        // Don't proceed if no data
         if (!polylinePath || polylinePath.length === 0) return;
 
-        // Clean up any previous map
-        let mapContainer = document.getElementById("map");
-        if (mapContainer._leaflet_id) {
-            mapContainer._leaflet_id = null;
+        // Get container safely
+        const mapContainer = document.getElementById("map");
+        if (!mapContainer) {
+            console.warn("Map container not found");
+            return;
+        }
+
+        // Clean previous map
+        if (mapRef.current) {
+            mapRef.current.remove();
+            mapRef.current = null;
         }
 
         const initialCenter = polylinePath[0][0] || [37.7749, -122.4194];
+        const map = L.map(mapContainer).setView(initialCenter, 15);
+        mapRef.current = map;
 
-        const map = L.map("map").setView(initialCenter, 15);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: "© OpenStreetMap contributors",
         }).addTo(map);
@@ -197,11 +283,7 @@ const LocaitonTracking = () => {
                 }).addTo(map);
                 featureGroup.addLayer(line);
 
-                console.log(`Polyline ${polylineIndex + 1} Coordinates:`);
                 polyline.forEach((coord, coordIndex) => {
-                    console.log(`→ [${coord[0]}, ${coord[1]}]`);
-
-                    // Marker at each coordinate
                     const coordMarker = L.marker(coord, {
                         icon: L.icon({
                             iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
@@ -209,25 +291,24 @@ const LocaitonTracking = () => {
                         }),
                         title: `Point ${coordIndex + 1}`,
                     }).addTo(map);
-                    coordMarker.bindPopup(`Point ${coordIndex + 1}`).openPopup();
-
+                    coordMarker.bindPopup(`Point ${coordIndex + 1}`);
                     featureGroup.addLayer(coordMarker);
                 });
             }
         });
 
         if (featureGroup.getLayers().length > 0) {
-            map.fitBounds(featureGroup.getBounds(), {
-                padding: [30, 30],
-            });
+            map.fitBounds(featureGroup.getBounds(), { padding: [30, 30] });
         }
 
+        // Cleanup on unmount
         return () => {
-            map.remove();
+            if (mapRef.current) {
+                mapRef.current.remove();
+                mapRef.current = null;
+            }
         };
     }, [polylinePath]);
-
-
 
     const getManagerEmployees = async () => {
         try {
@@ -452,16 +533,28 @@ const LocaitonTracking = () => {
 
                                 {/* DatePicker Input */}
                                 <DatePicker
-
                                     selected={selectedDate}
                                     onChange={handleDateChange}
-                                    dateFormat="MMM d, yyyy EEEE" // Example: Dec 9, 2024 Monday
-                                    popperPlacement="bottom-start"
+                                    dateFormat="MMM d, yyyy EEEE"
+                                    highlightDates={[{ 'light-green': dataAvailability }]}
+                                    filterDate={(date) =>
+                                        dataAvailability.some(
+                                            (available) =>
+                                                date.getFullYear() === available.getFullYear() &&
+                                                date.getMonth() === available.getMonth() &&
+                                                date.getDate() === available.getDate()
+                                        )
+                                    }
+                                    maxDate={new Date()} // ✅ This prevents next/future months from showing
+                                    // showMonthDropdown
+                                    // showYearDropdown
+                                    // scrollableMonthYearDropdown
+                                    // popperPlacement="bottom-start"
                                     popperModifiers={[
                                         {
                                             name: "preventOverflow",
                                             options: {
-                                                boundary: "viewport", // Prevents hiding in limited spaces
+                                                boundary: "viewport",
                                             },
                                         },
                                     ]}
@@ -482,18 +575,12 @@ const LocaitonTracking = () => {
                                                     weekday: "long",
                                                 })}
                                             </span>
-                                            <span
-                                                style={{
-                                                    fontSize: "14px",
-                                                    color: "#666",
-                                                }}
-                                            >
-                                                ▼
-                                            </span>
+                                            <span style={{ fontSize: "14px", color: "#666" }}>▼</span>
                                         </div>
                                     }
                                 />
                             </div>
+
                         </div>
 
                         {/* Map View */}
@@ -512,25 +599,7 @@ const LocaitonTracking = () => {
                                 }}
                             ></div>
                         </div>
-                        {/* <LoadScript googleMapsApiKey="AIzaSyAkuGHrq6iEysHhbYV7hchbKAs7nvMHc1g">
-                            <GoogleMap
-                                mapContainerStyle={mapContainerStyle}
-                                center={initialCenter}
-                                zoom={13}
-                            >
-                                {convertedPolylines.map((path, index) => (
-                                    <Polyline
-                                        key={index}
-                                        path={path}
-                                        options={{
-                                            strokeColor: "blue",
-                                            strokeWeight: 4,
-                                        }}
-                                    />
-                                ))}
-                            </GoogleMap>
-                        </LoadScript> */}
-                        {/* Active Summary */}
+
                         <div>
                             <h3 style={{ fontSize: "23px", color: "#28659C", fontWeight: "600" }}>Active Summary</h3>
 
