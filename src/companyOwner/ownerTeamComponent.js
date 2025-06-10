@@ -39,6 +39,9 @@ function OwnerTeamComponent(props) {
     const [appliedTaxCountry, setAppliedTaxCountry] = useState('');
     const [currency, setCurrency] = useState('');
     const [appliedTaxState, setAppliedTaxState] = useState('');
+    const [appliedTaxes, setAppliedTaxes] = useState('');
+    const [appliedDeductions, setAppliedDeductions] = useState('');
+
     const [vacationPay, setVacationPay] = useState('');
     const [payPeriodType, setPayPeriodType] = useState('');
     const [ratePerHour, setRatePerHours] = useState('');
@@ -175,7 +178,9 @@ function OwnerTeamComponent(props) {
                     : appliedTaxState,
             vacationPay: vacationPay,
             pay_type: pay_type || "hourly", // ✅ enforce default if empty
-            payPeriodType: payPeriodType
+            payPeriodType: payPeriodType,
+            appliedTaxes: appliedTaxes,
+            appliedDeductions: appliedDeductions // ✅ Add this
         };
 
         try {
@@ -287,6 +292,9 @@ function OwnerTeamComponent(props) {
                     setPayPeriodType(responseData?.payPeriodType || '');
                     setPayType(responseData?.billingInfo?.payType);
                     setRatePerHours(responseData?.billingInfo?.ratePerHour || '');
+                    setAppliedDeductions(responseData?.appliedDeductions || '');
+                    setAppliedTaxes(responseData?.appliedTaxes || '');
+
                     setData(responseData); // ✅ Data set for name, email etc.
                 }
             } catch (error) {
@@ -876,6 +884,10 @@ function OwnerTeamComponent(props) {
                                             setPayPeriodType={setPayPeriodType}
                                             pay_type={pay_type}
                                             setPayType={setPayType}
+                                            appliedTaxes={appliedTaxes}
+                                            setAppliedTaxes={setAppliedTaxes}
+                                            appliedDeductions={appliedDeductions} // ✅ New prop
+                                            setAppliedDeductions={setAppliedDeductions} // ✅ Setter
                                             countryStateMap={countryStateMap}
                                             usStateNameToCode={usStateNameToCode}
                                             updateStubSettings={updateStubSettings}
