@@ -23,6 +23,8 @@ import AddEmployeeModal from './AddEmployeeModal';  // Import the modal you just
 import InviteEmployeeModal from './InviteEmployeeModal';
 import EmployeeStats from './EmployeeStats';
 import QuickStartModal from './QuickStartModal';
+import { BiCheck } from 'react-icons/bi';
+import { BsChevronDown } from 'react-icons/bs';
 
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -42,6 +44,8 @@ L.Marker.prototype.options.icon = L.icon({
 
 const AddEmployees = () => {
 
+    const [formData, setFormData] = useState({ category: 'All Departments' });
+
     const [showModal1, setShowModal1] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedGeofence, setSelectedGeofence] = useState(null);
@@ -60,35 +64,42 @@ const AddEmployees = () => {
     const [employeeFilter, setEmployeeFilter] = useState('all'); // all | active | inactive
     // const [showModal, setShowModal] = useState(false);
     const [showInviteModal, setShowInviteModal] = useState(false);
+    const categoryOptions = ['All Departments', 'Field Technician', 'Safety Officers', 'Delivery Driver', 'Site Managers'];
+    const [isOpen, setIsOpen] = useState(false);
+
 
     const employees = [
         {
             name: 'John Smith',
             role: 'Field Technician',
+            email: 'nomannasir@i8is.com',
             location: 'Main Office',
-            status: 'online',
-            geofences: ['Main Office', 'Client Site A', 'Warehouse'],
+            status: 'Active',
+            geofences: ['Main Office', 'Client Site A', 'Warehouse A'],
             lastActive: '5 min ago'
         },
         {
             name: 'Sarah Johnson',
             role: 'Service Representative',
+            email: 'nomannasir@i8is.com',
             location: 'Client Site A',
-            status: 'online',
-            geofences: ['Client Site A', 'Client Site B'],
+            status: 'Active',
+            geofences: ['Main Office'],
             lastActive: '15 min ago'
         },
         {
             name: 'Mike Jones',
             role: 'Delivery Driver',
+            email: 'nomannasir@i8is.com',
             location: 'Warehouse',
-            status: 'online',
+            status: 'Active',
             geofences: ['Main Office', 'Warehouse'],
             lastActive: '32 min ago'
         },
         {
             name: 'Emily Wilson',
             role: 'Marketing Representative',
+            email: 'nomannasir@i8is.com',
             location: 'Offline',
             status: 'offline',
             geofences: ['Main Office', 'Client Site B'],
@@ -97,8 +108,9 @@ const AddEmployees = () => {
         {
             name: 'David Brown',
             role: 'Support Worker',
+            email: 'nomannasir@i8is.com',
             location: 'Offline',
-            status: 'offline',
+            status: 'Inactive',
             geofences: ['Client Site A'],
             lastActive: '1 day ago'
         },
@@ -187,12 +199,17 @@ const AddEmployees = () => {
                         {/* Left Panel */}
                         <div className="col-md-12 mt-1">
                             <div className="d-flex justify-content-between align-items-center mt-2 gap-2">
-
                                 {/* Search Bar */}
-                                <div className="flex-grow-1 position-relative">
-                                    <i className="bi bi-search position-absolute text-muted"
-                                        style={{ top: '50%', left: '14px', transform: 'translateY(-50%)', fontSize: '14px' }}>
-                                    </i>
+                                <div className="position-relative" style={{ flexGrow: 1, maxWidth: '600px' }}>
+                                    <i
+                                        className="bi bi-search position-absolute text-muted"
+                                        style={{
+                                            top: '50%',
+                                            left: '14px',
+                                            transform: 'translateY(-50%)',
+                                            fontSize: '14px'
+                                        }}
+                                    />
                                     <input
                                         type="text"
                                         className="form-control ps-5"
@@ -209,19 +226,64 @@ const AddEmployees = () => {
                                 </div>
 
                                 {/* Department Dropdown */}
-                                <div>
-                                    <select className="form-select" style={{
-                                        borderRadius: '8px',
-                                        fontSize: '13px',
-                                        height: '40px',
-                                        width: '150px'
-                                    }}>
-                                        <option>All Departments</option>
-                                        <option>HR</option>
-                                        <option>Sales</option>
-                                        <option>IT</option>
-                                        {/* You can map dynamic departments here */}
-                                    </select>
+                                <div style={{ position: 'relative', width: '200px', fontFamily: 'sans-serif' }}>
+                                    <div
+                                        onClick={() => setIsOpen(!isOpen)}
+                                        className="d-flex justify-content-between align-items-center"
+                                        style={{
+                                            border: '1px solid #D1D5DB',
+                                            borderRadius: '6px',
+                                            backgroundColor: '#fff',
+                                            fontSize: '14px',
+                                            padding: '10px 12px',
+                                            cursor: 'pointer',
+                                            userSelect: 'none',
+                                        }}
+                                    >
+                                        {formData.category}
+                                        <BsChevronDown className="text-muted" size={16} />
+                                    </div>
+
+                                    {isOpen && (
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                top: '44px',
+                                                left: 0,
+                                                width: '100%',
+                                                border: '1px solid #D1D5DB',
+                                                borderRadius: '6px',
+                                                backgroundColor: '#fff',
+                                                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.05)',
+                                                zIndex: 1000
+                                            }}
+                                        >
+                                            {categoryOptions.map((option) => (
+                                                <div
+                                                    key={option}
+                                                    onClick={() => {
+                                                        setFormData((prev) => ({ ...prev, category: option }));
+                                                        setIsOpen(false);
+                                                    }}
+                                                    style={{
+                                                        padding: '10px 12px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        backgroundColor: formData.category === option ? '#F0F9FF' : '#fff',
+                                                        cursor: 'pointer',
+                                                        fontSize: '14px',
+                                                        color: '#111827',
+                                                        gap: '8px'
+                                                    }}
+                                                >
+                                                    <span style={{ width: '16px', display: 'inline-block' }}>
+                                                        {formData.category === option && <BiCheck className="text-dark" size={16} />}
+                                                    </span>
+                                                    <span>{option}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* View Switch Icons */}
@@ -240,8 +302,8 @@ const AddEmployees = () => {
                                         <i className="bi bi-funnel" style={{ fontSize: '16px' }}></i>
                                     </button>
                                 </div>
-
                             </div>
+
 
                             <div className="d-flex align-items-center p-1 mb-0 mt-2"
                                 style={{ backgroundColor: "grey", borderRadius: "10px", width: "fit-content" }}>
@@ -318,70 +380,84 @@ const AddEmployees = () => {
 
                                 <div className="card-body p-0" style={{ overflow: 'visible' }}>
                                     {viewType === "list" ? (
-                                        <table className="table table-hover align-middle">
+                                        <table className="table align-middle" style={{ fontSize: '13px' }}>
                                             <thead className="table-light">
                                                 <tr>
-                                                    <th className="text-secondary fw-normal small">Employee</th>
-                                                    <th className="text-secondary fw-normal small">Current Location</th>
-                                                    <th className="text-secondary fw-normal small">Assigned Geofences</th>
-                                                    <th className="text-secondary fw-normal small">Last Active</th>
-                                                    <th className="text-secondary fw-normal small text-center">Actions</th>
+                                                    <th className="text-secondary fw-normal" style={{ fontSize: '12px' }}>Employee</th>
+                                                    <th className="text-secondary fw-normal" style={{ fontSize: '12px' }}>Role</th>
+                                                    <th className="text-secondary fw-normal" style={{ fontSize: '12px' }}>Status</th>
+                                                    <th className="text-secondary fw-normal" style={{ fontSize: '12px' }}>Current Location</th>
+                                                    <th className="text-secondary fw-normal" style={{ fontSize: '12px' }}>Last Active</th>
+                                                    <th className="text-secondary fw-normal text-center" style={{ fontSize: '12px' }}>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {filteredEmployees.map((emp, index) => (
-                                                    <tr key={index}>
-                                                        {/* Employee: Avatar + Name + Role */}
-                                                        {/* Employee */}
+                                                    <tr key={index} style={{ borderBottom: '1px solid #f0f0f0', verticalAlign: 'middle' }}>
+                                                        {/* Employee: Avatar + Name + Email */}
                                                         <td className="ps-4 py-3">
                                                             <div className="d-flex align-items-center gap-3">
-                                                                <div className="rounded-circle d-flex justify-content-center align-items-center"
-                                                                    style={{ width: 42, height: 42, backgroundColor: '#EAF3FB' }}>
-                                                                    <i className="bi bi-person text-primary fs-5"></i>
+                                                                <div className="rounded-circle d-flex align-items-center text-white fw-semibold"
+                                                                    style={{
+                                                                        width: 36,
+                                                                        height: 36,
+                                                                        backgroundColor: '#CBD5E1',
+                                                                        fontSize: '13px'
+                                                                    }}>
+                                                                    {emp.name?.charAt(0).toUpperCase() || '?'}
                                                                 </div>
                                                                 <div>
-                                                                    <div className="fw-semibold" style={{ fontSize: '14px' }}>{emp.name}</div>
-                                                                    <div className="text-muted" style={{ fontSize: '12px' }}>{emp.role || "Field Employee"}</div>
+                                                                    <div className="fw-semibold" style={{ fontSize: '13.5px' }}>{emp.name}</div>
+                                                                    <div className="text-muted" style={{ fontSize: '12px' }}>{emp.email}</div>
                                                                 </div>
                                                             </div>
                                                         </td>
 
-                                                        {/* Current Location */}
-                                                        <td className="py-3">
-                                                            {emp.location && emp.location !== 'Offline' ? (
-                                                                <span className="d-flex align-items-center text-dark" style={{ fontSize: '13px' }}>
-                                                                    <i class="bi bi-geo-alt me-1 text-primary"></i>{emp.location}
-                                                                </span>
-                                                            ) : (
-                                                                <span className="badge rounded-pill bg-light text-muted px-3 py-2" style={{ fontSize: '12px' }}>Offline</span>
-                                                            )}
-                                                        </td>
+                                                        {/* Role */}
+                                                        <td className="py-3" style={{ fontSize: '13px' }}>{emp.role}</td>
 
-                                                        {/* Assigned Geofences */}
-                                                        <td className="py-3">
-                                                            <div className="d-flex flex-wrap gap-2">
-                                                                {(emp.geofences || []).map((g, i) => (
-                                                                    <span key={i} className="badge rounded-pill" style={{
-                                                                        backgroundColor: '#0ea5e9',
-                                                                        fontSize: '12px',
-                                                                        padding: '6px 12px'
-                                                                    }}>
-                                                                        {g}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        </td>
-
-                                                        {/* Last Active */}
-                                                        <td className="py-3">
-                                                            <span className="d-flex align-items-center text-muted" style={{ fontSize: '13px' }}>
-                                                                <i className="bi bi-clock me-1"></i>{emp.lastActive}
+                                                        {/* Status */}
+                                                        <td className="py-3" style={{ minWidth: '130px' }}>
+                                                            <span className="badge rounded-pill px-3 py-2 d-inline-flex align-items-center gap-1"
+                                                                style={{
+                                                                    fontSize: '12px',
+                                                                    backgroundColor: emp.status === 'Active' ? '#D1FAE5'
+                                                                        : emp.status === 'Offline' ? '#FEF3C7'
+                                                                            : emp.status === 'Inactive' ? '#F1F5F9'
+                                                                                : '#E5E7EB',
+                                                                    color: emp.status === 'Active' ? '#059669'
+                                                                        : emp.status === 'Offline' ? '#D97706'
+                                                                            : emp.status === 'Inactive' ? '#64748B'
+                                                                                : '#374151'
+                                                                }}>
+                                                                <i className={`bi ${emp.status === 'Active'
+                                                                    ? 'bi-check-circle'
+                                                                    : emp.status === 'Offline'
+                                                                        ? 'bi-exclamation-circle'
+                                                                        : 'bi-slash-circle'}`}></i>
+                                                                {emp.status}
                                                             </span>
                                                         </td>
 
-                                                        {/* <td className="text-end">...</td> */}
-                                                        <td className="text-center">
-                                                            <div class="btn-group">
+                                                        {/* Location */}
+                                                        <td style={{ minWidth: '160px' }}>
+                                                            {emp.location && emp.location !== 'Unknown' ? (
+                                                                <span className="d-flex align-items-center text-dark" style={{ fontSize: '13px' }}>
+                                                                    <i className="bi bi-geo-alt me-1 text-primary"></i>{emp.location}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-muted" style={{ fontSize: '12px' }}>Unknown</span>
+                                                            )}
+                                                        </td>
+
+                                                        {/* Last Active */}
+                                                        <td className="py-3 text-muted" style={{ fontSize: '13px', minWidth: '120px' }}>
+                                                            <i className="bi bi-clock me-1"></i>{emp.lastActive}
+                                                        </td>
+
+                                                        {/* Actions */}
+                                                        <td className="text-muted" >
+                                                            <div className="btn-group">
                                                                 <button
                                                                     type="button"
                                                                     className="btn p-0 border-0 bg-transparent"
@@ -390,21 +466,21 @@ const AddEmployees = () => {
                                                                 >
                                                                     <i className="bi bi-three-dots-vertical text-muted"></i>
                                                                 </button>
-                                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3"
+                                                                <ul className="dropdown-menu dropdown-menu-end shadow border-0 rounded-3"
                                                                     style={{
                                                                         backgroundColor: '#fff',
                                                                         boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-                                                                        border: 'none',
                                                                         borderRadius: '0.5rem',
-                                                                        padding: '0.5rem',
                                                                         minWidth: '200px',
+                                                                        fontSize: '13px'
                                                                     }}
                                                                 >
-                                                                    <li><a class="dropdown-item text-dark" href="#">View Profile</a></li>
-                                                                    <li><a class="dropdown-item text-dark" href="#">Edit</a></li>
-                                                                    <li><a class="dropdown-item text-dark" href="#">Assign to Geofence</a></li>
-                                                                    <li><a class="dropdown-item text-dark" href="#">View Location History</a></li>
-                                                                    {/* <li><a class="dropdown-item text-danger" href="#">Deactivate</a></li> */}
+                                                                    <li><a className="dropdown-item text-dark" href="#">View Profile</a></li>
+                                                                    <li><a className="dropdown-item text-dark" href="#">Edit</a></li>
+                                                                    <li><a className="dropdown-item text-dark" href="#">Assign to Geofence</a></li>
+                                                                    <li><a className="dropdown-item text-dark" href="#">View Location History</a></li>
+                                                                    <li><hr className="dropdown-divider" /></li>
+                                                                    <li><a className="dropdown-item text-danger" href="#">Deactivate</a></li>
                                                                 </ul>
                                                             </div>
                                                         </td>
@@ -447,7 +523,7 @@ const AddEmployees = () => {
                                                                 {emp.location ? (
                                                                     <span className="text-dark">{emp.location}</span>
                                                                 ) : (
-                                                                    <span className="badge bg-light text-muted">Offline</span>
+                                                                    <span className="badge bg-light text-muted">offline</span>
                                                                 )}
                                                             </div>
 
