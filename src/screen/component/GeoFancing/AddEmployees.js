@@ -72,7 +72,7 @@ const AddEmployees = () => {
         {
             name: 'John Smith',
             role: 'Field Technician',
-            email: 'nomannasir@i8is.com',
+            email: 'john.smith@example.com',
             location: 'Main Office',
             status: 'Active',
             geofences: ['Main Office', 'Client Site A', 'Warehouse A'],
@@ -81,7 +81,7 @@ const AddEmployees = () => {
         {
             name: 'Sarah Johnson',
             role: 'Service Representative',
-            email: 'nomannasir@i8is.com',
+            email: 'sarah.johnson@example.com',
             location: 'Client Site A',
             status: 'Active',
             geofences: ['Main Office'],
@@ -90,7 +90,7 @@ const AddEmployees = () => {
         {
             name: 'Mike Jones',
             role: 'Delivery Driver',
-            email: 'nomannasir@i8is.com',
+            email: 'michael.brown@example.com',
             location: 'Warehouse',
             status: 'Active',
             geofences: ['Main Office', 'Warehouse'],
@@ -99,8 +99,8 @@ const AddEmployees = () => {
         {
             name: 'Emily Wilson',
             role: 'Marketing Representative',
-            email: 'nomannasir@i8is.com',
-            location: 'Offline',
+            email: 'emily.davis@example.com',
+            location: 'Warehouse',
             status: 'offline',
             geofences: ['Main Office', 'Client Site B'],
             lastActive: '2 days ago'
@@ -108,9 +108,9 @@ const AddEmployees = () => {
         {
             name: 'David Brown',
             role: 'Support Worker',
-            email: 'nomannasir@i8is.com',
-            location: 'Offline',
-            status: 'Inactive',
+            email: 'david.wilson@example.com',
+            location: 'Warehouse',
+            status: 'Deactivated',
             geofences: ['Client Site A'],
             lastActive: '1 day ago'
         },
@@ -200,7 +200,7 @@ const AddEmployees = () => {
                         <div className="col-md-12 mt-1">
                             <div className="d-flex justify-content-between align-items-center mt-2 gap-2">
                                 {/* Search Bar */}
-                                <div className="position-relative" style={{ flexGrow: 1, maxWidth: '600px' }}>
+                                <div className="position-relative" style={{ flexGrow: 1, maxWidth: '1000px' }}>
                                     <i
                                         className="bi bi-search position-absolute text-muted"
                                         style={{
@@ -383,109 +383,144 @@ const AddEmployees = () => {
                                         <table className="table align-middle" style={{ fontSize: '13px' }}>
                                             <thead className="table-light">
                                                 <tr>
-                                                    <th className="text-secondary fw-normal" style={{ fontSize: '12px' }}>Employee</th>
-                                                    <th className="text-secondary fw-normal" style={{ fontSize: '12px' }}>Role</th>
-                                                    <th className="text-secondary fw-normal" style={{ fontSize: '12px' }}>Status</th>
-                                                    <th className="text-secondary fw-normal" style={{ fontSize: '12px' }}>Current Location</th>
-                                                    <th className="text-secondary fw-normal" style={{ fontSize: '12px' }}>Last Active</th>
-                                                    <th className="text-secondary fw-normal text-center" style={{ fontSize: '12px' }}>Actions</th>
+                                                    {['Employee', 'Role', 'Status', 'Current Location', 'Last Active', 'Actions'].map((heading, idx) => (
+                                                        <th
+                                                            key={idx}
+                                                            className={`text-secondary fw-normal ${heading === 'Actions' ? 'text-center' : ''}`}
+                                                            style={{ fontSize: '12px' }}
+                                                        >
+                                                            {heading}
+                                                        </th>
+                                                    ))}
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {filteredEmployees.map((emp, index) => (
-                                                    <tr key={index} style={{ borderBottom: '1px solid #f0f0f0', verticalAlign: 'middle' }}>
-                                                        {/* Employee: Avatar + Name + Email */}
-                                                        <td className="ps-4 py-3">
-                                                            <div className="d-flex align-items-center gap-3">
-                                                                <div className="rounded-circle d-flex align-items-center text-white fw-semibold"
-                                                                    style={{
-                                                                        width: 36,
-                                                                        height: 36,
-                                                                        backgroundColor: '#CBD5E1',
-                                                                        fontSize: '13px'
-                                                                    }}>
-                                                                    {emp.name?.charAt(0).toUpperCase() || '?'}
+                                                {filteredEmployees.map((emp, index) => {
+                                                    const isDeactivated = emp.status === 'Deactivated';
+
+                                                    return (
+                                                        <tr
+                                                            key={index}
+                                                            className={isDeactivated ? 'deactivated-row' : ''}
+                                                            style={{
+                                                                borderBottom: '1px solid #f0f0f0',
+                                                                verticalAlign: 'middle'
+                                                            }}
+                                                        >
+                                                            {/* Employee */}
+                                                            <td className="ps-4 py-3" style={{ color: isDeactivated ? '#6B7280' : 'inherit' }}>
+                                                                <div className="d-flex align-items-center gap-3">
+                                                                    <div
+                                                                        className="rounded-circle d-flex align-items-center justify-content-center text-white fw-semibold"
+                                                                        style={{
+                                                                            width: 36,
+                                                                            height: 36,
+                                                                            backgroundColor: isDeactivated ? '#ddd' : '#CBD5E1',
+                                                                            fontSize: '13px'
+                                                                        }}
+                                                                    >
+                                                                        {emp.name?.charAt(0).toUpperCase() || '?'}
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="fw-semibold" style={{ fontSize: '13.5px' }}>{emp.name}</div>
+                                                                        <div className="text-muted" style={{ fontSize: '12px', color: isDeactivated ? '#6B7280' : '#6B7280' }}>{emp.email}</div>
+                                                                    </div>
                                                                 </div>
-                                                                <div>
-                                                                    <div className="fw-semibold" style={{ fontSize: '13.5px' }}>{emp.name}</div>
-                                                                    <div className="text-muted" style={{ fontSize: '12px' }}>{emp.email}</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
+                                                            </td>
 
-                                                        {/* Role */}
-                                                        <td className="py-3" style={{ fontSize: '13px' }}>{emp.role}</td>
+                                                            {/* Role */}
+                                                            <td className="py-3" style={{ fontSize: '13px', color: isDeactivated ? '#6B7280' : 'inherit' }}>{emp.role}</td>
 
-                                                        {/* Status */}
-                                                        <td className="py-3" style={{ minWidth: '130px' }}>
-                                                            <span className="badge rounded-pill px-3 py-2 d-inline-flex align-items-center gap-1"
-                                                                style={{
-                                                                    fontSize: '12px',
-                                                                    backgroundColor: emp.status === 'Active' ? '#D1FAE5'
-                                                                        : emp.status === 'Offline' ? '#FEF3C7'
-                                                                            : emp.status === 'Inactive' ? '#F1F5F9'
-                                                                                : '#E5E7EB',
-                                                                    color: emp.status === 'Active' ? '#059669'
-                                                                        : emp.status === 'Offline' ? '#D97706'
-                                                                            : emp.status === 'Inactive' ? '#64748B'
-                                                                                : '#374151'
-                                                                }}>
-                                                                <i className={`bi ${emp.status === 'Active'
-                                                                    ? 'bi-check-circle'
-                                                                    : emp.status === 'Offline'
-                                                                        ? 'bi-exclamation-circle'
-                                                                        : 'bi-slash-circle'}`}></i>
-                                                                {emp.status}
-                                                            </span>
-                                                        </td>
-
-                                                        {/* Location */}
-                                                        <td style={{ minWidth: '160px' }}>
-                                                            {emp.location && emp.location !== 'Unknown' ? (
-                                                                <span className="d-flex align-items-center text-dark" style={{ fontSize: '13px' }}>
-                                                                    <i className="bi bi-geo-alt me-1 text-primary"></i>{emp.location}
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-muted" style={{ fontSize: '12px' }}>Unknown</span>
-                                                            )}
-                                                        </td>
-
-                                                        {/* Last Active */}
-                                                        <td className="py-3 text-muted" style={{ fontSize: '13px', minWidth: '120px' }}>
-                                                            <i className="bi bi-clock me-1"></i>{emp.lastActive}
-                                                        </td>
-
-                                                        {/* Actions */}
-                                                        <td className="text-muted" >
-                                                            <div className="btn-group">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn p-0 border-0 bg-transparent"
-                                                                    data-bs-toggle="dropdown"
-                                                                    aria-expanded="false"
-                                                                >
-                                                                    <i className="bi bi-three-dots-vertical text-muted"></i>
-                                                                </button>
-                                                                <ul className="dropdown-menu dropdown-menu-end shadow border-0 rounded-3"
+                                                            {/* Status */}
+                                                            <td className="py-3" style={{ minWidth: '130px' }}>
+                                                                <span
+                                                                    className="badge rounded-pill px-3 py-2 d-inline-flex align-items-center gap-1"
                                                                     style={{
-                                                                        backgroundColor: '#fff',
-                                                                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-                                                                        borderRadius: '0.5rem',
-                                                                        minWidth: '200px',
-                                                                        fontSize: '13px'
+                                                                        fontSize: '12px',
+                                                                        backgroundColor: isDeactivated ? '#F3F4F6' : '#D1FAE5',
+                                                                        color: isDeactivated ? '#374151' : '#6B7280'
                                                                     }}
                                                                 >
-                                                                    <li><a className="dropdown-item text-dark" href="#">View Profile</a></li>
-                                                                    <li><a className="dropdown-item text-dark" href="#">Edit</a></li>
-                                                                    <li><a className="dropdown-item text-dark" href="#">Assign to Geofence</a></li>
-                                                                    <li><a className="dropdown-item text-dark" href="#">View Location History</a></li>
-                                                                    <li><hr className="dropdown-divider" /></li>
-                                                                    <li><a className="dropdown-item text-danger" href="#">Deactivate</a></li>
-                                                                </ul>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
+                                                                    <i className="bi bi-slash-circle"></i>
+                                                                    {emp.status}
+                                                                </span>
+                                                            </td>
+
+                                                            {/* Location */}
+                                                            <td style={{ minWidth: '160px', color: isDeactivated ? '#E5E7EB' : 'inherit' }}>
+                                                                {emp.location && emp.location !== 'Unknown' ? (
+                                                                    <span className="d-flex align-items-center" style={{ fontSize: '13px' }}>
+                                                                        <i className="bi bi-geo-alt me-1" style={{ color: isDeactivated ? '#6B7280' : '#6B7280' }}></i>{emp.location}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-muted" style={{ fontSize: '12px', color: isDeactivated ? '#6B7280' : '#6B7280' }}>Unknown</span>
+                                                                )}
+                                                            </td>
+
+                                                            {/* Last Active */}
+                                                            <td className="py-3 text-muted" style={{ fontSize: '13px', minWidth: '120px', color: isDeactivated ? '#E5E7EB' : 'inherit' }}>
+                                                                <i className="bi bi-clock me-1"></i>{emp.lastActive}
+                                                            </td>
+
+                                                            {/* Actions */}
+                                                            <td className="text-center">
+                                                                <div className="btn-group">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn p-0 border-0 bg-transparent"
+                                                                        data-bs-toggle="dropdown"
+                                                                        aria-expanded="false"
+                                                                    >
+                                                                        <i className="bi bi-three-dots-vertical" style={{ color: isDeactivated ? '#E5E7EB' : '#6B7280', fontSize: '16px' }}></i>
+                                                                    </button>
+                                                                    <ul
+                                                                        className="dropdown-menu dropdown-menu-end shadow border-0"
+                                                                        style={{
+                                                                            backgroundColor: '#ffffff',
+                                                                            borderRadius: '10px',
+                                                                            minWidth: '170px',
+                                                                            padding: '2px 0',
+                                                                            boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.12)',
+                                                                            fontSize: '10px'
+                                                                        }}
+                                                                    >
+                                                                        <li>
+                                                                            <a className="dropdown-item text-dark" style={{ fontWeight: 100 }} href="#">
+                                                                                View Profile
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a className="dropdown-item text-dark" style={{ fontWeight: 100 }} href="#">
+                                                                                Edit
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a className="dropdown-item text-dark" style={{ fontWeight: 100 }} href="#">
+                                                                                Assign to Geofence
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a className="dropdown-item text-dark" style={{ fontWeight: 100 }} href="#">
+                                                                                View Location History
+                                                                            </a>
+                                                                        </li>
+                                                                        {/* <li>
+                                                                            <hr className="dropdown-divider" />
+                                                                        </li> */}
+                                                                        <li>
+                                                                            <a
+                                                                                className="dropdown-item dropdown-item-danger"
+                                                                                href="#"
+                                                                            >
+                                                                                Deactivate
+                                                                            </a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
                                             </tbody>
                                         </table>
                                     ) : (
