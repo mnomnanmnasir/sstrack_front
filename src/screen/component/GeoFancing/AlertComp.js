@@ -28,59 +28,11 @@ import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 // import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import TuneIcon from '@mui/icons-material/Tune';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import AlertRulesModal from './AlertRulesModal'; // adjust the path if needed
 
-const alertData = [
-  {
-    type: 'Geofence Exit',
-    description: 'John Smith left Main Office',
-    location: 'Main Office',
-    employee: 'John Smith',
-    time: '10:23 AM',
-    date: '2025-05-16',
-    status: 'New',
-    priority: 'High',
-  },
-  {
-    type: 'Geofence Entry',
-    description: 'Mike Jones entered Warehouse B',
-    location: 'Warehouse B',
-    employee: 'Mike Jones',
-    time: '09:45 AM',
-    date: '2025-05-16',
-    status: 'Acknowledged',
-    priority: 'Medium',
-  },
-  {
-    type: 'Schedule Violation',
-    description: 'Sarah Johnson arrived 30 minutes late',
-    location: 'Customer Site',
-    employee: 'Sarah Johnson',
-    time: '08:30 AM',
-    date: '2025-05-16',
-    status: 'Resolved',
-    priority: 'Low',
-  },
-  {
-    type: 'Geofence Exit',
-    description: 'David Brown left Downtown Area',
-    location: 'Downtown Area',
-    employee: 'David Brown',
-    time: 'Yesterday',
-    date: '2025-05-15',
-    status: 'New',
-    priority: 'High',
-  },
-  {
-    type: 'Unauthorized Access',
-    description: 'Unknown employee attempted to access Secure Zone',
-    location: 'Secure Zone',
-    employee: 'Unknown',
-    time: 'Yesterday',
-    date: '2025-05-15',
-    status: 'Acknowledged',
-    priority: 'Medium',
-  },
-];
+
+
+
 
 const statusColor = {
   New: 'error',
@@ -92,6 +44,79 @@ const AlertComp = () => {
 
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [selectedImages, setSelectedImages] = useState([]);
+
+  const [openAlertRulesModal, setOpenAlertRulesModal] = useState(false);
+
+  const alertData = [
+    {
+      type: 'Geofence Exit',
+      description: 'John Smith left Main Office',
+      location: 'Main Office',
+      employee: 'John Smith',
+      time: '10:23 AM',
+      date: '2025-05-16',
+      status: 'New',
+      priority: 'High',
+    },
+    {
+      type: 'Geofence Entry',
+      description: 'Mike Jones entered Warehouse B',
+      location: 'Warehouse B',
+      employee: 'Mike Jones',
+      time: '09:45 AM',
+      date: '2025-05-16',
+      status: 'Acknowledged',
+      priority: 'Medium',
+    },
+    {
+      type: 'Schedule Violation',
+      description: 'Sarah Johnson arrived 30 minutes late',
+      location: 'Customer Site',
+      employee: 'Sarah Johnson',
+      time: '08:30 AM',
+      date: '2025-05-16',
+      status: 'Resolved',
+      priority: 'Low',
+    },
+    {
+      type: 'Geofence Exit',
+      description: 'David Brown left Downtown Area',
+      location: 'Downtown Area',
+      employee: 'David Brown',
+      time: 'Yesterday',
+      date: '2025-05-15',
+      status: 'New',
+      priority: 'High',
+    },
+    {
+      type: 'Unauthorized Access',
+      description: 'Unknown employee attempted to access Secure Zone',
+      location: 'Secure Zone',
+      employee: 'Unknown',
+      time: 'Yesterday',
+      date: '2025-05-15',
+      status: 'Acknowledged',
+      priority: 'Medium',
+    },
+  ];
+
+  const [alertRules, setAlertRules] = useState([
+    { name: 'Geofence Exit Alert', enabled: true, priority: 'Medium' },
+    { name: 'Late Arrival Detection', enabled: true, priority: 'Low' },
+    { name: 'Unauthorized Area Access', enabled: true, priority: 'High' },
+  ]);
+
+  const handleToggleRule = (index) => {
+    const updated = [...alertRules];
+    updated[index].enabled = !updated[index].enabled;
+    setAlertRules(updated);
+  };
+
+  const handlePriorityChange = (index, value) => {
+    const updated = [...alertRules];
+    updated[index].priority = value;
+    setAlertRules(updated);
+  };
 
   const filteredAlerts =
     priorityFilter === 'All'
@@ -123,7 +148,11 @@ const AlertComp = () => {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 3 }}>
               {/* <Typography variant="h5" fontWeight="bold"></Typography> */}
               <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button variant="outlined" startIcon={<NotificationsNoneIcon />}>
+                <Button
+                  variant="outlined"
+                  startIcon={<NotificationsNoneIcon />}
+                  onClick={() => setOpenAlertRulesModal(true)}
+                >
                   Configure Alert Rules
                 </Button>
                 <Button variant="contained" onClick={() => setOpenCreateModal(true)}>
@@ -460,6 +489,13 @@ const AlertComp = () => {
               </Button>
             </DialogActions>
           </Dialog>
+
+          <AlertRulesModal
+            open={openAlertRulesModal}
+            onClose={() => setOpenAlertRulesModal(false)}
+            rules={alertRules}
+            onToggle={handleToggleRule}
+          />
 
         </div>
       </div>

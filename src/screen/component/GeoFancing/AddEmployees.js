@@ -25,6 +25,10 @@ import EmployeeStats from './EmployeeStats';
 import QuickStartModal from './QuickStartModal';
 import { BiCheck } from 'react-icons/bi';
 import { BsChevronDown } from 'react-icons/bs';
+import EditEmployeeModal from './EditEmployeeModal';
+import EmployeeProfileModal from './EmployeeProfileModal';
+import AssignGeofenceModal from './AssignGeofenceModal';
+import DeactivateEmployeeModal from './DeactivateEmployeeModal';
 
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -45,6 +49,12 @@ L.Marker.prototype.options.icon = L.icon({
 const AddEmployees = () => {
 
     const [formData, setFormData] = useState({ category: 'All Departments' });
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [showProfileModal, setShowProfileModal] = useState(false);
+    // const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [showDeactivateModal, setShowDeactivateModal] = useState(false);
 
     const [showModal1, setShowModal1] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -122,6 +132,11 @@ const AddEmployees = () => {
 
     const handleOpenModal = () => {
         setShowModal1(true);
+        setShowModal(false);         // Close Add Employee Modal
+        setShowInviteModal(false);   // Close Invite Modal
+        setShowEditModal(false) // Close the Edit Modal
+        setShowDeactivateModal(false) //Close the deactivate modal
+        setShowProfileModal(false) //Close profile modal
     };
 
     const activeCount = employees.filter(emp => emp.status === 'online').length;
@@ -188,7 +203,32 @@ const AddEmployees = () => {
 
 
                             <AddEmployeeModal show={showModal} handleClose={() => setShowModal(false)} />
+                            <EditEmployeeModal
+                                show={showEditModal}
+                                handleClose={() => setShowEditModal(false)}
+                                employee={selectedEmployee}
+                            />
 
+                            <EmployeeProfileModal
+                                show={showProfileModal}
+                                handleClose={() => setShowProfileModal(false)}
+                                employee={selectedEmployee}
+                            />
+
+                            <AssignGeofenceModal
+                                show={showAssignModal}
+                                handleClose={() => setShowAssignModal(false)}
+                                employee={selectedEmployee}
+                            />
+                            <DeactivateEmployeeModal
+                                show={showDeactivateModal}
+                                handleClose={() => setShowDeactivateModal(false)}
+                                employee={selectedEmployee}
+                                onConfirm={(emp) => {
+                                    // Do your logic here: API call or update state
+                                    console.log('Deactivated:', emp.name);
+                                }}
+                            />
                             {/* Invite Modal (You can build similar like AddEmployeeModal) */}
                             <InviteEmployeeModal show={showInviteModal} handleClose={() => setShowInviteModal(false)} />
 
@@ -485,17 +525,44 @@ const AddEmployees = () => {
                                                                         }}
                                                                     >
                                                                         <li>
-                                                                            <a className="dropdown-item text-dark" style={{ fontWeight: 100 }} href="#">
+                                                                            <a
+                                                                                className="dropdown-item text-dark"
+                                                                                style={{ fontWeight: 100 }}
+                                                                                href="#"
+                                                                                onClick={(e) => {
+                                                                                    e.preventDefault();
+                                                                                    setSelectedEmployee(emp);          // set current employee
+                                                                                    setShowProfileModal(true);         // open modal
+                                                                                }}
+                                                                            >
                                                                                 View Profile
                                                                             </a>
                                                                         </li>
                                                                         <li>
-                                                                            <a className="dropdown-item text-dark" style={{ fontWeight: 100 }} href="#">
+                                                                            <a
+                                                                                className="dropdown-item text-dark"
+                                                                                style={{ fontWeight: 100 }}
+                                                                                href="#"
+                                                                                onClick={(e) => {
+                                                                                    e.preventDefault();
+                                                                                    setSelectedEmployee(emp);
+                                                                                    setShowEditModal(true);
+                                                                                }}
+                                                                            >
                                                                                 Edit
                                                                             </a>
                                                                         </li>
                                                                         <li>
-                                                                            <a className="dropdown-item text-dark" style={{ fontWeight: 100 }} href="#">
+                                                                            <a
+                                                                                className="dropdown-item text-dark"
+                                                                                style={{ fontWeight: 100 }}
+                                                                                href="#"
+                                                                                onClick={(e) => {
+                                                                                    e.preventDefault();
+                                                                                    setSelectedEmployee(emp);
+                                                                                    setShowAssignModal(true);
+                                                                                }}
+                                                                            >
                                                                                 Assign to Geofence
                                                                             </a>
                                                                         </li>
@@ -511,6 +578,11 @@ const AddEmployees = () => {
                                                                             <a
                                                                                 className="dropdown-item dropdown-item-danger"
                                                                                 href="#"
+                                                                                onClick={(e) => {
+                                                                                    e.preventDefault();
+                                                                                    setSelectedEmployee(emp);
+                                                                                    setShowDeactivateModal(true);
+                                                                                }}
                                                                             >
                                                                                 Deactivate
                                                                             </a>
