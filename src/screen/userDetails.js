@@ -32,6 +32,7 @@ import moment from "moment-timezone";
 import { useSocket } from '../io'; // Correct import
 import { useSelector, useDispatch } from 'react-redux';
 import { setEmployessSetting } from "../store/adminSlice"; // Adjust the import based on your file structure
+
 import jwtDecode from "jwt-decode";
 import Joyride from "react-joyride";
 import { useMediaQuery, useTheme } from '@mui/material';
@@ -1468,7 +1469,7 @@ function UserDetails() {
                                                                     Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
                                                                         Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
                                                                             Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
-                                                                                Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -108
+                                                                                Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -95
                                                                     }deg)`
                                                             }}>
                                                             <div className="needleContainerAlingment">
@@ -1569,7 +1570,7 @@ function UserDetails() {
                                                                             Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
                                                                                 Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
                                                                                     Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
-                                                                                        Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -108
+                                                                                        Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -95
                                                                             }deg)`
                                                                     }}>
                                                                     <div className="needleContainerAlingment">
