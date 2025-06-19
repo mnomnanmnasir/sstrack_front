@@ -552,7 +552,8 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                         <ListItemButton
                                             sx={{
                                                 pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname.includes('/punctuality') ? '#7ACB59' : 'transparent',
+                                                // backgroundColor: location.pathname.includes('/punctuality') ? '#7ACB59' : 'transparent',
+                                                backgroundColor: location.pathname === '/punctuality' ? '#7ACB59' : 'transparent',
                                                 color: '#fff'
                                             }}
                                             onClick={() => handleNavigate('/punctuality')}>
