@@ -68,8 +68,11 @@ const ManualLeaveModal = ({ show, handleClose, fetchLeaveRequests, allUsers }) =
     };
 
     useEffect(() => {
-        fetchAllUsers();
+        if (items?.userType !== 'user') {
+            fetchAllUsers();
+        }
     }, []);
+
 
     const handleSubmit = async () => {
         const payload = {

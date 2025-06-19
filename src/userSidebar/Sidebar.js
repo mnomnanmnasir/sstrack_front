@@ -681,7 +681,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                     flexShrink: 0,
                     zIndex: 1030, // ✅ Lower than Bootstrap modal's default (1050)
                     '& .MuiDrawer-paper': {
-                        width: isMobile ? drawerWidth : (collapsed ? collapsedWidth : drawerWidth),
+                        // width: isMobile ? drawerWidth : (collapsed ? collapsedWidth : drawerWidth),
                         boxSizing: 'border-box',
                         backgroundColor: '#003366',
                         color: '#fff',

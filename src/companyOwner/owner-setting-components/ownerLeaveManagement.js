@@ -300,7 +300,7 @@ const OwnerTeam = () => {
             setLoading(false);
         }
     };
-    const apiUrlforleaves = `${apiUrl}/superAdmin/getAllUserLeaves`
+
     // Fetch leave data from API
     const fetchLeaveData = async () => {
         try {
