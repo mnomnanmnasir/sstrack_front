@@ -1,8 +1,8 @@
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { Users } from 'lucide-react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import axios from 'axios'
 import AdvancedFilters from './AdvancedFilter';
 import EmployeeTable from './EmployeeTable';
 import SummaryCards from './SummaryCards';
@@ -65,12 +65,12 @@ export default function Dashboard() {
         if (startDate && endDate) {
             fetchPunctualityReport();
         }
-    },);
+    }, [startDate, endDate]);
 
     useEffect(() => {
         fetchPunctualityReport();
         fetchGroups()
-    });
+    }, [selectedUsers]);
 
     const handleUserChange = (e) => {
         const selected = e.target.value;
@@ -137,7 +137,7 @@ export default function Dashboard() {
     useEffect(() => {
         fetchPunctualityReport();
         fetchGroups(); // fetching report functions
-    });
+    }, []);
 
     const getAllowedUserIds = () => {
         if (!groupId) return null; // No filter
