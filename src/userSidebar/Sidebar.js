@@ -135,7 +135,6 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
         }
     }, [token]);
 
-
     const sidebarItems = useMemo(() => [
         { text: 'Dashboard', icon: <DashboardIcon />, route: '/dashboard' },
         { isDropdown: 'timeline' },
@@ -160,7 +159,8 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
     });
 
     const drawerContent = (
-        <div>
+        // <div>
+        <>
             <div style={{ display: 'flex', alignItems: 'center', padding: '16px 10px' }}>
                 {!collapsed && (
                     <img src={logo} alt="Logo" className="logo" style={{ height: 50, marginRight: 'auto' }} />
@@ -512,7 +512,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                         <ListItemButton
                                             sx={{
                                                 pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname.includes('/punctuality-reports') ? '#7ACB59' : 'transparent',
+                                                backgroundColor: location.pathname === '/punctuality-reports' ? '#7ACB59' : 'transparent',
                                                 color: '#fff'
                                             }}
                                             onClick={() => handleNavigate('/punctuality-reports')}>
@@ -656,8 +656,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                 })}
 
             </List>
-
-        </div>
+        </>
     );
 
     return (
