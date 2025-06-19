@@ -258,8 +258,8 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                                     width: isMobile ? '90vw' : '800px', // 👈 increased width
                                                     fontSize: '14px',
                                                     fontWeight: 'bold',
-                                                    maxHeight: '80vh',
-                                                    overflowY: 'auto',
+                                                    // maxHeight: '80vh',
+                                                    overflowY: 'hidden',
                                                 }}
                                             >
 

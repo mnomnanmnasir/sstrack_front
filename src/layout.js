@@ -138,7 +138,7 @@ const Layout = () => {
             </>
           ) : (
             token && (
-              <div className="d-flex" style={{ minHeight: '100vh', overflow: 'hidden' }}>
+              <div className="d-flex" style={{ overflow: 'hidden' }}>
                 <Sidebar
                   open={sidebarOpen}
                   key={userType}
