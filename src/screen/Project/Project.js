@@ -9,7 +9,7 @@ import inviteIcon from "../../images/invitation.svg";
 import { AiOutlineUser, AiFillCrown, AiFillStar } from 'react-icons/ai';
 import OwnerTeamComponent from '../../companyOwner/ownerTeamComponent';
 import line from "../../images/Line 3.webp";
-
+import { FerrisWheelSpinner } from 'react-spinner-overlay';
 import { useSocket } from '../../io';
 import { useQuery, useQueryClient } from 'react-query';
 import Projectcomponent from '../Project/Component/projectcomponent';
@@ -39,6 +39,7 @@ const Project = () => {
     const [project, setproject] = useState(null);
     const [allowemp, setAllowemp] = useState([]);
     const [projectName, setProjectName] = useState("");
+    const [projectLoading, setProjectLoading] = useState(true);
 
     // const apiUrl = process.env.REACT_APP_API_URL;
     const apiUrl = process.env.REACT_APP_API_URL;
@@ -151,11 +152,11 @@ const Project = () => {
         if (project.length === 1) {
             setproject([]); // Clear the project array if it has exactly one project
         } else {
-          console.log("Project array has more than one project, no changes made.");
+            console.log("Project array has more than one project, no changes made.");
         }
-      };
-      
-          //only for last project 
+    };
+
+    //only for last project 
     useEffect(() => {
         if (project1) {
             setproject(project1);
@@ -184,7 +185,7 @@ const Project = () => {
                         }
                     });
                 }
-                
+
                 console.log("addproject RESPONSE =====>", res);
             } catch (error) {
                 enqueueSnackbar(error?.response?.data?.message ? error?.response?.data?.message : "Network error", {
@@ -210,7 +211,7 @@ const Project = () => {
 
     return (
         <div>
-           {user?._id === "679b223b61427668c045c659" && (
+            {user?._id === "679b223b61427668c045c659" && (
                 <Joyride
                     steps={steps}
                     run={run}
@@ -234,13 +235,13 @@ const Project = () => {
                             <div style={{ width: "350px" }}>
                                 <>
                                     <div
-                                    id="addUserButton"
-                                    style={{
-                                        marginTop: "20px",
-                                        display: "flex",
-                                        width: '350px',
-                                        justifyContent: "space-between"
-                                    }}>
+                                        id="addUserButton"
+                                        style={{
+                                            marginTop: "20px",
+                                            display: "flex",
+                                            width: '350px',
+                                            justifyContent: "space-between"
+                                        }}>
                                         <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" placeholder="New Project Name..." style={{
                                             fontSize: "18px",
                                             padding: "6px 10px",
@@ -291,7 +292,140 @@ const Project = () => {
                                         {project?.length}
                                     </div>
                                 </div>
-                                <div  id="lisstofallusers" >
+
+                                <div id="lisstofallusers">
+                                    {isLoading  || !Array.isArray(project) ? (
+                                        <div
+                                            style={{
+                                                padding: "40px 0",
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                            }}
+                                        >
+                                            <FerrisWheelSpinner
+                                                loading={true}
+                                                size={40}
+                                                color="#28659C"
+                                                message="Loading projects..."
+                                            />
+                                        </div>
+                                    ) : (
+                                        project.map((e, i) => {
+                                            return (
+                                                <div
+                                                    key={e._id}
+                                                    className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""
+                                                        } align-items-center`}
+                                                    onClick={() => {
+                                                        setMainId(e._id);
+                                                        setActiveId(e._id);
+                                                        setIsArchived(e.isArchived);
+                                                        setIsUserArchive(e?.isArchived ? false : true);
+                                                        setInviteStatus(false);
+                                                        setPayrate(e);
+                                                        setSelectedUser(e);
+                                                        setAllowemp(e?.allowedEmployees);
+                                                        setProjectName(e?.name);
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "space-between",
+                                                            width: "100%",
+                                                        }}
+                                                    >
+                                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                                            <div className="groupContentMainImg">
+                                                                <p>{i + 1}</p>
+                                                            </div>
+                                                            <p
+                                                                className="groupContent"
+                                                                style={{ color: e?.isArchived ? "grey" : "inherit" }}
+                                                            >
+                                                                {e?.name}
+                                                            </p>
+                                                        </div>
+
+                                                        {e?.inviteStatus === true ? (
+                                                            <div
+                                                                style={{
+                                                                    marginRight: "3px",
+                                                                    padding: "3px 10px",
+                                                                    borderRadius: "3px",
+                                                                    color: "#fff",
+                                                                    fontSize: "12px",
+                                                                    lineHeight: 1.4,
+                                                                }}
+                                                            >
+                                                                <img width={30} src={inviteIcon} alt="invited" />
+                                                            </div>
+                                                        ) : e?.isArchived === true ? (
+                                                            <div
+                                                                style={{
+                                                                    marginRight: "3px",
+                                                                    padding: "3px 10px",
+                                                                    borderRadius: "3px",
+                                                                    color: "#fff",
+                                                                    fontSize: "12px",
+                                                                    lineHeight: 1.4,
+                                                                }}
+                                                            >
+                                                                <img
+                                                                    width={30}
+                                                                    src={archiveIcon}
+                                                                    alt="archived"
+                                                                    style={{
+                                                                        filter:
+                                                                            "grayscale(100%) brightness(100%) contrast(100%)",
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        ) : null}
+                                                    </div>
+
+                                                    {/* Role Icons */}
+                                                    {e?.userType === "owner" ? (
+                                                        <div>
+                                                            <AiFillStar color="#e7c741" size={20} />
+                                                        </div>
+                                                    ) : e?.userType === "admin" ? (
+                                                        <div>
+                                                            <AiFillStar color="#28659C" size={20} />
+                                                        </div>
+                                                    ) : e?.userType === "manager" && (
+                                                        <div
+                                                            style={{
+                                                                backgroundColor: "#5CB85C",
+                                                                width: 80,
+                                                                padding: "5px 10px",
+                                                                borderRadius: "3px",
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                justifyContent: "space-between",
+                                                            }}
+                                                        >
+                                                            <AiOutlineUser color="white" size={20} />
+                                                            <p
+                                                                style={{
+                                                                    margin: 0,
+                                                                    fontWeight: "600",
+                                                                    color: "white",
+                                                                }}
+                                                            >
+                                                                {e?.assignedUsers?.filter((f) => f !== user._id)?.length}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+
+                                {/* <div id="lisstofallusers" >
                                     {project?.map((e, i) => {
                                         return (
                                             <div className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center`} onClick={() => {
@@ -355,7 +489,7 @@ const Project = () => {
                                             </div>
                                         );
                                     })}
-                                </div>
+                                </div> */}
                             </div>
                             <div>
                                 <img src={line} style={{ height: '100%' }} />
