@@ -14,7 +14,7 @@ import { useSnackbar } from 'notistack';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+const apiUrlS = process.env.REACT_APP_API_URL;
 
 const LocaitonTracking = () => {
     const [run, setRun] = useState(true);
@@ -91,8 +91,8 @@ const LocaitonTracking = () => {
 
             const endpoint =
                 items?.userType === "user"
-                    ? `${apiUrl}/tracker/getTrackerDataByDate/${userID}?date=${formattedDate}`
-                    : `${apiUrl}/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
+                    ? `${apiUrlS}/tracker/getTrackerDataByDate/${userID}?date=${formattedDate}`
+                    : `${apiUrlS}/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
 
             const response = await fetch(endpoint, {
                 method: "GET",
@@ -171,7 +171,7 @@ const LocaitonTracking = () => {
             const formattedToday = today.toISOString().split("T")[0];
 
             const response = await axios.get(
-                `${apiUrl}/tracker/getTrackerDataByDate/${uid}?date=${formattedToday}`,
+                `${apiUrlS}/tracker/getTrackerDataByDate/${uid}?date=${formattedToday}`,
                 { headers }
             );
 
@@ -338,7 +338,7 @@ const LocaitonTracking = () => {
 
     const getManagerEmployees = async () => {
         try {
-            const response = await axios.get(`${apiUrl}/manager/employees`, { headers });
+            const response = await axios.get(`${apiUrlS}/manager/employees`, { headers });
             if (response.status === 200) {
                 // Assuming the response contains the list of employees for the manager
                 return response.data.convertedEmployees;
@@ -353,7 +353,7 @@ const LocaitonTracking = () => {
     };
     const getEmployess = async () => {
         try {
-            const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
+            const response = await axios.get(`${apiUrlS}/owner/companies`, { headers });
             if (response.status === 200) {
                 const user = items?.userType || "user";
                 let formattedUsers = [];

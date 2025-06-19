@@ -38,7 +38,7 @@ function AddEmployee() {
     const [editUser, setEditUser] = useState(null);
     const [showModalupload, setShowModalupload] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
-    const apiUrl = `https://myuniversallanguages.com:9093/api/v1`;
+    const apiUrlS = process.env.REACT_APP_API_URL;
     const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -83,7 +83,7 @@ function AddEmployee() {
 
         try {
             const response = await axios.post(
-                `${apiUrl}/owner/payrolData/upload`,
+                `${apiUrlS}/owner/payrolData/upload`,
                 formData,
                 {
                     headers: {
@@ -141,7 +141,7 @@ function AddEmployee() {
             };
 
             const response = await axios.post(
-                `${apiUrl}/owner/addPayrolUsers`,
+                `${apiUrlS}/owner/addPayrolUsers`,
                 payload,
                 { headers }
             );
@@ -195,7 +195,7 @@ function AddEmployee() {
     const handleDownloadTemplate = async () => {
         try {
             const response = await axios.get(
-                `${apiUrl}/owner/payrolData/template?startDate=2025-05-01&endDate=2025-05-12`,
+                `${apiUrlS}/owner/payrolData/template?startDate=2025-05-01&endDate=2025-05-12`,
                 {
                     responseType: 'blob', // Important for file
                     headers: {
@@ -312,7 +312,7 @@ function AddEmployee() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await axios.get(`${apiUrl}/owner/getPayrolUsers`, {
+                const res = await axios.get(`${apiUrlS}/owner/getPayrolUsers`, {
                     headers
                 });
                 setSubmittedUsers(res.data.data); // assuming the data array is in `data.data`

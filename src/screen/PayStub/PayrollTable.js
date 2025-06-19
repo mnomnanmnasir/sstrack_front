@@ -744,7 +744,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                   />
                 </div>
                 <div className="col-md-4 mb-3">
-                  <label className="form-label">Hourly Rate</label>
+                  <label className="form-label">Payrate</label>
                   <input
                     type="number"
                     className="form-control"

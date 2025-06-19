@@ -12,7 +12,7 @@ import CustomModal from './component/CustomModal';
 
 const stripePromise = loadStripe(process.env.REACT_AP_KEY);
 
-const apiUrl = `https://myuniversallanguages.com:9093/api/v1`;
+const apiUrl = process.env.REACT_APP_API_URL;
 
 
 const PaymentCard = ({ updatePaymentStatus }) => {

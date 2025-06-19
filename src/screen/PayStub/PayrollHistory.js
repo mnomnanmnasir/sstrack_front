@@ -27,7 +27,7 @@ function PayrollHistory() {
     const token = localStorage.getItem('token');
     const user = jwtDecode(JSON.stringify(token));
     const headers = { Authorization: `Bearer ${token}` };
-    const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     const usStateNameToCode = {
         "Alabama": "(AL)", "Alaska": "(AK)", "Arizona": "(AZ)", "Arkansas": "(AR)",
@@ -345,7 +345,7 @@ function PayrollHistory() {
                                                 <th style={cellStyle}>Name</th>
                                                 <th style={cellStyle}>Email</th>
                                                 <th style={cellStyle}>Pay Period</th>
-                                                <th style={cellStyle}>Hourly Rate</th>
+                                                <th style={cellStyle}>Payrate</th>
                                                 <th style={cellStyle}>OT Rate</th>
                                                 <th style={cellStyle}>Shift Premium</th>
                                                 <th style={cellStyle}>Tax Country</th>
@@ -537,7 +537,7 @@ function PayrollHistory() {
                                                     />
                                                 </div>
                                                 <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Hourly Rate</label>
+                                                    <label className="form-label">Payrate</label>
                                                     <input
                                                         className="form-control"
                                                         type="number"

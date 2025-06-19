@@ -1,26 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
-import warning from '../images/warning.png'
-import pause from "../images/pauseIcon.webp";
+import axios from "axios";
+import jwtDecode from "jwt-decode";
+import { SnackbarProvider, enqueueSnackbar } from "notistack";
+import { useEffect, useRef, useState } from "react";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import TimezoneSelect from "react-timezone-select";
+import 'sweetalert2/src/sweetalert2.scss';
+import useLoading from "../hooks/useLoading";
 import archive from "../images/Archive.webp";
 import deleteIcon from "../images/DeleteTeam.webp";
-import Skeleton from 'react-loading-skeleton'
-import 'react-loading-skeleton/dist/skeleton.css'
-import useLoading from "../hooks/useLoading";
-import axios from "axios";
-import settingIcon from '../images/setting-icon.svg'
-import search from "../images/searchIcon.webp";
-import CurrencyConverter from "../screen/component/currencyConverter";
-import Swal from 'sweetalert2/dist/sweetalert2.js'
-import 'sweetalert2/src/sweetalert2.scss'
-import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import UserSettings from "./owner-setting-components/userEffectiveSettings";
-import { useNavigate } from "react-router-dom";
+import settingIcon from '../images/setting-icon.svg';
 import { useSocket } from '../io'; // Correct import
-import { setLogout } from "../store/timelineSlice";
-import { useDispatch } from "react-redux";
-import jwtDecode from "jwt-decode";
-import TimezoneSelect from "react-timezone-select";
+import CurrencyConverter from "../screen/component/currencyConverter";
 import PayStubSettings from "../screen/component/PayStubSetting/payStubSetting";
+import { setLogout } from "../store/timelineSlice";
 
 function OwnerTeamComponent(props) {
 
@@ -32,7 +27,7 @@ function OwnerTeamComponent(props) {
     const [role, setRole] = useState("")
     const [data, setData] = useState({});
     let { fixId, archived_unarchived_users, deleteUser, isUserArchive, selectedGroupName, inviteStatus, handleSendInvitation, payrate, reSendInvitation, users, setUsers, selectedUser } = props
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const [shiftPremiumRate, setShiftPremiumRate] = useState('');
     const [overtimeRate, setOvertimeRate] = useState('');
     const [hourlyRate, setHourlyRate] = useState('');

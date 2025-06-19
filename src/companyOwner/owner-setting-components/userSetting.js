@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
-
+ const apiUrlS = process.env.REACT_APP_API_URL;
 const MyLeavesApplication = () => {
     // State for leave counts and requests
     const [leaveCounts, setLeaveCounts] = useState({
@@ -14,7 +14,7 @@ const MyLeavesApplication = () => {
     const [leaveRequests, setLeaveRequests] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1/timetrack/getAllLeaves";
+    const apiUrl = `${apiUrlS}/timetrack/getAllLeaves`;
     const token = localStorage.getItem("token"); // Assuming token is stored in localStorage
     const headers = {
         Authorization: `Bearer ${token}`,

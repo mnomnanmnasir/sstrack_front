@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Users } from 'lucide-react';
+import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import axios from 'axios'
+import { Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import AdvancedFilters from './AdvancedFilter';
 import EmployeeTable from './EmployeeTable';
 import SummaryCards from './SummaryCards';
@@ -65,7 +65,7 @@ export default function Dashboard() {
         if (startDate && endDate) {
             fetchPunctualityReport();
         }
-    });
+    },);
 
     useEffect(() => {
         fetchPunctualityReport();

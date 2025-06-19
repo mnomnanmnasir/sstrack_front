@@ -6,7 +6,7 @@ const History = () => {
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 15; // ✅ 1 Page = 15 Rows
-    const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
+    const apiUrl = process.env.REACT_APP_API_URL;
     const token = localStorage.getItem("token");
     const [backendMessage, setBackendMessage] = useState(""); // ✅ Backend message state
 

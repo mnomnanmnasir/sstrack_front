@@ -874,7 +874,7 @@ function OwnerTeam() {
 
                                 try {
                                     const res = await axios.patch(
-                                        `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${emp._id}`,
+                                        `${apiUrl}/owner/settingsE/${emp._id}`,
                                         {
                                             userId: emp._id,
                                             effectiveSettings: updatedSettings,

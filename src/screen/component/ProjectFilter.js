@@ -8,7 +8,7 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
   const [userType, setUserType] = useState(null);
   const [projectOptions, setProjectOptions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const apiUrls = "https://myuniversallanguages.com:9093/api/v1";
+  const apiUrls = process.env.REACT_APP_API_URL;
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {

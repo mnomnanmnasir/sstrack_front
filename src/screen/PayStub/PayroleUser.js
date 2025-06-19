@@ -25,13 +25,13 @@ function PayroleUser() {
     const token = localStorage.getItem('token');
     const user = jwtDecode(JSON.stringify(token));
     const headers = { Authorization: `Bearer ${token}` };
-    const apiUrl = `https://myuniversallanguages.com:9093/api/v1`;
+    const apiUrlS = process.env.REACT_APP_API_URL;
     // const apiUrl = process.env.REACT_APP_API_URL;
 
 
     const fetchUsers = async () => {
         try {
-            const res = await axios.get(`${apiUrl}/owner/getPayrolUsers`, { headers });
+            const res = await axios.get(`${apiUrlS}/owner/getPayrolUsers`, { headers });
             setSubmittedUsers(res.data.data);
         } catch (err) {
             console.error('Failed to fetch payroll users:', err);
@@ -42,7 +42,7 @@ function PayroleUser() {
         setLoadingUserId(userId);
         setUser_ID_for_add(userId)
         try {
-            const res = await axios.get(`${apiUrl}/owner/payrolData/${userId}/get`, { headers });
+            const res = await axios.get(`${apiUrlS}/owner/payrolData/${userId}/get`, { headers });
 
             let data = res.data;
 
@@ -124,7 +124,7 @@ function PayroleUser() {
             };
 
             const res = await axios.post(
-                `${apiUrl}/owner/addPayrolData`,
+                `${apiUrlS}/owner/addPayrolData`,
                 payload,
                 { headers }
             );
@@ -192,7 +192,7 @@ function PayroleUser() {
 
 
             const res = await axios.patch(
-                `${apiUrl}/owner/updatepayrolUser/${editUser.userId}`,
+                `${apiUrlS}/owner/updatepayrolUser/${editUser.userId}`,
                 payload,
                 { headers }
             );
@@ -210,7 +210,7 @@ function PayroleUser() {
 
                 // Refresh the updated list from server
                 const refreshed = await axios.get(
-                    `${apiUrl}/owner/getPayrolUsers`,
+                    `${apiUrlS}/owner/getPayrolUsers`,
                     { headers }
                 );
                 setSubmittedUsers(refreshed.data.data);
@@ -325,7 +325,7 @@ function PayroleUser() {
                                         <th style={cellStyle}>Name</th>
                                         <th style={cellStyle}>Email</th>
                                         <th style={cellStyle}>Pay Period</th>
-                                        <th style={cellStyle}>Hourly Rate</th>
+                                        <th style={cellStyle}>Payrate</th>
                                         <th style={cellStyle}>OT Rate</th>
                                         <th style={cellStyle}>Shift Premium </th>
                                         <th style={cellStyle}>Tax Country</th>
@@ -665,7 +665,7 @@ function PayroleUser() {
                                                     />
                                                 </div> */}
                                                 <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Hourly Rate</label>
+                                                    <label className="form-label">Payrate</label>
                                                     <input
                                                         className="form-control"
                                                         type="number"
