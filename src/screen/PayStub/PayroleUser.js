@@ -322,11 +322,29 @@ function PayroleUser() {
 
                         <h4>📋 Payroll Employees</h4>
                         {loading ? (
-                            <div style={{ textAlign: 'center', padding: '30px' }}>
-                                <div className="spinner-border text-primary" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </div>
-                                <p style={{ marginTop: '10px', color: '#666' }}>Fetching payroll users...</p>
+                            <div style={{ textAlign: "center", marginTop: "40px" }}>
+                                <div
+                                    style={{
+                                        border: "6px solid #f3f3f3",
+                                        borderTop: "6px solid #7fc45a",
+                                        borderRadius: "50%",
+                                        width: "40px",
+                                        height: "40px",
+                                        animation: "spin 1s linear infinite",
+                                        margin: "0 auto"
+                                    }}
+                                />
+                                <p style={{ marginTop: "10px", fontSize: "14px", color: "#555" }}>
+                                    Loading payroll Users...
+                                </p>
+                                <style>
+                                    {`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}
+                                </style>
                             </div>
                         ) : (
                             <div style={{ overflowX: 'auto', background: '#fff', borderRadius: '8px', padding: '20px', boxShadow: '0 0 10px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
