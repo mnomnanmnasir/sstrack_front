@@ -12,7 +12,7 @@ function IndividualAutoPauseToggle() {
     Authorization: "Bearer " + token,
     "Content-Type": "application/json",
   };
-
+  const apiUrl = process.env.REACT_APP_API_URL;
   const handleRadioChange = async (employee, shouldPause) => {
     const updatedSettings = {
       ...employee.effectiveSettings,
@@ -25,7 +25,7 @@ function IndividualAutoPauseToggle() {
 
     try {
       const response = await axios.patch(
-        `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${employee._id}`,
+        `${apiUrl}/owner/settingsE/${employee._id}`,
         {
           userId: employee._id,
           effectiveSettings: updatedSettings,

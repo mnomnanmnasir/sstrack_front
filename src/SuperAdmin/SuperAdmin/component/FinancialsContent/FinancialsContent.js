@@ -4,7 +4,7 @@ import Divider from '@mui/material/Divider';
 import TopBar from '../topBar';
 import axios from 'axios';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+const apiUrl = process.env.REACT_APP_API_URL;
 function FinancialsContent() {
   const [paymentData, setPaymentData] = useState(null);
   const [invoices, setInvoices] = useState([]);
@@ -25,7 +25,7 @@ function FinancialsContent() {
     }
 
     try {
-      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getAllPayments', {
+      const response = await axios.get(`${apiUrl}/SystemAdmin/getAllPayments`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -55,7 +55,7 @@ function FinancialsContent() {
     }
 
     try {
-      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getAllInvoices', {
+      const response = await axios.get(`${apiUrl}/SystemAdmin/getAllInvoices`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -281,7 +281,7 @@ function FinancialsContent() {
                                 <strong>Billing Amount:</strong>
                               </Typography>
                               <Typography variant="body2" sx={{ color: '#777' }}>
-                              ${invoice.subTotal.toFixed(2)} USD
+                                ${invoice.subTotal.toFixed(2)} USD
                               </Typography>
 
                             </Grid>

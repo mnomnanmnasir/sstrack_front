@@ -9,7 +9,7 @@ const EmpoweringTeamsSection = ({ language }) => {
     en: {
       sectionTitle: "WHO WE SERVE",
       mainTitle: "Empowering Teams",
-      subTitle: " With Tailored Solutions",
+      subTitle: " With Tailored Workforce Tracking Solutions",
       description:
         "We connect our clients with cutting-edge tools and expertise to streamline their workflows and enhance productivity. Our platform is designed to ensure transparency, accountability, and efficiency at every level of your organization.",
       timeTracking: "Time Tracking",

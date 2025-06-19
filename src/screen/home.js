@@ -1,68 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import logo from "../images/logo.webp";
 import banner from '../images/ss-track-banner.svg';
-import start from "../images/button.webp";
-import line from '../images/greenline.webp';
-// import banners from './images/banner.png';
-import logo1 from '../images/adit-logo.png.webp';
-import logo2 from '../images/liveglam-logo.png.webp';
-import logo3 from '../images/route4me-logo.png.webp';
-import logo4 from '../images/wozu-logo.png.webp';
-import logo5 from '../images/howsy-logo.png.webp';
-import logo6 from '../images/kinetic-logo.png.webp';
-import logo7 from '../images/callnovo-logo.png.webp';
-import logo8 from '../images/plumbworld-logo.png.webp';
-import hand from '../images/hand.webp';
-import web from '../images/web.webp';
-import insight from '../images/insight.webp';
-import arrow from '../images/arrow.webp';
-import Header from "./component/header";
-import olivia from "../images/olivia.webp";
-import pheonix from "../images/pheonix.webp";
-import lana from "../images/lana.webp";
-import candice from "../images/candice.webp";
-import natali from "../images/natali.webp";
-import drew from "../images/drew.webp";
-import leftArrow from "../images/Leftarrow.webp";
-import rightArrow from "../images/Rightarrow.webp";
-import dean from "../images/manage.svg";
-import reportImage from "../images/reports.webp";
-import wifi from "../images/wifi.webp";
-import innerSetting from "../images/innersetting.webp";
-import userProfile from "../images/userProfile.webp";
-import Footer from "./component/footer";
-import lines from "../images/line.webp";
-import greenBanner from "../images/greenBanner.png";
-import employeeMonitor from '../images/Employee-Time-Tracking-1400-removebg-preview.png';
-import { BsQuestionLg, BsTelephonePlusFill } from 'react-icons/bs'
-import { IoMdMail, IoMdLocate } from 'react-icons/io'
-import { FaQuestion } from 'react-icons/fa'
+import { BsTelephonePlusFill } from 'react-icons/bs'
+import { IoMdMail } from 'react-icons/io'
 import { MdLocationOn } from 'react-icons/md';
-import Monitor from './containers/MonitorSection'
-import Image1 from '../images/howItWork-Image1 (1).png'
-import Image2 from '../images/howItWork-Image2 (1).png'
-import Image3 from '../images/howItWork-Image3 (1).png'
-import MonitorScreenshot from './containers/MonitorScreenshots'
-import HowItWork from './containers/HowItWorks'
 import PricingCards from './containers/pricingCards'
-// import ss1 from '../images/capture-1.png';
-// import ss2 from '../images/capture-2.png';
-// import ss3 from '../images/capture-3.png';
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import DownloadProduct from '../images/download-product.svg'
-import { AiFillWindows, AiFillApple } from 'react-icons/ai'
-import { BsWindows, BsApple } from 'react-icons/bs'
-import { ImArrowUpRight2 } from 'react-icons/im'
-import { TbSquareRoundedArrowRightFilled } from 'react-icons/tb'
-import detailedTimeline from '../images/connecting-employess-with-manager.png'
-import connectingemployees from '../images/connecting-employess-with-manager2.avif'
-import simpleAccess from '../images/simple-access.jpg'
-import effortlessTimeTrack from '../images/effortless-time-track.jpg'
-import screenshot from '../images/screenshot.jpg'
-import jwtDecode from "jwt-decode";
+
 import axios from "axios";
-import privacyPolicy from '../images/privacy-policy.svg'
-import privacyPolicy2 from '../images/privacy-2.jpg'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import { FerrisWheelSpinner } from "react-spinner-overlay";
 
@@ -174,22 +118,6 @@ function Home() {
       return 'Downgrade'; // The plan is lower than the current one
     }
   };
-
-  // const handleClick = (pageNumber) => {
-  //   setCurrentPage(pageNumber);
-  // };
-
-  // const handlePrevious = () => {
-  //   setCurrentPage((prevPage) => (prevPage > 1 ? prevPage - 1 : prevPage));
-  // };
-
-  // const handleNext = () => {
-  //   setCurrentPage((prevPage) => (prevPage < totalPages ? prevPage + 1 : prevPage));
-  // };
-
-  // const paginatedFeedbacks = feedbacks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -326,7 +254,7 @@ function Home() {
 
 
   //this api is for pricing plan who's data is to send to payment page
-  const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
+  const planapiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -372,7 +300,7 @@ function Home() {
               <div className="card-body">
                 <h5 className="card-title fw-bold fs-1">End-to-End Employee Presence Tracking System.</h5>
                 <br />
-                <p className="card-text fs-4">From work from home to office, onsite, in the field, or any specific job site, SS Track.io offers precision tracking, seamless management, and smarter team solutions. Track across Windows, Mac, Android, iOS, and Chrome platforms with unmatched efficiency.</p>
+                <p className="card-text fs-4">From work from home to office, onsite, in the field, or any specific job site, SSTrack.io offers precision tracking, seamless management, and smarter team solutions. Track across Windows, Mac, Android, iOS, and Chrome platforms with unmatched efficiency.</p>
                 <button className="downloadButton" onClick={() => navigate("/download")} > Download</button>
               </div>
             </div>
@@ -397,7 +325,7 @@ function Home() {
         <br />
         <br />
         {/* Call the MonitorSection.js file */}
-        <Monitor />
+        {/* <Monitor /> */}
         <br />
         <div style={{
           textAlign: "center"
@@ -408,7 +336,6 @@ function Home() {
         <br />
         <br />
         {/* Call the MonitorScreenshot.js file */}
-        <MonitorScreenshot />
 
 
         <section className="fourSection">
@@ -430,7 +357,7 @@ function Home() {
         </section>
 
         {/*------------------ How Works It -------------------- */}
-        <HowItWork />
+        {/* <HowItWork /> */}
         <br />
         <br />
 
@@ -571,7 +498,7 @@ function Home() {
                 <br />
                 <br />
                 <br />
-                <img width="100%" style={{ padding: '0px' }} src={employeeMonitor} alt="" />
+                {/* <img width="100%" style={{ padding: '0px' }} src={employeeMonitor} alt="" /> */}
               </div>
             </div>
           </div>

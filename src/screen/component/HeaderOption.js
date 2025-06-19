@@ -34,7 +34,7 @@ function HeaderOption({ isMobile }) {
         Authorization: 'Bearer ' + token,
         'Content-Type': 'application/json'
     }
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const wordsAfterSpace = user?.name?.split(" ")[1] ? user?.name?.split(" ")[1].charAt(0).toUpperCase() : "";
     const capitalizedWord = user?.name?.charAt(0).toUpperCase();
 
@@ -88,10 +88,6 @@ function HeaderOption({ isMobile }) {
         }
     };
 
-    // const handleDismiss = () => {
-    //     localStorage.setItem("isAccountSetupComplete", "true");
-    //     window.dispatchEvent(new Event("storage")); // Notify other components
-    // };
     function scrollToSection(sectionId) {
         const section = document.getElementById(sectionId);
         if (section) {
@@ -192,6 +188,7 @@ function HeaderOption({ isMobile }) {
                                         >
                                             Training Center
                                         </Link>
+
                                         {(location.pathname !== "/signin") && (location.pathname !== "/signup") && (
 
                                             <Link to="/#" className="ownerSectionUser1" style={{ color: 'white', textDecoration: 'none' }}
@@ -204,6 +201,7 @@ function HeaderOption({ isMobile }) {
                                                     }
                                                 }}>Download</Link>
                                         )}
+
                                         <Link
                                             to="#"
                                             className="ownerSectionUser1"
@@ -216,7 +214,6 @@ function HeaderOption({ isMobile }) {
                                             Demo
                                         </Link>
 
-                                        {/* Bootstrap Modal Markup */}
                                         <div
                                             className="modal fade"
                                             ref={modalRef}

@@ -53,7 +53,7 @@ const HowToUseSection = ({ language }) => {
                 {/* Title */}
                 <Row>
                     <Col>
-                        <h1
+                        <h2
                             style={{
                                 fontWeight: "700",
                                 color: "#0D4873",
@@ -62,9 +62,9 @@ const HowToUseSection = ({ language }) => {
                         >
                             {language === "ar"
                                 ? "كيفية استخدام"
-                                : "How to use"}{" "}
-                            <span style={{ color: "#7ACB59" }}>SSTRACK</span>
-                        </h1>
+                                : "How to Use SSTrack for"}{" "}
+                            <span style={{ color: "#7ACB59" }}>Real-Time Employee Monitoring</span>
+                        </h2>
                     </Col>
                 </Row>
 

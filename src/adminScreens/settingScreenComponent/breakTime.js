@@ -27,7 +27,7 @@ function Screenshot() {
   const [isEditingDuration, setIsEditingDuration] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filter, setfilter] = useState([])
-
+  const apiUrl = process.env.REACT_APP_API_URL;
 
 
   function Setting({ setting, setSetting, employee }) {
@@ -61,7 +61,7 @@ function Screenshot() {
     setIsLoading(true); // Show loader before fetching
     try {
       const response = await fetch(
-        `https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`,
+        `${apiUrl}/superAdmin/employees`,
         { headers }
       );
       const json = await response.json();
@@ -190,7 +190,7 @@ function Screenshot() {
       console.log("its obaid", requestData)
 
       const response = await axios.post(
-        "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
+        `${apiUrl}/superAdmin/addPunctualityRule`,
         requestData,
         {
           headers: {

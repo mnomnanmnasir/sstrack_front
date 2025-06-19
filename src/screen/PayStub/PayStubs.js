@@ -43,19 +43,17 @@ export default function PayStubs() {
   };
 
   const currencySymbols = {
-    USD: "$",     // United States Dollar
-    PKR: "₨",     // Pakistani Rupee
-    CAD: "C$",    // Canadian Dollar
-    INR: "₹",     // Indian Rupee
-    PHP: "₱",     // Philippine Peso
-    EUR: "€",     // Euro
-    GBP: "£",     // British Pound
-    AUD: "A$",    // Australian Dollar
-    JPY: "¥"      // Japanese Yen
+    USD: "$",
+    PKR: "₨",
+    CAD: "C$",
+    INR: "₹",
+    PHP: "₱",
+    EUR: "€",
+    GBP: "£",
+    AUD: "A$",
+    JPY: "¥"
   };
 
-
-  // const currencySymbol = currencySymbols[data.currency] || '';
   const currencySymbol = currencySymbols[(data.currency || '').toUpperCase()] || '';
 
   if (!stubData) {
@@ -66,38 +64,39 @@ export default function PayStubs() {
     <>
       <SnackbarProvider />
       <div className="container">
-        <div className="userHeader ">
+        <div className="userHeader">
           <h5>Pay Stubs</h5>
         </div>
 
         <div className="mainwrapper">
           <div className="ownerTeamContainer">
-
-            {/* 📄 PDF Download Button */}
             <div className="text-end mb-3">
               <button className="btn btn-success" onClick={handleDownloadPDF}>
-                📥 Download PDF
+                🗕️ Download PDF
               </button>
             </div>
+
             <div ref={pdfRef} className="max-w-4xl mx-auto p-4 space-y-5">
+              <div className="col-12">
+                <Card>
+                  <CardContent>
+                    <h2 className="h4 fw-bold">Paystub - {data.name ?? 'N/A'}</h2>
+                    <div className="d-flex flex-wrap justify-content-between small text-muted">
+                      <span>Pay Period: {data.StartDate ?? 'N/A'} to {data.EndDate ?? 'N/A'} ({data.payPeriod ?? 'N/A'})</span>
+                      <span>Pay Date: {data.payDate ? new Date(data.payDate).toLocaleDateString() : 'N/A'}</span>
+                    </div>
+                    <div className="mt-2 d-flex flex-wrap gap-2">
+                      <Badge bg="secondary">Country: {data.country ?? 'N/A'}</Badge>
+                      <Badge bg="secondary">Currency: {data.currency ?? 'N/A'}</Badge>
+                      <Badge bg="secondary">Memo: {data.memo || 'None'}</Badge>
+                      <Badge bg="secondary">Bonus: {Number(data.bonus ?? 0).toFixed(2)}</Badge>
+                      <Badge bg="secondary">Adjustments: {Number(data.adjustments ?? 0).toFixed(2)}</Badge>
+                      <Badge bg="secondary">Generate Date: {data.generateDate ? new Date(data.generateDate).toLocaleString() : 'N/A'}</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
-
-              {/* Header Card */}
-              <Card>
-                <CardContent className="space-y-2">
-                  <h2 className="text-2xl font-bold">Paystub - {data.name ?? 'N/A'}</h2>
-                  <div className="d-flex justify-content-between text-muted small">
-                    <span>Pay Period: {data.StartDate ?? 'N/A'} to {data.EndDate ?? 'N/A'} ({data.payPeriod ?? 'N/A'})</span>
-                    <span>Pay Date: {data.payDate ? new Date(data.payDate).toLocaleDateString() : 'N/A'}</span>
-                  </div>
-                  <div className="d-flex gap-3 mt-2">
-                    <Badge bg="secondary">Country: {data.country ?? 'N/A'}</Badge>
-                    <Badge bg="secondary">Currency: {data.currency ?? 'N/A'}</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Earnings Table */}
               <Card>
                 <CardContent>
                   <h4 className="mb-3">Earnings</h4>
@@ -114,31 +113,48 @@ export default function PayStubs() {
                     <TableBody>
                       <TableRow>
                         <TableCell>Regular</TableCell>
-                        <TableCell>{data.regHours ?? 0}</TableCell>
-                        <TableCell>{data.RegRate ?? 0}</TableCell>
-                        <TableCell>{data.RegCurrent ?? 0}</TableCell>
-                        <TableCell>{data.RegYTD ?? 0}</TableCell>
+                        <TableCell>{Number(data.regHours ?? 0).toFixed(2)}</TableCell>
+                        <TableCell>{Number(data.RegRate ?? 0).toFixed(2)}</TableCell>
+                        <TableCell>{Number(data.RegCurrent ?? 0).toFixed(2)}</TableCell>
+                        <TableCell>{Number(data.RegYTD ?? 0).toFixed(2)}</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>Overtime</TableCell>
-                        <TableCell>{data.OTHours ?? 0}</TableCell>
-                        <TableCell>{data.OTRate ?? 0}</TableCell>
-                        <TableCell>{data.OTCurrent ?? 0}</TableCell>
-                        <TableCell>{data.OTYTD ?? 0}</TableCell>
+                        <TableCell>{Number(data.OTHours ?? 0).toFixed(2)}</TableCell>
+                        <TableCell>{Number(data.OTRate ?? 0).toFixed(2)}</TableCell>
+                        <TableCell>{Number(data.OTCurrent ?? 0).toFixed(2)}</TableCell>
+                        <TableCell>{Number(data.OTYTD ?? 0).toFixed(2)}</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>Shift Premium</TableCell>
-                        <TableCell>{data.shiftPremiumHours ?? 0}</TableCell>
+                        <TableCell>{Number(data.shiftPremiumHours ?? 0).toFixed(2)}</TableCell>
                         <TableCell>-</TableCell>
-                        <TableCell>{data.shiftPremiumCurrent ?? 0}</TableCell>
-                        <TableCell>{data.shiftPremiumYTD ?? 0}</TableCell>
+                        <TableCell>{Number(data.shiftPremiumCurrent ?? 0).toFixed(2)}</TableCell>
+                        <TableCell>{Number(data.shiftPremiumYTD ?? 0).toFixed(2)}</TableCell>
                       </TableRow>
+                      {data.bonus > 0 && (
+                        <TableRow>
+                          <TableCell>Bonus</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>{Number(data.bonus).toFixed(2)}</TableCell>
+                          <TableCell>-</TableCell>
+                        </TableRow>
+                      )}
+                      {data.adjustments > 0 && (
+                        <TableRow>
+                          <TableCell>Adjustments</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>{Number(data.adjustments).toFixed(2)}</TableCell>
+                          <TableCell>-</TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                   </Table>
                 </CardContent>
               </Card>
 
-              {/* Deductions Table */}
               <Card>
                 <CardContent>
                   <h4 className="mb-3">Deductions</h4>
@@ -154,8 +170,8 @@ export default function PayStubs() {
                       {(data.totalDeductions ?? []).map((item, index) => (
                         <TableRow key={index}>
                           <TableCell>{item.deductionType ?? 'N/A'}</TableCell>
-                          <TableCell>{item.amount ?? 0}</TableCell>
-                          <TableCell>{item.YTD ?? 0}</TableCell>
+                          <TableCell>{Number(item.amount ?? 0).toFixed(2)}</TableCell>
+                          <TableCell>{Number(item.YTD ?? 0).toFixed(2)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -163,7 +179,6 @@ export default function PayStubs() {
                 </CardContent>
               </Card>
 
-              {/* Taxes Table */}
               <Card>
                 <CardContent>
                   <h4 className="mb-3">Taxes</h4>
@@ -179,8 +194,8 @@ export default function PayStubs() {
                       {(data.taxBreakdown ?? []).map((tax, index) => (
                         <TableRow key={index}>
                           <TableCell>{tax.taxType ?? 'N/A'}</TableCell>
-                          <TableCell>{tax.amount ?? 0}</TableCell>
-                          <TableCell>{tax.YTD ?? 0}</TableCell>
+                          <TableCell>{Number(tax.amount ?? 0).toFixed(2)}</TableCell>
+                          <TableCell>{Number(tax.YTD ?? 0).toFixed(2)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -188,25 +203,21 @@ export default function PayStubs() {
                 </CardContent>
               </Card>
 
-              {/* Totals */}
               <Card>
                 <CardContent className="d-flex justify-content-around text-center">
                   <div>
                     <h5>Net Pay</h5>
-                    <p className="h4">{currencySymbol}{(data.netPay ?? 0).toLocaleString()}</p>
-                    {/* <p className="h4">₱{(data.netPay ?? 0).toLocaleString()}</p> */}
-                    <small className="text-muted">YTD: {currencySymbol}{(data.netPayYTD ?? 0).toLocaleString()}</small>
-                    {/* <small className="text-muted">YTD: ₱{(data.netPayYTD ?? 0).toLocaleString()}</small> */}
+                    <p className="h4">{currencySymbol}{Number(data.netPay ?? 0).toFixed(2)}</p>
+                    <small className="text-muted">YTD: {currencySymbol}{Number(data.netPayYTD ?? 0).toFixed(2)}</small>
                   </div>
                   <div>
                     <h5>Gross Pay</h5>
-                    {/* <p className="h4">₱{(data.grossPay ?? 0).toLocaleString()}</p> */}
-                    <p className="h4">{currencySymbol}{(data.grossPay ?? 0).toLocaleString()}</p>
-                    {/* <small className="text-muted">YTD: ₱{(data.grossPayYTD ?? 0).toLocaleString()}</small> */}
-                    <small className="text-muted">YTD: {currencySymbol}{(data.grossPayYTD ?? 0).toLocaleString()}</small>
+                    <p className="h4">{currencySymbol}{Number(data.grossPay ?? 0).toFixed(2)}</p>
+                    <small className="text-muted">YTD: {currencySymbol}{Number(data.grossPayYTD ?? 0).toFixed(2)}</small>
                   </div>
                 </CardContent>
               </Card>
+
             </div>
           </div>
         </div>

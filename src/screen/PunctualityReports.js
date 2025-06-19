@@ -35,12 +35,12 @@ export default function Dashboard() {
     const [groups, setGroups] = useState([]);
     const [totalAbsentDays, setTotalAbsentDays] = useState(0);
     const [totalLates, setTotalLate] = useState(0);
-
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     const fetchGroups = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get("https://myuniversallanguages.com:9093/api/v1/userGroup", {
+            const response = await axios.get(`${apiUrl}/userGroup`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -112,7 +112,7 @@ export default function Dashboard() {
                 params.append("userId", selectedUsers.join(','));
             }
 
-            const url = `https://myuniversallanguages.com:9093/api/v1/owner/getPunctualityReport?${params.toString()}`;
+            const url = `${apiUrl}/owner/getPunctualityReport?${params.toString()}`;
 
             const response = await axios.get(url, {
                 headers: {
@@ -352,34 +352,34 @@ export default function Dashboard() {
                     </div>
 
                     <div className="row g-3">
-                    {/* Late Arrivals */}
-                    <div className="col-md-6">
-                        <div className="d-flex justify-content-between align-items-center bg-light rounded p-3">
-                            <div className="d-flex align-items-center gap-2">
-                                <span role="img" aria-label="late" className="text-warning">⚠️</span>
-                                <span className="fw-semibold text-dark">Late Arrivals</span>
+                        {/* Late Arrivals */}
+                        <div className="col-md-6">
+                            <div className="d-flex justify-content-between align-items-center bg-light rounded p-3">
+                                <div className="d-flex align-items-center gap-2">
+                                    <span role="img" aria-label="late" className="text-warning">⚠️</span>
+                                    <span className="fw-semibold text-dark">Late Arrivals</span>
+                                </div>
+                                <div className="text-danger fw-medium small">
+                                    {totalLates}
+                                    <span className="ms-1">📈</span></div>
                             </div>
-                            <div className="text-danger fw-medium small">
-                                {totalLates}
-                                 <span className="ms-1">📈</span></div>
+                        </div>
+
+                        {/* Absences */}
+                        <div className="col-md-6">
+                            <div className="d-flex justify-content-between align-items-center bg-light rounded p-3">
+                                <div className="d-flex align-items-center gap-2">
+                                    <Users className="text-warning me-2" size={16} />
+                                    <span className="fw-semibold text-dark">Absences</span>
+                                </div>
+                                <div className="text-danger fw-medium small">
+                                    {totalAbsentDays} <span className="ms-1">📉</span>
+                                </div>
+
+                                {/* <div className="text-danger fw-medium small">+0% <span className="ms-1">📈</span></div> */}
+                            </div>
                         </div>
                     </div>
-
-                    {/* Absences */}
-                    <div className="col-md-6">
-                        <div className="d-flex justify-content-between align-items-center bg-light rounded p-3">
-                            <div className="d-flex align-items-center gap-2">
-                                <Users className="text-warning me-2" size={16} />
-                                <span className="fw-semibold text-dark">Absences</span>
-                            </div>
-                            <div className="text-danger fw-medium small">
-                                {totalAbsentDays} <span className="ms-1">📉</span>
-                            </div>
-
-                            {/* <div className="text-danger fw-medium small">+0% <span className="ms-1">📈</span></div> */}
-                        </div>
-                    </div>
-                </div>
                 </div>
 
                 {/* Advanced Filters */}

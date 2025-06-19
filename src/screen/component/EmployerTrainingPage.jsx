@@ -4,46 +4,46 @@ import React, { useState } from "react";
 
 const videos_Employers = [
   {
-    title: "SS Track System Overview",
+    title: "SSTrack System Overview",
     description:
       "Learn how to navigate your dashboard, manage employees, set schedules, and control all core features in one place.",
     script:
-      "Managing your workforce has never been easier. With SS Track, you can seamlessly monitor attendance, set and adjust employee schedules, manage vacations and leave requests, and oversee training sessions directly through your dashboard. Effortlessly issue pay stubs and use powerful reporting tools for clear insights. SS Track puts employee management at your fingertips—anywhere, anytime.",
+      "Managing your workforce has never been easier. With SSTrack, you can seamlessly monitor attendance, set and adjust employee schedules, manage vacations and leave requests, and oversee training sessions directly through your dashboard. Effortlessly issue pay stubs and use powerful reporting tools for clear insights. SSTrack puts employee management at your fingertips—anywhere, anytime.",
   },
   {
-    title: "Employers – How to Use SS Track",
+    title: "Employers – How to Use SSTrack",
     description:
       "A complete walkthrough for business owners and HR managers to control schedules, approvals, reports, and more.",
     script:
-      "Managing your workforce has never been easier. With SS Track, you can seamlessly monitor attendance, set and adjust employee schedules, manage vacations and leave requests, and oversee training sessions directly through your dashboard. Effortlessly issue pay stubs and use powerful reporting tools for clear insights. SS Track puts employee management at your fingertips—anywhere, anytime.",
+      "Managing your workforce has never been easier. With SSTrack, you can seamlessly monitor attendance, set and adjust employee schedules, manage vacations and leave requests, and oversee training sessions directly through your dashboard. Effortlessly issue pay stubs and use powerful reporting tools for clear insights. SSTrack puts employee management at your fingertips—anywhere, anytime.",
   },
   {
     title: "Using the Mobile Punch System",
     description:
       "Track employee punctuality, manage break time rules, and stay compliant through our intuitive mobile punch interface.",
     script:
-      "SS Track's mobile punch system makes clocking in and out effortless. Monitor punctuality, manage break times, and maintain accuracy through intuitive interfaces. Our HR-focused tools ensure compliance and streamline management of breaks, schedules, training, and vacation time. SS Track—the ultimate solution to enhance your team's productivity and punctuality.",
+      "SSTrack's mobile punch system makes clocking in and out effortless. Monitor punctuality, manage break times, and maintain accuracy through intuitive interfaces. Our HR-focused tools ensure compliance and streamline management of breaks, schedules, training, and vacation time. SSTrack—the ultimate solution to enhance your team's productivity and punctuality.",
   },
   {
     title: "Employees – Desktop Application",
     description:
       "A simple how-to for employees using the desktop app to track work, manage breaks, and stay up to date.",
     script:
-      "SS Track empowers you to manage your workday easily. Using our desktop application, simply press 'Play' to begin tracking your time. Rest assured, SS Track only tracks when active and automatically stops after 20 minutes of inactivity—unless otherwise specified by your employer. Your privacy is important to us, and transparency is key. Use SS Track to effortlessly manage your daily tasks, breaks, schedules, and training updates.",
+      "SSTrack empowers you to manage your workday easily. Using our desktop application, simply press 'Play' to begin tracking your time. Rest assured, SSTrack only tracks when active and automatically stops after 20 minutes of inactivity—unless otherwise specified by your employer. Your privacy is important to us, and transparency is key. Use SSTrack to effortlessly manage your daily tasks, breaks, schedules, and training updates.",
   },
   {
     title: "Your Privacy & Tracking",
     description:
-      "Understand how SS Track protects your privacy and what gets tracked—only with your action and approval.",
+      "Understand how SSTrack protects your privacy and what gets tracked—only with your action and approval.",
     script:
-      "We know privacy matters. SS Track respects your boundaries by only tracking when you actively choose to start recording your workday. Tracking automatically stops after 20 minutes of inactivity to ensure your privacy, unless specific permissions have been set by your employer. Clear, transparent, and trustworthy—that’s the SS Track promise.",
+      "We know privacy matters. SSTrack respects your boundaries by only tracking when you actively choose to start recording your workday. Tracking automatically stops after 20 minutes of inactivity to ensure your privacy, unless specific permissions have been set by your employer. Clear, transparent, and trustworthy—that’s the SSTrack promise.",
   },
   {
     title: "Mobile App – On-the-Go Access",
     description:
       "Stay connected, request leaves, check schedules, and track time – all from your mobile phone.",
     script:
-      "Stay connected with the SS Track mobile app. Easily start and stop your tracking while on the move, access your schedule, request vacation or leave, and view updates in real-time. Our mobile app ensures you’re always informed and organized, wherever work takes you.",
+      "Stay connected with the SSTrack mobile app. Easily start and stop your tracking while on the move, access your schedule, request vacation or leave, and view updates in real-time. Our mobile app ensures you’re always informed and organized, wherever work takes you.",
   },
   {
     title: "How to Use the Reports Section",
@@ -77,10 +77,10 @@ const EmployerTrainingPage = () => {
             marginBottom: "12px",
           }}
         >
-          SS Track Training Center
+          SSTrack Training Center
         </h1>
         <p style={{ color: "#6C757D", fontSize: "1rem" }}>
-          Your complete guide to mastering SS Track. Watch video tutorials, explore features, and get the best out of your team.
+          Your complete guide to mastering SSTrack. Watch video tutorials, explore features, and get the best out of your team.
         </p>
       </div>
 

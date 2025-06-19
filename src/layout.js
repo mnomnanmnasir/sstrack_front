@@ -66,27 +66,6 @@ const Layout = () => {
     }
   });
 
-
-  // useEffect(() => {
-  //   if (!socket) return;
-
-  //   const handleRoleUpdate = (data) => {
-  //     const oldToken = localStorage.getItem("token");
-  //     if (!oldToken) return;
-
-  //     const oldDecoded = jwtDecode(oldToken);
-  //     if (data.user_id === oldDecoded._id) {
-  //       localStorage.setItem("token", data.new_token);   // ✅ Save new token
-
-  //       const newDecoded = jwtDecode(data.new_token);
-  //       setToken(data.new_token);                        // ✅ Force rerender
-  //       setUserType(newDecoded.userType);                // ✅ Update userType state
-  //     }
-  //   };
-
-  //   socket.on('role_update', handleRoleUpdate);
-  //   return () => socket.off('role_update', handleRoleUpdate);
-  // }, [socket]);
   useEffect(() => {
     if (!socket) return;
 
@@ -122,62 +101,57 @@ const Layout = () => {
   }, [token]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {
-        location.pathname === "/" ||
-          location.pathname === "/signin" ||
-          location.pathname === "/signup" ||
-          location.pathname === "/forgetpassword" ||
-          location.pathname === "/download" ||
-          location.pathname === "/systemAdminLogin" ||
-          location.pathname === "/forget-password" ||
-          location.pathname === "/file-upload" ||
-          location.pathname === "/verification-code" ||
-          location.pathname === "/privacy-policy" ||
-          location.pathname === "/privacy-policy1" ||
-          location.pathname === "/privacy-policy2" ||
-          location.pathname === "/workCards" ||
-          location.pathname === "/aboutUs" ||
-          location.pathname === "/contact" ||
-          location.pathname === "/product" ||
-          location.pathname === "/splash" ||
-          location.pathname === "/Training" ||
-          location.pathname.startsWith("/update-password") ||
-          location.pathname.startsWith("/create-account") ? (
-          <>
-            <Outlet />
-            <Footer
-              onContactButtonClick={scrollToContactSection}
-              language={language}
-              handleToggleLanguage={handleToggleLanguage}
-              scrollToSection={scrollToSection}
-            />
-          </>
-        ) : (
-          location.pathname !== "/capture-screen" && token && (
+    location.pathname === "/capture-screen" ? (
+      // Fullscreen clean outlet for modal/screenshot mode
+      <Outlet />
+    ) : (
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        {
+          location.pathname === "/" ||
+            location.pathname === "/signin" ||
+            location.pathname === "/signup" ||
+            location.pathname === "/forgetpassword" ||
+            location.pathname === "/download" ||
+            location.pathname === "/systemAdminLogin" ||
+            location.pathname === "/forget-password" ||
+            location.pathname === "/file-upload" ||
+            location.pathname === "/verification-code" ||
+            location.pathname === "/privacy-policy" ||
+            location.pathname === "/privacy-policy1" ||
+            location.pathname === "/privacy-policy2" ||
+            location.pathname === "/workCards" ||
+            location.pathname === "/aboutUs" ||
+            location.pathname === "/contact" ||
+            location.pathname === "/product" ||
+            location.pathname === "/splash" ||
+            location.pathname === "/Training" ||
+            location.pathname.startsWith("/update-password") ||
+            location.pathname.startsWith("/create-account") ? (
             <>
+              <Outlet />
+              <Footer
+                onContactButtonClick={scrollToContactSection}
+                language={language}
+                handleToggleLanguage={handleToggleLanguage}
+                scrollToSection={scrollToSection}
+              />
+            </>
+          ) : (
+            token && (
               <div className="d-flex" style={{ minHeight: '100vh', overflow: 'hidden' }}>
-
-                {/* <Sidebar /> */}
-                {/* <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} /> */}
-                {/* <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} /> */}
                 <Sidebar
                   open={sidebarOpen}
                   key={userType}
                   onClose={() => setSidebarOpen(false)}
-                  userType={userType} // pass down updated role
+                  userType={userType}
                 />
-
                 <div className="flex-grow-1 d-flex flex-column" style={{ overflowX: 'hidden', overflowY: 'auto', maxHeight: '100vh' }}>
-                  {/* <UserHeader userType={userType} setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} /> */}
                   <UserHeader
                     userType={userType}
                     setUserType={setUserType}
                     setSidebarOpen={setSidebarOpen}
                     sidebarOpen={sidebarOpen}
                   />
-
-                  {/* <UserHeader setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} /> */}
                   <div className="flex-grow-1">
                     <Outlet />
                     <Footer
@@ -189,11 +163,11 @@ const Layout = () => {
                   </div>
                 </div>
               </div>
-            </>
+            )
           )
-        )
-      }
-    </div>
+        }
+      </div>
+    )
   );
 
 }

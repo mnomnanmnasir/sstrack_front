@@ -62,7 +62,7 @@ function UserHeader({ setSidebarOpen, sidebarOpen, userType, setUserType }) {
 
     const [remainingBreakTime, setRemainingBreakTime] = useState(''); // State to store remaining break time
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         if (!isMobile && sidebarOpen) {
@@ -90,7 +90,7 @@ function UserHeader({ setSidebarOpen, sidebarOpen, userType, setUserType }) {
             if (user?.userType === "user" || user?.userType === 'manager' || user?.userType === 'admin' && user?._id) {
                 try {
                     const userId = user._id; // Extract userId dynamically
-                    const apiUrl = `https://myuniversallanguages.com:9093/api/v1/timetrack/remainingBreak/${userId}`;
+                    const apiUrl = `${apiUrl}/timetrack/remainingBreak/${userId}`;
 
                     console.log("Fetching Remaining Break Time for User ID:", userId);
                     console.log("API URL:", apiUrl);
@@ -182,7 +182,7 @@ function UserHeader({ setSidebarOpen, sidebarOpen, userType, setUserType }) {
     const fetchLeaveRequests = async () => {
         try {
             const userId = items._id; // Current user ID
-            const apiUrl = `https://myuniversallanguages.com:9093/api/v1/superAdmin/getAllLeaveRequests`;
+            const apiUrl = `${apiUrl}/superAdmin/getAllLeaveRequests`;
 
             const response = await axios.get(apiUrl, {
                 headers: {

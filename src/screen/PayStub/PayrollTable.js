@@ -1,14 +1,18 @@
+import axios from 'axios';
 import jwtDecode from 'jwt-decode';
+import { enqueueSnackbar } from 'notistack';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { Modal, Form, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 
 
-const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequency, onSelectionChange }) => {
+
+const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequency, onSelectionChange, payPeriods }) => {
   const token = localStorage.getItem('token');
   const user = useMemo(() => jwtDecode(token), [token]);
   const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
-  const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [originalEmployees, setOriginalEmployees] = useState([]);
   const [payPeriod, setPayPeriod] = useState({ start: '2025-04-21', end: '2025-04-27' });
   const [payDate, setPayDate] = useState('2025-05-02');
@@ -17,7 +21,129 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
   const [periods, setPeriods] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState('');
   const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [selectedEmp, setSelectedEmp] = useState(null);
   const [employees, setEmployees] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [modalEmployee, setModalEmployee] = useState(null);
+  const [shiftPremiumRate, setShiftPremiumRate] = useState('');
+  const [overtimeRate, setOvertimeRate] = useState('');
+  const [hourlyRate, setHourlyRate] = useState('');
+  const [appliedTaxCountry, setAppliedTaxCountry] = useState('');
+  const [appliedTaxState, setAppliedTaxState] = useState('');
+  const [appliedTaxes, setAppliedTaxes] = useState([]);
+  const [appliedDeductions, setAppliedDeductions] = useState([]);
+  const [currency, setCurrency] = useState('');
+  const [vacationPay, setVacationPay] = useState('');
+  const [payPeriodType, setPayPeriodType] = useState('');
+  const [pay_type, setPayType] = useState('');
+
+  const navigate = useNavigate();
+  // ✅ Define the missing constants
+  const countryStateMap = {
+    canada: ['Alberta', 'British Columbia', 'Manitoba', 'Ontario'],
+    usa: ['California', 'Texas', 'New York', 'Florida'],
+    india: ['Maharashtra', 'Punjab', 'Kerala'],
+  };
+
+
+  const usStateNameToCode = {
+    California: 'CA',
+    Texas: 'TX',
+    New_York: 'NY',
+    Florida: 'FL'
+  };
+
+  const taxDeductionMap = {
+    canada: {
+      taxes: ['federal', 'provincial'],
+      deductions: ['cpp', 'ei'],
+    },
+    india: {
+      taxes: ['income tax', 'gst', 'professional tax'],
+      deductions: ['pf', 'esi', 'section 80c', 'section 80d'],
+    },
+    usa: {
+      taxes: ['federal income tax', 'state income tax', 'social security tax', 'medicare tax', 'futa'],
+      deductions: [],
+    },
+    philippines: {
+      taxes: ['income tax', 'vat', 'estate tax'],
+      deductions: ['sss', 'philhealth', 'pag-ibig'],
+    },
+    pakistan: {
+      taxes: ['income tax', 'sales tax', 'excise duty'],
+      deductions: ['social security', 'provident fund', 'zakat'],
+    },
+    ksa: {
+      taxes: ['income tax (for foreign workers)', 'vat', 'khums'],
+      deductions: ['gosi', 'social insurance'],
+    },
+  };
+
+  // ✅ Dummy updateStubSettings for now
+  const updateStubSettings = async () => {
+    const isPayrolUser = selectedEmp?.payrolUser;
+
+    // Build the payload
+    const payload = {
+      shiftPremiumRate: Number(shiftPremiumRate),
+      overtimeRate: Number(overtimeRate),
+      hourlyRate: Number(hourlyRate),
+      appliedTaxCountry,
+      appliedTaxState:
+        appliedTaxCountry === "usa" && usStateNameToCode[appliedTaxState]
+          ? usStateNameToCode[appliedTaxState]
+          : appliedTaxState,
+      vacationPay: Number(vacationPay),
+      currency,
+      pay_type: pay_type || "hourly",
+      payPeriodType,
+      appliedTaxes,
+      appliedDeductions,
+      ...(isPayrolUser && { name: selectedEmp?.name }) // Include name only if payrolUser
+    };
+
+    console.log("selectedEmp.id:", selectedEmp?.id);
+    console.log("selectedEmp.userId:", selectedEmp?.id);
+    console.log("isPayrolUser:", isPayrolUser);
+
+
+    const endpoint = isPayrolUser
+      ? `${apiUrl}/owner/updatepayrolUser/${selectedEmp?.id}`
+      : `${apiUrl}/superAdmin/updateStubsSetting/${selectedEmp?.id}`;
+
+    try {
+      const response = isPayrolUser
+        ? await axios.patch(endpoint, payload, { headers }) // PATCH
+        : await axios.post(endpoint, payload, { headers }); // POST
+
+      if (response.status === 200 || response.status === 201) {
+        enqueueSnackbar("Stub settings updated successfully!", {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "right" }
+        });
+
+        setTimeout(() => window.location.reload(), 300);
+        setShowSettingsModal(false);
+      }
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to update stub settings.";
+
+      enqueueSnackbar(errorMessage, {
+        variant: "error",
+        anchorOrigin: { vertical: "top", horizontal: "right" }
+      });
+
+      console.error("❌ Error updating stub settings:", error);
+    }
+  };
+
+
 
   const fetchPayPeriods = async (selectedMonth) => {
     try {
@@ -40,34 +166,85 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
     }
   };
 
-  const handleMonthChange = (e) => {
-    const selected = e.target.value;
-    console.log('monthhhhh', e)
-    setMonth(selected);
-    fetchPayPeriods(selected);
-  };
+  useEffect(() => {
+    if (selectedEmp) {
+      setShiftPremiumRate(selectedEmp.shiftPremiumRate || 0);
+      setOvertimeRate(selectedEmp.overtimeRate || 0);
+      setHourlyRate(selectedEmp.hourlyRate || 0);
+      setCurrency(selectedEmp.currency || '');
+      setPayType(selectedEmp.payType || '');
+      setPayPeriodType(selectedEmp.payPeriodType || '');
+      setVacationPay(selectedEmp.vacationPay || 0);
+      setAppliedTaxCountry(selectedEmp.appliedTaxCountry || '');
+      setAppliedTaxState(selectedEmp.appliedTaxState || '');
+
+      // You might fetch these from server if they're dynamic, for now empty arrays
+      setAppliedTaxes(selectedEmp.appliedTaxes || []);
+      setAppliedDeductions(selectedEmp.appliedDeductions || []);
+    }
+  }, [selectedEmp]);
+  useEffect(() => {
+    if (!showSettingsModal) {
+      setShiftPremiumRate(0);
+      setOvertimeRate(0);
+      setHourlyRate(0);
+      setCurrency('');
+      setPayType('');
+      setPayPeriodType('');
+      setVacationPay(0);
+      setAppliedTaxCountry('');
+      setAppliedTaxState('');
+      setAppliedTaxes([]);
+      setAppliedDeductions([]);
+    }
+  }, [showSettingsModal]);
+
+
 
   useEffect(() => {
     if (Array.isArray(initialEmployees)) {
-
       const mapped = initialEmployees.map((emp) => ({
         id: emp._id,
         name: emp.name,
+        email: emp.email,
+        company: emp.company,
+        companyId: emp.companyId,
+        userType: emp.userType,
+
+        // Billing Info
+        hourlyRate: emp.billingInfo?.ratePerHour || 0,
+        shiftPremiumRate: emp.billingInfo?.shiftPremiumRate || 0,
+        overtimeRate: emp.billingInfo?.overtimeRate || 0,
+        currency: emp.billingInfo?.currency || 'USD',
+        payType: emp.billingInfo?.payType || '',
+
+        // Time & Earnings
         type: emp.billingInfo?.payType === 'hourly' ? 'Hourly' : 'Monthly',
         regularHours: emp.totalHours?.userHours || 0,
+        overTimeHours: emp.totalHours?.overTimeUser || 0,
+        weekendPremiumHours: emp.totalHours?.weekendPremiumHours || 0,
+        vacationPay: emp.vacationPay || 0,
+        payPeriodType: emp.payPeriodType || '',
+        totalHours: emp.totalHours || {},
+        earnings: emp.earnings || {},
+
+        // Stub Fields
         overtime: 0,
-        regularHours: emp.totalHours?.userHours || 0,
         bonus: 0.0,
         adjustments: 0,
+        payrolUser: emp.payrolUser,
         memo: '',
         payMethod: 'Bank transfer',
-        currency: emp.billingInfo?.currency || 'usd',
-        earnings: emp.earnings || {},
+
+        // Validation
+        validationError: emp.validationErrors?.[0] || ''
       }));
+
       setEmployees(mapped);
       setOriginalEmployees(mapped); // ✅ Save for reset
     }
   }, [initialEmployees, payPeriod]);
+
 
   const toggleEmployee = (id) => {
     setSelectedEmployees((prev) =>
@@ -81,56 +258,6 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
         emp.id === id ? { ...emp, [field]: field === 'memo' ? value : parseFloat(value) || 0 } : emp
       )
     );
-  };
-  const handlePeriodChange = async (e) => {
-    const selected = e.target.value;
-    setSelectedPeriod(selected);
-
-    if (!selected || !frequency) return;
-
-    // Parse start and end dates
-    const [startStr, endStr] = selected.split(" - ");
-    const formatDate = (dateStr) => {
-      const [month, day, year] = dateStr.split("/");
-      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-    };
-    const startDate = formatDate(startStr);
-    const endDate = formatDate(endStr);
-
-    try {
-      const response = await fetch(
-        `${apiUrl}/owner/filterUsersBypayPeriod/${frequency}?startDate=${startDate}&endDate=${endDate}`,
-        {
-          method: "GET",
-          headers,
-        }
-      );
-      const result = await response.json();
-      console.log("📦 Filtered API Response:", result);
-
-      if (result.success && Array.isArray(result.data)) {
-        const mappedEmployees = result.data.map(emp => ({
-          id: emp._id,
-          name: emp.name,
-          type: emp.billingInfo?.payType === 'hourly' ? 'Hourly' : 'Monthly',
-          regularHours: emp.totalHours?.userHours || 0,
-          overtime: emp.totalHours?.overTimeUser || 0,
-          hourlyRate: emp.billingInfo?.ratePerHour || 0,
-          bonus: 0.0,
-          adjustments: 0.0,
-          memo: '',
-          payMethod: 'Bank transfer',
-          currency: emp.billingInfo?.currency || 'usd',
-          earnings: emp.earnings || {},
-          payrolUser: emp.payrolUser || false
-        }));
-
-        setEmployees(mappedEmployees);
-      }
-
-    } catch (error) {
-      console.error("❌ Error fetching filtered employees:", error);
-    }
   };
 
 
@@ -153,7 +280,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
 
       const totalGross = selected.reduce((sum, emp) => sum + (parseFloat(emp.earnings?.grossPay) || 0), 0);
 
-      const employerContrib = selected.length * 0.41;
+      const employerContrib = selected.length;
 
       const selectedEmployeeData = selected.map(emp => ({
         userId: emp.id,
@@ -184,10 +311,23 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
     inr: '₹',
     aed: 'د.إ', // <-- added symbol for AED
   };
+  const countryCurrencyMap = {
+    canada: 'CAD',
+    usa: 'USD',
+    pakistan: 'PKR',
+    philippines: 'PHP',
+    india: 'INR',
+    ksa: 'SAR'
+  };
 
 
 
-
+  const handleRegenerate = useCallback((emp) => {
+    console.log("🔁 Opening regenerate modal for:", payPeriods);
+    console.table(emp);
+    setModalEmployee(emp);  // Store current employee
+    setShowModal(true);     // Show modal
+  }, []);
 
   const styles = {
     container: { padding: '30px', fontFamily: 'Segoe UI, sans-serif', backgroundColor: '#f9fbfd' },
@@ -208,57 +348,21 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
 
   return (
     <div style={styles.container}>
+      <h4 className="mb-4">Select a employees</h4>
       <div style={styles.header}>Run Payroll: {frequency.charAt(0).toUpperCase() + frequency.slice(1)}</div>
-
-      <div style={styles.controls}>
-        <Form.Group className="mb-3">
-          <Form.Label>Select Month</Form.Label>
-          <Form.Control type="month" value={month} onChange={handleMonthChange} />
-        </Form.Group>
-
-        <Form.Group className="mb-3">
-          <Form.Label>Select Pay Period</Form.Label>
-          <Form.Select
-            value={selectedPeriod}
-            onChange={handlePeriodChange}
-            disabled={periods.length === 0}
-          >
-            <option value="">-- Select Period --</option>
-            {periods.map((p, idx) => <option key={idx} value={p}>{p}</option>)}
-          </Form.Select>
-        </Form.Group>
-
-
-
-        <div>
-          <label>Frequency:</label><br />
-          <p style={{ ...styles.input, marginBottom: 0 }}>{frequency.charAt(0).toUpperCase() + frequency.slice(1)}</p>
-        </div>
-        <Button
-          variant="secondary"
-          className="py-1 px-2 text-sm"
-          style={{ height: '28px', marginTop: '20px', }}
-          onClick={() => {
-            setMonth('');
-            setSelectedPeriod('');
-            setEmployees(originalEmployees);
-          }}
-        >
-          Reset Filters
-        </Button>
-
-        <div style={{ marginTop: '20px', fontSize: '0.85rem', color: '#333' }}>
-          <span style={{ backgroundColor: '#e8f8ec', padding: '2px 6px', borderRadius: '4px' }}>
-            Highlighted
-          </span>{' '}
-          rows indicate employees marked as payroll users.
-        </div>
-
+      <div style={{ fontSize: '1rem', marginBottom: '10px', fontWeight: 500 }}>
+        Pay Period: {payPeriods?.start || '—'} to {payPeriods?.end || '—'}
+      </div>
+      <div style={{ fontSize: '0.85rem', color: '#333' }}>
+        <span style={{ backgroundColor: '#e8f8ec', padding: '2px 6px', borderRadius: '4px' }}>
+          Highlighted
+        </span>{' '}
+        rows indicate employees marked as payroll users.
       </div>
       <div style={{ alignSelf: 'flex-end', fontWeight: 600, padding: '8px 0' }}>
         Total Employees: {employees.length}
       </div>
-      {month && selectedPeriod ? (
+      {employees.length > 0 ? (
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table style={styles.table}>
             <thead>
@@ -266,7 +370,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                 <th style={styles.th}>✔</th>
                 <th style={styles.th}>Name</th>
                 <th style={styles.th}>Type</th>
-                <th style={styles.th}> Rate ($)</th>
+                <th style={styles.th}> Rate </th>
                 <th style={styles.th}>Regular Hours</th>
                 <th style={styles.th}>Overtime</th>
                 <th style={styles.th}>Bonus</th>
@@ -275,7 +379,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                 )}
                 <th style={styles.th}>Gross Pay</th>
                 <th style={styles.th}>Memo</th>
-                <th style={styles.th}>Pay Method</th>
+                <th style={styles.th}>Validation Error</th>
               </tr>
             </thead>
             <tbody>
@@ -295,6 +399,9 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                           type="checkbox"
                           checked={editable}
                           onChange={() => toggleEmployee(emp.id)}
+                          // disabled={!!emp.validationError}
+                          disabled={emp.validationError === 'Already generated'}
+                          title={emp.validationError === 'Already generated' ? 'This pay stub is already generated and cannot be selected.' : ''}
                         />
                       </td>
                       <td style={styles.td}>{emp.name}</td>
@@ -304,7 +411,7 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                           type="number"
                           value={parseFloat(emp.hourlyRate || 0).toFixed(2)}
                           onChange={(e) => handleChange(emp.id, 'hourlyRate', e.target.value)}
-                          disabled={!editable}
+                          disabled
                           style={{ ...styles.input, width: '90px' }}
                         />
                       </td>
@@ -313,14 +420,14 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                           type="number"
                           value={parseFloat(emp.regularHours || 0).toFixed(2)}
                           onChange={(e) => handleChange(emp.id, 'regularHours', e.target.value)}
-                          disabled={!editable}
+                          disabled
                           style={{ ...styles.input, width: '70px' }}
                         />
                       </td>
                       <td style={styles.td}>
                         <input
                           type="number"
-                          value={parseFloat(emp.earnings?.overtime || 0).toFixed(2)}
+                          value={parseFloat(emp.totalHours?.overTimeUser || 0).toFixed(2)}
                           disabled
                           style={{ ...styles.input, width: '70px' }}
                         />
@@ -359,7 +466,58 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
                           style={{ ...styles.input, width: '100%' }}
                         />
                       </td>
-                      <td style={styles.td}>{emp.payMethod}</td>
+                      <td
+                        style={{
+                          ...styles.td,
+                          color:
+                            emp.validationError === 'Already generated'
+                              ? 'green'
+                              : emp.validationError
+                                ? 'red'
+                                : '#444'
+                        }}
+                      >
+                        <span title={emp.validationError}>
+                          {emp.validationError?.length > 80
+                            ? emp.validationError.slice(0, 80) + '…'
+                            : emp.validationError || '—'}
+                        </span>
+
+                        {emp.validationError === 'Already generated' ? (
+                          <Button
+                            onClick={() => handleRegenerate(emp)}
+                            variant="primary"
+                            style={{ marginLeft: '8px' }}
+                          >
+                            Regenerate
+                          </Button>
+                        ) : (
+                          emp.validationError &&
+                          emp.validationError !== '—' &&
+                          !emp.validationError.trim().startsWith('The first stub should start from') && (
+                            <span
+                              onClick={() => {
+                                setSelectedEmp(emp);
+                                setShowSettingsModal(true);
+                                console.log("🧠 emp object:", emp);
+                              }}
+                              style={{
+                                marginLeft: '8px',
+                                color: '#007bff',
+                                textDecoration: 'underline',
+                                cursor: 'pointer'
+                              }}
+                              title="Open employee settings"
+                            >
+                              Settings
+                            </span>
+                          )
+                        )}
+                      </td>
+
+
+
+
                     </tr>
                   );
                 })}
@@ -373,6 +531,420 @@ const PayrollTable = ({ employees: initialEmployees = [], frequency: parentFrequ
           Please select both Month and Pay Period to view the payroll table.
         </div>
       )}
+      {modalEmployee && (
+        <Form>
+          <Modal show={showModal} onHide={() => setShowModal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Regenerate Pay Stub</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {/* Read-only Pay Period */}
+              <Form.Group className="mb-3">
+                <Form.Label>Pay Period Start</Form.Label>
+                <Form.Control type="text" value={payPeriods?.start || ''} readOnly />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Pay Period End</Form.Label>
+                <Form.Control type="text" value={payPeriods?.end || ''} readOnly />
+              </Form.Group>
+
+              {/* Editable Inputs */}
+              <Form.Group className="mb-3">
+                <Form.Label>Bonus</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={modalEmployee.bonus ?? ''}
+                  onChange={(e) =>
+                    setModalEmployee({
+                      ...modalEmployee,
+                      bonus: e.target.value === '' ? '' : parseFloat(e.target.value),
+                    })
+                  }
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Adjustments</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={modalEmployee.adjustments ?? ''}
+                  onChange={(e) =>
+                    setModalEmployee({
+                      ...modalEmployee,
+                      adjustments: e.target.value === '' ? '' : parseFloat(e.target.value),
+                    })
+                  }
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Memo</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={modalEmployee.memo ?? ''}
+                  onChange={(e) =>
+                    setModalEmployee({ ...modalEmployee, memo: e.target.value })
+                  }
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Weekend Premium Hours</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={modalEmployee.weekendPremiumHours ?? ''}
+                  onChange={(e) =>
+                    setModalEmployee({
+                      ...modalEmployee,
+                      weekendPremiumHours: e.target.value === '' ? '' : parseFloat(e.target.value),
+                    })
+                  }
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Rate Per Hour</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={modalEmployee.ratePerHour ?? ''}
+                  onChange={(e) =>
+                    setModalEmployee({
+                      ...modalEmployee,
+                      ratePerHour: e.target.value === '' ? '' : parseFloat(e.target.value),
+                    })
+                  }
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Overtime Hours</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={modalEmployee.overTimeUser ?? ''}
+                  onChange={(e) =>
+                    setModalEmployee({
+                      ...modalEmployee,
+                      overTimeUser: e.target.value === '' ? '' : parseFloat(e.target.value),
+                    })
+                  }
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>User Hours</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={modalEmployee.userHours ?? ''}
+                  onChange={(e) =>
+                    setModalEmployee({
+                      ...modalEmployee,
+                      userHours: e.target.value === '' ? '' : parseFloat(e.target.value),
+                    })
+                  }
+                />
+              </Form.Group>
+            </Modal.Body>
+
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowModal(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                disabled={isSubmitting}
+                onClick={async () => {
+                  const payload = {
+                    startDate: payPeriods?.start,
+                    endDate: payPeriods?.end,
+                    employeeData: [
+                      {
+                        userId: modalEmployee.id || modalEmployee.userId,
+                        weekendPremiumHours: parseFloat(modalEmployee.weekendPremiumHours) || 0,
+                        ratePerHour: parseFloat(modalEmployee.ratePerHour) || 0,
+                        overTimeUser: parseFloat(modalEmployee.overTimeUser) || 0,
+                        userHours: parseFloat(modalEmployee.userHours) || 0,
+                        memo: modalEmployee.memo || '',
+                        bonus: parseFloat(modalEmployee.bonus) || 0,
+                        adjustments: parseFloat(modalEmployee.adjustments) || 0,
+                        payrolUser: modalEmployee.payrolUser || false,
+                      },
+                    ],
+                  };
+
+                  try {
+                    setIsSubmitting(true);
+                    const token = localStorage.getItem('token');
+                    const headers = {
+                      Authorization: `Bearer ${token}`,
+                      'Content-Type': 'application/json',
+                    };
+
+                    const response = await axios.post(
+                      `${apiUrl}/owner/reGeneratePayStubsForBoth`,
+                      payload,
+                      { headers }
+                    );
+                    console.log('payload of re generation', payload)
+                    // ✅ Replaced alert with snackbar
+                    enqueueSnackbar("✅ Stub regenerated successfully!", {
+                      variant: "success",
+                      anchorOrigin: { vertical: "top", horizontal: "right" },
+                    });
+                    navigate('/PayStub_history');
+                    setShowModal(false);
+                  } catch (error) {
+                    console.error("❌ Error:", error.response?.data || error.message);
+                    enqueueSnackbar("❌ Failed to regenerate stub.", {
+                      variant: "error",
+                      anchorOrigin: { vertical: "top", horizontal: "right" },
+                    });
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" />
+                    Regenerating...
+                  </>
+                ) : (
+                  'Regenerate'
+                )}
+              </Button>
+
+            </Modal.Footer>
+          </Modal>
+        </Form>
+      )}
+      {showSettingsModal && selectedEmp && (
+        <Modal show={showSettingsModal} onHide={() => setShowSettingsModal(false)} centered size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Stub Settings</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <form>
+              <div className="row">
+                <div className="col-md-4 mb-3">
+                  <label className="form-label">Shift Premium Rate</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={shiftPremiumRate}
+                    onChange={(e) => setShiftPremiumRate(e.target.value)}
+                  />
+                </div>
+                <div className="col-md-4 mb-3">
+                  <label className="form-label">Overtime Rate</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={overtimeRate}
+                    onChange={(e) => setOvertimeRate(e.target.value)}
+                  />
+                </div>
+                <div className="col-md-4 mb-3">
+                  <label className="form-label">Hourly Rate</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={hourlyRate}
+                    onChange={(e) => setHourlyRate(e.target.value)}
+                  />
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Tax Country</label>
+                  <select
+                    className="form-control"
+                    value={appliedTaxCountry}
+                    onChange={(e) => {
+                      const country = e.target.value;
+                      setAppliedTaxCountry(country);
+                      setAppliedTaxes([]);
+                      setAppliedDeductions([]);
+
+                      // Automatically set currency based on selected country
+                      const autoCurrency = countryCurrencyMap[country];
+                      if (autoCurrency) {
+                        setCurrency(autoCurrency);
+                      }
+                    }}
+                  >
+                    <option value="">Select Country</option>
+                    <option value="canada">Canada</option>
+                    <option value="usa">USA</option>
+                    <option value="pakistan">Pakistan</option>
+                    <option value="philippines">Philippines</option>
+                    <option value="india">India</option>
+                    <option value="ksa">KSA</option>
+                  </select>
+
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Tax State</label>
+                  {["canada", "usa", "india"].includes(appliedTaxCountry) ? (
+                    <select
+                      className="form-control"
+                      value={appliedTaxState}
+                      onChange={(e) => setAppliedTaxState(e.target.value)}
+                    >
+                      <option value="">Select State</option>
+                      {countryStateMap[appliedTaxCountry]?.map((state) => (
+                        <option key={state} value={state}>
+                          {appliedTaxCountry === "usa"
+                            ? usStateNameToCode[state] || state
+                            : state}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input type="text" className="form-control" disabled placeholder="No State" />
+                  )}
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Applied Taxes</label>
+                  <div className="border rounded p-2" style={{ maxHeight: 150, overflowY: "auto" }}>
+                    {appliedTaxCountry && taxDeductionMap[appliedTaxCountry] ? (
+                      taxDeductionMap[appliedTaxCountry].taxes.map((tax) => (
+                        <div key={tax} className="form-check">
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            id={`tax-${tax}`}
+                            checked={appliedTaxes.includes(tax)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setAppliedTaxes([...appliedTaxes, tax]);
+                              } else {
+                                setAppliedTaxes(appliedTaxes.filter((t) => t !== tax));
+                              }
+                            }}
+                          />
+                          <label className="form-check-label" htmlFor={`tax-${tax}`}>
+                            {tax}
+                          </label>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-muted">Select country to view taxes</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Applied Deductions</label>
+                  <div className="border rounded p-2" style={{ maxHeight: 150, overflowY: "auto" }}>
+                    {appliedTaxCountry && taxDeductionMap[appliedTaxCountry] ? (
+                      taxDeductionMap[appliedTaxCountry].deductions.map((deduction) => (
+                        <div key={deduction} className="form-check">
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            id={`deduction-${deduction}`}
+                            checked={appliedDeductions.includes(deduction)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setAppliedDeductions([...appliedDeductions, deduction]);
+                              } else {
+                                setAppliedDeductions(appliedDeductions.filter((d) => d !== deduction));
+                              }
+                            }}
+                          />
+                          <label className="form-check-label" htmlFor={`deduction-${deduction}`}>
+                            {deduction}
+                          </label>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-muted">Select country to view deductions</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Currency</label>
+                  <select className="form-control" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+                    <option value="">Select Currency</option>
+                    <option value="USD">USD</option>
+                    <option value="CAD">CAD</option>
+                    <option value="QAR">QAR</option>
+                    <option value="PKR">PKR</option>
+                    <option value="SAR">SAR</option>
+                    <option value="AED">AED</option>
+                    <option value="PHP">PHP</option>
+                    <option value="INR">INR</option>
+                  </select>
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Vacation Pay</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={vacationPay}
+                    onChange={(e) => setVacationPay(e.target.value)}
+                  />
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Pay Period Type</label>
+                  <select
+                    className="form-control"
+                    value={payPeriodType}
+                    onChange={(e) => setPayPeriodType(e.target.value)}
+                  >
+                    <option value="">Select Period</option>
+                    {(pay_type === '' || pay_type === 'hourly') && (
+                      <>
+                        <option value="weekly">Weekly</option>
+                        <option value="biweekly">Bi-Weekly</option>
+                      </>
+                    )}
+                    {(pay_type === '' || pay_type === 'monthly') && (
+                      <option value="monthly">Monthly</option>
+                    )}
+                  </select>
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Pay Rate Type</label>
+                  <select
+                    className="form-control"
+                    value={pay_type}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setPayType(value);
+                      // Ensure monthly pay type has monthly period
+                      if (value === "monthly") {
+                        setPayPeriodType("monthly");
+                      } else if (payPeriodType === "monthly") {
+                        setPayPeriodType(""); // reset if inconsistent
+                      }
+                    }}
+                  >
+                    <option value="">Select Type</option>
+                    <option value="hourly">Hourly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+              </div>
+            </form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowSettingsModal(false)}>
+              Cancel
+            </Button>
+            <Button className="text-white" style={{ backgroundColor: "#5CB85C" }} onClick={updateStubSettings}>
+              Save Stub Settings
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
+
+
     </div>
   );
 };

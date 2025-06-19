@@ -1,39 +1,18 @@
-import React, { useEffect, useState } from "react";
-import UserHeader from "../screen/component/userHeader";
-import menu from "../images/menu.webp";
-import loader from "../images/Rectangle.webp";
-import check from "../images/check.webp";
-import circle from "../images/circle.webp";
-import saveReport from "../images/reportImg.webp";
-import blueArrow from "../images/bluearrow.webp";
-import cross from "../images/cross.webp";
-import downArrow from "../images/downArrow.webp";
-import save from "../images/save.webp";
-import excel from "../images/excel.webp";
-import share from "../images/share.webp";
-import reportButton from "../images/reportButton.webp";
-import adminReport from "../images/adminreport4.webp";
-import addButton from "../images/addButton.webp";
-import line from "../images/line.webp";
-import Footer from "../screen/component/footer";
-import UserDashboardSection from "./component/userDashboardsection";
+import axios from "axios";
+import { useCallback, useEffect, useRef, useState } from "react";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import blueBackground from "../images/bluebackground.png";
+import makeAnimated from 'react-select/animated';
 import ActivityChart from "../adminScreens/component/ActivityChart";
 import SelectBox from "../companyOwner/ownerComponent/selectBox";
-import makeAnimated from 'react-select/animated';
-import axios from "axios";
+import line from "../images/line.webp";
+import saveReport from "../images/reportImg.webp";
 // import { useQuery } from 'react-query';
-import crossButton from "../images/cross.webp";
-import { FaPlus, FaMinus } from 'react-icons/fa';
 import jwtDecode from "jwt-decode";
+import { FaMinus, FaPlus } from 'react-icons/fa';
 import Joyride from "react-joyride";
-import TimezoneSelect from "react-timezone-select";
-import { Center } from "devextreme-react/cjs/map";
-import UserTimezoneDropdown from "./component/UserTimezoneDropdown";
+import crossButton from "../images/cross.webp";
 import EmployeeFilter from "./component/EmployeeFilter";
-import { CodeStarNotifications } from "aws-sdk";
 import ProjectFilter from "./component/ProjectFilter";
 // import Footer from '../screen/component/footer'
 import { FerrisWheelSpinner } from 'react-spinner-overlay';
@@ -46,6 +25,7 @@ function OwnerReport() {
     const [run, setRun] = useState(true);
     const [stepIndex, setStepIndex] = useState(0);
     const year = new Date().getFullYear()
+    const isFetchingRef = useRef(false);
     // let token = localStorage.getItem('token');
     const [startDate, setStartDate] = useState();
     const [endDate, setEndDate] = useState();
@@ -488,23 +468,20 @@ function OwnerReport() {
 
 
     useEffect(() => {
-        if (!startDate || !endDate) {
-            return; // Agar date select nahi hui to API call na ho
-        }
+        if (!startDate || !endDate || isFetchingRef.current) return;
 
-        console.log("🟢 Checking API conditions:");
-        console.log("👤 User Type:", userType);
-        console.log("📅 Start Date:", startDate);
-        console.log("📅 End Date:", endDate);
-        console.log("🔍 Employee ID:", employeeId);
+        isFetchingRef.current = true;
 
-        if (userType === "user" && employeeId) {
-            // Sirf normal user login kare to ye API call ho
-            getUserReports();
-        } else {
-            // Baqi admin, owner aur manager kay liye purani API chalayein
-            getReports();
-        }
+        const fetch = async () => {
+            if (userType === "user" && employeeId) {
+                await getUserReports();
+            } else {
+                await getReports();
+            }
+            isFetchingRef.current = false;
+        };
+
+        fetch();
     }, [startDate, endDate, employeeId, userType]);
 
     const getUserReports = async () => {
@@ -722,40 +699,6 @@ function OwnerReport() {
         }
     };
 
-
-    const getDailyReports = async (type) => {
-        if (employeeId) {
-            setLoading(true)
-            try {
-                const response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}&userId=${employeeId}`, { headers })
-                if (response.status) {
-                    console.log(response);
-                    setReportData(response.data.data)
-                    setLoading(false)
-                }
-            }
-            catch (err) {
-                setLoading(false)
-                console.log(err);
-            }
-        }
-        else {
-            setLoading(true)
-            try {
-                const response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}`, { headers })
-                if (response.status) {
-                    console.log(response);
-                    setReportData(response.data.data)
-                    setLoading(false)
-                }
-            }
-            catch (err) {
-                setLoading(false)
-                console.log(err);
-            }
-        }
-    }
-
     const Notessearch = async (type, note) => {
         setLoading(true); // ✅ Start loader
         console.log('Request Headers:', headers); // Log headers to check if they're correct
@@ -854,6 +797,13 @@ function OwnerReport() {
                                         getReports()
     }, [employeeId, managerId, userType])
 
+
+
+
+
+
+
+
     const user = users?.map(user => {
         const totalProjectHours = user.projects?.reduce((acc, project) => acc + (project.projectHours || 0), 0) || 0;
         const totalProjectActivity = user.projects?.reduce((acc, project) => acc + (project.projectActivity || 0), 0) || 0;
@@ -912,6 +862,17 @@ function OwnerReport() {
         Notessearch(type, inputValue);
         console.log("handleSearch called with inputValue:", inputValue);
     };
+    const handleFilteredUsers = useCallback((filteredUsers) => {
+        const transformedUsers = transformEmployeeData(filteredUsers);
+
+        // Avoid re-updating if identical users
+        const userIds = transformedUsers.map(u => u.id).sort().join(",");
+        const prevUserIds = selectedUser.map(u => u.id).sort().join(",");
+
+        if (userIds !== prevUserIds) {
+            handleSelectUsers(transformedUsers);
+        }
+    }, [selectedUser]);
 
     return (
         <>
@@ -1107,11 +1068,7 @@ function OwnerReport() {
                                 <div>
                                     <EmployeeFilter
                                         employees={users}
-                                        onFilter={(filteredUsers) => {
-                                            const transformedUsers = transformEmployeeData(filteredUsers);
-                                            handleSelectUsers(transformedUsers);
-                                            console.log('datafromdrop', transformedUsers);
-                                        }}
+                                        onFilter={handleFilteredUsers}
                                         showLabel={false}
                                     />
 

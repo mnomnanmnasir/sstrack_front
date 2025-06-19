@@ -33,7 +33,7 @@ const OwnerTeam = () => {
 
     const [openManualModal, setOpenManualModal] = useState(false);
 
-   
+
     const [allUsersList, setAllUsersList] = useState([]);
 
     const fetchAllUsersList = async () => {
@@ -68,7 +68,7 @@ const OwnerTeam = () => {
     const data = Array.from({ length: 100 }, (_, i) => `Item ${i + 1}`);
     const [searchQuery, setSearchQuery] = useState(""); // State for search query
     const [modalOpen, setModalOpen] = useState(false)
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const token = localStorage.getItem("token");
     const headers = {
         Authorization: `Bearer ${token}`,
@@ -150,7 +150,7 @@ const OwnerTeam = () => {
         }
 
         // API Endpoint
-        const apiUrl = "https://myuniversallanguages.com:9093/api/v1/timetrack/applyForLeave";
+        const apiUrl = `${apiUrl}/timetrack/applyForLeave`;
 
         // Payload from form state
         const payload = {
@@ -259,11 +259,11 @@ const OwnerTeam = () => {
             //     bereavementLeaves: "",
             //     annualLeaves: "",
             // });
-      
+
             setModalOpen(false); // Close the modal
         } catch (error) {
 
-            alert("Failed to Set Group Leave Policy. Please try again.");
+            alert("Failed to set leave allowance. Please try again.");
         } finally {
             setIsSubmitting(false); // Stop loading
         }
@@ -300,7 +300,7 @@ const OwnerTeam = () => {
             setLoading(false);
         }
     };
-    const apiUrlforleaves = "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAllUserLeaves"
+    const apiUrlforleaves = `${apiUrl}/superAdmin/getAllUserLeaves`
     // Fetch leave data from API
     const fetchLeaveData = async () => {
         try {
@@ -314,8 +314,8 @@ const OwnerTeam = () => {
             // }
 
             const apiUrlForLeaves = userType === 'manager'
-                ? "https://myuniversallanguages.com:9093/api/v1/manager/getAllUserLeaves"
-                : "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAllUserLeaves";
+                ? `${apiUrl}/manager/getAllUserLeaves`
+                : `${apiUrl}/superAdmin/getAllUserLeaves`;
 
             const response = await axios.get(apiUrlForLeaves, { headers });
             const usersData = response.data?.data || [];
@@ -589,7 +589,7 @@ const OwnerTeam = () => {
         console.log("Casual Leaves Count:", userLeaveData);
 
         return (
-      
+
             <Modal show={isModalOpen} onHide={closeModal} centered>
                 <Modal.Header closeButton>
                     <Modal.Title style={{ color: "#0E4772" }}>User Leave Request Detail</Modal.Title>
@@ -633,7 +633,7 @@ const OwnerTeam = () => {
                             <p><strong>Breavement Leaves:</strong> {userLeaveData?.bereavementLeaves || 0}</p>
                         </div>
                     </div>
-                    
+
                     {/* Rejection Reason */}
                     {activeTab === "requestedLeaves" && (
                         <div className="mt-3">
@@ -1090,7 +1090,7 @@ const OwnerTeam = () => {
                                 // fontSize: '17px'
                             }}
                         >
-                            Set Group Leave Policy
+                            Set Leave Allowances
                         </button>
                         {items?.userType !== "owner" && (
                             <button
@@ -1124,7 +1124,7 @@ const OwnerTeam = () => {
                                         marginLeft: "10px",
                                     }}
                                 >
-                                    Set Individual Leave
+                                    Add Manual
                                 </button>
                             </Link>
                         )}
@@ -1384,7 +1384,7 @@ const OwnerTeam = () => {
                 <Modal show={modalOpen} onHide={() => setModalOpen(false)} centered>
                     <Modal.Header closeButton>
                         <Modal.Title style={{ color: "#1E477A", fontWeight: "bold" }}>
-                            Set Group Leave Policy
+                            Set Leave Allowance
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>

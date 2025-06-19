@@ -12,7 +12,7 @@ import CustomModal from './component/CustomModal';
 
 const stripePromise = loadStripe(process.env.REACT_AP_KEY);
 
-
+const apiUrl = `https://myuniversallanguages.com:9093/api/v1`;
 
 
 const PaymentCard = ({ updatePaymentStatus }) => {
@@ -86,12 +86,9 @@ const PaymentCard = ({ updatePaymentStatus }) => {
 
     // };
 
-    const getPlanDescription = (plan) => {
-        return `$${plan.costPerUser} per month per user, up to ${plan.screenshotsPerHr} screenshots per hour, screenshots kept ${plan.ssStored} days, individual settings, activity level tracking, ${plan.mobileApp ? 'mobile app included' : 'no mobile app'}, app & URL tracking`;
-    };
-    console.log('Selected plan:==============', plans);
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
+
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
@@ -101,7 +98,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
             }
             setTotalUsers(response?.data?.count);
         } catch (err) {
-            console.log(err);   
+            console.log(err);
         } finally {
             setLoading(false);
         }
@@ -118,7 +115,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
+                const apiUrl1 = `${apiUrl}`;
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
                 console.log('Fetched Cards:', fetchedCards);
@@ -175,7 +172,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
         const [error, setError] = useState(null);
         const [success, setSuccess] = useState(false);
         const [loading, setLoading] = useState(false);
-        
+
         // const items = JSON.parse(localStorage.getItem('items'));
         const token = localStorage.getItem('token');
         const headers = {
@@ -220,7 +217,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
                     tokenId: paymentMethod.id,
                 };
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = `${apiUrl}`;
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
                         // tokenId: paymentMethod.id,
@@ -286,7 +283,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                 </form>
 
             )
-          
+
         );
     };
 
@@ -332,7 +329,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = `${apiUrl}`;
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
@@ -377,7 +374,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
 
 
     //this api is for pricing plan who's data is to send to payment page
-    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const planapiUrl = `${apiUrl}`;
 
 
     const fetchPlans = async () => {
@@ -479,7 +476,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
 
         return (
             <>
-            <div className="text-left mb-4">
+                <div className="text-left mb-4">
                     <div style={{ display: 'flex', marginBottom: '1rem', }}>
                         {/* <button
                         // style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
@@ -513,37 +510,37 @@ const PaymentCard = ({ updatePaymentStatus }) => {
                     </Elements> */}
 
                 </div>
-            <CustomModal
-                show={showNewCardModal}
-                onClose={handleClose}
-                title="Enter Your New Card"
-            >
-                <div className="text-left mb-12">
-                    <div style={{ display: 'flex', marginBottom: '1rem', }}>
-                        {/* <button
+                <CustomModal
+                    show={showNewCardModal}
+                    onClose={handleClose}
+                    title="Enter Your New Card"
+                >
+                    <div className="text-left mb-12">
+                        <div style={{ display: 'flex', marginBottom: '1rem', }}>
+                            {/* <button
                             style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
                             onClick={() => setActiveTab('cardSelection')}
                         >
                             Card Selection
                         </button> */}
-                    </div>
-                    {/* <CardSelection
+                        </div>
+                        {/* <CardSelection
                             cards={cards}
                             selectedCard={selectedCard}
                             onSelect={handleSelectCard}
                             onActionComplete={fetchTokenAndSuspendedStatus}
 
                         /> */}
-                    {/* {activeTab === 'payment' && ( */}
-                    <Elements stripe={stripePromise}>
-                        <div className="payment-container mt-4">
-                            <p className="mb-4">Complete Your Payment</p>
-                            <CheckoutForm2 addNewCard={addNewCard} />
-                        </div>
-                    </Elements>
-                    {/* )} */}
-                </div>
-            </CustomModal>
+                        {/* {activeTab === 'payment' && ( */}
+                        <Elements stripe={stripePromise}>
+                            <div className="payment-container mt-4">
+                                <p className="mb-4">Complete Your Payment</p>
+                                <CheckoutForm2 addNewCard={addNewCard} />
+                            </div>
+                        </Elements>
+                        {/* )} */}
+                    </div>
+                </CustomModal>
             </>
         );
     };
@@ -612,7 +609,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
     //             cardNumber: paymentMethod.card.last4,
 
     //         });
-    //         const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //         const planUpgradeApiUrl = "${apiUrl}";
     //         try {
     //             const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
     //                 // tokenId: paymentMethod.id,
@@ -642,7 +639,7 @@ const PaymentCard = ({ updatePaymentStatus }) => {
     //     }
     // };
     // const handlePayWithCard = async () => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DirectPayApiUrl = "${apiUrl}";
     //     if (paycard) {
     //         console.log('Pay with this card:', paycard);
     //         setIsLoading(true);
@@ -686,39 +683,6 @@ const PaymentCard = ({ updatePaymentStatus }) => {
 
 
 
-    const handlePayWithThisCard = async () => {
-        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
-        if (paycard) {
-            console.log('Pay with this card:', paycard);
-            setIsLoading(true);
-            setResponseMessage(null);
-            try {
-                const response = await axios.post(`${DirectPayApiUrl}/owner/payNow`, {
-                    cardNumber: paycard.cardNumber,
-                    expMonth: paycard.expMonth,
-                    expYear: paycard.expYear,
-                    tokenId: paycard.tokenId,
-                    cardType: paycard.cardType,
-                }, { headers });
-                if (response.data.success) {
-                    console.log('Payment successful:', response);
-                    setResponseMessage('Payment successful!');
-                    handleUpdatePaymentStatus('paid'); // Update paymentStatus and hasUnpaidInvoices states
-                    setInvoice({ status: 'paid' }); // Update invoice status to 'paid'
-                    setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
-                } else {
-                    console.error('Payment failed:', response.data.error);
-                    setResponseMessage('Payment failed: ' + response.data.error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                setResponseMessage('Error: ' + error.response.data.message);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-    };
 
 
     // const totalbill = selectedPlan?.costPerUser * TotalUsers
@@ -757,8 +721,8 @@ const PaymentCard = ({ updatePaymentStatus }) => {
         }
     }, [selectedPlan]);
 
-    
-    
+
+
     return (
         <>
             <div className='container'>

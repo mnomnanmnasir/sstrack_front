@@ -5,14 +5,14 @@ import Select from "react-select";
 const UserTimezoneDropdown = ({ onTimezoneChange }) => {
     const [usersByTimezone, setUsersByTimezone] = useState({});
     const [selectedTimezone, setSelectedTimezone] = useState(null);
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     useEffect(() => {
         const fetchUsers = async () => {
             try {
                 const token = localStorage.getItem("token");
 
                 const response = await axios.get(
-                    "https://myuniversallanguages.com:9093/api/v1/owner/getUsersTimezone",
+                    `${apiUrl}/owner/getUsersTimezone`,
                     {
                         headers: { Authorization: `Bearer ${token}` },
                     }

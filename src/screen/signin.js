@@ -28,7 +28,7 @@ function SignIn() {
     password: ""
   });
   const [loading, setLoading] = useState(false)
-  const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleLogin = async (e) => {
     if (!model?.email || !model?.password) {

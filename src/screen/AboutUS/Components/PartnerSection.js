@@ -89,8 +89,8 @@ const PartnerLogosSection = ({ language }) => {
     // Translations
     const translations = {
         en: {
-            title: "Our",
-            highlightedTitle: "Partners",
+            title: "Trusted by Global Teams and ",
+            highlightedTitle: "HR Leaders",
         },
         ar: {
             title: "شركاؤنا",

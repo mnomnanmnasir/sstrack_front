@@ -2,12 +2,12 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { getTimeline, selectUserTimeline, setLoading } from "../store/timelineSlice";
 import { setTeam } from "../store/teamSlice";
-
+const apiUrl = process.env.REACT_APP_API_URL;
 export const GetAllTimelineUsersOwner = createAsyncThunk("get/timeline-users", async (body, { getState, dispatch }) => {
     console.log(body);
     try {
         dispatch(setLoading(true))
-        const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee`, {
+        const response = await axios.get(`${apiUrl}/owner/getCompanyemployee`, {
             headers: body,
         })
         if (response.status) {
@@ -28,7 +28,7 @@ export const GetTimelineUsersAdmin = createAsyncThunk("get/timeline-users", asyn
     console.log(body);
     try {
         dispatch(setLoading(true))
-        const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/superAdmin/allEmployeesworkinghour`, {
+        const response = await axios.get(`${apiUrl}/superAdmin/allEmployeesworkinghour`, {
             headers: body,
         })
         if (response.status) {
@@ -48,7 +48,7 @@ export const GetTimelineUserOwner = createAsyncThunk("get/timeline-users", async
     const { userId, formattedDate, headers } = body
     try {
         dispatch(setLoading(true))
-        const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/owner/sorted-datebased/${userId}?date=${encodeURIComponent(formattedDate)}`, {
+        const response = await axios.get(`${apiUrl}/owner/sorted-datebased/${userId}?date=${encodeURIComponent(formattedDate)}`, {
             headers: headers,
         })
         if (response.status) {
@@ -65,7 +65,7 @@ export const GetTimelineUserSuperAdmin = createAsyncThunk("get/timeline-users", 
     const { userId, formattedDate, headers } = body
     try {
         dispatch(setLoading(true))
-        const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/superAdmin/sorted-datebased/${userId}?date=${encodeURIComponent(formattedDate)}`, {
+        const response = await axios.get(`${apiUrl}/superAdmin/sorted-datebased/${userId}?date=${encodeURIComponent(formattedDate)}`, {
             headers: headers,
         })
         if (response.status) {
@@ -82,7 +82,7 @@ export const GetOwnerTeam = createAsyncThunk("get/team-users", async (body, { ge
     const { headers, user } = body
     try {
         dispatch(setLoading(true))
-        const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/owner/companies`, {
+        const response = await axios.get(`${apiUrl}/owner/companies`, {
             headers: headers,
         })
         if (response.status) {

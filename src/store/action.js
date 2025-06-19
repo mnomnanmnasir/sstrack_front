@@ -24,10 +24,11 @@ export const fetchUserDataFailure = (error) => ({
 
 // Async action to fetch user data
 export const fetchUserData = (userType, headers) => {
+    const apiUrl = process.env.REACT_APP_API_URL;
     return async (dispatch) => {
         dispatch(fetchUserDataRequest());
         try {
-            const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/manager/dashboard`, {
+            const response = await axios.get(`${apiUrl}/manager/dashboard`, {
                 headers,
             });
             console.log('Response data:', response.data); // Log response data

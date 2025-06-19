@@ -29,12 +29,12 @@ const videos_Employers = [
   },
 
   {
-    title: "Download SS Track for Desktop",
+    title: "Download SSTrack for Desktop",
     description:
-      "SS Track is available on Windows, Mac, and as a Chrome Extension—perfect for tracking yourself or your team!",
+      "SSTrack is available on Windows, Mac, and as a Chrome Extension—perfect for tracking yourself or your team!",
     videoUrl: "https://www.youtube.com/watch?v=qGjzXQ_SLH4",
     script:
-      "SS Track is available on Windows, Mac, and as a Chrome Extension. This flexibility allows you to track employees on different devices while ensuring seamless time tracking, productivity monitoring, and real-time reporting from the convenience of your desktop.",
+      "SSTrack is available on Windows, Mac, and as a Chrome Extension. This flexibility allows you to track employees on different devices while ensuring seamless time tracking, productivity monitoring, and real-time reporting from the convenience of your desktop.",
   },
   {
     title: "Add Team Members via Email Invitation",
@@ -65,7 +65,7 @@ const videos_Employers = [
       "Assign projects to employees, ensuring they track their tasks directly from the desktop app.",
     videoUrl: "https://www.youtube.com/watch?v=qGjzXQ_SLH4",
     script:
-      "Before assigning employees to tasks, owners and admins must first create a project within the system. Once a project is set up, it can be assigned to specific employees, ensuring proper task distribution and tracking.Employees can then use the SS Track desktop app to log their work hours, track progress, and maintain accountability. This structured approach ensures smooth project execution, clear task management, and efficient workforce coordination.",
+      "Before assigning employees to tasks, owners and admins must first create a project within the system. Once a project is set up, it can be assigned to specific employees, ensuring proper task distribution and tracking.Employees can then use the SSTrack desktop app to log their work hours, track progress, and maintain accountability. This structured approach ensures smooth project execution, clear task management, and efficient workforce coordination.",
   },
   {
     title: "Manage Employee Leaves",
@@ -73,7 +73,7 @@ const videos_Employers = [
       "Easily approve or reject employee leave requests from the dashboard",
     videoUrl: "https://www.youtube.com/watch?v=qGjzXQ_SLH4",
     script:
-      "Before employees can request leave, owners or admins must first set leave policies for the team. Once configured, employees can submit leave requests through SS Track, which can then be reviewed, approved, or rejected from the employer dashboard.\n\nIf an employee is on leave but fails to apply for it in SS Track, owners or admins can manually add leave to ensure accurate records and maintain proper attendance tracking. This helps streamline HR processes, track employee availability, and prevent workflow disruptions.",
+      "Before employees can request leave, owners or admins must first set leave policies for the team. Once configured, employees can submit leave requests through SSTrack, which can then be reviewed, approved, or rejected from the employer dashboard.\n\nIf an employee is on leave but fails to apply for it in SSTrack, owners or admins can manually add leave to ensure accurate records and maintain proper attendance tracking. This helps streamline HR processes, track employee availability, and prevent workflow disruptions.",
   },
   {
     title: "Track Employee Location (Mobile Users Only).",
@@ -114,10 +114,10 @@ const videos_Employees = [
   {
     title: "Receive an Invitation Email",
     description:
-      "Employees will receive an email invitation to join SS Track.",
+      "Employees will receive an email invitation to join SSTrack.",
     videoUrl: "https://www.youtube.com/watch?v=qGjzXQ_SLH4",
     script:
-      "Employees will receive an email invitation from their employer to join SS Track. This invitation includes a link to set up their account and start tracking their work.",
+      "Employees will receive an email invitation from their employer to join SSTrack. This invitation includes a link to set up their account and start tracking their work.",
   },
   {
     title: "Sign Up Through the Invitation Link",
@@ -125,23 +125,23 @@ const videos_Employees = [
       "Click the invitation link, sign up, and create a password to access your account.",
     videoUrl: "https://www.youtube.com/watch?v=qGjzXQ_SLH4",
     script:
-      "Click on the invitation link, sign up by entering your details, and create a secure password to access your SS Track account.",
+      "Click on the invitation link, sign up by entering your details, and create a secure password to access your SSTrack account.",
   },
   {
-    title: "Download & Install the SS Track Desktop App",
+    title: "Download & Install the SSTrack Desktop App",
     description:
-      "Download and install SS Track to start tracking your work hours.",
+      "Download and install SSTrack to start tracking your work hours.",
     videoUrl: "https://www.youtube.com/watch?v=qGjzXQ_SLH4",
     script:
-      "To start tracking work hours, download and install the SS Track desktop app on Windows, Mac, or as a Chrome Extension.",
+      "To start tracking work hours, download and install the SSTrack desktop app on Windows, Mac, or as a Chrome Extension.",
   },
   {
     title: "Log in Using the Same Credentials",
     description:
-      "Log in to the SS Track desktop app using your registered email and password.",
+      "Log in to the SSTrack desktop app using your registered email and password.",
     videoUrl: "https://www.youtube.com/watch?v=qGjzXQ_SLH4",
     script:
-      "Use your registered email and password to log in to the SS Track desktop app and begin monitoring your tasks.",
+      "Use your registered email and password to log in to the SSTrack desktop app and begin monitoring your tasks.",
   },
   {
     title: " View Work Timeline on the Dashboard",
@@ -181,7 +181,7 @@ const videos_Employees = [
       "Projects must be created before employees can be assigned and tracked.",
     videoUrl: "https://www.youtube.com/watch?v=qGjzXQ_SLH4",
     script:
-      "Employees can only work on assigned projects, which are set up by the employer beforehand. The SS Track app ensures proper task tracking, helping employees stay organized and accountable.",
+      "Employees can only work on assigned projects, which are set up by the employer beforehand. The SSTrack app ensures proper task tracking, helping employees stay organized and accountable.",
   },
   {
     title: "Manage Attendance & Breaks",
@@ -252,10 +252,10 @@ const TrainingPage = () => {
                   marginBottom: "12px",
                 }}
               >
-                SS Track Training Center
+                SSTrack Training Center
               </h1>
               <p style={{ color: "#6C757D", fontSize: "1rem" }}>
-                Watch tutorials, explore features, and download scripts to get the most out of SS Track.
+                Watch tutorials, explore features, and download scripts to get the most out of SSTrack.
               </p>
               {/* <div style={{ marginTop: "20px" }}>
                 <button

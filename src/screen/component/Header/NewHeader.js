@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { Button, Container, Form, Nav, Navbar, Offcanvas } from 'react-bootstrap';
 import { useDispatch } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from '../../../images/sloganLogo.png';
 import { setLogout } from "../../../store/timelineSlice";
 import NewHeaderOptions from './components/NewHeaderOptions';
-
 
 const NewHeader = ({ language, handleToggleLanguage, show }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const token = localStorage.getItem('token');
-    const location = useLocation();
+
     const [showDrawer, setShowDrawer] = useState(false);
 
     function logOut() {
@@ -23,48 +22,34 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
     }
 
     function goToDashboard() {
-        if (show === true) {
-            navigate("/dashboard");
-            window.location.reload();
-        } else {
-            navigate('/dashboard');
-            window.location.reload();
-        }
-
+        navigate("/dashboard");
+        window.location.reload();
     }
 
-
-    const redirectToDashboard = () => {
-        if (show === true) {
-            navigate("/dashboard");
-            window.location.reload();
-        } else {
-            navigate('/dashboard');
-            window.location.reload();
-        }
-
-    };
-
-    const navbarBackground = location.pathname === "/" ? "linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)" : "linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)";
+    const navbarBackground = "linear-gradient(90deg, #0D4873, #0A304B, #071F2D, #0C364F, #0D4873)";
 
     return (
         <>
-            <Navbar expand="lg" style={{ background: navbarBackground }} className="py-2">
-                <Container fluid>
-                    <Navbar.Brand onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                        <img className="logo" src={logo} alt="Logo" width={150} />
-                    </Navbar.Brand>
+            <Navbar expand="lg" style={{ background: navbarBackground, padding: '0.5rem 1rem' }}>
+                {/* Wrapper div to contain both rows */}
+                <div className="w-100 d-flex flex-column">
 
-                    {/* ✅ Hamburger Button for 1160px and Below */}
-                    <Button
-                        variant="outline-light"
-                        className="hamburger-button d-lg-none" // Keep d-lg-none for large screens
-                        onClick={() => setShowDrawer(true)}
-                    >
-                        ☰
-                    </Button>
-                    <Navbar.Collapse id="navbarNav" className="d-none d-lg-flex justify-content-end">
-                        <Nav className="ms-auto d-flex flex-lg-row align-items-center">
+                    {/* ✅ Row 1: Logo on left, Toggle + Buttons on right */}
+                    <div className="d-flex justify-content-between align-items-center w-100">
+
+                        {/* Logo */}
+                        <div style={{ flexShrink: 0 }}>
+                            <img
+                                className="logo"
+                                src={logo}
+                                alt="Logo"
+                                width={150}
+                                style={{ display: 'inline-block', verticalAlign: 'middle' }}
+                            />
+                        </div>
+
+                        {/* Toggle + Buttons */}
+                        <div className="d-flex align-items-center flex-wrap justify-content-end" style={{ gap: '10px' }}>
                             {!show && (
                                 <Form.Check
                                     type="switch"
@@ -72,73 +57,53 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                     label={language === 'en' ? 'العربية' : 'English'}
                                     checked={language === 'ar'}
                                     onChange={handleToggleLanguage}
-                                    className="text-white mx-3"
+                                    className="text-white"
                                 />
                             )}
-                            {/* <NewHeaderOptions language={language} /> */}
-                            <div className='align-items-center ownerSectionUser1' style={{ marginTop: '-20px' }}>
-                                <NewHeaderOptions language={language} />
-                            </div>
-                            <div className="d-lg-block d-none">
-                                {/* <Button style={{ marginRight: token ? 10 : 50 }} onClick={() => navigate('/download')} className="signUpButton" type="button">Download</Button> */}
-                                {!token ? (
-                                    <>
-                                        <Button onClick={() => navigate('/download')} className="signUpButton" type="button" style={{
-                                            marginRight: '20px',
-                                            fontWeight: '400', // Sinkin Sans weight
-                                            fontSize: '0.8rem',
-                                            fontFamily: "'Sinkin Sans', sans-serif",
 
-                                        }}>{language === "en" ? "Download" : "تحميل"}</Button>
-                                        <Button onClick={() => navigate('/signin')} className="btn loginButton1" type="button" style={{
-                                            marginRight: '10px',
-                                            fontWeight: '400', // Sinkin Sans weight
-                                            fontSize: '0.8rem',  // Text size
-                                            fontFamily: "'Sinkin Sans', sans-serif",
-                                            borderColor: '#8CCA6B', // Border color
-                                            borderWidth: '1px',    // Optional for a visible border
-                                        }}>{language === "en" ? "Log In / SignUp" : "تسجيل الدخول"}</Button>
-                                        
-
-                                    </>
-                                ) : (
-                                    <>
-                                        <Button onClick={() => redirectToDashboard()} className="btn signUpButton" style={{
-                                            marginRight: '0.8rem',
-                                            fontWeight: '400', // Sinkin Sans weight
-                                            fontSize: '0.8rem',  // Text size
-
-                                        }} type="button"> {language === "en" ? "Dashboard" : "لوحة القيادة"}</Button>
-
-                                        <Button onClick={() => logOut()} className="btn loginButton1" style={{
-                                            marginRight: '10px',
-                                            fontWeight: '400', // Sinkin Sans weight
-                                            fontSize: '0.8rem',   // Text size
-                                            borderColor: '#8CCA6B', // Border color
-                                            borderWidth: '1px',    // Optional for a visible border
-                                        }} type="button">{language === "en" ? "Log out" : "تسجيل الخروج"}
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-                            {/* {!token ? (
+                            {!token ? (
                                 <>
-                                    <Button onClick={() => navigate('/download')} className="btn btn-success mx-2 my-1">{language === "en" ? "Download" : "تحميل"}</Button>
-                                    <Button onClick={() => navigate('/signin')} className="btn btn-outline-light mx-2 my-1">{language === "en" ? "Log In" : "تسجيل الدخول"}</Button>
+                                    <Button onClick={() => navigate('/signup')} className="btn loginButton1" style={btnStyle}>
+                                        {language === "en" ? "Sign Up" : "اشتراك"}
+                                    </Button>
+                                    <Button onClick={() => navigate('/download')} className="signUpButton" style={btnStyle}>
+                                        {language === "en" ? "Download" : "تحميل"}
+                                    </Button>
+                                    <Button onClick={() => navigate('/signin')} className="btn loginButton1" style={btnStyle}>
+                                        {language === "en" ? "Log In" : "تسجيل الدخول"}
+                                    </Button>
                                 </>
                             ) : (
                                 <>
-                                    <Button onClick={goToDashboard} className="btn btn-primary mx-2 my-1">{language === "en" ? "Dashboard" : "لوحة القيادة"}</Button>
-                                    <Button onClick={logOut} className="btn btn-outline-danger mx-2 my-1">{language === "en" ? "Log Out" : "تسجيل الخروج"}</Button>
+                                    <Button onClick={goToDashboard} className="signUpButton" style={btnStyle}>
+                                        {language === "en" ? "Dashboard" : "لوحة القيادة"}
+                                    </Button>
+                                    <Button onClick={logOut} className="btn loginButton1" style={btnStyle}>
+                                        {language === "en" ? "Log out" : "تسجيل الخروج"}
+                                    </Button>
                                 </>
-                            )} */}
-                        </Nav>
-                    </Navbar.Collapse>
-                </Container>
+                            )}
+
+                            {/* Hamburger (mobile only) */}
+                            <Button
+                                variant="outline-light"
+                                className="d-lg-none"
+                                onClick={() => setShowDrawer(true)}
+                            >
+                                ☰
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* ✅ Row 2: Centered NewHeaderOptions */}
+                    <div className="w-100 d-none d-lg-flex justify-content-center mt-2">
+                        <NewHeaderOptions language={language} />
+                    </div>
+                </div>
             </Navbar>
 
-            {/* {showDrawer && <div className="custom-backdrop" onClick={() => setShowDrawer(false)}></div>} */}
-
+            {showDrawer && <div className="custom-backdrop" onClick={() => setShowDrawer(false)}></div>
+            }
             <Offcanvas show={showDrawer} onHide={() => setShowDrawer(false)} placement="start"
                 style={{
                     background: navbarBackground,
@@ -160,6 +125,7 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
 
                 <Offcanvas.Body>
                     <Nav className="d-flex flex-column align-items-start">
+
                         {!show && (
                             <Form.Check
                                 type="switch"
@@ -170,12 +136,25 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                 className="mb-3"
                             />
                         )}
+
                         <NewHeaderOptions language={language} showVertical={true} />
                         {!token ? (
                             <>
+                                <Button onClick={() => navigate('/signup')}
+                                    style={{
+                                        marginTop: '20px',
+                                        backgroundColor: 'transparent',
+                                        marginRight: '10px',
+                                        fontWeight: '400', // Sinkin Sans weight
+                                        fontSize: '0.8rem',  // Text size
+                                        fontFamily: "'Sinkin Sans', sans-serif",
+                                        borderColor: '#8CCA6B', // Border color
+                                        borderWidth: '1px',    // Optional for a visible border
+                                    }}
+                                >{language === "en" ? "Sign Up" : "تسجيل الدخول"}</Button>
                                 <Button onClick={() => navigate('/download')}
                                     style={{
-                                        marginTop: '40px',
+                                        marginTop: '20px',
                                         marginRight: '20px',
                                         fontWeight: '400', // Sinkin Sans weight
                                         fontSize: '0.8rem',
@@ -196,18 +175,6 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                         borderWidth: '1px',    // Optional for a visible border
                                     }}
                                 >{language === "en" ? "Log In" : "تسجيل الدخول"}</Button>
-                                 <Button onClick={() => navigate('/signup')}
-                                    style={{
-                                        marginTop: '20px',
-                                        backgroundColor: 'transparent',
-                                        marginRight: '10px',
-                                        fontWeight: '400', // Sinkin Sans weight
-                                        fontSize: '0.8rem',  // Text size
-                                        fontFamily: "'Sinkin Sans', sans-serif",
-                                        borderColor: '#8CCA6B', // Border color
-                                        borderWidth: '1px',    // Optional for a visible border
-                                    }}
-                                >{language === "en" ? "Sign Up" : "تسجيل الدخول"}</Button>
                             </>
                         ) : (
                             <>
@@ -241,6 +208,15 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
             </Offcanvas>
         </>
     );
+};
+
+const btnStyle = {
+    fontWeight: '400',
+    fontSize: '0.8rem',
+    fontFamily: "'Sinkin Sans', sans-serif",
+    borderColor: '#8CCA6B',
+    borderWidth: '1px',
+    backgroundColor: 'transparent',
 };
 
 export default NewHeader;

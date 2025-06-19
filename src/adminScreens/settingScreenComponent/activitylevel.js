@@ -7,7 +7,7 @@ import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { getEmployess, setAllUserSetting4, setEmployessSetting3 } from "../../store/adminSlice";
 
 function ActivityLevel(props) {
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const employees = useSelector((state) => state.adminSlice.employess)
     let token = localStorage.getItem('token');
     let headers = {
@@ -22,7 +22,7 @@ function ActivityLevel(props) {
             activityLevelTracking: check
         }
         try {
-            const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${employee._id}`, {
+            const res = await axios.patch(`${apiUrl}/owner/settingsE/${employee._id}`, {
                 userId: employee._id,
                 effectiveSettings: settings
             }, { headers })
@@ -87,7 +87,7 @@ function ActivityLevel(props) {
 
     async function handleApply(activityLevelTracking) {
         try {
-            const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
+            const res = await axios.patch(`${apiUrl}/superAdmin/settingsE`,
                 employees?.filter(f => f.effectiveSettings?.individualAct === false).map((prevEmployess) => {
                     return {
                         userId: prevEmployess._id,
@@ -117,11 +117,11 @@ function ActivityLevel(props) {
 
     async function getData() {
         try {
-            const response = await fetch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`, { headers })
+            const response = await fetch(`${apiUrl}/superAdmin/employees`, { headers })
             const json = await response.json();
             dispatch(getEmployess(json?.convertedEmployees))
             // json?.convertedEmployees.map(async (employee) => {
-            //     const data = await axios.get(`https://myuniversallanguages.com:9093/api/v1/superAdmin/Settings/${employee._id}`)
+            //     const data = await axios.get(`${apiUrl}/superAdmin/Settings/${employee._id}`)
             //     if (data?.data?.employeeSettings?.userId) {
             //         dispatch(setIds(data?.data?.employeeSettings?.userId))
             //     }

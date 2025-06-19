@@ -6,8 +6,8 @@ import { enqueueSnackbar } from "notistack";
 import React, { useCallback, useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import logo from '../../src/public/tracking.png';
-import paidStamp from '../images/paid.png';
+import logo from '../images/tracking.png';
+import paidStamp from '../images/Archive.webp';
 // import { link}
 // import BillingComponent from "./BillingComponent";
 import jwtDecode from "jwt-decode";
@@ -16,7 +16,7 @@ import { FerrisWheelSpinner } from 'react-spinner-overlay';
 
 
 const stripePromise = loadStripe(process.env.REACT_AP_KEY);
-
+const apiUrl = process.env.REACT_APP_API_URL;
 
 const PayPalButton = ({ setMerchantId, selectedPlan }) => {
 
@@ -60,7 +60,7 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
                             // Retrieve the token from localStorage
                             const token = localStorage.getItem('token');
 
-                            const res = await axios.post("https://myuniversallanguages.com:9093/api/v1/owner/upgradePayPal", requestData, {
+                            const res = await axios.post(`${apiUrl}/owner/upgradePayPal`, requestData, {
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${token}` // Send the token in the headers
@@ -191,7 +191,7 @@ const BillingComponent = () => {
                 };
             });
 
-            
+
 
             transformedInvoices.sort((a, b) => {
                 // Compare dates
@@ -222,7 +222,7 @@ const BillingComponent = () => {
         fetchInvoices();
     }, []);
 
-  
+
     const generatePDF = (invoice) => {
         getBase64Image(logo, (logoBase64, logoWidth, logoHeight) => {
             getBase64Image(paidStamp, (paidStampBase64, paidStampWidth, paidStampHeight) => {
@@ -596,7 +596,7 @@ const BillingComponent = () => {
             }
         }
     }, []);
- 
+
 
 
 
@@ -663,7 +663,7 @@ const BillingComponent = () => {
         }
     }, [plans, defaultPlanIndex]);
 
-  
+
 
 
     const getPlanDescription = (plan) => {
@@ -671,7 +671,7 @@ const BillingComponent = () => {
     };
 
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
@@ -694,10 +694,10 @@ const BillingComponent = () => {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
+                const apiUrl1 = `${apiUrl}`;
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
-    
+
                 console.log('Fetched Cards:', fetchedCards);
 
                 // Set the cards
@@ -717,7 +717,7 @@ const BillingComponent = () => {
         }
         setLoading(false);
     };
-    
+
 
     useEffect(() => {
         getData();
@@ -733,7 +733,7 @@ const BillingComponent = () => {
             localStorage.setItem('carddetail', JSON.stringify(paycard.cardNumber));
         }
     }, [paycard]);
-    
+
 
 
 
@@ -753,7 +753,7 @@ const BillingComponent = () => {
 
 
 
-  
+
 
 
 
@@ -799,7 +799,7 @@ const BillingComponent = () => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = `${apiUrl}`;
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
@@ -848,7 +848,7 @@ const BillingComponent = () => {
 
 
     //this api is for pricing plan who's data is to send to payment page
-    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const planapiUrl = `${apiUrl}`;
 
 
     const fetchPlans = async () => {
@@ -979,7 +979,7 @@ const BillingComponent = () => {
         setShowModal(false);
     };
 
-    
+
     const handleCloseModal2 = () => {
         setShowModalwithoutcard(false);
     };
@@ -1110,15 +1110,15 @@ const BillingComponent = () => {
 
     const [responseMessage, setResponseMessage] = useState(null);
 
-   
+
     useEffect(() => {
         if (selectedPlan) {
             localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
         }
     }, [selectedPlan]);
-    
+
     const handleDirectChangePlan = async () => {
-        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DirectPayApiUrl = `${apiUrl}`;
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setResponseMessage(null);
@@ -1176,12 +1176,12 @@ const BillingComponent = () => {
             alert("No payment card available.");
         }
     };
-  
+
 
     const [merchantId, setMerchantId] = useState(''); // Or whatever method you are using to get the ID
 
     const handleDirectChangePlan1 = async () => {
-        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DirectPayApiUrl = `${apiUrl}`;
 
         if (paycard) {
             console.log('Pay with this card:', paycard);
@@ -1272,7 +1272,7 @@ const BillingComponent = () => {
 
     const plandetail = `${costPerUser}/employee/mo`;
 
-   
+
     const planchange = () => {
         console.log('Paycard:', paycard); // Debugging log
         if (paycard?.cardNumber) {

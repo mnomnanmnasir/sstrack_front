@@ -47,7 +47,7 @@ function Signup() {
     const [showModal, setShowModal] = useState(false);
     const [err, setErr] = useState("");
     const [error, setError] = useState("");
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const [timezone, setSelectedTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
     const [currentTimezone, setCurrentTimeZone] = useState('')
 
@@ -172,7 +172,17 @@ function Signup() {
                                         {/* Thanks for signing up! */}
                                         {/* <br /> */}
                                         <span className="d-block">Thanks for signing up!</span>
-                                        <span className="d-block">A verification link has been sent to your email.</span>
+
+                                        {/* <span className="d-block">A verification link has been sent to your email.</span> */}
+                                        
+                                        <span className="d-block">
+                                            A verification link has been sent to the email: <span style={{ color: '#6DBB48', fontWeight: 'bold' }}>{model?.email}</span>
+                                        </span>
+
+                                        {/* <p className="text-center">
+                                            <span style={{ color: '#6DBB48', fontWeight: 'bold' }}>{model?.email}</span> this email has been sent a verification link.
+                                        </p> */}
+
                                         {/* A verification link has been sent to your email. */}
                                         {/* Please check your inbox and follow the instructions to activate your account. */}
                                         {/* If you don’t see it, check your spam or junk folder. */}
@@ -181,7 +191,7 @@ function Signup() {
                                     {/* 🔹 Resend Verification Email Button */}
                                     {/* <div className="alig"> */}
                                     {/* <button> */} <div className="d-flex flex-column flex-md-row align-items-center gap-3">
-                                    <a
+                                        <a
                                             href="https://mail.google.com/"
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -225,7 +235,7 @@ function Signup() {
                                         </a>
 
                                     </div>
-                                   
+
                                     {/* </button> */}
                                     {/* 🔹 Text with Different Font Sizes */}
                                     {/* <p className=" flex-end text-center" style={{ marginTop: '5%', fontSize: "18px", fontWeight: "bold" }}> */}
@@ -322,7 +332,7 @@ function Signup() {
                                                     placeholder="Phone Number"
                                                 />
                                             </div>
-                                
+
                                             <button disabled={loading} onClick={handleCreateAccount} className={loading ? "disabledAccountButton" : "accountButton"}>
                                                 {loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Create Account"}
                                             </button>

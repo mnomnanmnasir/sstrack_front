@@ -24,7 +24,7 @@ const PayStubGenerator = () => {
     const [showSummary, setShowSummary] = useState(false);
     const [loading, setLoading] = useState(false);
     const [history, setHistory] = useState([]);
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const userss = ['John Doe', 'Jane Smith', 'Michael Brown']; // Example users
     const selectedUser = users.find((u) => u._id === selectedUserId);
     const generateWeeklyPeriods = (month) => {
@@ -80,7 +80,7 @@ const PayStubGenerator = () => {
                 };
 
                 const response = await fetch(
-                    `https://myuniversallanguages.com:9093/api/v1/owner/paystubs/getPayPeriodDates?date=${month}&type=${frequency}`,
+                    `${apiUrl}/owner/paystubs/getPayPeriodDates?date=${month}&type=${frequency}`,
                     {
                         method: "GET",
                         headers: headers,
@@ -125,21 +125,21 @@ const PayStubGenerator = () => {
             alert('Please complete all fields.');
             return;
         }
-    
+
         setLoading(true);
-    
+
         try {
             const [rawStart, rawEnd] = selectedPeriod.trim().split(' - ').map(s => s.trim());
-    
+
             // Convert to YYYY-MM-DD using moment
             const startDate = moment(rawStart, ["YYYY-MM-DD", "DD/MM/YYYY", "MM/DD/YYYY"]).format("YYYY-MM-DD");
             const endDate = moment(rawEnd, ["YYYY-MM-DD", "DD/MM/YYYY", "MM/DD/YYYY"]).format("YYYY-MM-DD");
-    
+
             // Extra check if parsing failed
             if (!moment(startDate, "YYYY-MM-DD", true).isValid() || !moment(endDate, "YYYY-MM-DD", true).isValid()) {
                 throw new Error("Start or End date is not in valid format.");
             }
-    
+
             const formData = {
                 startDate,
                 endDate,
@@ -147,9 +147,9 @@ const PayStubGenerator = () => {
                 country: "Philippines",
                 state: "maharashtra"
             };
-    
+
             const token = localStorage.getItem('token');
-    
+
             console.log("Sending to API:", {
                 startDate: formData.startDate,
                 endDate: formData.endDate,
@@ -157,9 +157,9 @@ const PayStubGenerator = () => {
                 country: formData.country,
                 state: formData.state
             });
-    
+
             const res = await axios.post(
-                'https://myuniversallanguages.com:9093/api/v1/owner/generatePayStubs',
+                `${apiUrl}/owner/generatePayStubs`,
                 {
                     startDate: formData.startDate,
                     endDate: formData.endDate,
@@ -173,9 +173,9 @@ const PayStubGenerator = () => {
                     }
                 }
             );
-    
+
             console.log('Pay Stub Response:', res.data);
-    
+
             const newRecord = {
                 ...formData,
                 month,
@@ -185,7 +185,7 @@ const PayStubGenerator = () => {
                 dateGenerated: new Date().toLocaleString(),
                 stubData: res.data
             };
-    
+
             await fetchAllStubs();
             alert('Stub generated successfully!');
             setShowSummary(false);
@@ -197,8 +197,8 @@ const PayStubGenerator = () => {
             setLoading(false);
         }
     };
-    
-    
+
+
 
     //get users Id 
     const getData = async () => {
@@ -232,7 +232,7 @@ const PayStubGenerator = () => {
     const fetchAllStubs = async () => {
         console.log("running")
         try {
-            const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/owner/paystubs/getAllStubs`, {
+            const response = await axios.get(`${apiUrl}/owner/paystubs/getAllStubs`, {
                 headers: {
                     Authorization: "Bearer " + token,
                 }

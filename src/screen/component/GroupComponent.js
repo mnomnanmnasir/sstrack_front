@@ -10,7 +10,7 @@ function GroupComponent({ rawData, users, fetchData }) {
     const [items, setItems] = useState([]); // Initialize as an empty array
     const allowedEmployees = rawData?.allowedEmployees || [];
     console.log('>>>>>>', allowedEmployees);
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const [isArchived, setIsArchived] = useState(rawData?.isArchived || false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     // const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -45,7 +45,7 @@ function GroupComponent({ rawData, users, fetchData }) {
             }
             // API request to assign/unassign employee
             const { data } = await axios.patch(
-                `https://myuniversallanguages.com:9093/api/v1/userGroup/addEmployeesToGroup/${rawData._id}`,
+                `${apiUrl}/userGroup/addEmployeesToGroup/${rawData._id}`,
                 {
                     isAssign: isChecked,
                     userIds: [id]
@@ -101,7 +101,7 @@ function GroupComponent({ rawData, users, fetchData }) {
     const handleArchive = async (groupId) => {
         try {
             const res = await axios.patch(
-                `https://myuniversallanguages.com:9093/api/v1/userGroup/archiveGroup/${groupId}`,
+                `${apiUrl}/userGroup/archiveGroup/${groupId}`,
                 { isArchived: !isArchived }, // Toggle archive status
                 { headers }
             );
@@ -130,7 +130,7 @@ function GroupComponent({ rawData, users, fetchData }) {
 
         try {
             const res = await axios.delete(
-                `https://myuniversallanguages.com:9093/api/v1/userGroup/deleteGroup/${groupId}`,
+                `${apiUrl}/userGroup/deleteGroup/${groupId}`,
                 { headers } // ✅ Token passed here
             );
             enqueueSnackbar("Group deleted successfully!", {

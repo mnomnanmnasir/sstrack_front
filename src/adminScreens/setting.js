@@ -37,7 +37,7 @@ function Setting() {
         }
     }, [location.state]); // ✅ Jab route change ho, tab check kare
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     let token = localStorage.getItem('token');
     let user = jwtDecode(token);
     const userType = user.userType;

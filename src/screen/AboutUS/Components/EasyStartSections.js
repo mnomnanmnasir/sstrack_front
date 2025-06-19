@@ -10,7 +10,7 @@ const EasyStartSection = ({ language }) => {
       button: "Get started - It's free",
     },
     ar: {
-      title: "البدء مع SS Track.io سهل وسريع ومجاني",
+      title: "البدء مع SSTrack.io سهل وسريع ومجاني",
       button: "ابدأ الآن - مجاناً",
     },
   };
@@ -37,7 +37,7 @@ const EasyStartSection = ({ language }) => {
         {/* Background Image */}
         <img
           src={easyImage}
-          alt="SS Track Icon"
+          alt="SSTrack Icon"
           style={{
             position: "absolute",
             top: "50%",

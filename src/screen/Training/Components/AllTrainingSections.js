@@ -12,52 +12,52 @@ const iconURLs = {
 
 const translations = {
   en: {
-    title: "SS Track Guide",
+    title: "SSTrack Guide – Master Employee Tracking, Reports & Privacy Tools",
     expand: "Expand All",
     collapse: "Collapse All",
     steps: [
-      "Employers – How to Use SS Track",
-      "Mobile Punch System, Punctuality, and Break Management",
-      "Reports – View Summary Reports & Productivity Insights",
-      "Employees – Desktop Application Usage",
-      "Addressing Misconceptions – Privacy and Tracking",
-      "Mobile App Usage"
+      "Getting Started with Employee Time Tracking",
+      "NFC-Based Punching and Break Management",
+      "View Time & Productivity Reports at a Glance",
+      "Track Time and Screenshots with Desktop Monitoring App",
+      "Balancing Transparency and Employee Privacy",
+      "Real-Time Tracking with Our GPS Mobile App"
     ],
     contents: [
       [
-        "Managing your workforce has never been easier. With SS Track, you can seamlessly monitor attendance, set and adjust employee schedules, manage vacations and leave requests, and oversee training sessions directly through your dashboard.",
-        "Effortlessly issue pay stubs and use powerful reporting tools for clear insights. SS Track puts employee management at your fingertips—anywhere, anytime."
+        "Managing your workforce has never been easier. With SSTrack, you can seamlessly monitor attendance, set and adjust employee schedules, manage vacations and leave requests, and oversee training sessions directly through your dashboard.",
+        "Effortlessly issue pay stubs and use powerful reporting tools for clear insights. SSTrack puts employee management at your fingertips—anywhere, anytime."
       ],
       [
-        "SS Track's mobile punch system makes clocking in and out effortless. Monitor punctuality, manage break times, and maintain accuracy through intuitive interfaces.",
-        "Our HR-focused tools ensure compliance and streamline management of breaks, schedules, training, and vacation time. SS Track—the ultimate solution to enhance your team's productivity and punctuality."
+        "SSTrack's mobile punch system makes clocking in and out effortless. Monitor punctuality, manage break times, and maintain accuracy through intuitive interfaces.",
+        "Our HR-focused tools ensure compliance and streamline management of breaks, schedules, training, and vacation time. SSTrack—the ultimate solution to enhance your team's productivity and punctuality."
       ],
       [
         "Gain valuable insights into employee work patterns with detailed reports. Monitor active work hours, assigned projects, pay rates, and productivity levels.",
         "These insights help optimize performance and ensure efficient workforce management by aligning employee efforts with company goals."
       ],
       [
-        "SS Track empowers you to manage your workday easily. Using our desktop application, simply press 'Play' to begin tracking your time.",
-        "Rest assured, SS Track only tracks when active and automatically stops after 20 minutes of inactivity—unless otherwise specified by your employer.",
-        "Your privacy is important to us, and transparency is key. Use SS Track to effortlessly manage your daily tasks, breaks, schedules, and training updates."
+        "SSTrack empowers you to manage your workday easily. Using our desktop application, simply press 'Play' to begin tracking your time.",
+        "Rest assured, SSTrack only tracks when active and automatically stops after 20 minutes of inactivity—unless otherwise specified by your employer.",
+        "Your privacy is important to us, and transparency is key. Use SSTrack to effortlessly manage your daily tasks, breaks, schedules, and training updates."
       ],
       [
-        "We know privacy matters. SS Track respects your boundaries by only tracking when you actively choose to start recording your workday.",
+        "We know privacy matters. SSTrack respects your boundaries by only tracking when you actively choose to start recording your workday.",
         "Tracking automatically stops after 20 minutes of inactivity to ensure your privacy, unless specific permissions have been set by your employer.",
-        "Clear, transparent, and trustworthy—that’s the SS Track promise."
+        "Clear, transparent, and trustworthy—that’s the SSTrack promise."
       ],
       [
-        "Stay connected with the SS Track mobile app. Easily start and stop your tracking while on the move, access your schedule, request vacation or leave, and view updates in real-time.",
+        "Stay connected with the SSTrack mobile app. Easily start and stop your tracking while on the move, access your schedule, request vacation or leave, and view updates in real-time.",
         "Our mobile app ensures you’re always informed and organized, wherever work takes you."
       ]
     ]
   },
   ar: {
-    title: "دليل SS Track",
+    title: "دليل SSTrack",
     expand: "عرض الكل",
     collapse: "إخفاء الكل",
     steps: [
-      "أصحاب العمل - كيفية استخدام SS Track",
+      "أصحاب العمل - كيفية استخدام SSTrack",
       "نظام الحضور، إدارة الدقة والاستراحات",
       "التقارير - عرض ملخص وتقارير الإنتاجية",
       "الموظفون - استخدام تطبيق سطح المكتب",
@@ -66,29 +66,29 @@ const translations = {
     ],
     contents: [
       [
-        "إدارة القوى العاملة أصبحت أسهل من أي وقت مضى. يمكنك باستخدام SS Track متابعة الحضور، تعديل الجداول، إدارة الإجازات والتدريب من لوحة التحكم مباشرة.",
-        "أصدر كشوف الرواتب بسهولة واستخدم أدوات التقارير للحصول على رؤى واضحة. SS Track في متناول يدك في أي وقت ومكان."
+        "إدارة القوى العاملة أصبحت أسهل من أي وقت مضى. يمكنك باستخدام SSTrack متابعة الحضور، تعديل الجداول، إدارة الإجازات والتدريب من لوحة التحكم مباشرة.",
+        "أصدر كشوف الرواتب بسهولة واستخدم أدوات التقارير للحصول على رؤى واضحة. SSTrack في متناول يدك في أي وقت ومكان."
       ],
       [
-        "نظام الحضور عبر الهاتف من SS Track يجعل تسجيل الدخول والخروج سهلاً. راقب الدقة، نظم الاستراحات، وحقق الدقة من خلال واجهات سهلة الاستخدام.",
-        "أدواتنا تضمن الامتثال وتسهل إدارة الجداول، التدريب، والإجازات. SS Track هو الحل الأمثل لزيادة إنتاجية فريقك."
+        "نظام الحضور عبر الهاتف من SSTrack يجعل تسجيل الدخول والخروج سهلاً. راقب الدقة، نظم الاستراحات، وحقق الدقة من خلال واجهات سهلة الاستخدام.",
+        "أدواتنا تضمن الامتثال وتسهل إدارة الجداول، التدريب، والإجازات. SSTrack هو الحل الأمثل لزيادة إنتاجية فريقك."
       ],
       [
         "احصل على رؤى مفصلة حول أنماط عمل الموظفين باستخدام تقارير دقيقة. راقب ساعات العمل، المشاريع، الرواتب، ومستويات الإنتاجية.",
         "تساعد هذه البيانات على تحسين الأداء وضمان إدارة فعالة للقوى العاملة."
       ],
       [
-        "يمنحك SS Track القدرة على إدارة يوم عملك بسهولة. اضغط على 'تشغيل' في التطبيق لبدء تتبع وقتك.",
+        "يمنحك SSTrack القدرة على إدارة يوم عملك بسهولة. اضغط على 'تشغيل' في التطبيق لبدء تتبع وقتك.",
         "يتم التتبع فقط أثناء النشاط ويتوقف تلقائيًا بعد 20 دقيقة من عدم التفاعل، ما لم يحدد صاحب العمل خلاف ذلك.",
-        "خصوصيتك مهمة لنا، والشفافية هي الأساس. استخدم SS Track لإدارة مهامك اليومية واستراحاتك وتدريباتك."
+        "خصوصيتك مهمة لنا، والشفافية هي الأساس. استخدم SSTrack لإدارة مهامك اليومية واستراحاتك وتدريباتك."
       ],
       [
-        "نحن ندرك أهمية الخصوصية. لا يقوم SS Track بالتتبع إلا عندما تبدأ العمل بنفسك.",
+        "نحن ندرك أهمية الخصوصية. لا يقوم SSTrack بالتتبع إلا عندما تبدأ العمل بنفسك.",
         "يتوقف التتبع تلقائيًا بعد 20 دقيقة من الخمول، ما لم يتم تحديد إذن مختلف من قبل صاحب العمل.",
-        "واضح، شفاف، وموثوق — هذا هو وعد SS Track."
+        "واضح، شفاف، وموثوق — هذا هو وعد SSTrack."
       ],
       [
-        "ابقَ على اتصال مع تطبيق SS Track. ابدأ التتبع وأوقفه بسهولة أثناء التنقل، واطلع على الجداول وقدم طلبات الإجازة.",
+        "ابقَ على اتصال مع تطبيق SSTrack. ابدأ التتبع وأوقفه بسهولة أثناء التنقل، واطلع على الجداول وقدم طلبات الإجازة.",
         "يضمن لك تطبيقنا البقاء على اطلاع وتنظيم أينما كنت."
       ]
     ]
@@ -157,7 +157,7 @@ const AllTrainingSections = () => {
   return (
     <div style={{ padding: "40px 20px", backgroundColor: "#f4f7f9", minHeight: "100vh", direction: language === "ar" ? "rtl" : "ltr" }}>
       <div style={{ textAlign: "center", marginBottom: 30 }}>
-        <h2 style={{ color: "#0E4772", marginBottom: 20 }}>{t.title}</h2>
+        <h1 style={{ color: "#0E4772", marginBottom: 20 }}>{t.title}</h1>
         <button onClick={() => setExpandAll(prev => !prev)} style={{ backgroundColor: "#7ACB59", color: "white", padding: "12px 28px", fontSize: "16px", fontWeight: "bold", border: "none", borderRadius: "8px", cursor: "pointer", marginInlineEnd: 20 }}>{expandAll ? t.collapse : t.expand}</button>
         <button onClick={() => setLanguage(language === "en" ? "ar" : "en")} style={{ backgroundColor: "#0E4772", color: "white", padding: "12px 28px", fontSize: "16px", fontWeight: "bold", border: "none", borderRadius: "8px", cursor: "pointer" }}>{language === "en" ? "العربية" : "English"}</button>
       </div>
@@ -171,7 +171,7 @@ const AllTrainingSections = () => {
           iconUrl={Object.values(iconURLs)[index]}
           // videoStart={`?start=${videoStartTimes[index]}`}
           videoStart={`${videoData[index].start}`}
-          videoData = {videoData}
+          videoData={videoData}
           expandAll={expandAll}
           index={index}
           language={language}

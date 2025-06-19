@@ -1,96 +1,86 @@
-import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate, } from "react-router-dom";
-import Signup from "../screen/signup";
-import SignIn from "../screen/signin";
-import UserDashboard from "../screen/userDashboard";
-import UserDetails from "../screen/userDetails";
-import Account from "../screen/account";
-import Profile from "../screen/profile";
-import ForgetPassword from "../screen/forgetpassword";
-import Setting from "../adminScreens/setting";
-import SystemAdminLogin from "../systemAdmin/systemAdminLogin";
-import OwnerUserSignup from "../companyOwner/ownerUser";
-import OwnerTeam from "../companyOwner/ownerTeam";
-import Download from "../screen/download";
-import CreateAccount from "../screen/createAccount";
-import Layout from "../layout";
-import UpdatePassword from "../screen/updatePassword";
-import VerificationCode from "../screen/verificationCode";
-import CaptureScreen from "../screen/captureScreen";
-import OwnerReport from "../screen/owner-reports";
-import OwnerUserTimeline from "../companyOwner/ownerUsersTimeline";
-import PrivacyPolicy from "../screen/privacy-policy";
-import PrivacyPolicy1 from '../screen/privacy-policy1'
-import PrivacyPolicy2 from '../screen/privacy-policy2'
-import Attendence from "../screen/AttendenceManagement/Attendence";
-import Payment from "../screen/payment";
+import React, { lazy, Suspense, useState, useEffect } from 'react';
+import { RingSpinnerOverlay } from 'react-spinner-overlay';
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import axios from "axios";
-import Pricing from '../screen/pricing'
-import WorkCards from "../screen/howitwork";
-// import { GoogleOAuthProvider } from '@react-oauth/google';
-import { GoogleLogin } from '@react-oauth/google';
-import OwnerLeaveManagement from '../companyOwner/owner-setting-components/ownerLeaveManagement'
-import SaLogin from '../SuperAdmin/SuperAdmin/saLogin'
-import PrivateRoute from './PrivateRoutes'
-import SaMain from '../SuperAdmin/SuperAdmin/saMain'
-import UserSettings from '../companyOwner/owner-setting-components/userSetting'
-import ApplyForLeave from '../companyOwner/owner-setting-components/ApplyForLeave'
-import LocaitonTracking from "../Tracking/Locationtracking";
-import NewHome from "../screen/LandingPage/newHome";
-import AboutUs from "../screen/AboutUS/aboutUs";
-import { useSelector } from "react-redux";
 import jwtDecode from "jwt-decode";
-import DashboardSplash from "../screen/spalsh/dashboardSplash";
-import Project from "../screen/Project/Project";
-import Home from "../screen/home";
-import Product from '../screen/Product/Product'
-import BreakTime from '../adminScreens/settingScreenComponent/breakTime'
-import Punctuality from '../adminScreens/settingScreenComponent/punctuality'
-import ActivityLevel from "../adminScreens/settingScreenComponent/activitylevel";
-import UrlTracking from "../adminScreens/settingScreenComponent/url";
-import History from '../screen/historyLogs'
-import Notification from '../screen/Notification/notificationHistory'
+const Signup = lazy(() => import("../screen/signup"));
+const SignIn = lazy(() => import("../screen/signin"));
+const UserDashboard = lazy(() => import("../screen/userDashboard"));
+const UserDetails = lazy(() => import("../screen/userDetails"));
+const Account = lazy(() => import("../screen/account"));
+const Profile = lazy(() => import("../screen/profile"));
+const ForgetPassword = lazy(() => import("../screen/forgetpassword"));
+const Setting = lazy(() => import("../adminScreens/setting"));
+const OwnerUserSignup = lazy(() => import("../companyOwner/ownerUser"));
+const OwnerTeam = lazy(() => import("../companyOwner/ownerTeam"));
+const Download = lazy(() => import("../screen/download"));
+const CreateAccount = lazy(() => import("../screen/createAccount"));
+const Layout = lazy(() => import("../layout"));
+const UpdatePassword = lazy(() => import("../screen/updatePassword"));
+const VerificationCode = lazy(() => import("../screen/verificationCode"));
+const CaptureScreen = lazy(() => import("../screen/captureScreen"));
+const OwnerReport = lazy(() => import("../screen/owner-reports"));
+const PrivacyPolicy = lazy(() => import("../screen/privacy-policy"));
+const Attendence = lazy(() => import("../screen/AttendenceManagement/Attendence"));
+const Pricing = lazy(() => import('../screen/pricing'));
+const WorkCards = lazy(() => import("../screen/howitwork"));
+const OwnerLeaveManagement = lazy(() => import('../companyOwner/owner-setting-components/ownerLeaveManagement'));
+const SaLogin = lazy(() => import('../SuperAdmin/SuperAdmin/saLogin'));
+const SaMain = lazy(() => import('../SuperAdmin/SuperAdmin/saMain'));
+const UserSettings = lazy(() => import('../companyOwner/owner-setting-components/userSetting'));
+const ApplyForLeave = lazy(() => import('../companyOwner/owner-setting-components/ApplyForLeave'));
+const LocaitonTracking = lazy(() => import("../Tracking/Locationtracking"));
+const NewHome = lazy(() => import("../screen/LandingPage/newHome"));
+const AboutUs = lazy(() => import("../screen/AboutUS/aboutUs"));
+const DashboardSplash = lazy(() => import("../screen/spalsh/dashboardSplash"));
+const Project = lazy(() => import("../screen/Project/Project"));
+const Home = lazy(() => import("../screen/home"));
+const Product = lazy(() => import('../screen/Product/Product'));
+const BreakTime = lazy(() => import('../adminScreens/settingScreenComponent/breakTime'));
+const Punctuality = lazy(() => import('../adminScreens/settingScreenComponent/punctuality'));
+const History = lazy(() => import('../screen/historyLogs'));
+const Notification = lazy(() => import('../screen/Notification/notificationHistory'));
+const OwnerManualLeave = lazy(() => import('../companyOwner/owner-setting-components/ownerManualLeave'));
+const TrainingPage = lazy(() => import("../screen/Training/TrainingPage"));
+const PunctualityReports = lazy(() => import('../screen/PunctualityReport/PunctualityMainComp'));
+const Chrome = lazy(() => import("../screen/Chrome"));
+const Appstore = lazy(() => import("../screen/Appstore"));
+const PlayStore = lazy(() => import("../screen/playStore"));
+const Windows = lazy(() => import("../screen/Windows"));
+const Macos = lazy(() => import("../screen/Macos"));
+const AnalyticsTracker = lazy(() => import("../screen/component/AnalyticsTracker"));
+const Contact = lazy(() => import("../screen/ContactUS/Contact"));
+const NotFound = lazy(() => import('../screen/NotFound'));
+const PayStubs = lazy(() => import("../screen/PayStub/PayStubs"));
+const CreateBlogs = lazy(() => import("../screen/component/Blogs/CreateBlogs"));
+const PayrollHistory = lazy(() => import("../screen/PayStub/PayrollHistory"));
+const PayStubGenerator = lazy(() => import("../screen/PayStub/PayStubGenerator"));
+const AssignUsers = lazy(() => import("../screen/component/BlogsUsers/blogsAccess"));
+const AddEmployee = lazy(() => import("../screen/PayStub/AddEmployee"));
+const PayroleUser = lazy(() => import("../screen/PayStub/PayroleUser"));
 
-import OwnerManualLeave from '../companyOwner/owner-setting-components/ownerManualLeave'
-import TrainingPage from "../screen/Training/TrainingPage";
-import PunctualityReports from '../screen/PunctualityReport/PunctualityMainComp'
-import Chrome from "../screen/Chrome";
-import Appstore from "../screen/Appstore";
-import PlayStore from "../screen/playStore";
-import Windows from "../screen/Windows";
-import Macos from "../screen/Macos";
-import AnalyticsTracker from "../screen/component/AnalyticsTracker"; // ✅ Add this at top
-import Contact from "../screen/ContactUS/Contact"; // ✅ Add this at top
-import NotFound from '../screen/NotFound'; // Adjust the import path as necessary
-import PayStubs from "../screen/PayStub/PayStubs";
-// import PayStubGenerator from "../screen/PayStubGenerator";
-import CreateBlogs from "../screen/component/Blogs/CreateBlogs";
-import PayrollHistory from "../screen/PayStub/PayrollHistory";
-import PayStubGenerator from "../screen/PayStub/PayStubGenerator";
-import AssignUsers from "../screen/component/BlogsUsers/blogsAccess";
-// import PayrollTable from "../screen/PayStub/PayrollTable";
-import GeoFance from '../screen/component/GeoFancing/geoFance'
-import GeoFanceAdd from '../screen/component/GeoFancing/AddGeoFence'
-import AddEmployee from "../screen/PayStub/AddEmployee";
-import PayroleUser from "../screen/PayStub/PayroleUser";
-import AddEmployees from "../screen/component/GeoFancing/AddEmployees";
-import AlertComp from "../screen/component/GeoFancing/AlertComp";
-import Reports from "../screen/component/GeoFancing/Reports";
-import Incident from "../screen/component/GeoFancing/Incident";
-// import TestingBlogPost from "../screen/component/Blogs/TestingBlogPost";
-// import TestingBlogList from "../screen/component/Blogs/TestingBlogList";
-
-
+// Create a loading component
+const Loading = () => (
+  <div style={{ height: '100vh', width: '100vw' }}>
+    <RingSpinnerOverlay
+      loading={true}
+      overlayColor="rgba(255, 255, 255, 0.8)"
+      size={60}
+      color="#007bff"
+      message="Loading, please wait..."
+      messageStyle={{
+        fontSize: '16px',
+        color: '#333',
+        marginTop: '16px',
+      }}
+    />
+  </div>
+);
 
 export default function AppRouter() {
-
-  // const token = useSelector((state) => state.auth.token);
-  // console.log("Token from Redux:", tokenfromRedux); 
   const [suspended, setSuspended] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [loading, setLoading] = useState(true);
-  // const items = jwtDecode(JSON.stringify(token));
-  console.log('decoded data', token)
 
   useEffect(() => {
     const fetchTokenAndSuspendedStatus = async () => {
@@ -100,27 +90,14 @@ export default function AppRouter() {
           const headers = {
             Authorization: `Bearer ${token}`,
           };
-          const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
+          const apiUrl = process.env.REACT_APP_API_URL;
           const response = await axios.get(`${apiUrl}/owner/getCompanyInfo`, { headers });
-          // For objects or arrays:
-          // const planindex = response?.data.data[0].planId.length - 1;
-          // const planId = response?.data.data[0].planId?.slice(-1)[0]?.id || null;
-          // const planId = response?.data.data[0].planId[planindex].id;
-
-
-          // Save to localStorage after converting to a string
-          // localStorage.setItem('planId', JSON.stringify(planId));
-          // localStorage.setItem('planIdforHome', JSON.stringify(planId));
-          // Simulate a delay of 2 seconds
           setTimeout(() => {
             setSuspended(response?.data.data[0].suspended);
             setLoading(false); // Move this inside the timeout
           }, 2000);
         } catch (err) {
           console.error('Error fetching data%%%%%%%%%%%%%%%%%%%%%%%', err);
-          let planId = null;
-          // localStorage.setItem('planId', JSON.stringify(planId));
-          // localStorage.setItem('planIdforHome', JSON.stringify(planId));
         }
       }
       setLoading(false);
@@ -128,7 +105,7 @@ export default function AppRouter() {
 
     fetchTokenAndSuspendedStatus();
 
-  }, [token]);
+  });
   // console.log('suspended=========', token);
 
 
@@ -158,12 +135,17 @@ export default function AppRouter() {
   return (
     <>
       <Router>
-        <AnalyticsTracker />  {/* ✅ Track route changes here */}
+        <AnalyticsTracker />
+        {/* <Suspense fallback={<Loading />}> */}
         <Routes>
-          <Route path="/" element={<Layout />}>
+          <Route path="/" element={
+            <Suspense fallback={<Loading />}>
+              <Layout />
+            </Suspense>
+          }>
             {/* Public Routes */}
-
             <Route path="/download" element={<Download />} />
+            <Route path="/aboutUs" element={<AboutUs />} />
             <Route path="/aboutUs" element={<AboutUs />} />
             <Route path="/product" element={<Product />} />
             <Route path="/contact" element={<Contact />} />
@@ -179,20 +161,16 @@ export default function AppRouter() {
             <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
             <Route path="/account" element={token ? <Account suspended={suspended} /> : <Navigate to="/signup" />} />
             <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/dashboard" />} />
-            <Route path="/systemAdminLogin" element={<SystemAdminLogin />} />
+            {/* <Route path="/systemAdminLogin" element={<SystemAdminLogin />} /> */}
             {/* <Route path="/" element={<Home />} /> */}
             <Route path="/" element={<NewHome />} />
             <Route path="/capture-screen" element={<CaptureScreen />} />
             {/* <Route path="/:token" element={<NewHome />} /> */}
-
-
             <Route path="/create-account/:code/:email" element={<CreateAccount />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/update-password/:id" element={<UpdatePassword />} />
             <Route path="/verification-code" element={<VerificationCode />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
-            <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/blogs" element={<CreateBlogs />} />
             <Route path="/Training" element={<TrainingPage />} />
@@ -231,7 +209,7 @@ export default function AppRouter() {
             <Route path="/reports" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerReport />) : <Navigate to="/" />} />
             <Route path="/Projects" element={token ? (suspended ? <Navigate to="/account" /> : <Project />) : <Navigate to="/" />} />
             <Route path="/company-owner-user" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserSignup />) : <Navigate to="/" />} />
-            <Route path="/activity/:id" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserTimeline />) : <Navigate to="/" />} />
+            {/* <Route path="/activity/:id" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserTimeline />) : <Navigate to="/" />} /> */}
             <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} />
             <Route path="/leave-management" element={token ? (suspended ? <Navigate to="/ac count" /> : <OwnerLeaveManagement />) : <Navigate to="/" />} />
             <Route path="/applyForLeave" element={token ? (suspended ? <Navigate to="/account" /> : <ApplyForLeave />) : <Navigate to="/" />} />
@@ -240,20 +218,8 @@ export default function AppRouter() {
             {/* <Route path="/Locationtracking" element={token ? (suspended ? <Navigate to="/account" /> : <LocaitonTracking />) : <Navigate to="/" />} /> */}
             <Route path="/attendence-management" element={token ? (suspended ? <Navigate to="/account" /> : <Attendence />) : <Navigate to="/" />} />
 
-            <Route path="/geo-fance" element={token ? (suspended ? <Navigate to="/account" /> : <GeoFance />) : <Navigate to="/" />} />
-            <Route path="/geo-fance/add" element={token ? (suspended ? <Navigate to="/account" /> : <GeoFanceAdd />) : <Navigate to="/" />} />
-            <Route path="/geo-fance/add-employees" element={token ? (suspended ? <Navigate to="/account" /> : <AddEmployees />) : <Navigate to="/" />} />
-            <Route path="/geo-fance/alert" element={token ? (suspended ? <Navigate to="/account" /> : <AlertComp />) : <Navigate to="/" />} />
-            <Route path="/geo-fance/reports" element={token ? (suspended ? <Navigate to="/account" /> : <Reports />) : <Navigate to="/" />} />
-            <Route path="/geo-fance/incident" element={token ? (suspended ? <Navigate to="/account" /> : <Incident />) : <Navigate to="/" />} />
-
             <Route path="/add-employee" element={token ? (suspended ? <Navigate to="/account" /> : <AddEmployee />) : <Navigate to="/" />} />
             <Route path="/history" element={token ? (suspended ? <Navigate to="/account" /> : <History />) : <Navigate to="/" />} />
-
-            {/* <Route path="/testingBlogPost" element={token ? (suspended ? <Navigate to="/account" /> : <TestingBlogPost />) : <Navigate to="/" />} />
-            <Route path="/blog/:slug" element={token ? (suspended ? <Navigate to="/account" /> : <TestingBlogList />) : <Navigate to="/" />} />
- */}
-
             {/* <Route path="/pay_stub_managment" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubGenerator />) : <Navigate to="/" />} />
             <Route path="/pay_stub_View" element={token ? (suspended ? <Navigate to="/account" /> : <PayStubs />) : <Navigate to="/" />} />
             <Route path="/punctuality-reports" element={token ? (suspended ? <Navigate to="/account" /> : <PunctualityReports />) : <Navigate to="/" />} /> */}
@@ -283,23 +249,20 @@ export default function AppRouter() {
               <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} /> */}
           </Route>
 
-          {/* <Route path="*" element={<Navigate to="/signin" />} /> */}
-          {/* Catch-all route */}
+          {/* Other routes */}
           <Route path="/sALogin" element={<SaLogin />} />
           <Route path="/sADashboard" element={<SaMain />} />
           <Route path="/chrome" element={<Chrome />} />
           <Route path="/app_store" element={<Appstore />} />
-          <Route path="/app_store" element={<PlayStore />} />
+          <Route path="/play_store" element={<PlayStore />} />
           <Route path="/windows" element={<Windows />} />
           <Route path="/macos" element={<Macos />} />
 
           <Route path="/:token" element={<Home />} />
-
           <Route path="*" element={<NotFound />} />
 
-          {/* <Route path="/contact-us" element={<Contact />} /> */}
-
         </Routes>
+        {/* </Suspense> */}
       </Router>
     </>
   );

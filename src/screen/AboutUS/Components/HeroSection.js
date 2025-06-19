@@ -7,9 +7,9 @@ const HeroSection = ({ language }) => {
   const translations = {
     en: {
       aboutTitle: "ABOUT SSTRACK.IO",
-      mainHeading: "Seamless Presence Tracking for Smarter Businesses",
+      mainHeading: "Seamless Employee Presence Tracking for Smarter Businesses",
       description:
-        "Track presence, manage seamlessly, and collaborate smarter with SSTRACK.IO— built for efficiency across all major platforms.",
+        "Track presence, manage seamlessly, and collaborate smarter with SSTrack — built for efficiency across all major platforms.",
       buttonText: "Get Started →",
     },
     ar: {
@@ -43,6 +43,12 @@ const HeroSection = ({ language }) => {
       }}
       className="hero-section"
     >
+      {/* ✅ Visually hidden image for accessibility */}
+      <img
+        src={require('../../../images/aboutUShero.png')}
+        alt={language === 'ar' ? 'خلفية لقسم نبذة عنا SSTRACK.IO' : 'Background of SSTrack About Us section'}
+        style={{ display: 'none' }}
+      />
       {/* Overlay */}
       <div
         style={{

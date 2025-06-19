@@ -3,6 +3,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import { IoMdMail } from 'react-icons/io';
 import logo from '../../images/sloganLogo.png';
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import { FaInstagram, FaFacebookF, FaLinkedinIn } from 'react-icons/fa';
 
 function Footer() {
     const location = useLocation();
@@ -22,6 +23,7 @@ function Footer() {
             handleSignUp();
         }
     };
+
     function scrollToSection(sectionId) {
         const section = document.getElementById(sectionId);
         if (section) {
@@ -227,10 +229,49 @@ function Footer() {
                             </a>
                             {/* </Link> */}
                         </div>
+
+                        {/* Social Media Heading */}
+                        <div className="mt-4">
+                            <h6 style={{ fontSize: '14px', fontWeight: '600', color: '#fff', marginBottom: '6px' }}>
+                                Follow us on social media
+                            </h6>
+                            <p style={{ fontSize: '12px', color: '#ccc', marginBottom: '10px' }}>
+                                Stay connected for updates and productivity tips
+                            </p>
+                        </div>
+
+                        {/* Social Media Icons */}
+                        <div className="d-flex gap-3 mt-3 social-icons">
+                            <a
+                                href="https://www.instagram.com/sstrack.io"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="icon-wrapper instagram"
+                            >
+                                <FaInstagram />
+                            </a>
+                            <a
+                                href="https://www.facebook.com/sstrack.io"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="icon-wrapper facebook"
+                            >
+                                <FaFacebookF />
+                            </a>
+                            <a
+                                href="https://www.linkedin.com/company/sstrack-io"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="icon-wrapper linkedin"
+                            >
+                                <FaLinkedinIn />
+                            </a>
+                        </div>
+
                         <img
                             className='logo'
                             src={logo}
-                            alt="SS Track.io"
+                            alt="SSTrack.io"
                             style={{ marginLeft: '5px', marginTop: '30px' }}
                             width={250}
                             onClick={() => navigate('/')}
@@ -251,7 +292,7 @@ function Footer() {
                                 marginTop: "10%",
                             }}
                         >
-                            © All Rights Reserved 2025 SS Track.io
+                            © All Rights Reserved 2025 SSTrack.io
                         </p>
                     </Col>
                 </Row>

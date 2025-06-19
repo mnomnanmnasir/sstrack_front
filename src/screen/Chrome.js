@@ -1,47 +1,47 @@
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
-import React, { useEffect,  } from 'react';
+import React, { useEffect, } from 'react';
 
 function Chrome() {
 
- 
-const sendScanEvent = async () => {
-  try {
-    const visitKey = 'chrome';
-    const token = localStorage.getItem('token');
-    let userId = null;
 
-    // Only decode if token exists
-    if (token) {
-      try {
-        const items = jwtDecode(token);
-        userId = items?._id || null;
-      } catch (decodeError) {
-        console.warn('⚠️ Failed to decode token:', decodeError);
+  const sendScanEvent = async () => {
+    try {
+      const visitKey = 'chrome';
+      const token = localStorage.getItem('token');
+      let userId = null;
+      const apiUrl = process.env.REACT_APP_API_URL;
+      // Only decode if token exists
+      if (token) {
+        try {
+          const items = jwtDecode(token);
+          userId = items?._id || null;
+        } catch (decodeError) {
+          console.warn('⚠️ Failed to decode token:', decodeError);
+        }
       }
+
+      const body = {
+        userId: userId,
+        appType: visitKey,
+        qrCode: true,
+      };
+
+      await axios.post(
+        `${apiUrl}/timetrack/downloadHistory`,
+        body
+      );
+
+      window.location.href =
+        'https://chromewebstore.google.com/detail/gkmllhjndmaaapegaopkpapaamfaeckg?utm_source=item-share-cb';
+    } catch (error) {
+      console.error('❌ Failed to send scan event:', error);
     }
+  };
 
-    const body = {
-      userId: userId, 
-      appType: visitKey,
-      qrCode: true,
-    };
-
-    await axios.post(
-      'https://myuniversallanguages.com:9093/api/v1/timetrack/downloadHistory',
-      body
-    );
-
-    window.location.href =
-      'https://chromewebstore.google.com/detail/gkmllhjndmaaapegaopkpapaamfaeckg?utm_source=item-share-cb';
-  } catch (error) {
-    console.error('❌ Failed to send scan event:', error);
-  }
-};
-
-useEffect(() => {
-  sendScanEvent();
-}, []);
+  useEffect(() => {
+    sendScanEvent();
+  }, []);
 
   return (
     <div style={{

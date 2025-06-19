@@ -3,43 +3,43 @@ import jwtDecode from 'jwt-decode';
 import React, { useEffect } from 'react';
 
 function Appstore() {
- 
-const sendScanEvent = async () => {
-  try {
-    const visitKey = 'appstore';
-    const token = localStorage.getItem('token');
-    let userId = null;
 
-    // Only decode if token exists
-    if (token) {
-      try {
-        const items = jwtDecode(token);
-        userId = items?._id || null;
-      } catch (decodeError) {
-        console.warn('⚠️ Failed to decode token:', decodeError);
+  const sendScanEvent = async () => {
+    try {
+      const visitKey = 'appstore';
+      const token = localStorage.getItem('token');
+      let userId = null;
+      const apiUrl = process.env.REACT_APP_API_URL;
+      // Only decode if token exists
+      if (token) {
+        try {
+          const items = jwtDecode(token);
+          userId = items?._id || null;
+        } catch (decodeError) {
+          console.warn('⚠️ Failed to decode token:', decodeError);
+        }
       }
+
+      const body = {
+        userId: userId,
+        appType: visitKey,
+        qrCode: true,
+      };
+
+      await axios.post(
+        `${apiUrl}/timetrack/downloadHistory`,
+        body
+      );
+
+      window.location.href = 'https://apps.apple.com/pk/app/sstrack/id6742237538';
+    } catch (error) {
+      console.error('❌ Failed to send scan event:', error);
     }
+  };
 
-    const body = {
-      userId: userId, 
-      appType: visitKey,
-      qrCode: true,
-    };
-
-    await axios.post(
-      'https://myuniversallanguages.com:9093/api/v1/timetrack/downloadHistory',
-      body
-    );
-
-   window.location.href = 'https://apps.apple.com/pk/app/sstrack/id6742237538';
-  } catch (error) {
-    console.error('❌ Failed to send scan event:', error);
-  }
-};
-
-useEffect(() => {
-  sendScanEvent();
-}, []);
+  useEffect(() => {
+    sendScanEvent();
+  }, []);
   return (
     <div style={{
       display: 'flex',
@@ -61,7 +61,7 @@ useEffect(() => {
         marginBottom: '20px'
       }} />
       <h1>Loading App Store Page...</h1>
-     
+
 
       <style>{`
         @keyframes spin {

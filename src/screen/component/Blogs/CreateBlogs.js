@@ -11,7 +11,7 @@ const RecentBlogs = () => {
     });
 
     const [recentBlogs, setRecentBlogs] = useState([]); // 🟢 No dummy data now
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
@@ -28,7 +28,7 @@ const RecentBlogs = () => {
             formData.append("imageUrl", form.imageUrl); // 👈 attach file
 
             const res = await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/superAdmin/blogs/create",
+                `${apiUrl}/superAdmin/blogs/create`,
                 formData,
                 {
                     headers: {

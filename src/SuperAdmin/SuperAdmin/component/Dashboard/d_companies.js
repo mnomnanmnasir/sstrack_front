@@ -12,7 +12,7 @@ function DCompanies() {
     const [companies, setCompanies] = useState([]);
     const [selectedCompany, setSelectedCompany] = useState(null);
     const [companyHours, setCompanyHours] = useState({});
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const calculateCompanyTotalHours = (companyId) => {
         const usersMap = companyHours[companyId];
         if (!usersMap) return '0h 0m';
@@ -39,7 +39,7 @@ function DCompanies() {
             const token = localStorage.getItem('token_for_sa');
             if (!token) return;
 
-            const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/companiesHours', {
+            const response = await axios.get(`${apiUrl}/SystemAdmin/companiesHours`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -70,7 +70,7 @@ function DCompanies() {
             const token = localStorage.getItem('token_for_sa');
             if (!token) return setError('Token not found');
 
-            const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/companies', {
+            const response = await axios.get(`${apiUrl}/SystemAdmin/companies`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -83,6 +83,9 @@ function DCompanies() {
                     ownerEmail: company.users.find(u => u.userType === 'owner')?.email || 'No email',
                     ownerName: company.users.find(u => u.userType === 'owner')?.name || 'No Owner',
                     phoneNumber: company.users.find(u => u.userType === 'owner')?.phoneNumber || 'No phone number',
+                    regionName: company.users.find(u => u.userType === 'owner')?.regionName || 'No region',
+                    country: company.users.find(u => u.userType === 'owner')?.country || 'No region',
+                    city: company.users.find(u => u.userType === 'owner')?.city || 'No city',
                     type: company.suspended ? 'suspended' : 'active',
                     //   createdAt: company.createdAt,
                     companyCreatedAt: company.companyCreatedAt || '-',
@@ -108,6 +111,13 @@ function DCompanies() {
             setLoading(false);
         }
     };
+
+    const hasValidLocationData = (
+        selectedCompany &&
+        selectedCompany.city !== 'No city' &&
+        selectedCompany.regionName !== 'No region' &&
+        selectedCompany.country !== 'No region'
+    );
 
     useEffect(() => {
         fetchCompanies();
@@ -183,6 +193,7 @@ function DCompanies() {
                                             <Typography variant="body2" sx={{ color: '#555' }}>
                                                 <PhoneOutlinedIcon fontSize="small" /> {company.phoneNumber}
                                             </Typography>
+
                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
                                                 {/* Left Section */}
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -191,6 +202,7 @@ function DCompanies() {
                                                         {company.ownerName}
                                                     </Typography>
                                                 </Box>
+
                                                 {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                     <PersonIcon sx={{ color: '#555' }} />
                                                 </Box> */}
@@ -278,32 +290,72 @@ function DCompanies() {
                                 borderRadius: '12px',
                                 padding: 2,
                                 marginBottom: 3,
-                                boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)'
+                                boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)',
+                                display: 'flex',
+                                justifyContent: 'space-between', // 👉 this will create left-right layout
+                                alignItems: 'flex-start',
+                                flexWrap: 'wrap'
                             }}
                         >
-                            {/* <Typography variant="h6" fontWeight="bold" gutterBottom>
-                            {selectedCompany.name}
-                        </Typography> */}
-                            {/* <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#4caf50', mt: 1 }}>
-                            {selectedCompany.name} – Total Hours: {calculateCompanyTotalHours(selectedCompany.id)}
-                        </Typography>
- */}
-                            <Typography
-                                variant="h6"
-                                fontWeight="bold"
-                                sx={{
-                                    color: '#2E3A59',
-                                    marginBottom: '4px',
-                                }}>
-                                {/* 📧 {selectedCompany.email} */}
-                                {selectedCompany.name} – Total Hours: {calculateCompanyTotalHours(selectedCompany.id)}
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
-                                Total Users: {selectedCompany.users.length}
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
-                                Created At: {selectedCompany.companyCreatedAt ? new Date(selectedCompany.companyCreatedAt).toLocaleDateString() : 'N/A'}
-                            </Typography>
+                            {/* Left section */}
+                            <Box sx={{ flex: 1, minWidth: '250px' }}>
+                                <Typography variant="h6" fontWeight="bold" sx={{ color: '#2E3A59', marginBottom: '4px' }}>
+                                    {selectedCompany.name} – Total Hours: {calculateCompanyTotalHours(selectedCompany.id)}
+                                </Typography>
+
+                                <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
+                                    Email: {selectedCompany.ownerEmail}
+                                </Typography>
+
+                                <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
+                                    Phone Number: {selectedCompany.phoneNumber}
+                                </Typography>
+
+                                <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
+                                    Total Users: {selectedCompany.users.length}
+                                </Typography>
+
+                                <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
+                                    Created At: {selectedCompany.companyCreatedAt ? new Date(selectedCompany.companyCreatedAt).toLocaleDateString() : 'N/A'}
+                                </Typography>
+                            </Box>
+
+                            {/* Right section - City */}
+                            {hasValidLocationData && (
+                                <Box sx={{ textAlign: 'right', minWidth: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-end', gap: '8px' }}>
+
+                                    {/* City Row */}
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Typography variant="body1" sx={{ color: '#555', fontWeight: 'bold' }}>
+                                            City:
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ color: '#4CAF50', fontWeight: 600 }}>
+                                            {selectedCompany.city}
+                                        </Typography>
+                                    </Box>
+
+                                    {/* Region Name Row */}
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Typography variant="body1" sx={{ color: '#555', fontWeight: 'bold' }}>
+                                            Region Name:
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ color: '#4CAF50', fontWeight: 600 }}>
+                                            {selectedCompany.regionName}
+                                        </Typography>
+                                    </Box>
+
+                                    {/* Country Name Row */}
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Typography variant="body1" sx={{ color: '#555', fontWeight: 'bold' }}>
+                                            Country:
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ color: '#4CAF50', fontWeight: 600 }}>
+                                            {selectedCompany.country}
+                                        </Typography>
+                                    </Box>
+
+                                </Box>
+                            )}
                         </Box>
 
                         {/* Users */}
@@ -328,6 +380,9 @@ function DCompanies() {
                                             <Typography variant="h6" fontWeight="bold">{user.name}</Typography>
                                             <Typography variant="body2" sx={{ color: '#555' }}>📧 {user.email}</Typography>
 
+                                            {user.role === 'owner' && user.phoneNumber && (
+                                                <Typography variant="body2" sx={{ color: '#555' }}> <PhoneOutlinedIcon fontSize="small" /> {user.phoneNumber}</Typography>
+                                            )}
                                             {/* <Typography variant="body2" sx={{ color: '#555' }}>📞 {user.phone}</Typography> */}
                                             <Typography variant="body2" sx={{ color: '#888' }}>
                                                 Created At: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}

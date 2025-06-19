@@ -21,7 +21,7 @@ const OwnerTeam = () => {
     const currentUser = jwtDecode(JSON.stringify(token));
     const userId = currentUser?.id || "";
     const userType = currentUser?.userType || "";
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const headers = {
         Authorization: `Bearer ${token}`,
     };

@@ -15,7 +15,7 @@ const RecentBlogs = () => {
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const [userPermissions, setUserPermissions] = useState({});
     const [blogUsers, setBlogUsers] = useState([]);
 
@@ -47,7 +47,7 @@ const RecentBlogs = () => {
 
         try {
             await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/superAdmin/blogs/access",
+                `${apiUrl}/superAdmin/blogs/access`,
                 payload,
                 {
                     headers: {
@@ -67,7 +67,7 @@ const RecentBlogs = () => {
             try {
                 const token = localStorage.getItem("token");
                 const res = await axios.get(
-                    "https://myuniversallanguages.com:9093/api/v1/superAdmin/blogs/users",
+                    `${apiUrl}/superAdmin/blogs/users`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,

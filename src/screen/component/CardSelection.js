@@ -4,7 +4,7 @@ import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import PaymentCard from "../paymentCards";
 
 const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetDefaultCard, paycard, onAddCard }) => {
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const [defaultCardId, setDefaultCardId] = useState(() => localStorage.getItem('defaultCardId') || '');
     const [orderedCards, setOrderedCards] = useState([]); // State to manage ordered cards
 
@@ -53,7 +53,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
             Authorization: "Bearer " + token,
         };
         // console.log('default card set', cards);
-        const DefaultPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DefaultPayApiUrl = `${apiUrl}`;
         try {
             const response = await axios.post(`${DefaultPayApiUrl}/owner/setDefaultCard`, {
                 cardNumber: cards.cardNumber,
@@ -101,7 +101,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
         console.log('delete card', card);
         console.log('delete header', headers);
 
-        const DefaultPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DefaultPayApiUrl = `${apiUrl}`;
         try {
             const response = await axios.request({
                 url: `${DefaultPayApiUrl}/owner/deleteCard`,
@@ -174,7 +174,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
                                             <div className="d-flex justify-content-end gap-1">
                                                 {defaultCardId !== card._id ? (
                                                     <>
-                                                   
+
 
                                                         <button
                                                             className="btn btn-primary btn-sm mr-2"
@@ -183,7 +183,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
                                                         >
                                                             Default
                                                         </button>
-                                             
+
                                                         {!isPayCard && (
 
                                                             <button
@@ -197,7 +197,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
                                                     </>
                                                 ) : (
                                                     <>
-                                             
+
                                                         <button
                                                             className="btn btn-primary btn-sm"
                                                             style={{ borderRadius: '10%' }}
@@ -206,8 +206,8 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
                                                         >
                                                             Default
                                                         </button>
-                                           
-                                                       {!isPayCard && (
+
+                                                        {!isPayCard && (
                                                             <button
                                                                 className="btn btn-danger btn-sm"
                                                                 onClick={() => handleDeleteCard(card)}

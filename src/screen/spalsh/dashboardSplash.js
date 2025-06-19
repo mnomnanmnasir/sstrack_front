@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import NewHeader from '../component/Header/NewHeader';
+import jwtDecode from "jwt-decode";
+import { useEffect, useState } from 'react';
+import { Card, Col, Container, Row } from 'react-bootstrap';
+import { BsApple } from 'react-icons/bs';
+import { useNavigate } from 'react-router-dom';
 import step1 from '../../images/Container.png';
-import { BsWindows, BsApple, BsGoogle } from 'react-icons/bs'
 import step2 from '../../images/sp.png';
+import chrome from '../../images/SplashC.svg';
 import appStore from '../../images/SplashM.svg';
 import playStore from '../../images/SplashP.svg';
-import chrome from '../../images/SplashC.svg';
-import { useNavigate } from 'react-router-dom';
-import apple from '../../images/apple-Screenshot.png';
-import { Dropdown } from "react-bootstrap";
-import { Container, Row, Col, Button, Card } from 'react-bootstrap';
-import jwtDecode from "jwt-decode";
+import NewHeader from '../component/Header/NewHeader';
 
 
 function DashboardSplash() {
@@ -19,7 +17,7 @@ function DashboardSplash() {
     const [loading2, setLoading2] = useState(false);
     let token = localStorage.getItem('token');
     const items = jwtDecode(JSON.stringify(token));
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const [userType, setUserType] = useState(items?.userType || 'user');
 
@@ -116,7 +114,7 @@ function DashboardSplash() {
                 if (!token) return; // Exit if token is not available
 
                 // Send PATCH request to update user splash status
-                const response = await axios.patch("https://myuniversallanguages.com:9093/api/v1/timetrack/updateUserSplash", {}, {
+                const response = await axios.patch(`${apiUrl}/timetrack/updateUserSplash`, {}, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -138,10 +136,20 @@ function DashboardSplash() {
 
         updateUserSplash();
     }, []);
+
     function goToDashboard() {
         navigate("/dashboard");
         window.location.reload();
+    }
 
+    function goToTeam() {
+        navigate("/team");
+        window.location.reload();
+    }
+
+    function goToTraingCenter() {
+        navigate("/training");
+        window.location.reload();
     }
 
     const scrollToTeamSection = () => {
@@ -175,20 +183,24 @@ function DashboardSplash() {
                         <NewHeader language={'en'} show={true} />
 
                         {/* <Container fluid className="px-3 px-md-5"> */}
+
                         <Container fluid className="bg-white text-center py-5">
                             {/* <div className="container py-5"> */}
-                            <h2 className="fw-bold" style={{ fontSize: '45px' }}>
+
+                            {/* <h2 className="fw-bold" style={{ fontSize: '45px' }}>
                                 Owner
                                 <span style={{ color: "#7ACB59", marginLeft: "10px" }}>
                                     Dashboard
                                 </span>
-                            </h2>
-                            <p className="text-center fs-2" >Welcome to SS Track – Monitor, Manage, and Optimize</p>
-                            <p className="text-center fs-4" style={{marginTop: '-0.5%'}}>Gain full visibility into your team's productivity with real-time screenshot monitoring.</p>
-                            <div style={{ width: '100%', position: 'relative', paddingBottom: '40.25%', marginTop: '-4%', height: 0 }}>
+                            </h2> */}
+
+                            <p className="text-center fs-2" >Welcome to SSTrack – Monitor, Manage, and Optimize</p>
+                            <p className="text-center fs-4" style={{ marginTop: '-0.5%' }}>Gain full visibility into your team's productivity with real-time screenshot monitoring.</p>
+
+                            {/* <div style={{ width: '100%', position: 'relative', paddingBottom: '40.25%', marginTop: '-4%', height: 0 }}>
                                 <iframe
                                     src="https://www.youtube.com/embed/9jxJfVXtlDc?si=fVZgJsXmek6EE4lz"
-                                    title="SS Track Overview"
+                                    title="SSTrack Overview"
                                     style={{
                                         position: 'absolute',
                                         top: '20%',
@@ -201,12 +213,12 @@ function DashboardSplash() {
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
                                 ></iframe>
-                            </div>
+                            </div> */}
 
                             <>
                                 <Row className="justify-content-center g-0 gx-0 mx-0 my-0">
                                     {/* LEFT CARD */}
-                                    <Col xs={12} md={6} lg={5} className="p-2 mt-lg-5 d-flex">
+                                    <Col xs={12} md={6} lg={5} className="p-2 d-flex">
                                         <Card className="shadow-sm w-100 h-100">
                                             <Card.Body className="h-100 d-flex flex-column justify-content-between text-start px-3 pt-3 pb-2">
                                                 <div>
@@ -240,7 +252,7 @@ function DashboardSplash() {
                                     </Col>
 
                                     {/* RIGHT CARD */}
-                                    <Col xs={12} md={6} lg={5} className="p-2 mt-lg-5 d-flex">
+                                    <Col xs={12} md={6} lg={5} className="p-2 d-flex">
                                         <Card className="shadow-sm w-100 h-100" style={{ cursor: 'pointer' }} onClick={() => navigate("/team")}>
                                             <Card.Img
                                                 variant="top"
@@ -257,9 +269,7 @@ function DashboardSplash() {
                                                 </h3> */}
                                                 <h3
                                                     className="invite-heading"
-                                                    onClick={() => {
-                                                        navigate("/team", { state: { scrollTo: "team" } });
-                                                    }}
+                                                    onClick={goToTeam}
                                                 >
                                                     Invite Employees
                                                 </h3>
@@ -270,12 +280,39 @@ function DashboardSplash() {
                                             </Card.Body>
                                         </Card>
                                     </Col>
+
                                 </Row>
                             </>
                             <div className="d-flex justify-content-center container p-0 py-3">
-                                <button className="btn btn-success" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59' }} onClick={goToDashboard}>
+                                {/* <button className="btn btn-success" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59' }} onClick={goToDashboard}>
                                     Dashboard →
-                                </button>
+                                </button> */}
+                                <div className="d-flex justify-content-center flex-wrap gap-3 container p-0 py-3">
+                                    <button
+                                        className="btn btn-success"
+                                        style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59' }}
+                                        onClick={goToTraingCenter}
+                                    >
+                                        Training Center →
+                                    </button>
+
+                                    <button
+                                        className="btn btn-success"
+                                        style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59' }}
+                                        onClick={goToDashboard}
+                                    >
+                                        Dashboard →
+                                    </button>
+
+                                    <button
+                                        className="btn btn-success"
+                                        style={{ padding: '0.75rem 1.5rem', backgroundColor: '#7ACB59' }}
+                                        onClick={goToTeam}
+                                    >
+                                        Invite Employees →
+                                    </button>
+                                </div>
+
                             </div>
                         </Container>
 
@@ -298,8 +335,8 @@ function DashboardSplash() {
                                         Dashboard
                                     </span>
                                 </h2>
-                                <p className="text-center mb-1 fs-2">Welcome to SS Track – Work Smarter, Not Harder!</p>
-                                <p className="text-center mb-1 fs-4" >SS Track helps you stay productive and transparent while working.</p>
+                                <p className="text-center mb-1 fs-2">Welcome to SSTrack – Work Smarter, Not Harder!</p>
+                                <p className="text-center mb-1 fs-4" >SSTrack helps you stay productive and transparent while working.</p>
                                 <div className="d-flex justify-content-center" style={{ marginTop: '-2%' }}>
                                     {/* <div style={{ width: '100%', maxWidth: '800px', aspectRatio: '16/9' }}>
                                         <iframe
@@ -307,7 +344,7 @@ function DashboardSplash() {
                                             height="100%"
                                             // src="https://youtu.be/qGjzXQ_SLH4"
                                             src="https://www.youtube.com/embed/qGjzXQ_SLH4"
-                                            title="SS Track Overview"
+                                            title="SSTrack Overview"
                                             frameBorder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowFullScreen
@@ -446,7 +483,7 @@ function DashboardSplash() {
                                                         height="100%"
                                                         // src="https://youtu.be/qGjzXQ_SLH4"
                                                         src="https://www.youtube.com/embed/qGjzXQ_SLH4"
-                                                        title="SS Track Overview"
+                                                        title="SSTrack Overview"
                                                         frameBorder="0"
                                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                                         allowFullScreen

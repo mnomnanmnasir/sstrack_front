@@ -20,7 +20,7 @@ function UserSettings() {
     const [loading2, setLoading2] = useState(false)
     const [employess, setEmployess] = useState(null);
     const [id, setId] = useState(null);
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     let token = localStorage.getItem('token');
     let user = jwtDecode(JSON.stringify(token));
     let headers = {

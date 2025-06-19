@@ -25,7 +25,7 @@ function UserDashboardSection({ settingsTabs }) {
     const [notifications, setNotifications] = useState([]); // store fetched notifications
     const [prevNotificationIds, setPrevNotificationIds] = useState([]);
     const notificationRef = useRef(null);
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (notificationRef.current && !notificationRef.current.contains(event.target)) {
@@ -85,10 +85,10 @@ function UserDashboardSection({ settingsTabs }) {
         const fetchNotifications = async () => {
             const apiUrl =
                 items?.userType === "user"
-                    ? "https://myuniversallanguages.com:9093/api/v1/timetrack/getUserNotifications"
+                    ? `${apiUrl}/timetrack/getUserNotifications`
                     : items?.userType === "manager"
-                        ? "https://myuniversallanguages.com:9093/api/v1/manager/getManagerNotifications"
-                        : "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAdminNotifications";
+                        ? `${apiUrl}/manager/getManagerNotifications`
+                        : `${apiUrl}/superAdmin/getAdminNotifications`;
 
             try {
                 const response = await axios.get(apiUrl, {
@@ -179,7 +179,7 @@ function UserDashboardSection({ settingsTabs }) {
     const fetchLeaveRequests = async () => {
         try {
             const userId = items._id; // Current user ID
-            const apiUrl = `https://myuniversallanguages.com:9093/api/v1/superAdmin/getAllLeaveRequests`;
+            const apiUrl = `${apiUrl}/superAdmin/getAllLeaveRequests`;
 
             const response = await axios.get(apiUrl, {
                 headers: {
@@ -218,7 +218,7 @@ function UserDashboardSection({ settingsTabs }) {
             if (items?.userType === "user" || items?.userType === 'manager' && items?._id) {
                 try {
                     const userId = items._id; // Extract userId dynamically
-                    const apiUrl = `https://myuniversallanguages.com:9093/api/v1/timetrack/remainingBreak/${userId}`;
+                    const apiUrl = `${apiUrl}/timetrack/remainingBreak/${userId}`;
 
                     console.log("Fetching Remaining Break Time for User ID:", userId);
                     console.log("API URL:", apiUrl);
@@ -302,7 +302,7 @@ function UserDashboardSection({ settingsTabs }) {
                     {items?.userType === "user" || items?.userType === "manager" && <div className={location.pathname.includes("/timeline") ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
                         <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate(`/timeline/${items?._id}`)}>Timeline</p>
                     </div>}
-                
+
                     {/* {(items?.userType === "owner" || items?.userType === "manager" || items?.userType === "admin") && ( */}
                     <div
                         id="Attendence"

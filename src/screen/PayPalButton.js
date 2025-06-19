@@ -4,7 +4,7 @@ import axios from 'axios';
 
 
 const PayPalButton = ({ setMerchantId, selectedPlan }) => {
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const amount = selectedPlan?.costPerUser; // Dynamically set amount based on selectedPlan
     useEffect(() => {
         // Load the PayPal SDK script
@@ -44,7 +44,7 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
                             // Retrieve the token from localStorage
                             const token = localStorage.getItem('token');
 
-                            const res = await axios.post("https://myuniversallanguages.com:9093/api/v1/owner/upgradePayPal", requestData, {
+                            const res = await axios.post(`${apiUrl}/owner/upgradePayPal`, requestData, {
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${token}` // Send the token in the headers

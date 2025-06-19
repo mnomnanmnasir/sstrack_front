@@ -45,7 +45,7 @@ const ManualLeaveModal = ({ show, handleClose, fetchLeaveRequests, allUsers }) =
         }));
     };
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     let headers = {
         Authorization: 'Bearer ' + token,
@@ -87,7 +87,7 @@ const ManualLeaveModal = ({ show, handleClose, fetchLeaveRequests, allUsers }) =
 
         try {
             const response = await axios.post(
-                `https://myuniversallanguages.com:9093/api/v1/superAdmin/addmanualLeave`,
+                `${apiUrl}/superAdmin/addmanualLeave`,
                 payload,
                 {
                     headers: {

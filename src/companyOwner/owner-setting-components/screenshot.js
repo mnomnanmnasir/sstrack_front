@@ -14,7 +14,7 @@ function Screenshot() {
     let headers = {
         Authorization: 'Bearer ' + token,
     }
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     async function getData() {
         try {

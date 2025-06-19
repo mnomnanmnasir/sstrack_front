@@ -2,52 +2,44 @@ import { useState, useMemo, useEffect } from "react";
 import Select from "react-select";
 
 const EmployeeFilter = ({ employees, onFilter, showLabel = true }) => {
-    // Extract unique timezones with their offsets
-    // const timezones = [...new Map(
-    //     employees.map(emp => [emp.timezone, {
-    //         value: emp.timezone,
-    //         label: `${emp.timezone} (UTC ${emp.timezoneOffset})`
-    //     }])
-    // ).values()];
-    // ✅ Filter out employees with undefined or null timezone
-    const filteredTimezones = (employees || [])
+    // Step 1: Safely extract valid timezone entries
+    const filteredTimezones = (Array.isArray(employees) ? employees : [])
         .filter(emp => emp?.timezone && emp?.timezoneOffset !== undefined)
         .map(emp => ({
             value: emp.timezone,
             label: `${emp.timezone} (UTC ${emp.timezoneOffset >= 0 ? `+${emp.timezoneOffset}` : emp.timezoneOffset})`
         }));
 
+    // Step 2: Create unique timezone options
     const timezones = [...new Map(filteredTimezones.map(tz => [tz.value, tz])).values()];
 
-    // Set the first timezone as default if available
+    // Step 3: Set initial selected timezone
     const [selectedTimezone, setSelectedTimezone] = useState(timezones.length > 0 ? timezones[0] : null);
 
-    // const [selectedTimezone, setSelectedTimezone] = useState(timezones.length > 0 ? timezones[0] : null);
-
-    // Filter employees efficiently using useMemo
+    // Step 4: Memoize filtered employees by selected timezone
     const filteredEmployees = useMemo(() => {
-        if (!selectedTimezone) return employees || [];
-        return (employees || []).filter(emp => emp?.timezone === selectedTimezone?.value);
-    }, [selectedTimezone, employees]);    
-    
-    // const filteredEmployees = useMemo(() => {
-    //     return employees.filter(emp => emp.timezone === selectedTimezone?.value);
-    // }, [selectedTimezone, employees]);
+        const list = Array.isArray(employees) ? employees : [];
+        if (!selectedTimezone) return list;
+        return list.filter(emp => emp?.timezone === selectedTimezone?.value);
+    }, [selectedTimezone, employees]);
 
-    // Call onFilter only when filteredEmployees change
+    // Step 5: Call parent filter handler on change
     useEffect(() => {
-        onFilter(filteredEmployees);
-    }, [filteredEmployees]);
+        if (typeof onFilter === "function") {
+            console.log("✅ Filtered employees:", filteredEmployees);  // Optional: remove in production
+            onFilter(filteredEmployees);
+        }
+    }, [filteredEmployees, onFilter]);
 
+    // Step 6: Render
     return (
         <div>
             {showLabel && <p className="settingScreenshotIndividual">Please Select Timezone</p>}
-            {showLabel && <div className="settingScreenshotDiv" style={{ marginTop: 10, marginBottom: 10 }}>
-                {/* <p>Break time allows employees to take short pauses during their work hours.</p> */}
-                <p>
-                    This dropdown allows you to filter users based on their time zone.
-                </p>
-            </div>}
+            {showLabel && (
+                <div className="settingScreenshotDiv" style={{ marginTop: 10, marginBottom: 10 }}>
+                    <p>This dropdown allows you to filter users based on their time zone.</p>
+                </div>
+            )}
             <Select
                 options={timezones}
                 value={selectedTimezone}
@@ -57,14 +49,14 @@ const EmployeeFilter = ({ employees, onFilter, showLabel = true }) => {
                 styles={{
                     control: (base) => ({
                         ...base,
-                        width: "200px",  // ✅ Fix width to prevent resizing
-                        minWidth: "200px",  // ✅ Ensure minimum width
+                        width: "200px",
+                        minWidth: "200px",
                         maxWidth: "200px",
-                        fontSize: 13  // ✅ Ensure maximum width
+                        fontSize: 13
                     }),
                     menu: (base) => ({
                         ...base,
-                        width: "200px",  // ✅ Fix dropdown menu width
+                        width: "200px",
                         minWidth: "200px",
                         maxWidth: "200px",
                         fontSize: 13

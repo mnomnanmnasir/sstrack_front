@@ -68,7 +68,7 @@ function SaSidebar({ selectedItem, onSelectItem }) {
         onClose={handleDrawerToggle}
       >
         {/* Logo */}
-        <img src={Logo} alt="SS Track Logo" style={{ width: '150px', marginBottom: '20px' }} />
+        <img src={Logo} alt="SSTrack Logo" style={{ width: '150px', marginBottom: '20px' }} />
 
         {/* User Info */}
         <Avatar
@@ -137,7 +137,7 @@ function SaSidebar({ selectedItem, onSelectItem }) {
         <div style={{ marginTop: 'auto', padding: '10px', textAlign: 'center' }}>
           <Divider style={{ backgroundColor: '#ffffff', marginBottom: '10px' }} />
           <Typography variant="caption" style={{ color: '#b0bec5' }}>
-            Copyright © 2025 By SS Track. <br /> All Rights Reserved
+            Copyright © 2025 By SSTrack. <br /> All Rights Reserved
           </Typography>
         </div>
       </Drawer>

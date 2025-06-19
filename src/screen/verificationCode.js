@@ -9,7 +9,7 @@ import Header from '../screen/component/header';
 
 function VerificationCode() {
     const navigate = useNavigate();
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     // const { enqueueSnackbar } = useSnackbar();
 
     const [loading, setLoading] = useState(false);

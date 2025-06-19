@@ -4,6 +4,8 @@ import apple from '../../images/apple-Screenshot.png';
 import chrome from '../../images/chrome.svg';
 import laptopandmob from '../../images/laptopImg.svg';
 import microsoftlogo from '../../images/microsoft.svg';
+import appStore from '../../images/appStore.png';
+
 import playstore from '../../images/playStore.svg';
 import NavigationBar from '../../screen/component/header'; // Import your NavigationBar component
 import NewHIW from '../LandingPage/Components/newHIW';
@@ -213,13 +215,13 @@ function NewHome({ isAuthenticated }) {
           </Row>
 
           {/* Platforms Logos */}
-          <Row className="justify-content-center text-center">
+          <Row className="justify-content-center text-center g-4">
             {/* <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
               <Link to='/download'>
                 <img src={microsoftlogo} alt="Microsoft" className="img-fluid platform-icon" style={{ height: "auto" }} />
               </Link>
             </Col> */}
-            <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
+            <Col xs={6} sm={4} md={2} className="mb-3 d-flex align-items-center justify-content-center">
               <Link to="https://apps.microsoft.com/detail/9N0C5QDB1LM7?hl=en-us&gl=PK&ocid=pdpshare" target="_blank" rel="noopener noreferrer">
                 <img
                   src={microsoftlogo}
@@ -229,27 +231,43 @@ function NewHome({ isAuthenticated }) {
                 />
               </Link>
             </Col>
-            <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
-              <Link to='/download'>
-                <img src={apple} alt="Apple" className="img-fluid platform-icon" style={{ height: "auto" }} />
-              </Link>
+
+
+            <Col xs={6} sm={4} md={2} className="mb-3 d-flex align-items-center justify-content-center">
+              <a href="https://apps.apple.com/pk/app/sstrack-m/id6744729834?mt=12" target="_blank" rel="noopener noreferrer">
+                <img src={apple} alt="iOS" className="img-fluid platform-icon" style={{ height: "auto" }} />
+              </a>
             </Col>
-            <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
+
+            <Col xs={6} sm={4} md={2} className="mb-3 d-flex align-items-center justify-content-center">
               <a href="https://play.google.com/store/apps/details?id=com.SSTRACK&pcampaignid=web_share" target="_blank">
                 <img src={playstore} alt="Google Play" className="img-fluid platform-icon" style={{ height: "auto" }} />
               </a>
             </Col>
-            <Col xs={6} sm={4} md={3} className="mb-3 d-flex align-items-center justify-content-center">
+
+            <Col xs={6} sm={4} md={2} className="mb-3 d-flex align-items-center justify-content-center">
               <img src={chrome} alt="Chrome Web Store" className="img-fluid platform-icon" style={{ height: "auto", cursor: 'pointer' }}
                 onClick={handleClick} // Directly calls handleClick without checking loading state
               />
             </Col>
+
+            <Col xs={6} sm={4} md={2} className="mb-3 d-flex align-items-center justify-content-center">
+              <a href="https://apps.apple.com/pk/app/sstrack/id6742237538" target="_blank" rel="noopener noreferrer">
+                <img
+                  src={appStore}
+                  alt="Download on the App Store"
+                  className="img-fluid platform-icon"
+                  style={{ height: "auto" }}
+                />
+              </a>
+            </Col>
+
           </Row>
 
         </Container>
         <img
           src={laptopandmob}
-          alt="Laptop and Mobile Mockup for Employee Monitoring Software"
+          alt="SS Track desktop and mobile dashboard for employee time tracking and productivity monitoring"
           style={{
             position: 'relative',
             top: '60%',

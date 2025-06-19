@@ -1,22 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
-import { Clock, LineChart, AlarmClock, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import axios from 'axios'
-import { Mail, MessageSquare, Info } from 'lucide-react';
-// import { Mail, MessageSquare, Info } from 'lucide-react';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import AdvancedFilters from './AdvancedFilter';
 import EmployeeTable from './EmployeeTable';
 import SummaryCards from './SummaryCards';
 
 
 export default function Dashboard() {
-    const [dateRange, setDateRange] = useState({ from: new Date('2025-04-07'), to: new Date('2025-04-14') });
-    const [comparisonDate, setComparisonDate] = useState(new Date('2025-04-06'));
-    // const [startDate, setStartDate] = useState("2025-04-08");
-    // const [endDate, setEndDate] = useState("2025-04-10");
     const getToday = () => {
         const today = new Date();
         return today.toISOString().split('T')[0]; // format: 'YYYY-MM-DD'
@@ -29,7 +21,6 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(false);
     const [allEmployees, setAllEmployees] = useState([]); // Full list
 
-    const [daySpecifier] = useState("this");
     const [employees, setEmployees] = useState([]); // replace static array
     const [groupId, setGroupId] = useState('');
     const [selectedUsers, setSelectedUsers] = useState([]);
@@ -40,12 +31,13 @@ export default function Dashboard() {
     const [groups, setGroups] = useState([]);
     const [totalAbsentDays, setTotalAbsentDays] = useState(0);
     const [totalLates, setTotalLate] = useState(0);
-
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     const fetchGroups = async () => {
+
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get("https://myuniversallanguages.com:9093/api/v1/userGroup", {
+            const response = await axios.get(`${apiUrl}/userGroup`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -73,23 +65,12 @@ export default function Dashboard() {
         if (startDate && endDate) {
             fetchPunctualityReport();
         }
-    }, [startDate, endDate]);
+    });
 
     useEffect(() => {
         fetchPunctualityReport();
         fetchGroups()
-    }, [selectedUsers]);
-
-    // const handleUserChange = (e) => {
-    //     const selected = Array.from(e.target.selectedOptions, (option) => option.value);
-
-    //     if (selected.includes("")) {
-    //         const allIds = employees.map((emp) => emp.userId);
-    //         setSelectedUsers(allIds);
-    //     } else {
-    //         setSelectedUsers(selected);
-    //     }
-    // };
+    });
 
     const handleUserChange = (e) => {
         const selected = e.target.value;
@@ -117,7 +98,7 @@ export default function Dashboard() {
                 params.append("userId", selectedUsers.join(','));
             }
 
-            const url = `https://myuniversallanguages.com:9093/api/v1/owner/getPunctualityReport?${params.toString()}`;
+            const url = `${apiUrl}/owner/getPunctualityReport?${params.toString()}`;
 
             const response = await axios.get(url, {
                 headers: {
@@ -156,7 +137,7 @@ export default function Dashboard() {
     useEffect(() => {
         fetchPunctualityReport();
         fetchGroups(); // fetching report functions
-    }, []);
+    });
 
     const getAllowedUserIds = () => {
         if (!groupId) return null; // No filter
@@ -272,9 +253,6 @@ export default function Dashboard() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Define margin-left conditionally based on window width
-    const marginLeft = windowWidth >= 1280 ? '3%' : '0%'; // 2% margin for screen widths >=1280px, else 5%
-
     return (
         <div className="container">
             {/* Header Section */}
@@ -323,8 +301,6 @@ export default function Dashboard() {
                                 <div className="text-danger fw-medium small">
                                     {totalAbsentDays} <span className="ms-1">📉</span>
                                 </div>
-
-                                {/* <div className="text-danger fw-medium small">+0% <span className="ms-1">📈</span></div> */}
                             </div>
                         </div>
                     </div>

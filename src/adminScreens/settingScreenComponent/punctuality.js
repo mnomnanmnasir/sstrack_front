@@ -3,15 +3,14 @@ import moment from "moment";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 import 'react-datepicker/dist/react-datepicker.css';
+import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useDispatch, useSelector } from "react-redux";
 import EmployeeFilter from "../../screen/component/EmployeeFilter";
 import CompanyEmployess from "../../screen/component/punctualitybreaktime";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 
 function Screenshot() {
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     let token = localStorage.getItem('token');
     let headers = {
         Authorization: 'Bearer ' + token,
@@ -106,7 +105,7 @@ function Screenshot() {
         try {
             setLoading(true);
             const response = await fetch(
-                `https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`,
+                `${apiUrl}/superAdmin/employees`,
                 { headers }
             );
             const json = await response.json();
@@ -150,9 +149,15 @@ function Screenshot() {
 
 
     const handleTimezoneSave = async (timezone) => {
-        const selectedEmployees = (filter.length > 0 ? filter : employees).filter(emp =>
-            emp.timezone?.toLowerCase() === timezone.toLowerCase()
+        const baseList = Array.isArray(filter) && filter.length > 0
+            ? filter
+            : Array.isArray(employees)
+                ? employees
+                : [];
+        const selectedEmployees = baseList.filter(emp =>
+            emp?.timezone?.toLowerCase() === timezone.toLowerCase()
         );
+
 
         if (selectedEmployees.length === 0) {
             enqueueSnackbar("No employees found for selected timezone", { variant: "warning" });
@@ -172,7 +177,7 @@ function Screenshot() {
 
         try {
             const response = await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
+                `${apiUrl}/superAdmin/addPunctualityRule`,
                 requestData,
                 {
                     headers: {
@@ -201,9 +206,11 @@ function Screenshot() {
     };
 
     const handleFilteredEmployees = (filteredEmployees) => {
-        console.log("Filtered Employees:", filteredEmployees);
-        setfilter(filteredEmployees)
+        const safeFiltered = Array.isArray(filteredEmployees) ? filteredEmployees : [];
+        console.log("Filtered Employees:", safeFiltered);
+        setfilter(safeFiltered);
     };
+
     // console.log(" Employees:", employees);
     const punctualityCards = Object.entries(globalPunctuality).map(([tz, times]) => ({
         timezone: tz,

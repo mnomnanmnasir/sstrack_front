@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 
 const CurrencyConverter = ({ userId, payrate, onPayrateUpdate }) => {
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     let token = localStorage.getItem("token");
     let headers = {
         Authorization: "Bearer " + token,
@@ -35,7 +35,6 @@ const CurrencyConverter = ({ userId, payrate, onPayrateUpdate }) => {
                 // <input type="number" name="amount" placeholder="Set your pay amount" value="${formData.amount || ''}">
                 `<select name="currency" class="swal2-input" id="swal-currency-select" value="${formData.currency}">
            <option value="USD">USD</option>
-           <option value="CAD">CAD</option>
            <option value="QAR">QAR</option>
            <option value="PKR">PKR</option>
            <option value="SAR">SAR</option>

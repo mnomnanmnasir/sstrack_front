@@ -8,7 +8,7 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
   const [userType, setUserType] = useState(null);
   const [projectOptions, setProjectOptions] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -34,9 +34,9 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
         if (!token) return;
 
         const headers = { Authorization: `Bearer ${token}` };
-        const url = `https://myuniversallanguages.com:9093/api/v1/superAdmin/getProjects`;
+        const url = `${apiUrl}/superAdmin/getProjects`;
 
-        const response = await axios.patch(url, {}, { headers }); // Changed to PATCH with empty body
+        const response = await axios.get(url, {}, { headers }); // Changed to PATCH with empty body
 
         console.log("Projects API Response:", response.data);
 
@@ -72,33 +72,33 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
         onProjectDataFetched?.(undefined);
         return;
       }
-    
+
       const token = localStorage.getItem("token");
       if (!token || !userType) {
         console.error("User type or token is missing");
         return;
       }
-    
+
       try {
         const apiUrl =
           userType === "manager"
-            ? `https://myuniversallanguages.com:9093/api/v1/manager/day?daySpecifier=this&projectId=${selectedProject.value}`
-            : `https://myuniversallanguages.com:9093/api/v1/owner/day?daySpecifier=this&projectId=${selectedProject.value}`;
-    
+            ? `${apiUrl}/manager/day?daySpecifier=this&projectId=${selectedProject.value}`
+            : `${apiUrl}/owner/day?daySpecifier=this&projectId=${selectedProject.value}`;
+
         console.log(`Fetching project data from: ${apiUrl}`);
-    
+
         const response = await axios.patch(apiUrl, {}, {
           headers: { Authorization: `Bearer ${token}` }, // ✅ Correct placement
         });
-    
+
         console.log("Project API Response:", response.data);
-    
+
         onProjectDataFetched?.(response.data);
       } catch (error) {
         console.error("Error fetching project data:", error);
       }
     };
-    
+
 
     fetchProjectData();
   }, [selectedProject, userType]);

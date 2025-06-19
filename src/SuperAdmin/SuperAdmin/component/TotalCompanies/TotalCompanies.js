@@ -6,7 +6,7 @@ import TopBar from '../topBar';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import { useSnackbar } from 'notistack';
 
-
+const apiUrl = process.env.REACT_APP_API_URL;
 function TotalCompanies() {
   const [companies, setCompanies] = useState([]); // State for companies data
   const [selectedCompany, setSelectedCompany] = useState(null);
@@ -54,7 +54,7 @@ function TotalCompanies() {
         return;
       }
 
-      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/companies', {
+      const response = await axios.get(`${apiUrl}/SystemAdmin/companies`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -72,6 +72,9 @@ function TotalCompanies() {
           ownerEmail: company.users.find(u => u.userType === 'owner')?.email || 'No email',
           ownerName: company.users.find(u => u.userType === 'owner')?.name || 'No Owner',
           phoneNumber: company.users.find(u => u.userType === 'owner')?.phoneNumber || 'No phone number',
+          city: company.users.find(u => u.userType === 'owner')?.city || 'No city',
+          regionName: company.users.find(u => u.userType === 'owner')?.regionName || 'No region Name',
+          country: company.users.find(u => u.userType === 'owner')?.country || 'No country',
 
           // phoneNumber: user.phoneNumber || 'No phone number',
           type: 'suspended', // Indicate that it's a suspended company
@@ -96,6 +99,9 @@ function TotalCompanies() {
           ownerEmail: company.users.find(u => u.userType === 'owner')?.email || 'No email',
           ownerName: company.users.find(u => u.userType === 'owner')?.name || 'No Owner',
           phoneNumber: company.users.find(u => u.userType === 'owner')?.phoneNumber || 'No phone number',
+          city: company.users.find(u => u.userType === 'owner')?.city || 'No city',
+          regionName: company.users.find(u => u.userType === 'owner')?.regionName || 'No region Name',
+          country: company.users.find(u => u.userType === 'owner')?.country || 'No country',
 
           type: 'other', // Indicate that it's another company
           users: company.users.map((user) => ({
@@ -117,6 +123,10 @@ function TotalCompanies() {
           companyCreatedAt: company.companyCreatedAt || '-', // ✅ Add this line
           companyHours: company.companyHours || '0h 0m',  // ✅ Add this line
           phoneNumber: company.users.find(u => u.userType === 'owner')?.phoneNumber || 'No phone number',
+          city: company.users.find(u => u.userType === 'owner')?.city || 'No city',
+          regionName: company.users.find(u => u.userType === 'owner')?.regionName || 'No region Name',
+          country: company.users.find(u => u.userType === 'owner')?.country || 'No country',
+
           email: company.users[0]?.email || 'No email',
           type: 'archive', // Indicate that it's another company
           users: company.users.map((user) => ({
@@ -161,7 +171,7 @@ function TotalCompanies() {
 
     try {
       const response = await axios.post(
-        `https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
+        `${apiUrl}/SystemAdmin/updateCompany/${selectedCompanyId}`,
         {
           isArchived: true,
           suspended: false,
@@ -212,7 +222,7 @@ function TotalCompanies() {
       // Toggle the accessBlock value
       const updatedAccessBlock = !selectedCompany?.accessBlock;
       const response = await axios.post(
-        `https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
+        `${apiUrl}/SystemAdmin/updateCompany/${selectedCompanyId}`,
         {
           isArchived: false,
           suspended: false,
@@ -265,7 +275,7 @@ function TotalCompanies() {
 
       // console.log('unupdated',updatedSuspended, '............',selectedCompany.type)
       const response = await axios.post(
-        `https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
+        `${apiUrl}/SystemAdmin/updateCompany/${selectedCompanyId}`,
         {
           isArchived: false,
           suspended: updatedSuspended,
@@ -320,7 +330,7 @@ function TotalCompanies() {
       const token = localStorage.getItem('token_for_sa');
       if (!token) return;
 
-      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/companiesHours', {
+      const response = await axios.get('${apiUrl}/SystemAdmin/companiesHours', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -484,7 +494,7 @@ function TotalCompanies() {
 
                           try {
                             const res = await axios.patch(
-                              'https://myuniversallanguages.com:9093/api/v1/SystemAdmin/mergeCompanies',
+                              '${apiUrl}/SystemAdmin/mergeCompanies',
                               {
                                 sourceCompanyId,
                                 targetCompanyId,
@@ -646,6 +656,8 @@ function TotalCompanies() {
                               <Typography variant="body2" sx={{ color: '#555', fontWeight: 600 }}>
                                 {company.companyCreatedAt ? new Date(company.companyCreatedAt).toISOString().split("T")[0] : 'N/A'}
                               </Typography>
+
+
                             </Box>
                           </Box>
                         </Box>
@@ -687,46 +699,88 @@ function TotalCompanies() {
             </>
           )}
 
+
           {selectedCompany && (
             // Selected company details rendering
             <Box>
               <Box
                 sx={{
                   display: 'flex',
+                  justifyContent: 'space-between',  // Align left and right sides
                   alignItems: 'center',
-                  gap: '8px',
                   marginBottom: '24px',
-                  cursor: 'pointer',
                 }}
-                onClick={handleBackClick} // Trigger the back function when clicked
               >
-                {/* Left Arrow Icon */}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  style={{
-                    color: '#333',
-                  }}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
+                {/* Left Side: Back Button and Title */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={handleBackClick}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    style={{ color: '#333' }}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
 
-                {/* Header Text */}
-                <Typography
-                  variant="h6"
-                  fontWeight="bold"
-                  sx={{
-                    color: '#2E3A59',
-                    fontSize: '18px',
-                  }}
-                >
-                  Company Details
-                </Typography>
+                  <Typography variant="h6" fontWeight="bold" sx={{ color: '#2E3A59', fontSize: '18px' }}>
+                    Company Details
+                  </Typography>
+                </Box>
+
+                {/* Right Side: 3 Buttons */}
+                <Box sx={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: '#FFEEEE',
+                      color: '#FF5A5A',
+                      borderRadius: '8px',
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      padding: '8px 16px',
+                      '&:hover': { backgroundColor: '#FFCCCC' },
+                    }}
+                    onClick={() => handleDelete(selectedCompany.id)}
+                  >
+                    Archive
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: '#E9F8EA',
+                      color: '#4CAF50',
+                      borderRadius: '8px',
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      padding: '8px 16px',
+                      '&:hover': { backgroundColor: '#DFF6E4' },
+                    }}
+                    onClick={() => handleBlock(selectedCompany.id)}
+                  >
+                    {selectedCompany.accessBlock ? `Unblock Access` : `Block Access`}
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: '#F0F4FF',
+                      color: '#1E3A8A',
+                      borderRadius: '8px',
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      padding: '8px 16px',
+                      '&:hover': { backgroundColor: '#DFF6E4' },
+                    }}
+                    onClick={() => handleSuspend(selectedCompany.id)}
+                  >
+                    {selectedCompany?.type === "suspended" ? `Unsuspended` : `Suspended`}
+                  </Button>
+                </Box>
               </Box>
 
               {/* Company Details Header */}
@@ -758,6 +812,14 @@ function TotalCompanies() {
                   </Typography>
 
                   <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
+                    Email: {selectedCompany.ownerEmail}
+                  </Typography>
+
+                  <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
+                    Phone Number: {selectedCompany.phoneNumber}
+                  </Typography>
+
+                  <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
                     Total Users: {selectedCompany.users.length}
                   </Typography>
                   <Typography
@@ -775,64 +837,52 @@ function TotalCompanies() {
                     {/* Total Users: {selectedCompany.users.length} */}
                     Created At: {selectedCompany.companyCreatedAt ? new Date(selectedCompany.companyCreatedAt).toLocaleDateString() : 'N/A'}
                   </Typography>
+
+                  {/* <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
+                    City: {selectedCompany.city}
+                  </Typography>
+
+                  <Typography variant="body1" sx={{ color: '#555', marginBottom: '8px' }}>
+                    Country: {selectedCompany.country}
+                  </Typography> */}
+
                 </Box>
 
                 {/* Right Section with Buttons */}
-                <Box sx={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: '#FFEEEE',
-                      color: '#FF5A5A',
-                      borderRadius: '8px',
-                      textTransform: 'none',
-                      fontWeight: 'bold',
-                      padding: '8px 16px',
-                      '&:hover': {
-                        backgroundColor: '#FFCCCC',
-                      },
-                    }}
-                    onClick={() => handleDelete(selectedCompany.id)}
-                  >
-                    Archive
-                  </Button>
-                  {/* block Company */}
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: '#E9F8EA',
-                      color: '#4CAF50',
-                      borderRadius: '8px',
-                      textTransform: 'none',
-                      fontWeight: 'bold',
-                      padding: '8px 16px',
-                      '&:hover': {
-                        backgroundColor: '#DFF6E4',
-                      },
-                    }}
-                    onClick={() => handleBlock(selectedCompany.id)}
-                  >
-                    {selectedCompany.accessBlock ? `Unblock Access` : `Block Access`}
-                  </Button>
-                  {/* suspend Company */}
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: '#F0F4FF',  // Light Blue Shade
-                      color: '#1E3A8A',  // Dark Blue Shade
-                      borderRadius: '8px',
-                      textTransform: 'none',
-                      fontWeight: 'bold',
-                      padding: '8px 16px',
-                      '&:hover': {
-                        backgroundColor: '#DFF6E4',
-                      },
-                    }}
-                    onClick={() => handleSuspend(selectedCompany.id)}
-                  >
-                    {selectedCompany?.type === "suspended" ? `Unsuspended` : `Suspended`}
-                  </Button>
+                <Box sx={{ textAlign: 'right', minWidth: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-end', gap: '8px' }}>
 
+                  {/* <Typography variant="body1" sx={{ color: '#4CAF50', fontWeight: 600 }}>
+                    City: {selectedCompany.city}
+                  </Typography> */}
+                  {/* City Row */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Typography variant="body1" sx={{ color: '#555', fontWeight: 'bold' }}>
+                      City:
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: '#4CAF50', fontWeight: 600 }}>
+                      {selectedCompany.city}
+                    </Typography>
+                  </Box>
+
+                  {/* Region Name Row */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Typography variant="body1" sx={{ color: '#555', fontWeight: 'bold' }}>
+                      Region Name:
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: '#4CAF50', fontWeight: 600 }}>
+                      {selectedCompany.regionName}
+                    </Typography>
+                  </Box>
+
+                  {/* Country Name Row */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Typography variant="body1" sx={{ color: '#555', fontWeight: 'bold' }}>
+                      Country:
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: '#4CAF50', fontWeight: 600 }}>
+                      {selectedCompany.country}
+                    </Typography>
+                  </Box>
                 </Box>
               </Box>
 
@@ -866,6 +916,10 @@ function TotalCompanies() {
                         <Typography variant="body2" sx={{ color: '#555', marginBottom: '4px' }}>
                           📧 {user.email}
                         </Typography>
+                        {user.role === 'owner' && user.phoneNumber && (
+                          <Typography variant="body2" sx={{ color: '#555' }}><PhoneOutlinedIcon fontSize="small" /> {user.phoneNumber}</Typography>
+                        )}
+
                         <Typography variant="body2" sx={{ color: '#888' }}>
                           Created At: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                         </Typography>

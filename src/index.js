@@ -1,4 +1,3 @@
-// <<<<<<< HEAD
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -8,12 +7,7 @@ import { store } from './store/store';
 // App.js or index.js
 
 import { QueryClient, QueryClientProvider } from 'react-query';
-// ReactDOM.render(
-//   <QueryClientProvider client={queryClient}>
-//     <MyComponent />
-//   </QueryClientProvider>,
-//   document.getElementById('root')
-// );
+
 const queryClient = new QueryClient();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

@@ -6,7 +6,7 @@ import ManagersWebDesktop from '../images/User_Dashboard.png';
 import details_timeline from '../images/detail_timeline.png';
 import show_reports from '../images/show_Reports.png';
 import NewHeader from './component/Header/NewHeader';
-import { useNavigate, Link } from 'react-router-dom';
+import {Link } from 'react-router-dom';
 
 const HowItWorks = () => {
   const steps = [
@@ -16,9 +16,7 @@ const HowItWorks = () => {
       description: (
         <>
           <p>
-            After selecting a plan, the owner or admin invites employees to the company team.
-            Once assigned, managers can track the timeline of their designated employees,
-            but they cannot invite new team members.
+            Invite employees to the company team and define access controls. Ideal for hybrid workforce coordination.
           </p>
           <button
             style={{
@@ -41,11 +39,10 @@ const HowItWorks = () => {
     },
     {
       id: 2,
-      title: "Employee runs desktop application",
+      title: "Employee Runs Desktop Application",
       description: (
         <>
-          Employees install the SSTRACK.IO desktop application, log in, select a project, and press the Start button to begin tracking time and screenshots.
-          The application works even when offline, syncing data when the connection is restored.{" "}
+          Employees log in, select a project, and begin tracking with our lightweight desktop application that supports offline syncing.{" "}
           <Link to="/download" style={{ color: "#28659C", textDecoration: "underline", fontWeight: "bold" }}>
             Download Desktop Application
           </Link>
@@ -55,12 +52,11 @@ const HowItWorks = () => {
     },
     {
       id: 3,
-      title: "Desktop Application tracks time and screenshots",
+      title: "Desktop Application Tracks Time and Screenshots",
       description: (
         <>
           <p>
-            The desktop application records work time and takes screenshots at random intervals until the Stop button is pressed.
-            If Autostart is enabled, tracking begins when employees start working and stops automatically if no activity is detected.
+            Real-time activity monitoring and screenshot tracking help maintain accountability and task proof.
           </p>
           <button
             style={{
@@ -88,11 +84,11 @@ const HowItWorks = () => {
     },
     {
       id: 4,
-      title: "Owner, Admin and Manager can see all the users on their dashboard",
+      title: "Owner, Admin and Manager View Dashboards",
       description: (
         <>
           <p>
-            "The desktop application continuously sends time tracking data and screenshots to the dashboard so Owner, Admin and Manager can monitor employees in real-time via the online dashboard."
+            Track team productivity, attendance, and project timelines via real-time dashboards and reports.
           </p>
           <button
             style={{
@@ -120,11 +116,11 @@ const HowItWorks = () => {
     },
     {
       id: 5,
-      title: "Full details on the timeline",
+      title: "Full Details on the Timeline",
       description: (
         <>
           <p>
-            "Administrator can view detailed timelines, track time spent on projects, monitor application usage, and see screenshots taken throughout the day. Employees can also add offline time manually."
+            View detailed employee logs, screenshots, and manually entered time across projects.
           </p>
           <button
             style={{
@@ -152,11 +148,11 @@ const HowItWorks = () => {
     },
     {
       id: 6,
-      title: "Get reports you need, at a glance",
+      title: "Reports at a Glance",
       description: (
         <>
           <p>
-            "View time and cost reports, filter by employees or date range, and export detailed timesheets to Excel. Employees can also generate invoices based on their tracked time."
+            Export filtered timesheets, download project reports, or generate payroll-ready summaries in one click.
           </p>
           <button
             style={{
@@ -206,7 +202,7 @@ const HowItWorks = () => {
                   <div key={step.id} className="col-12">
                     <div className="row d-flex flex-column flex-md-row align-items-center mb-4">
                       <div className="col-md-6 text-start" style={{ color: '#0E4772' }}>
-                        <h3 className="fw-bold">{step.id}. {step.title}</h3>
+                        <h2 className="fw-bold">{step.id}. {step.title}</h2>
                         <p className="text-muted">{step.description}</p>
                       </div>
                       <div className="col-md-6 px-4 text-center">

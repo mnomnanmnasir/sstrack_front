@@ -27,13 +27,13 @@ const Pricing = () => {
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
-
+    
     const plans = [
         { id: 1, name: ' Start your free trial' },
         { id: 2, name: 'Standard' },
         { id: 3, name: 'Premium' }
     ];
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const handleApply2 = async () => {
         setisloading(true)
         if (!email || !phoneNo || !companyName || !userCount || !joinTiming) {
@@ -54,7 +54,7 @@ const Pricing = () => {
         try {
             // Make API call with headers
             const response = await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/owner/requestEnterprise",
+                `${apiUrl}/owner/requestEnterprise`,
                 formData,
                 {
                     headers: {
@@ -825,7 +825,7 @@ const Pricing = () => {
                                 </Form>
                             </>
                         ) : (
-                            <p className="fs-5 text-center" style={{color:"#7ACB59"}}>Please login first to apply for the Enterprise Plan.</p>
+                            <p className="fs-5 text-center" style={{ color: "#7ACB59" }}>Please login first to apply for the Enterprise Plan.</p>
                         )}
                     </Modal.Body>
                     {token &&

@@ -3,7 +3,6 @@ import line from "../images/line.webp";
 import check from "../images/online.webp";
 import screenshot from "../images/whiteImages.PNG";
 import setting from "../images/setting.webp";
-// import { useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
 import useLoading from "../hooks/useLoading";
@@ -11,19 +10,17 @@ import axios from "axios";
 import offline from "../images/not-active.svg";
 import moment from 'moment-timezone';
 import Joyride from 'react-joyride';
-// import socket from '../io';
-import { io } from 'socket.io-client'; // Correct import
 import { useSocket } from '../io'; // Correct import
 import { useQuery } from 'react-query';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import jwtDecode from "jwt-decode";
 
 const fetcher = (url, headers) => axios.get(url, { headers }).then((res) => res.data);
 
 function UserDashboard() {
     const [run, setRun] = useState(true);
-    const [stepIndex, setStepIndex] = useState(0);
-    const [activeUser, setActiveUser] = useState(null);
+    const [setStepIndex] = useState(0);
+    const [activeUser] = useState(null);
     const { loading, setLoading } = useLoading();
     const [data, setData] = useState(null);
     const [data2, setData2] = useState([]);
@@ -35,8 +32,7 @@ function UserDashboard() {
     const [thisMonthSortOrder, setThisMonthSortOrder] = useState('asc');
     const [totalUsersWorkingToday, setTotalWorking] = useState('0');
     const [totalActiveUsers, setTotalActiveUsers] = useState('0');
-
-    const [socketData, setSocketData] = useState(null); // State to store data from socket
+    const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const socket = useSocket()
     const token = localStorage.getItem("token");
@@ -53,9 +49,7 @@ function UserDashboard() {
         monthly: 0
     });
     let user;
-    useEffect(() => {
-        console.log('run--------', run)
-    }, []);
+
     try {
         if (token) {
             user = jwtDecode(JSON.stringify(token));// Decode token
@@ -97,9 +91,9 @@ function UserDashboard() {
         Authorization: 'Bearer ' + token,
     };
 
-    const userUrl = user?.userType === 'user' ? 'https://myuniversallanguages.com:9093/api/v1/timetrack/hours' : null;
-    const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? 'https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee' : null;
-    const managerUrl = user?.userType === 'manager' ? 'https://myuniversallanguages.com:9093/api/v1/manager/dashboard' : null;
+    const userUrl = user?.userType === 'user' ? `${apiUrl}/timetrack/hours` : null;
+    const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? `${apiUrl}/owner/getCompanyemployee` : null;
+    const managerUrl = user?.userType === 'manager' ? `${apiUrl}/manager/dashboard` : null;
 
     // Use React Query to fetch data
     const { data: userData, error: userError, isLoading: isUserLoading } = useQuery({
@@ -120,27 +114,6 @@ function UserDashboard() {
         enabled: !!managerUrl // Only fetch if managerUrl is defined
     });
 
-    // Handle the fetched data
-    const processOwnerData = (data) => {
-        if (data) {
-            const onlineUsers = data?.onlineUsers?.length > 0 ? data.onlineUsers : [];
-            const offlineUsers = data?.offlineUsers?.length > 0 ? data.offlineUsers : [];
-            const allUsers = [...onlineUsers, ...offlineUsers];
-            return allUsers.filter((f) => f.isArchived === false && f.UserStatus === false);
-        }
-        return [];
-    };
-
-    const processManagerData = (data) => {
-        if (data) {
-            const onlineUsers = data?.onlineUsers?.length > 0 ? data.onlineUsers : [];
-            const offlineUsers = data?.offlineUsers?.length > 0 ? data.offlineUsers : [];
-            const allUsers = [...onlineUsers, ...offlineUsers];
-            return allUsers.filter((f) => f.isArchived === false && f.UserStatus === false);
-        }
-        return [];
-    };
-
     // Determine if loading
     const isLoading = isUserLoading || isOwnerLoading || isManagerLoading;
 
@@ -148,65 +121,6 @@ function UserDashboard() {
         console.error('Error fetching data:', userError || ownerError || managerError);
         // return <div>Error loading data</div>;
     }
-
-    const getManagerData = async () => {
-        setLoading(true)
-        try {
-            const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/manager/dashboard`, {
-                headers: headers,
-            })
-            if (response.status) {
-                setLoading(false)
-                const onlineUsers = response.data?.onlineUsers?.length > 0 ? response.data?.onlineUsers : []
-                const offlineUsers = response.data?.offlineUsers?.length > 0 ? response.data?.offlineUsers : []
-                const allUsers = [...onlineUsers, ...offlineUsers];
-                setData2(allUsers.filter((f) => f.isArchived === false && f.UserStatus === false))
-            }
-        } catch (error) {
-            setLoading(false)
-            console.log(error);
-        }
-    }
-
-    const getOwnerData = async () => {
-        setLoading(true)
-        try {
-            const response = await axios.get(`https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee`, {
-                headers: headers,
-            })
-            if (response.status) {
-                setLoading(false)
-                const onlineUsers = response.data?.onlineUsers?.length > 0 ? response.data?.onlineUsers : []
-                const offlineUsers = response.data?.offlineUsers?.length > 0 ? response.data?.offlineUsers : []
-                const allUsers = [...onlineUsers, ...offlineUsers];
-                console.log(response.data);
-                // localStorage.setItem('cachedData', JSON.stringify(filteredUsers));
-                setData2(allUsers.filter((f) => f.isArchived === false && f.UserStatus === false))
-            }
-        } catch (error) {
-            setLoading(false)
-            console.log(error);
-        }
-    }
-
-    async function getUserData() {
-        setLoading(true)
-        try {
-            const response = await axios.get(`${apiUrl}/timetrack/hours`, {
-                headers,
-            })
-            if (response.status) {
-                setData(response.data)
-                setLoading(false)
-                console.log(response);
-            }
-        }
-        catch (error) {
-            setLoading(false)
-            console.log(error);
-        }
-    }
-
 
     const getTimeAgo = lastActiveTime => {
         const currentTime = new Date();
@@ -315,7 +229,7 @@ function UserDashboard() {
     }, [managerData]);
 
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
 
     const fetchData = async () => {
         setLoading(true);
@@ -349,7 +263,6 @@ function UserDashboard() {
                     const responseOnlineOfflineUsers = await axios.get(`${apiUrl}/owner/getOnlineOfflineUsers`, { headers });
                     if (responseOnlineOfflineUsers.status === 200) {
                         // Process responseOnlineOfflineUsers.data as needed
-                        console.log("Online/offline users data:", responseOnlineOfflineUsers.data);
                         // ✅ Store billing amounts in state
                         // Update state or perform actions with this data
                     }
@@ -362,12 +275,10 @@ function UserDashboard() {
                 // ✅ Store totalBillingAmounts directly from this response
                 if (user?.userType === "owner" || user?.userType === "admin") {
                     setTotalAmount(response.data.totalBillingAmounts || {});
-                    console.log("Set Billing Amount", response.data.totalBillingAmounts)
                 }
                 // ✅ Store totalHours directly from this response
                 if (user?.userType === "owner" || user?.userType === "admin") {
                     setBillingSummary(response.data.totalHours || {});
-                    console.log("Set Total Hours", response.data.totalHours)
                 }
             }
         } catch (error) {
@@ -378,12 +289,11 @@ function UserDashboard() {
 
     useEffect(() => {
         fetchData();
-    }, []); // OR [user] if you're computing user asynchronously
+    }); // OR [user] if you're computing user asynchronously
 
 
     // const items = jwtDecode(JSON.stringify(token));
     let items;
-    console.log('data for dashboard filter', data2)
     if (token) {
         items = jwtDecode(JSON.stringify(token));
     } else {

@@ -8,7 +8,7 @@ const BenefitsSection = ({ language }) => {
   // Translations object for English and Arabic
   const translations = {
     en: {
-      title: "Benefits of a smarter time tracking tool",
+      title: "Benefits of a Smarter Time Tracking Tool",
       description1:
         "At SSTRACK.IO, we believe that productivity thrives on transparency. Our platform was created to revolutionize how teams track their progress, ensuring accountability and fostering collaboration.",
       description2:
@@ -37,9 +37,9 @@ const BenefitsSection = ({ language }) => {
         <Row className="align-items-center">
           {/* Left Content */}
           <Col lg={6} className="text-start">
-            <h1 style={{ fontWeight: "700", color: "#0D4873" }}>
+            <h2 style={{ fontWeight: "700", color: "#0D4873" }}>
               {t.title}
-            </h1>
+            </h2>
             <p
               style={{
                 color: "#6C757D",

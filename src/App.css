@@ -224,7 +224,7 @@
   font-weight: 600 !important;
   color: #DBE3FC !important;
   border: 2px solid whitesmoke !important;
-  margin-right: 10px;
+  /* margin-right: 10px; */
   background-color: #0d3756 !important;
 
 }
@@ -326,6 +326,7 @@ nav li a {
 .logo {
   width: 215px;
   cursor: pointer;
+  /* margin-top: -0px !important; */
   margin-left: 10px;
   /* margin-top: -70px; */
   /* margin-bottom: -30%;
@@ -5011,7 +5012,7 @@ input.checkboxes:checked {
 .ownerSectionUser1 {
   padding: 8px 7px !important;
   /* border-radius: 6px !important; */
-  color: #7ACB59;
+  color: #fff;
   font-size: 17px;
   font-weight: 500;
   cursor: pointer;
@@ -7001,7 +7002,7 @@ input[type="number"] {
 }
 
 .ownerSectionUser1.active {
-  color: #7ACB59 !important;
+  color: #fff !important;
   /* font-weight: bold; */
   font-size: 15px;
   border: none !important
@@ -7193,3 +7194,53 @@ input[type="number"] {
   border: 2px solid #32CD32 !important;
   /* Optional green border */
 }
+
+/* Default already handled inline: right: 4% */
+
+@media (max-width: 1280px) {
+  .producthunt-badge {
+    right: 4% !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .producthunt-badge {
+    right: 7% !important;
+    /* width: 22% !important; */
+  }
+}
+
+@media (max-width: 480px) {
+  .producthunt-badge {
+    right: 0.5% !important;
+    /* width: 28% !important; */
+  }
+}
+
+@media (max-width: 1230px) {
+  .producthunt-badge {
+    display: none !important;
+  }
+}
+
+.hover-green-link {
+  padding: 6px 12px;
+  text-decoration: underline;
+  color: #0E4772;
+  transition: all 0.3s ease;
+}
+
+.hover-green-link:hover {
+  color: green;
+  text-decoration: underline;
+}
+
+.show-always {
+  display: inline !important;
+  visibility: visible !important;
+  text-decoration: dashed !important;
+  color: #000 !important;
+}
+
+

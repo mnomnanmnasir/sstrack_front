@@ -1,125 +1,19 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { Modal, Button, Form } from 'react-bootstrap';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
+import { useCallback, useEffect, useState } from 'react';
+import { Modal } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
 import CardSelection from './component/CardSelection';
 import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
-import PaymentCards from './paymentCards1'
-import PaymentPlans from './paymentPlan'
-import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import jwtDecode from 'jwt-decode';
+import { enqueueSnackbar, SnackbarProvider } from 'notistack';
 // import PayPalButton from './PayPalButton'
-
-
-
-
+const apiUrl = process.env.REACT_APP_API_URL;
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
 
-// const stripePromise = loadStripe(import.meta.env.REACT_APP_STRIPE_KEY);
-
-
-// secret_key= sk_test_51PvKZy04DfRmMVhLpUwgsNqAG7DjWlohkftPfj49gTzGMIBiZKaXh0DHYgdrKPElaAw71X94yF20MvWYyOKWOSHj00P3ayGG2K
-
-// const PayPalButton = ({ setMerchantId, selectedPlan }) => {
-//     const [unpaidTotalAmount, setUnpaidTotalAmount] = useState("0.00");
-//     const [isScriptLoaded, setIsScriptLoaded] = useState(false);
-
-//     const fetchUnpaidInvoices = async () => {
-//         try {
-//             const res = await axios.get('https://myuniversallanguages.com:9093/api/v1/owner/getInvoice', {
-//                 headers: {
-//                     Authorization: `Bearer ${localStorage.getItem('token')}`
-//                 }
-//             });
-//             const invoices = res.data.data.invoiceInfo.filter(invoice => invoice.status === 'unpaid');
-
-//             // Calculate the total amount of unpaid invoices
-//             const total = invoices.reduce((acc, invoice) => acc + parseFloat(invoice.subTotal), 0);
-//             setUnpaidTotalAmount(total.toFixed(2)); // Set the total unpaid amount
-//             console.log("Total unpaid amount:", total);
-//         } catch (error) {
-//             console.error('Error fetching unpaid invoices:', error);
-//         }
-//     };
-
-//     useEffect(() => {
-//         fetchUnpaidInvoices();
-//     }, []);
-
-//     useEffect(() => {
-//         if (!isScriptLoaded) {
-//             const script = document.createElement('script');
-//             script.src = `https://www.paypal.com/sdk/js?client-id=AbjWITfwZjHD0s6nwfnGmZFpRKnhKLet_QEaADR6xkZ4LiBjI2niy3U6sHRvYi6zCKgaCA4H4RX3mIPh&currency=USD&disable-funding=credit,card`;
-//             script.async = true;
-//             script.onload = () => setIsScriptLoaded(true); // Set flag to true when script loads
-//             document.body.appendChild(script);
-
-//             return () => {
-//                 document.body.removeChild(script);
-//             };
-//         }
-//     }, [isScriptLoaded]);
-
-//     useEffect(() => {
-//         if (isScriptLoaded && unpaidTotalAmount > 0) {
-//             window.paypal.Buttons({
-//                 createOrder: (data, actions) => {
-//                     return actions.order.create({
-//                         purchase_units: [{
-//                             amount: { value: unpaidTotalAmount.toString() },
-//                         }],
-//                     });
-//                 },
-//                 onApprove: async (data, actions) => {
-//                     return actions.order.capture().then(async details => {
-//                         const transactionId = details.purchase_units[0].payments.captures[0].id;
-//                         setMerchantId(transactionId);
-
-//                         const requestData = {
-//                             planId: selectedPlan?._id,
-//                             transactionId: transactionId
-//                         };
-
-//                         try {
-//                             const token = localStorage.getItem('token');
-//                             const res = await axios.post("https://myuniversallanguages.com:9093/api/v1/owner/payNowPayPal", requestData, {
-//                                 headers: {
-//                                     'Content-Type': 'application/json',
-//                                     'Authorization': `Bearer ${token}`
-//                                 }
-//                             });
-//                             if (res.status === 200) {
-//                                 alert("Payment processed successfully!");
-//                             } else {
-//                                 alert("Error: " + (res.data.message || 'Unknown error.'));
-//                             }
-//                         } catch (error) {
-//                             console.error('API Error:', error);
-//                             alert("An error occurred while processing the payment.");
-//                         }
-//                     });
-//                 },
-//                 onError: (err) => {
-//                     console.error('PayPal Checkout onError', err);
-//                     alert("An error occurred with PayPal. Please try again.");
-//                 },
-//             }).render('#paypal-button-container');
-//         }
-//     }, [isScriptLoaded, unpaidTotalAmount, selectedPlan]);
-
-//     return (
-//         <div>
-//             {/* <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-//                 <p>Total Unpaid Amount: ${unpaidTotalAmount}</p>
-//             </div> */}
-//             <div id="paypal-button-container" style={{ width: '200px', margin: '0 auto' }}></div>
-//         </div>
-//     );
-// };
 const PayPalButton = ({ setMerchantId, selectedPlan }) => {
     const [unpaidTotalAmount, setUnpaidTotalAmount] = useState("0.00");
     const [isScriptLoaded, setIsScriptLoaded] = useState(false);
@@ -127,7 +21,7 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
 
     // const fetchUnpaidInvoices = async () => {
     //     try {
-    //         const res = await axios.get('https://myuniversallanguages.com:9093/api/v1/owner/getInvoice', {
+    //         const res = await axios.get('${apiUrl}/owner/getInvoice', {
     //             headers: {
     //                 Authorization: `Bearer ${localStorage.getItem('token')}`
     //             }
@@ -147,7 +41,7 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
     // };
     const fetchUnpaidInvoices = async () => {
         try {
-            const res = await axios.get('https://myuniversallanguages.com:9093/api/v1/owner/getInvoice', {
+            const res = await axios.get(`${apiUrl}/owner/getInvoice`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -208,7 +102,7 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
                         console.log("Request PayPal Data", requestData)
                         try {
                             const token = localStorage.getItem('token');
-                            const res = await axios.post("https://myuniversallanguages.com:9093/api/v1/owner/payNowPayPal", requestData, {
+                            const res = await axios.post(`${apiUrl}/owner/payNowPayPal`, requestData, {
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${token}`
@@ -266,17 +160,9 @@ const Payment = ({ updatePaymentStatus }) => {
     const [paymentStatus, setPaymentStatus] = useState('');
     const [showPayPal, setShowPayPal] = useState(false);  // To toggle PayPal button visibility
     const [hasUnpaidInvoices, setHasUnpaidInvoices] = useState(false);
-    const [show, setShow] = useState(false);
-    const [deleteAccount, setDeleteAccount] = useState(false);
-    const [showButton, setShowButton] = useState([])
-    const [updatePassword, setUpdatePassword] = useState(false);
-    const [currentPassword, setCurrentPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [newPassword2, setNewPassword2] = useState("");
-    const [verify, setVerify] = useState(false);
+
     const [invoices, setInvoices] = useState([]);
     // const [isLoading, setIsLoading] = useState(false);
-    const [showWarning, setShowWarning] = useState(false);
     let tokenS = localStorage.getItem('token');
     // const navigate = useNavigate('');
     const [error, setErrorMessage] = useState([])
@@ -285,7 +171,6 @@ const Payment = ({ updatePaymentStatus }) => {
     //     Authorization: 'Bearer ' + token,
     // }
     // const [selectedPlan, setSelectedPlan] = useState(null);
-    const [showUnpaidInvoicesModal, setShowUnpaidInvoicesModal] = useState(false);
     const [unpaidInvoices, setUnpaidInvoices] = useState([]);
     const [totalUnpaidAmount, setTotalUnpaidAmount] = useState(0);
 
@@ -304,7 +189,7 @@ const Payment = ({ updatePaymentStatus }) => {
     };
     const fetchUnpaidInvoices = async () => {
         try {
-            const res = await axios.get('https://myuniversallanguages.com:9093/api/v1/owner/getInvoice', {
+            const res = await axios.get(`${apiUrl}/owner/getInvoice`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -323,57 +208,9 @@ const Payment = ({ updatePaymentStatus }) => {
 
     useEffect(() => {
         fetchUnpaidInvoices();
-    }, []);
+    });
 
     const amount = selectedPlan?.costPerUser * TotalUsers;
-
-    // const [unpaidTotalAmount, setUnpaidTotalAmount] = useState(0);
-
-    // useEffect(() => {
-    //     const totalUnpaid = invoices
-    //         .filter(invoice => invoice.status === 'unpaid')
-    //         .reduce((acc, invoice) => acc + parseFloat(invoice.amount), 0);
-    //     setUnpaidTotalAmount(totalUnpaid.toFixed(2)); // format to 2 decimal places
-    // }, [invoices]);
-
-    // const getCardIcon = (cardType) => {
-    //     switch (cardType) {
-    //         case "Mastercard":
-    //             return "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg";
-    //         case "American Express":
-    //             return "https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg";
-    //         case "visa":
-    //             return "https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"; // Example URL
-    //         default:
-    //             return "";
-    //     }
-    //     console.log('Card Type', cardType)
-    // };
-    // const fetchCardLogo = (cardType) => {
-    //     if (!cardType) {
-    //         setErrorMessage('Please enter a card type.');
-    //         return;
-    //     }
-
-    //     const cardIconUrl = getCardIcon(cardType);
-    //     if (cardIconUrl) {
-    //         setLogoUrl(cardIconUrl);
-    //         setErrorMessage('');
-    //     } else {
-    //         const domain = cardType.toLowerCase().replace(/\s+/g, '') + '.com';
-    //         const clearbitUrl = `https://logo.clearbit.com/${encodeURIComponent(domain)}`;
-
-    //         axios.get(clearbitUrl)
-    //             .then(response => {
-    //                 setLogoUrl(clearbitUrl);
-    //                 setErrorMessage('');
-    //             })
-    //             .catch(error => {
-    //                 setErrorMessage(`Failed to fetch logo for ${cardType}. Please try again.`);
-    //                 setLogoUrl('');
-    //             });
-    //     }
-    // };
 
     const fetchInvoices = async () => {
         try {
@@ -459,7 +296,7 @@ const Payment = ({ updatePaymentStatus }) => {
     };
     console.log('Selected plan:==============', plans);
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = `${apiUrl}`;
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
@@ -481,7 +318,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
+                const apiUrl1 = `${apiUrl}`;
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
                 console.log('Fetched Cards:', fetchedCards);
@@ -526,126 +363,6 @@ const Payment = ({ updatePaymentStatus }) => {
         setSelectedCard(newCard._id);
     };
 
-    // addNewCard(newCard); // Call the function to update the state
-    // const CheckoutForm2 = ({ addNewCard }) => {
-    //     const stripe = useStripe();
-    //     const elements = useElements();
-    //     const [error, setError] = useState(null);
-    //     const [success, setSuccess] = useState(false);
-    //     const [loading, setLoading] = useState(false);
-    //     const items = JSON.parse(localStorage.getItem('items'));
-    //     const token = localStorage.getItem('token');
-    //     const headers = {
-    //         Authorization: "Bearer " + token,
-    //     };
-
-
-    //     const handleSubmit = async (event) => {
-    //         event.preventDefault();
-    //         setLoading(true);
-
-    //         if (!stripe || !elements) {
-    //             setError('Stripe has not loaded correctly.');
-    //             setLoading(false);
-    //             return;
-    //         }
-
-    //         const cardElement = elements.getElement(CardElement);
-
-    //         const { error, paymentMethod } = await stripe.createPaymentMethod({
-    //             type: 'card',
-    //             card: elements.getElement(CardElement),
-    //         });
-
-    //         if (error) {
-    //             setError(error.message);
-    //             setLoading(false);
-    //         } else {
-
-    //             console.log('Card Info:', {
-    //                 cardType: paymentMethod.card.brand,
-    //                 expMonth: paymentMethod.card.exp_month,
-    //                 expYear: paymentMethod.card.exp_year,
-    //                 cardNumber: paymentMethod.card.last4,
-    //             });
-    //             const newCard = {
-    //                 cardType: paymentMethod.card.brand,
-    //                 expMonth: paymentMethod.card.exp_month,
-    //                 expYear: paymentMethod.card.exp_year,
-    //                 cardNumber: paymentMethod.card.last4,
-    //                 tokenId: paymentMethod.id,
-    //             };
-    //             const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    //             try {
-    //                 const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
-    //                     // tokenId: paymentMethod.id,
-    //                     // TotalAmount: selectedPlan.costPerUser,
-    //                     // planId: selectedPlan._id,
-    //                     cardType: paymentMethod.card.brand,
-    //                     expMonth: paymentMethod.card.exp_month,
-    //                     expYear: paymentMethod.card.exp_year,
-    //                     cardNumber: paymentMethod.card.last4,
-    //                     tokenId: paymentMethod.id,
-    //                     // TotalAmount: '58.88',
-    //                     // dueDate: '2024-07-30',
-    //                     // planId: selectedPlan._id,
-    //                 }, { headers });
-
-    //                 console.log('Payment Response:', response);
-    //                 if (response.data.success) {
-    //                     // setpaycard(newCard); // Update the current paycard
-    //                     // addNewCard(newCard); // Add to the card list
-    //                     // window.location.reload(); // Reload the page
-    //                     console.log('me')
-    //                     setSuccess(true);
-    //                     setTimeout(() => {
-    //                         setshowNewCardModal(false);
-    //                         addNewCard(newCard); // Call the function to update the state
-    //                     }, 1000); // Close the modal after 0.5 seconds
-    //                 } else {
-    //                     setError(`Payment failed: ${response.data.message}`);
-    //                 }
-    //             } catch (error) {
-    //                 setError(`Payment failed: ${error.response ? error.response.data.message : error.message}`);
-    //             }
-
-    //             setLoading(false);
-    //         }
-    //     };
-
-    //     useEffect(() => {
-    //         if (success) {
-    //             console.log("paymentv...................")
-    //             setTimeout(() => {
-    //                 setShowModal(false);
-    //                 console.log("paymentv...................")
-    //             }, 500); // Close the modal after 2 seconds
-    //         }
-    //     }, [success, setShowModal]);
-
-    //     return (
-
-    //         success ? (
-    //             <div>
-    //                 <div className="success-message">Card Added successful!</div>
-    //                 {setShowModal(false)}
-    //             </div>
-    //         ) : (
-    //             <form onSubmit={handleSubmit} className="payment-form">
-    //                 <CardElement className="card-element" />
-    //                 {error && <div className="error-message">{error}</div>}
-    //                 {success && <div className="success-message">Card Added successful!</div>
-    //                 }
-    //                 {/* {setShowModal(false)} */}
-    //                 <button type="submit" disabled={!stripe || loading} className="submit-button">
-    //                     {loading ? 'Adding...' : 'Add Card'}
-    //                 </button>
-    //             </form>
-
-    //         )
-
-    //     );
-    // };
     const CheckoutForm2 = ({ addNewCard }) => {
         const stripe = useStripe();
         const elements = useElements();
@@ -694,7 +411,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
                     tokenId: paymentMethod.id,
                 };
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = `${apiUrl}`;
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
                         // tokenId: paymentMethod.id,
@@ -910,7 +627,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = `${apiUrl}`;
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
@@ -954,7 +671,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
     //this api is for pricing plan who's data is to send to payment page
-    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const planapiUrl = `${apiUrl}`;
 
     const fetchPlans = async () => {
         try {
@@ -1049,7 +766,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //         Authorization: "Bearer " + token,
     //     };
     //     console.log('default card set', cards);
-    //     const DefaultPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DefaultPayApiUrl = "${apiUrl}";
     //     try {
     //         const response = await axios.post(`${DefaultPayApiUrl}/owner/setDefaultCard 	`, {
     //             cardNumber: cards.cardNumber,
@@ -1264,7 +981,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //             cardNumber: paymentMethod.card.last4,
 
     //         });
-    //         const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //         const planUpgradeApiUrl = "${apiUrl}";
     //         try {
     //             const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
     //                 // tokenId: paymentMethod.id,
@@ -1294,7 +1011,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //     }
     // };
     // const handlePayWithCard = async () => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DirectPayApiUrl = "${apiUrl}";
     //     if (paycard) {
     //         console.log('Pay with this card:', paycard);
     //         setIsLoading(true);
@@ -1326,7 +1043,7 @@ const Payment = ({ updatePaymentStatus }) => {
     // };
 
     // const handlePayWithThisCard = async () => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DirectPayApiUrl = "${apiUrl}";
     //     if (paycard) {
     //         console.log('Pay with this card:', paycard);
     //         setIsLoading(true);
@@ -1382,7 +1099,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //     };
     //   }, []);
     // const handlePayWithThisCard1 = async (unpaidInvoiceIds) => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DirectPayApiUrl = "${apiUrl}";
 
     //     if (paycard) {
     //         console.log('Pay with this card:', paycard);
@@ -1501,7 +1218,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const handlePayWithThisCard = async () => {
         // setShowModalwithoutcard(true)
         // setShowModalwithoutCard(true); // Open modal at the start
-        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DirectPayApiUrl = `${apiUrl}`;
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setIsLoading(true);
@@ -1648,7 +1365,7 @@ const Payment = ({ updatePaymentStatus }) => {
         }
     };
     const handleDirectChangePlan = async () => {
-        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DirectPayApiUrl = "${apiUrl}";
         if (paycard) {
             console.log('Pay with this card:', paycard);
             // setIsLoading(true);

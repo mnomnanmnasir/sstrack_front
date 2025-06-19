@@ -32,25 +32,33 @@ const PayStubSettings = ({
             deductions: ["cpp", "ei"]
         },
         india: {
-            taxes: ["income tax", "gst", "professional tax"],
-            deductions: ["pf", "esi", "section 80c", "section 80d"]
+            taxes: ["incomeTax", "cess", "professionalTax"],
+            deductions: ["epf", "esi"]
         },
         usa: {
-            taxes: ["federal income tax", "state income tax", "social security tax", "medicare tax", "futa"],
-            deductions: ["fica tax", "401(k) contributions", "hsa"]
+            taxes: ["federal", "socialSecurity", "medicare", "state"],
+            deductions: [""]
         },
-        philippines: {
-            taxes: ["income tax", "vat", "estate tax"],
-            deductions: ["sss", "philhealth", "pag-ibig"]
+        Philippines: {
+            taxes: ["incomeTax"],
+            deductions: ["sss", "philHealth", "pagIbig"]
         },
         pakistan: {
-            taxes: ["income tax", "sales tax", "excise duty"],
-            deductions: ["social security", "provident fund", "zakat"]
+            taxes: ["incomeTax"],
+            deductions: ["eobi"]
         },
         ksa: {
-            taxes: ["income tax (for foreign workers)", "vat", "khums"],
-            deductions: ["gosi", "social insurance"]
+            taxes: ["incomeTax", "zakat"],
+            deductions: ["gosi"]
         }
+    };
+    const countryCurrencyMap = {
+        canada: "CAD",
+        usa: "USD",
+        pakistan: "PKR",
+        india: "INR",
+        Philippines: "PHP",
+        ksa: "SAR"
     };
 
     return (
@@ -81,7 +89,7 @@ const PayStubSettings = ({
                 </div>
 
                 <div className="col-md-3 mb-3">
-                    <label className="form-label">Hourly Rate</label>
+                    <label className="form-label">Hourly Pay Rate</label>
                     <input
                         type="number"
                         className="form-control"
@@ -103,14 +111,18 @@ const PayStubSettings = ({
                             const newCountry = e.target.value;
                             setAppliedTaxCountry(newCountry);
                             setAppliedTaxes([]);         // Reset taxes
-                            setAppliedDeductions([]);    // Reset deductions
+                            setAppliedDeductions([]);
+                            // Set responsive currency
+                            if (countryCurrencyMap[newCountry]) {
+                                setCurrency(countryCurrencyMap[newCountry]);
+                            }  // Reset deductions
                         }}
                     >
                         <option value="">Select Country</option>
                         <option value="canada">Canada</option>
                         <option value="usa">USA</option>
                         <option value="pakistan">Pakistan</option>
-                        <option value="philippines">Philippines</option>
+                        <option value="Philippines">Philippines</option>
                         <option value="india">india</option>
                         <option value="ksa">ksa</option>
                     </select>
@@ -176,7 +188,9 @@ const PayStubSettings = ({
                 <div className="col-md-6 mb-3">
                     <label className="form-label">Applied Deductions</label>
                     <div className="border rounded p-2" style={{ maxHeight: 150, overflowY: "auto" }}>
-                        {appliedTaxCountry && taxDeductionMap[appliedTaxCountry] ? (
+                        {appliedTaxCountry === "usa" ? (
+                            <p className="text-muted mb-2">Note: USA has no applicable deductions.</p>
+                        ) : appliedTaxCountry && taxDeductionMap[appliedTaxCountry] ? (
                             taxDeductionMap[appliedTaxCountry].deductions.map((deduction) => (
                                 <div key={deduction} className="form-check">
                                     <input
@@ -204,7 +218,6 @@ const PayStubSettings = ({
                         )}
                     </div>
                 </div>
-
 
             </div>
 
@@ -274,7 +287,7 @@ const PayStubSettings = ({
 
                 {/* PAY TYPE DROPDOWN */}
                 <div className="col-md-6 mb-4">
-                    <label className="form-label">Pay Type
+                    <label className="form-label">Pay Rate Type
                         <small className="text-muted d-block">(Please select either Hourly or Monthly pay type)</small>
                     </label>
                     <select

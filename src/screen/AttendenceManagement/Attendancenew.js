@@ -255,7 +255,7 @@ const Attendence = () => {
     const data = Array.from({ length: 100 }, (_, i) => `Item ${i + 1}`);
     const [searchQuery, setSearchQuery] = useState(""); // State for search query
     const [modalOpen, setModalOpen] = useState(false)
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
  
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;

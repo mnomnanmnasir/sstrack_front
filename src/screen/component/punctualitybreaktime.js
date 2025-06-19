@@ -16,7 +16,7 @@ import moment from "moment-timezone";
 
 const CompanyEmployess = (props) => {
 
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const state = useSelector((state) => state)
     const [setting, setSetting] = useState([])
     const { Setting, loading, employees } = props
@@ -44,7 +44,7 @@ const CompanyEmployess = (props) => {
                 const updatedFields = {};
                 await Promise.all(employees.map(async (employee) => {
                     const response = await axios.get(
-                        `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+                        `${apiUrl}/superAdmin/getPunctualityDataEachUser/${employee._id}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -143,84 +143,84 @@ const CompanyEmployess = (props) => {
             },
         }));
 
-        try {
-            // Fetch current settings for the employee
-            const response = await axios.get(
-                `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                }
-            );
+        // try {
+        //     // Fetch current settings for the employee
+        //     const response = await axios.get(
+        //         `${apiUrl}/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+        //         {
+        //             headers: {
+        //                 Authorization: `Bearer ${localStorage.getItem("token")}`,
+        //             },
+        //         }
+        //     );
 
-            if (response.status !== 200) {
-                throw new Error("Failed to fetch current settings.");
-            }
+        //     if (response.status !== 200) {
+        //         throw new Error("Failed to fetch current settings.");
+        //     }
 
-            const currentSettings = response.data.employeeSettings;
+        //     const currentSettings = response.data.employeeSettings;
 
-            // Prepare the payload with updated settings
-            const requestData = {
-                userId: employee._id,
-                settings: {
-                    ...currentSettings, // Preserve other settings
-                    individualPuncStart: isSelected, // Update the toggle value
-                },
-            };
+        //     // Prepare the payload with updated settings
+        //     const requestData = {
+        //         userId: employee._id,
+        //         settings: {
+        //             ...currentSettings, // Preserve other settings
+        //             individualPuncStart: isSelected, // Update the toggle value
+        //         },
+        //     };
 
-            // Update backend with new settings
-            const updateResponse = await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
-                requestData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+        //     // Update backend with new settings
+        //     const updateResponse = await axios.post(
+        //         "${apiUrl}/superAdmin/addIndividualPunctuality",
+        //         requestData,
+        //         {
+        //             headers: {
+        //                 Authorization: `Bearer ${localStorage.getItem("token")}`,
+        //                 "Content-Type": "application/json",
+        //             },
+        //         }
+        //     );
 
-            if (updateResponse.status === 200) {
+        //     if (updateResponse.status === 200) {
 
-                const updatedState = {
-                    ...timeFields,
-                    [employee._id]: {
-                        ...timeFields[employee._id],
-                        showFields: isSelected,
-                        // puncStartTime: isSelected ? "" : "00:00",
-                        // puncEndTime: isSelected ? "" : "00:00",
-                    },
-                };
+        //         const updatedState = {
+        //             ...timeFields,
+        //             [employee._id]: {
+        //                 ...timeFields[employee._id],
+        //                 showFields: isSelected,
+        //                 puncStartTime: isSelected ? "" : "00:00",
+        //                 puncEndTime: isSelected ? "" : "00:00",
+        //             },
+        //         };
 
-                setTimeFields(updatedState);
-                // localStorage.setItem("timeFields", JSON.stringify(updatedState));
+        //         setTimeFields(updatedState);
+        //         // localStorage.setItem("timeFields", JSON.stringify(updatedState));
 
-            } else {
-                throw new Error("Failed to update punctuality setting.");
-            }
-        } catch (error) {
-            console.error("Error updating punctuality setting:", error);
+        //     } else {
+        //         throw new Error("Failed to update punctuality setting.");
+        //     }
+        // } catch (error) {
+        //     console.error("Error updating punctuality setting:", error);
 
 
-            setTimeFields((prev) => ({
-                ...prev,
-                [employee._id]: {
-                    ...prev[employee._id],
-                    showFields: isSelected,
-                    // puncStartTime: isSelected ? "" : "00:00",
-                    // puncEndTime: isSelected ? "" : "00:00",
-                },
-            }));
+        //     setTimeFields((prev) => ({
+        //         ...prev,
+        //         [employee._id]: {
+        //             ...prev[employee._id],
+        //             showFields: isSelected,
+        //             puncStartTime: isSelected ? "" : "00:00",
+        //             puncEndTime: isSelected ? "" : "00:00",
+        //         },
+        //     }));
 
-            enqueueSnackbar("An error occurred while updating punctuality setting.", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right",
-                },
-            });
-        }
+        //     enqueueSnackbar("An error occurred while updating punctuality setting.", {
+        //         variant: "error",
+        //         anchorOrigin: {
+        //             vertical: "top",
+        //             horizontal: "right",
+        //         },
+        //     });
+        // }
     };
     // Convert 24-hour format to 12-hour format with AM/PM
     const convertTo12HourFormat = (time) => {
@@ -313,7 +313,7 @@ const CompanyEmployess = (props) => {
             };
 
             const response = await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                `${apiUrl}/superAdmin/addIndividualPunctuality`,
                 requestData,
                 {
                     headers: {
@@ -331,7 +331,7 @@ const CompanyEmployess = (props) => {
 
                 // ✅ Backend se jo time aaya hai usko bilkul waisa ka waisa state mein save karein
                 const updatedResponse = await axios.get(
-                    `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+                    `${apiUrl}/superAdmin/getPunctualityDataEachUser/${employeeId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -364,11 +364,12 @@ const CompanyEmployess = (props) => {
         }
     };
 
-    useEffect(() => {
-        // Set allowBlur based on the Redux store
-        const employeeWithBlur = employees.find(employee => employee.effectiveSettings?.screenshots?.allowBlur);
+    // useEffect(() => {
+    //     const employeeWithToggleOn = employees.find(
+    //         (employee) => employee.effectiveSettings?.individualPuncStart
+    //     );
+    // }, [employees]);
 
-    }, [employees]);
 
     const activeTab = useSelector((state) => state?.adminSlice?.activeTab)
     const dispatch = useDispatch()
@@ -377,24 +378,29 @@ const CompanyEmployess = (props) => {
         Authorization: "Bearer " + token,
     };
 
-    useEffect(() => {
-        // Set local toggle state based on Redux state
-        const employeeWithToggleOn = employees.find(
-            (employee) => employee.effectiveSettings?.individualPuncStart
-        );
-    }, [employees]);
+    // useEffect(() => {
+    //     // Set local toggle state based on Redux state
+    //     const employeeWithToggleOn = employees.find(
+    //         (employee) => employee.effectiveSettings?.individualPuncStart
+    //     );
+    // }, [employees]);
 
 
     const userCount = employees !== null && employees !== undefined ? employees.filter(employee => employee !== null && Object.keys(employee).length > 0).length : 0;
 
-    const filteredEmployees = employees.filter(employee => employee.name && employee.userType !== "owner");
+    const filteredEmployees = Array.isArray(employees)
+        ? employees.filter(employee => employee?.name && employee?.userType !== "owner")
+        : [];
+
     console.log('e,ployees', filteredEmployees, 'filter', employees)
     return (
         <>
             <div>
                 <SnackbarProvider />
                 {/* <EmployeeFilter employees={filteredEmployees} onFilter={setFilteredEmployeesbyutc}/> */}
-                {filteredEmployees && filteredEmployees.length > 0 ? filteredEmployees?.map((employee, index) => {
+                {/* {filteredEmployees && filteredEmployees.length > 0 ? filteredEmployees?.map((employee, index) => { */}
+                {Array.isArray(filteredEmployees) && filteredEmployees.length > 0 ? filteredEmployees.map((employee, index) => {
+
 
                     return (
                         loading ? (

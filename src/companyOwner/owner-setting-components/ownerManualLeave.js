@@ -38,7 +38,7 @@ const OwnerTeam = () => {
     const currentUser = jwtDecode(JSON.stringify(token));
     const userId = currentUser?.id || "";
     const userType = currentUser?.userType || "";
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const headers = {
         Authorization: `Bearer ${token}`,
     };
@@ -92,7 +92,7 @@ const OwnerTeam = () => {
 
     // const [remainingLeaves, setRemainingLeaves] = useState([]);
 
-    const apiUrlLeaves = "https://myuniversallanguages.com:9093/api/v1/timetrack/getAllLeaves";
+    const apiUrlLeaves = `"${apiUrl}/timetrack/getAllLeaves"`;
 
     const [allUsers, setAllUsers] = useState([]);
     const [selectedUserEmail, setSelectedUserEmail] = useState("");
@@ -201,9 +201,9 @@ const OwnerTeam = () => {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         setFormSubmitting(true);
-    
+
         const { leaveType, startDate, endDate, reason, userId } = leaveRequest;
-    
+
         if (!leaveType || !startDate || !endDate || !reason.trim() || !userId) {
             enqueueSnackbar('Please fill in all fields before submitting', {
                 variant: 'error',
@@ -215,7 +215,7 @@ const OwnerTeam = () => {
             setFormSubmitting(false);
             return;
         }
-    
+
         // Ensure startDate is before endDate
         if (new Date(startDate) > new Date(endDate)) {
             enqueueSnackbar('Start date must be before end date', {
@@ -228,14 +228,14 @@ const OwnerTeam = () => {
             setFormSubmitting(false);
             return;
         }
-    
+
         try {
             const response = await axios.post(
                 `${apiUrl}/superAdmin/addmanualLeave`,
                 leaveRequest,
                 { headers }
             );
-    
+
             if (response.status === 200 || response.status === 201) {
                 enqueueSnackbar('Manual leave submitted successfully', {
                     variant: 'success',
@@ -244,7 +244,7 @@ const OwnerTeam = () => {
                         horizontal: "right"
                     }
                 });
-    
+
                 // Clear the form
                 setLeaveRequest({
                     leaveType: "",
@@ -253,7 +253,7 @@ const OwnerTeam = () => {
                     reason: "",
                     userId: ""
                 });
-    
+
                 // Refresh user leaves list
                 fetchAllUsers();
             } else {
@@ -272,7 +272,7 @@ const OwnerTeam = () => {
             setFormSubmitting(false);
         }
     };
-    
+
     useEffect(() => {
         const fetchSelectedUserLeaves = async () => {
             if (!leaveRequest.userId) {

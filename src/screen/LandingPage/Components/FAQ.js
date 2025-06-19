@@ -1,40 +1,41 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from "react";
+
 
 const faqsEN = [
     {
-        question: "Is it possible to use SSTRACK.IO for free?",
-        answer: " Yes! We offer a 30-day free trial with full features. No credit card is required to sign up. After your trial ends, you can choose a paid plan to continue enjoying all the features.",
+        question: "Is it possible to use SSTrack.io for free?",
+        answer: "Yes, SSTrack.io offers a free plan with limited features. You can upgrade for additional functionality.",
     },
     {
-        question: "Is SSTRACK.IO an effective tool for tracking activity?",
-        answer: " Absolutely! SSTRACK.IO provides accurate tracking for tasks and activities, helping you manage them efficiently.",
+        question: "Is SSTrack.io an effective tool for tracking activity?",
+        answer: "Absolutely! SSTrack.io provides accurate tracking for activities, helping you manage tasks efficiently.",
     },
     {
         question: "Do I have to provide my credit card?",
-        answer: "No. You can start your 30-day free trial without entering any payment details. If you decide to continue after the trial, you can then provide billing information and select a plan.",
+        answer: "No, you can start using the free plan without providing any payment details.",
     },
     {
         question: "What happens if I exceed the Free plan's user limit?",
-        answer: "We’ve replaced our free plan with a 30-day free trial that includes all features—no user limits during the trial. After it ends, simply upgrade to continue using all features.",
+        answer: "You will need to upgrade to a paid plan to add more users or access premium features.",
     },
     {
         question: "How do you protect my information?",
-        answer: " We use advanced security measures such as encryption and role-based permissions to safeguard your data.",
+        answer: "We use advanced security measures like encryption and role-based permissions to safeguard your data.",
     },
     {
         question: "Is it helpful in increasing the productivity of the team?",
-        answer: " Yes. Our tools are designed to improve productivity through better tracking, management, and data-driven insights.",
+        answer: "Yes, our tools are designed to improve productivity through better tracking and management.",
     },
 ];
 
 const faqsAR = [
     {
-        question: "هل من الممكن استخدام SSTRACK.IO مجانًا؟",
-        answer: "نعم، يوفر SSTRACK.IO خطة مجانية مع ميزات محدودة. يمكنك الترقية للحصول على وظائف إضافية.",
+        question: "هل من الممكن استخدام SSTrack.io مجانًا؟",
+        answer: "نعم، يوفر SSTrack.io خطة مجانية مع ميزات محدودة. يمكنك الترقية للحصول على وظائف إضافية.",
     },
     {
-        question: "هل يعد SSTRACK.IO أداة فعالة لتتبع النشاط؟",
-        answer: "بالطبع! يوفر SSTRACK.IO تتبعًا دقيقًا للنشاطات، مما يساعدك في إدارة المهام بشكل فعال.",
+        question: "هل يعد SSTrack.io أداة فعالة لتتبع النشاط؟",
+        answer: "بالطبع! يوفر SSTrack.io تتبعًا دقيقًا للنشاطات، مما يساعدك في إدارة المهام بشكل فعال.",
     },
     {
         question: "هل يجب علي تقديم بطاقة الائتمان الخاصة بي؟",
@@ -60,6 +61,8 @@ function FAQ({ onContactButtonClick, language }) {
     const [activeIndex, setActiveIndex] = useState(null);
     const faqs = language === "ar" ? faqsAR : faqsEN;
 
+
+
     const toggleAnswer = (index) => {
         setActiveIndex(activeIndex === index ? null : index);
     };
@@ -74,10 +77,11 @@ function FAQ({ onContactButtonClick, language }) {
                 } <span style={{ fontSize: "44px", fontWeight: "700", color: "#7ACB59" }} className="card-title-responsive">{language === "en" ? "Asked Questions" : "المتكررة"}
                 </span>
             </h2>
-            <p style={{ fontSize: "16px", fontWeight: "400", color: "#555555", marginBottom: "2rem" }} className="card-subtitle-responsive">
+            <p style={{ fontSize: "16px", fontWeight: "400", color: "#555555", marginBottom: "2rem" }} className="card-subtitle-responsive" >
                 {language === "en"
-                    ? "Here are some frequently asked questions."
-                    : "إليك بعض الأسئلة الشائعة."}
+                    ? "You've finally decided to take the leap and talk to a psychic (great!)."
+                    : "لقد قررت أخيرًا أن تأخذ خطوة وتحدث إلى عراف (رائع!)."}
+
             </p>
 
             {/* FAQ List */}

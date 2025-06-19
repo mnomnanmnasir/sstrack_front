@@ -32,16 +32,16 @@ import moment from "moment-timezone";
 import { useSocket } from '../io'; // Correct import
 import { useSelector, useDispatch } from 'react-redux';
 import { setEmployessSetting } from "../store/adminSlice"; // Adjust the import based on your file structure
-import Payment from "./paymentPlan";
 import jwtDecode from "jwt-decode";
 import Joyride from "react-joyride";
 import { useMediaQuery, useTheme } from '@mui/material';
 
+
 function UserDetails() {
-
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const dispatch = useDispatch();
     const employees = useSelector((state) => state.adminSlice.employess);
+    const [selectedEntry, setSelectedEntry] = useState(null);
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('lg')); // md = 960px
@@ -70,15 +70,13 @@ function UserDetails() {
         }
     }, []);
 
-
-
     async function handleApplySetting(data) {
 
         console.log(data);
         const findUser = employees.find((f) => f.effectiveSettings[data.key] === false)
         try {
             const res = await axios.patch(
-                `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${data.employee._id}`,
+                `${apiUrl}/owner/settingsE/${data.employee._id}`,
                 {
                     userId: data.employee._id,
                     effectiveSettings: {
@@ -122,13 +120,7 @@ function UserDetails() {
 
         } catch (error) {
             console.error("Error updating employee settings:", error);
-            // enqueueSnackbar("An error occurred while updating employee settings", {
-            //     variant: "error",
-            //     anchorOrigin: {
-            //         vertical: "top",
-            //         horizontal: "right"
-            //     }
-            // });
+
         }
     }
 
@@ -163,7 +155,6 @@ function UserDetails() {
     const [timeEntries, setTimeEntries] = useState([]);
 
     const [totalPercentageByDay, setTotalPercentageByDay] = useState(null)
-    // const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString())
     const [activeMonth, setActiveMonth] = useState(new Date().toLocaleDateString('en-CA'));
 
     const [timeTrackingId, setTimeTrackingId] = useState(null)
@@ -187,7 +178,7 @@ function UserDetails() {
         noteRef.current = event.target.value;
     };
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
     let token = localStorage.getItem('token');
     let items = jwtDecode(token);
     let headers = {
@@ -255,6 +246,8 @@ function UserDetails() {
     };
 
     const parseTime = (time) => {
+
+
         if (!time) return null; // Return null if time is empty or undefined
 
         const matches = time.match(/(\d+):(\d+)\s?(AM|PM)/i); // Match time format
@@ -281,51 +274,6 @@ function UserDetails() {
 
         return endMinutes > startMinutes; // Valid if end is greater than start
     };
-
-    // const fetchData = async () => {
-    //     setLoading(true);
-    //     try {
-    //         if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
-    //             const [screenshotsResponse, activitiesResponse, hoursResponse] = await Promise.all([
-    //                 axios.get(`${apiUrl}/owner/sorted-screenshots/${userId}?date=${formattedDate}`, { headers }),
-    //                 axios.get(`${apiUrl}/owner/sorted-activities/${userId}?date=${formattedDate}`, { headers }),
-    //                 axios.get(`${apiUrl}/owner/sorted-hours/${userId}?date=${formattedDate}`, { headers })
-    //             ]);
-    //             const screenshotsData = screenshotsResponse.data;
-    //             const activitiesData = activitiesResponse.data;
-    //             const hoursData = hoursResponse.data;
-    //             setData(hoursData.data);
-    //             setTotalActivityByDay(activitiesData.data);
-    //             setTimeEntryId(hoursData.data.TimeTrackingId);
-    //             setTimeTrackingId(hoursData.data.TimeTrackingId);
-    //             setTimeEntries(screenshotsData.data.groupedScreenshots || []);
-    //             setTrimActivity({ ...trimActivity, totalHours: hoursData.data.totalHours.daily });
-    //             // Clear data if no screenshots are available
-    //             if (!screenshotsData.data?.groupedScreenshots?.length) {
-    //                 setTimeEntries([]);
-    //             }
-    //         } else {
-    //             const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
-    //             if (response.data) {
-
-    //                 console.log(response);
-    //                 setData(response.data.data);
-    //                 setTimeEntryId(response.data.data.TimeTrackingId);
-    //                 setTimeTrackingId(response.data.data.TimeTrackingId);
-    //                 setTimeEntries(response?.data?.data?.groupedScreenshots || []);
-    //                 setTrimActivity({ ...trimActivity, totalHours: response?.data?.data?.totalHours.daily });
-    //             }
-    //             // Clear data if no screenshots are available
-    //             if (!response.data?.data?.groupedScreenshots?.length) {
-    //                 setTimeEntries([]);
-    //             }
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
 
     const fetchData = async () => {
         setLoading(true);
@@ -384,56 +332,6 @@ function UserDetails() {
         fetchData()
     }, [])
 
-    // const fetchData = async () => {
-    //     if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
-    //         try {
-    //             const response = await axios.get(`${apiUrl}/owner/sorted-datebased/${params.id}?date=${encodeURIComponent(formattedDate)}`, { headers });
-    //             setLoading(true)
-    //             if (response.data) {
-    //                 setTimeout(() => {
-    //                     setLoading(false)
-    //                 }, 2000);
-    //                 const screenshotsData = screenshotsResponse.data;
-    //                 const activitiesData = activitiesResponse.data;
-    //                 setData(response.data.data);
-    //                 setTimeEntryId(response.data.data.TimeTrackingId)
-    //                 setTimeTrackingId(response.data.data.TimeTrackingId)
-    //                 setTimeEntries(screenshotsData.data.groupedScreenshots || []);
-    //                 setTrimActivity({ ...trimActivity, totalHours: response?.data?.data?.totalHours.daily })
-    //                 console.log(response);
-    //             }
-    //         }
-    //         catch (error) {
-    //             setTimeout(() => {
-    //                 setLoading(false)
-    //             }, 2000);
-    //             console.log(error);
-    //         }
-    //         return;
-    //     }
-    //     try {
-    //         const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
-    //         setLoading(true)
-    //         if (response.data) {
-    //             setTimeout(() => {
-    //                 setLoading(false)
-    //             }, 3000);
-    //             setData(response.data.data);
-    //             setTimeEntryId(response.data.data.TimeTrackingId)
-    //             setTimeTrackingId(response.data.data.TimeTrackingId)
-    //             setTimeEntries(response?.data?.data?.groupedScreenshots || []);
-    //             setTrimActivity({ ...trimActivity, totalHours: response?.data?.data?.totalHours.daily })
-    //             console.log(response);
-    //         }
-    //     }
-    //     catch (error) {
-    //         setTimeout(() => {
-    //             setLoading(false)
-    //         }, 3000);
-    //         console.log(error);
-    //     }
-    // };
-
     useEffect(() => {
         if (!socket) {
             console.error('Socket instance is null or undefined');
@@ -472,25 +370,6 @@ function UserDetails() {
         return timeRegex.test(timeString);
     }
 
-    // const prevMonth = () => {
-    //     setDate((prevDate) => {
-    //         const prevMonthDate = new Date(prevDate.getFullYear(), prevDate.getMonth() - 1, 1);
-    //         setActiveMonth(prevMonthDate.toLocaleDateString())
-    //         setTotalPercentageByDay(null)
-    //         // setTotalHoursByDay(null);
-    //         return prevMonthDate;
-    //     });
-    // };
-
-    // const nextMonth = () => {
-    //     setDate((prevDate) => {
-    //         const nextMonthDate = new Date(prevDate.getFullYear(), prevDate.getMonth() + 1, 1);
-    //         setActiveMonth(nextMonthDate.toLocaleDateString())
-    //         setTotalPercentageByDay(null)
-    //         // setTotalHoursByDay(null);
-    //         return nextMonthDate;
-    //     });
-    // };
     const prevMonth = () => {
         setDate((prevDate) => {
             const prevMonthDate = new Date(prevDate.getFullYear(), prevDate.getMonth() - 1, 1);
@@ -558,8 +437,6 @@ function UserDetails() {
         setSelectedImageIndex(index)
         setSSData(element)
     };
-
-
 
 
     const renderCalendar = () => {
@@ -645,6 +522,7 @@ function UserDetails() {
         return weeks;
     };
 
+
     const closeModal = () => {
         setSelectedImage(null);
         setSSData(null)
@@ -728,74 +606,6 @@ function UserDetails() {
         });
         return matchingEntry ? "#A8C96A" : '#EFF9EC';
     };
-
-
-    // async function getAllDays() {
-    //     try {
-    //         const userId = items?._id;
-    //         const isUser = items?.userType === "user";
-    //         const idToUse = isUser ? userId : params?.id || userId; // ✅ FIXED
-
-    //         const url = isUser
-    //             ? `${apiUrl}/timetrack/hoursbyday?date=${activeMonth}`
-    //             : `${apiUrl}/owner/hoursbyday/${idToUse}?date=${activeMonth}`;
-
-    //         const response = await axios.get(url, { headers });
-
-    //         const totalHours = response.data.data.totalHoursByDay;
-    //         console.log("totalHours of active month", response.data);
-
-    //         const currentDate = new Date();
-    //         const maxHours = 8;
-    //         let percentagesByDay = [];
-
-    //         const processMonth = (totalHours, month, year) => {
-    //             const filteredHours = totalHours.filter(th => {
-    //                 const [day, mon, yr] = th.date.split('-');
-    //                 return mon.padStart(2, '0') === month && yr === year;
-    //             });
-
-    //             filteredHours.forEach(th => {
-    //                 const match = th.totalHours.match(/(\d+)h\s*(\d*)m/);
-    //                 let totalMinutes = 0;
-
-    //                 if (match) {
-    //                     const hours = parseInt(match[1], 10) || 0;
-    //                     const minutes = parseInt(match[2], 10) || 0;
-    //                     totalMinutes = hours * 60 + minutes;
-    //                 }
-
-    //                 const percentage = Math.min((totalMinutes / (maxHours * 60)) * 100, 100);
-
-    //                 percentagesByDay.push({
-    //                     date: th.date,
-    //                     totalMinutes,
-    //                     totalHours: th.totalHours,
-    //                     percentage,
-    //                     percentageExact: percentage,
-    //                 });
-    //             });
-    //         };
-
-    //         const currentYear = currentDate.getFullYear();
-    //         let isFirstMonthProcessed = false;
-
-    //         for (let year = currentYear; year >= 2023; year--) {
-    //             for (let month = 12; month >= 1; month--) {
-    //                 processMonth(totalHours, month.toString().padStart(2, '0'), year.toString());
-    //                 if (month === 1 && !isFirstMonthProcessed) {
-    //                     isFirstMonthProcessed = true;
-    //                     break;
-    //                 }
-    //             }
-    //         }
-
-    //         console.log('PERCENTAGES', percentagesByDay);
-    //         setTotalPercentageByDay(percentagesByDay);
-    //     } catch (error) {
-    //         console.log("Error in getAllDays:", error);
-    //     }
-    // }
 
     async function getAllDays() {
         try {
@@ -1643,8 +1453,6 @@ function UserDetails() {
                                                             </div>
                                                         </div>
                                                     </div>
-
-
                                                     {/* RIGHT: Gauge Meter with Needle */}
                                                     <div className="col-6 col-md-6 d-flex justify-content-center align-items-center position-relative">
                                                         <img
@@ -1711,7 +1519,8 @@ function UserDetails() {
                                                     {/* <p className="timerClock">
                                             {data?.totalHours?.daily === "0h 0m" ? days[currentWeekDay] : data?.totalHours?.daily}
                                         </p> */}
-                                                    <p className="timerClock">        {data?.totalHours?.daily ? data.totalHours.daily : "0h 0m"}
+                                                    <p className="timerClock">
+                                                        {data?.totalHours?.daily ? data.totalHours.daily : "0h 0m"}
                                                     </p>
                                                     {/* <p className="timerClock">{totalHours.daily}</p> */}
                                                     <p className="weekTimer">Week</p>
@@ -1772,7 +1581,97 @@ function UserDetails() {
                                                                     </div>
                                                                 </div>
                                                             </div>
+
+                                                            {timeEntries.length > 0 ? (
+                                                                timeEntries.map((element, index) => (
+                                                                    <div key={index} style={{ marginTop: "-50px" }}>
+                                                                        <div
+                                                                            onClick={() => {
+                                                                                setShowTrimActivity(true);
+                                                                                setTrimActivity({
+                                                                                    ...trimActivity,
+                                                                                    timeentryId: element.timeentryId,
+                                                                                    startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
+                                                                                    endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4],
+                                                                                });
+                                                                                setSplitTime({
+                                                                                    ...splitTime,
+                                                                                    timeentryId: element.timeentryId,
+                                                                                    startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
+                                                                                    endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4],
+                                                                                });
+                                                                                setOfflineTime({
+                                                                                    ...offlineTime,
+                                                                                    timeentryId: element.timeentryId,
+                                                                                    startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
+                                                                                    endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4],
+                                                                                });
+                                                                                setStartTime(element.time.split(" ")[0] + " " + element.time.split(" ")[1]);
+                                                                                setEndTime(element.time.split(" ")[3] + " " + element.time.split(" ")[4]);
+                                                                            }}
+                                                                            style={{ cursor: "pointer" }}
+                                                                            className="timeZone text-center"
+                                                                        >
+                                                                            {/* ✅ Only show edit link for the FIRST entry */}
+                                                                            {index === 0 && (
+                                                                                <a
+                                                                                    href="#"
+                                                                                    onClick={(e) => {
+                                                                                        e.preventDefault();
+                                                                                        e.stopPropagation();
+                                                                                        const [startDate, startTime, , endDate, endTime] = element.time.split(" ");
+                                                                                        const start = `${startDate} ${startTime}`;
+                                                                                        const end = `${endDate} ${endTime}`;
+
+                                                                                        setShowTrimActivity(true);
+                                                                                        setTrimActivity({ ...trimActivity, timeentryId: element.timeentryId, startTime: start, endTime: end });
+                                                                                        setSplitTime({ ...splitTime, timeentryId: element.timeentryId, startTime: start, endTime: end });
+                                                                                        setOfflineTime({ ...offlineTime, timeentryId: element.timeentryId, startTime: start, endTime: end });
+                                                                                        setStartTime(start);
+                                                                                        setEndTime(end);
+                                                                                    }}
+                                                                                    className="hover-green-link"
+                                                                                    style={{ padding: '6px 12px' }}
+                                                                                >
+                                                                                    Add or remove tracked time,
+                                                                                    <span className="show-always" style={{ textDecoration: 'none !important', borderBottom: '0 !important' }}> or </span>
+                                                                                    update activity notes
+                                                                                </a>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <>
+                                                                    <div style={{ marginTop: "-50px" }}>
+                                                                        <div style={{ cursor: "pointer" }} className="timeZone text-center">
+                                                                            <a
+                                                                                href="#"
+                                                                                onClick={(e) => {
+                                                                                    e.preventDefault();
+                                                                                    e.stopPropagation();
+                                                                                    setShowTrimActivity(true);
+                                                                                    setTrimActivity({ ...trimActivity, startTime: "", endTime: "" });
+                                                                                    setSplitTime({ ...splitTime, startTime: "", endTime: "" });
+                                                                                    setOfflineTime({ ...offlineTime, startTime: "", endTime: "" });
+                                                                                    setStartTime("");
+                                                                                    setEndTime("");
+                                                                                }}
+                                                                                className="hover-green-link"
+                                                                                style={{ padding: '6px 12px' }}
+                                                                            >
+                                                                                Add or remove tracked time,
+                                                                                <span className="show-always" style={{ textDecoration: 'none !important', borderBottom: '0 !important' }}> or </span>
+                                                                                update activity notes
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                </>
+                                                            )
+                                                            }
+
                                                         </div>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -1971,36 +1870,42 @@ function UserDetails() {
                                             <div>
                                                 <div
                                                     onClick={() => {
-                                                        setShowTrimActivity(true)
+                                                        setShowTrimActivity(true);
                                                         setTrimActivity({
                                                             ...trimActivity,
                                                             timeentryId: element.timeentryId,
                                                             startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
-                                                            endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4]
-                                                        })
+                                                            endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4],
+                                                        });
                                                         setSplitTime({
                                                             ...splitTime,
                                                             timeentryId: element.timeentryId,
                                                             startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
-                                                            endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4]
-                                                        })
+                                                            endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4],
+                                                        });
                                                         setOfflineTime({
                                                             ...offlineTime,
                                                             timeentryId: element.timeentryId,
                                                             startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
-                                                            endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4]
-                                                        })
-                                                        setStartTime(element.time.split(" ")[0] + " " + element.time.split(" ")[1])
-                                                        setEndTime(element.time.split(" ")[3] + " " + element.time.split(" ")[4])
+                                                            endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4],
+                                                        });
+                                                        setStartTime(element.time.split(" ")[0] + " " + element.time.split(" ")[1]);
+                                                        setEndTime(element.time.split(" ")[3] + " " + element.time.split(" ")[4]);
                                                     }}
                                                     style={{ cursor: "pointer" }}
-                                                    className="timeZone" onMouseOver={() => setShowEditButton(true)} onMouseOut={() => setShowEditButton(false)}>
+                                                    className="timeZone"
+                                                >
                                                     <p className="timeDuration">{element.time}</p>
-                                                    <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(findTimeEntryActivity?.totalactivity)} %</Tooltip>}>
+
+                                                    <OverlayTrigger
+                                                        placement="top"
+                                                        overlay={<Tooltip>{Math.floor(findTimeEntryActivity?.totalactivity)} %</Tooltip>}
+                                                    >
                                                         <div className="circular-progress" style={{ margin: "0 20px", cursor: "pointer" }}>
                                                             <CircularProgressBar activityPercentage={findTimeEntryActivity?.totalactivity} size={30} />
                                                         </div>
                                                     </OverlayTrigger>
+
                                                     {element.items?.some(item => item.userType === "user") && (
                                                         <div>
                                                             <p className="projectName">{element?.project}</p>
@@ -2008,33 +1913,50 @@ function UserDetails() {
                                                             <p className="timeDuration">{element?.description}</p>
                                                         </div>
                                                     )}
+
                                                     <p className="projectName">{element?.project}</p>
                                                     <p className="timeDuration">{element?.description}</p>
-                                                    {showEditButton && <img onClick={() => {
-                                                        console.log(element);
-                                                        setShowTrimActivity(true)
-                                                        setTrimActivity({
-                                                            ...trimActivity,
-                                                            timeentryId: element.timeentryId,
-                                                            startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
-                                                            endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4]
-                                                        })
-                                                        setSplitTime({
-                                                            ...splitTime,
-                                                            timeentryId: element.timeentryId,
-                                                            startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
-                                                            endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4]
-                                                        })
-                                                        setOfflineTime({
-                                                            ...offlineTime,
-                                                            timeentryId: element.timeentryId,
-                                                            startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
-                                                            endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4]
-                                                        })
-                                                        setStartTime(element.time.split(" ")[0] + " " + element.time.split(" ")[1])
-                                                        setEndTime(element.time.split(" ")[3] + " " + element.time.split(" ")[4])
-                                                    }} src={edit} alt="EditTimeZone.png" style={{ cursor: "pointer" }} />}
+
+                                                    {/* ✨ Clear UX: Tooltip for edit icon */}
+                                                    <OverlayTrigger
+                                                        placement="top"
+                                                        overlay={<Tooltip>Edit Time</Tooltip>}
+                                                    >
+                                                        <img
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // prevent parent click
+                                                                console.log(element);
+                                                                setShowTrimActivity(true);
+                                                                setTrimActivity({
+                                                                    ...trimActivity,
+                                                                    timeentryId: element.timeentryId,
+                                                                    startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
+                                                                    endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4],
+                                                                });
+                                                                setSplitTime({
+                                                                    ...splitTime,
+                                                                    timeentryId: element.timeentryId,
+                                                                    startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
+                                                                    endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4],
+                                                                });
+                                                                setOfflineTime({
+                                                                    ...offlineTime,
+                                                                    timeentryId: element.timeentryId,
+                                                                    startTime: element.time.split(" ")[0] + " " + element.time.split(" ")[1],
+                                                                    endTime: element.time.split(" ")[3] + " " + element.time.split(" ")[4],
+                                                                });
+                                                                setStartTime(element.time.split(" ")[0] + " " + element.time.split(" ")[1]);
+                                                                setEndTime(element.time.split(" ")[3] + " " + element.time.split(" ")[4]);
+                                                            }}
+                                                            src={edit}
+                                                            alt="EditTimeZone.png"
+                                                            style={{ cursor: "pointer" }}
+                                                        />
+                                                    </OverlayTrigger>
                                                 </div>
+
+
+
                                                 <div style={{
                                                     display: "grid",
                                                     gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
@@ -2140,16 +2062,17 @@ function UserDetails() {
                                                         </div>
                                                     )}
                                                 </div>
+
                                             </div>
                                         )
                                     })}
                                 </div>
                             </div>
                         </div>
-                        <img className="userDetailLine" src={line} />
+                        <img className="userDetailLine" src={line} alt=''/>
                     </div>
                 </div>
-            </div>
+            </div >
         </>
     )
 }

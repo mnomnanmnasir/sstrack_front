@@ -9,7 +9,7 @@ const EmployeeTimeTrackingSection = ({ language, isAuthenticated }) => {
   // Content translations
   const translations = {
     en: {
-      title: "Employee time tracking software for in-office employees",
+      title: "Employee Time Tracking Software for In-Office and Hybrid Teams",
       description:
         "Save hours each week using our user-friendly time tracking, automated payroll, and invoicing solution.",
       placeholder: "Enter your work",

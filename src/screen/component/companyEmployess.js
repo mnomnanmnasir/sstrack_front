@@ -13,7 +13,7 @@ import UserDetails from "../userDetails";
 
 
 const CompanyEmployess = (props) => {
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const state = useSelector((state) => state)
     const [setting, setSetting] = useState([])
     const { Setting, loading } = props
@@ -82,7 +82,7 @@ const CompanyEmployess = (props) => {
         try {
             // Send API request
             const res = await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                `${apiUrl}/superAdmin/addIndividualPunctuality`,
                 requestData,
                 { headers }
             );
@@ -160,7 +160,7 @@ const CompanyEmployess = (props) => {
 
         try {
             const res = await axios.post(
-                `https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality`,
+                `${apiUrl}/superAdmin/addIndividualPunctuality`,
                 {
                     userId: ssId,
                     settings: settingsToUpdate,
@@ -264,7 +264,7 @@ const CompanyEmployess = (props) => {
     //     try {
     //         // Send the API request
     //         const res = await axios.post(
-    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+    //             "${apiUrl}/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             { headers }
     //         );
@@ -316,7 +316,7 @@ const CompanyEmployess = (props) => {
         console.log('SSID', ssId)
         try {
             const res = await axios.patch(
-                `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${data.employee._id}`,
+                `${apiUrl}/owner/settingsE/${data.employee._id}`,
                 {
                     userId: data.employee._id,
                     effectiveSettings: {

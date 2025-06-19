@@ -12,7 +12,7 @@ import axios from "axios";
 import ErrorPopup from "../../screen/component/popupmodals/ErrorPopup";
 
 function Screenshot() {
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     let token = localStorage.getItem('token');
     let headers = {
         Authorization: 'Bearer ' + token,
@@ -47,7 +47,7 @@ function Screenshot() {
             }
         }
         try {
-            const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${employee._id}`,
+            const res = await axios.patch(`${apiUrl}/owner/settingsE/${employee._id}`,
                 {
                     userId: employee._id,
                     effectiveSettings: type === "setting1" ? settings : type === "setting2" ? settings2 : settings3
@@ -174,7 +174,7 @@ function Screenshot() {
 
     async function handleApply(type) {
         try {
-            const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
+            const res = await axios.patch(`${apiUrl}/superAdmin/settingsE`,
                 employees?.filter(f => f.effectiveSettings?.individualss === false).map((prevEmployess) => {
                     return {
                         userId: prevEmployess._id,
@@ -224,11 +224,11 @@ function Screenshot() {
 
     async function getData() {
         try {
-            const response = await fetch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`, { headers })
+            const response = await fetch(`${apiUrl}/superAdmin/employees`, { headers })
             const json = await response.json();
             dispatch(getEmployess(json?.convertedEmployees))
             // json?.convertedEmployees.map(async (employee) => {
-            //     const data = await axios.get(`https://myuniversallanguages.com:9093/api/v1/superAdmin/Settings/${employee._id}`)
+            //     const data = await axios.get(`${apiUrl}/superAdmin/Settings/${employee._id}`)
             //     if (data?.data?.employeeSettings?.userId) {
             //         dispatch(setIds(data?.data?.employeeSettings?.userId))
             //     }
@@ -288,7 +288,7 @@ function Screenshot() {
                             dispatch(setAllUserSetting2({ value: e.target.value }))
                             const value = e.target.value;
                             try {
-                                const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
+                                const res = await axios.patch(`${apiUrl}/superAdmin/settingsE`,
                                     employees?.filter(f => f.effectiveSettings?.individualss === false)?.map((prevEmployess) => {
                                         return {
                                             userId: prevEmployess._id,
@@ -326,8 +326,8 @@ function Screenshot() {
                                     if (error.response.status === 403 && error.response.data.success === false) {
                                         // alert(error.response.data.message)
                                         setErrorMessage(error.response.data.message);
-                                        setOpenErrorDialog(true); 
-                                       
+                                        setOpenErrorDialog(true);
+
                                     }
                                 }
                             }
@@ -353,7 +353,7 @@ function Screenshot() {
                             // console.log(e.target.value);
                             dispatch(setAllUserSetting3({ value: e.target.value === "Allow Blur" ? true : false }))
                             try {
-                                const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
+                                const res = await axios.patch(`${apiUrl}/superAdmin/settingsE`,
                                     employees?.filter(f => f.effectiveSettings?.individualss === false)?.map((prevEmployess) => {
                                         return {
                                             userId: prevEmployess._id,
@@ -411,7 +411,7 @@ function Screenshot() {
                 <CompanyEmployess Setting={Setting} />
                 {/* )} */}
             </div>
-            <ErrorPopup 
+            <ErrorPopup
                 open={openErrorDialog}
                 message={errorMessage}
                 onClose={handleCloseDialog}

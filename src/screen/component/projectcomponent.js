@@ -37,7 +37,7 @@ const Projectcomponent = (props) => {
     const [users, setUsers] = useState(null);
 
     const { fixId, archived_unarchived_users, isUserArchive, inviteStatus, handleSendInvitation, projectName, getData, allowEmp, setAllowemp } = props
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const token = localStorage.getItem('token');
     const headers = {
         Authorization: "Bearer " + token,

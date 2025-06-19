@@ -30,7 +30,7 @@ const DownloadSection = () => {
     const [loading2, setLoading2] = useState(false)
     // const [loading, setLoading2] = useState(false)
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const dropdownBtn = document.getElementById("dropdownMenuButton");
@@ -181,6 +181,11 @@ const DownloadSection = () => {
     const handleClick = () => {
         window.location.href = 'https://chromewebstore.google.com/detail/sstrack/gkmllhjndmaaapegaopkpapaamfaeckg?hl=en-US';
     };
+
+    const handleMacOS = () => {
+        window.location.href = 'https://apps.apple.com/pk/app/sstrack-m/id6744729834?mt=12';
+    };
+
     useEffect(() => {
         window.scrollTo({
             top: 0,
@@ -228,7 +233,7 @@ const DownloadSection = () => {
                                 </span>
                             </p>
                             <div
-                                className="d-flex justify-content-start gap-3 flex-wrap"
+                                className="d-flex justify-content-start gap-2 flex-wrap"
                                 style={{
                                     width: "100%",
                                     alignItems: "center", // Items vertically center hon
@@ -302,72 +307,27 @@ const DownloadSection = () => {
                                     )}
                                 </button> */}
 
-
-                                {/* Mac OS Dropdown */}
-                                <div style={{ width: "185px", height: "42px" }}>
-                                    <button
-                                        className="btn btn-dark dropdown-toggle no-caret"
-                                        type="button"
-                                        id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown"
-                                        aria-expanded={isOpen}
-                                        onClick={() => setIsOpen(!isOpen)}
-                                        style={{
-                                            width: "110%",
-                                            height: "100%",
-                                            backgroundColor: "black",
-                                            borderRadius: "6px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            fontSize: "14px",
-                                            fontWeight: "bold",
-                                            marginLeft: '-5%'
-                                        }}
-                                    >
-                                        <BsApple color="#fff" size={20} style={{ marginRight: "10px" }} />
-                                        {isArabic ? "تحميل لنظام ماك" : "Download for Mac"}
-                                        <span style={{ marginLeft: "10px", transition: "transform 0.3s ease" }}>
-                                            {isOpen ? "▲" : "▼"}
+                                {/* App Mac OS */}
+                                <button
+                                    style={{
+                                        backgroundColor: 'black', // Loading state removed
+                                        padding: '1.9%',
+                                        width: '30%',
+                                        fontSize: '75%',
+                                        marginLeft: '0%',
+                                        gap: '5px'
+                                    }}
+                                    className="download-button" // Loading class removed
+                                    onClick={handleMacOS} // Directly calls handleClick without checking loading state
+                                >
+                                    <>
+                                        <BsApple color="#fff" size={18} />
+                                        <span style={{ color: 'white', fontSize: '-15%' }}>
+                                            {isArabic ? "إضافة كروم" : "Download for MacOS"}
                                         </span>
-                                    </button>
+                                    </>
+                                </button>
 
-                                    {/* Dropdown Menu */}
-                                    <ul className="dropdown-menu custom-dropdown" aria-labelledby="dropdownMenuButton">
-                                        <li>
-                                            <a
-                                                className="dropdown-item custom-dropdown-item"
-                                                href="#"
-                                                onClick={() => handleDownloadMac("Silicon")}
-                                                style={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    color: "white",
-                                                    gap: "8px",
-                                                }}
-                                            >
-                                                <BsApple color="#fff" size={18} />
-                                                {isArabic ? "لنظام ماك بشريحة Apple" : "For Mac Apple Chip"}
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a
-                                                className="dropdown-item custom-dropdown-item"
-                                                href="#"
-                                                onClick={() => handleDownloadMac("Intel")}
-                                                style={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    color: "white",
-                                                    gap: "8px",
-                                                }}
-                                            >
-                                                <BsApple color="#fff" size={18} />
-                                                {isArabic ? "لنظام ماك بشريحة Intel" : "For Intel Chip"}
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
                                 {/* Chrome Extension Button */}
                                 <button
                                     style={{
@@ -517,7 +477,7 @@ const DownloadSection = () => {
                         <Col md={6} className="text-center">
                             <img
                                 src={download_image} // Replace with the actual image path
-                                alt={isArabic ? "لقطة شاشة لتطبيق SS Track.io" : "SS Track.io Application Screenshot"}
+                                alt={isArabic ? "لقطة شاشة لتطبيق SSTrack.io" : "SSTrack.io Application Screenshot"}
                                 style={{
                                     width: "90%",
                                     maxWidth: "500px",

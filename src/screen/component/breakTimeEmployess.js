@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from "react";
-import Switch from "../../screen/component/switch";
-import userIcon from '../../images/groupImg.svg'
-import Skeleton from 'react-loading-skeleton'
-import 'react-loading-skeleton/dist/skeleton.css'
-import { useDispatch, useSelector } from "react-redux";
-import { setEmployess, setEmployessSetting, setPunctualitySettings } from "../../store/breakSlice";
 import axios from "axios";
-import { enqueueSnackbar, SnackbarProvider } from 'notistack'
-import brushIcon from '../../images/brush.svg'
-import UserDetails from "../userDetails";
 import moment from "moment-timezone";
+import { enqueueSnackbar, SnackbarProvider } from 'notistack';
+import { useEffect, useState } from "react";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { useDispatch, useSelector } from "react-redux";
+import userIcon from '../../images/groupImg.svg';
 
 
 
 const CompanyEmployess = (props) => {
 
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const [localToggleState, setLocalToggleState] = useState({}); // Manage local toggle states
     const state = useSelector((state) => state)
     const [setting, setSetting] = useState([])
@@ -112,7 +108,7 @@ const CompanyEmployess = (props) => {
             }));
 
             const response = await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                `${apiUrl}/superAdmin/addIndividualPunctuality`,
                 requestData,
                 {
                     headers: {
@@ -130,7 +126,7 @@ const CompanyEmployess = (props) => {
 
                 // Fetch updated break data
                 const updatedResponse = await axios.get(
-                    `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+                    `${apiUrl}/superAdmin/getPunctualityDataEachUser/${employeeId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -243,7 +239,7 @@ const CompanyEmployess = (props) => {
             try {
                 await Promise.all(employees.map(async (employee) => {
                     const response = await axios.get(
-                        `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+                        `${apiUrl}/superAdmin/getPunctualityDataEachUser/${employee._id}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${localStorage.getItem("token")}`,

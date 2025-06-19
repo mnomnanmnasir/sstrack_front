@@ -6,7 +6,7 @@ import axios from 'axios';
 import { set } from 'lodash';
 
 
-
+const apiUrl = process.env.REACT_APP_API_URL;
 function RequestsContent() {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0);
@@ -44,7 +44,7 @@ function RequestsContent() {
 
     try {
       const response = await axios.get(
-        'https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getEnterpriseRequests',
+        `${apiUrl}/SystemAdmin/getEnterpriseRequests`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -209,7 +209,7 @@ function RequestsContent() {
     console.log('formdata===>', formData)
     try {
       const token = localStorage.getItem('token_for_sa');
-      const response = await axios.post('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
+      const response = await axios.post(`${apiUrl}/SystemAdmin/updateEnterpriseRequest`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -248,7 +248,7 @@ function RequestsContent() {
     console.log('formdata===>', formData)
     try {
       const token = localStorage.getItem('token_for_sa');
-      const response = await axios.post('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
+      const response = await axios.post(`${apiUrl}/SystemAdmin/updateEnterpriseRequest`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -294,7 +294,7 @@ function RequestsContent() {
     console.log('formdata===>', formData)
     try {
       const token = localStorage.getItem('token_for_sa');
-      const response = await axios.post('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
+      const response = await axios.post(`${apiUrl}/SystemAdmin/updateEnterpriseRequest`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

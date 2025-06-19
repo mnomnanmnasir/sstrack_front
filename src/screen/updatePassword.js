@@ -22,7 +22,7 @@ function UpdatePassword() {
     const navigate = useNavigate()
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const params = useParams()
     const [showMessage, setShowMessage] = useState(false);  // ✅ Message state added
 

@@ -69,7 +69,7 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
                                 {/* <Button style={{ marginRight: token ? 10 : 50 }} onClick={() => navigate('/download')} className="signUpButton" type="button">Download</Button> */}
                                 {!token ? (
                                     <>
-                                        <Button onClick={() => navigate('/download')} className="signUpButton" type="button" style={{
+                                        {/* <Button onClick={() => navigate('/download')} className="signUpButton" type="button" style={{
                                             marginRight: '20px',
                                             fontWeight: '400', // Sinkin Sans weight
                                             fontSize: '0.8rem',
@@ -84,6 +84,36 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
                                             borderWidth: '1px',    // Optional for a visible border
                                         }}>
                                             Log In / Sign Up
+                                        </Button> */}
+                                        <Button onClick={() => navigate('/signup')} className="btn loginButton1" type="button" style={{
+                                            marginRight: '10px',
+                                            fontWeight: '400',
+                                            fontSize: '0.8rem',
+                                            fontFamily: "'Sinkin Sans', sans-serif",
+                                            borderColor: '#8CCA6B',
+                                            borderWidth: '1px',
+                                        }}>
+                                            Sign Up
+                                        </Button>
+
+                                        <Button onClick={() => navigate('/download')} className="signUpButton" type="button" style={{
+                                            marginRight: '10px',
+                                            fontWeight: '400',
+                                            fontSize: '0.8rem',
+                                            fontFamily: "'Sinkin Sans', sans-serif",
+                                        }}>
+                                            Download
+                                        </Button>
+
+                                        <Button onClick={() => navigate('/signin')} className="btn loginButton1" type="button" style={{
+                                            marginRight: '10px',
+                                            fontWeight: '400',
+                                            fontSize: '0.8rem',
+                                            fontFamily: "'Sinkin Sans', sans-serif",
+                                            borderColor: '#8CCA6B',
+                                            borderWidth: '1px',
+                                        }}>
+                                            Log In
                                         </Button>
                                     </>
                                 ) : (
@@ -104,7 +134,7 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
                                     </>
                                 )}
                             </div>
-                            <div className="d-lg-none d-block" style={{ color: 'white', fontWeight: 'bold' }}>
+                            {/* <div className="d-lg-none d-block" style={{ color: 'white', fontWeight: 'bold' }}>
 
                                 <NavItem>
                                     <NavLink href="#" onClick={() => navigate('/download')}>Download</NavLink>
@@ -125,6 +155,40 @@ const NavigationBar = ({ scrollToSection1, scrollToSection2 }) => {
                                         </NavItem>
                                         <NavItem>
                                             <NavLink href="#" onClick={() => logOut()}>Log out</NavLink>
+                                        </NavItem>
+                                    </>
+                                )}
+                            </div> */}
+                            <div className="d-lg-none d-block px-3 mt-3" style={{ color: 'white', fontWeight: 'bold' }}>
+                                {!token ? (
+                                    <>
+                                        <NavItem className="mb-2">
+                                            <NavLink href="#" onClick={() => navigate('/signup')} style={{ color: 'white', textDecoration: 'none' }}>
+                                                Sign Up
+                                            </NavLink>
+                                        </NavItem>
+                                        <NavItem className="mb-2">
+                                            <NavLink href="#" onClick={() => navigate('/download')} style={{ color: 'white', textDecoration: 'none' }}>
+                                                Download
+                                            </NavLink>
+                                        </NavItem>
+                                        <NavItem className="mb-2">
+                                            <NavLink href="#" onClick={() => navigate('/signin')} style={{ color: 'white', textDecoration: 'none' }}>
+                                                Log In
+                                            </NavLink>
+                                        </NavItem>
+                                    </>
+                                ) : (
+                                    <>
+                                        <NavItem className="mb-2">
+                                            <NavLink href="#" onClick={() => goToDashboard()} style={{ color: 'white', textDecoration: 'none' }}>
+                                                Dashboard
+                                            </NavLink>
+                                        </NavItem>
+                                        <NavItem className="mb-2">
+                                            <NavLink href="#" onClick={() => logOut()} style={{ color: 'white', textDecoration: 'none' }}>
+                                                Log Out
+                                            </NavLink>
                                         </NavItem>
                                     </>
                                 )}

@@ -1,25 +1,24 @@
+import axios from 'axios';
+import jwtDecode from 'jwt-decode';
+import * as L from "leaflet";
 
-import { SnackbarProvider } from 'notistack';
-import React, { useEffect, useState, useRef } from "react";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { GoogleMap, LoadScript, Polyline } from "@react-google-maps/api";
-import DatePicker from "react-datepicker";
+import { SnackbarProvider } from 'notistack';
+import { useEffect, useRef, useState } from "react";
 import { FaCalendarAlt } from "react-icons/fa";
 import Joyride from 'react-joyride';
-import jwtDecode from 'jwt-decode';
-import SelectBox from '../companyOwner/ownerComponent/selectBox';
 import makeAnimated from 'react-select/animated';
-import axios from 'axios';
+import SelectBox from '../companyOwner/ownerComponent/selectBox';
 // import { useRef } from 'react';
 import { useSnackbar } from 'notistack';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-
-
+const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 const LocaitonTracking = () => {
     const [run, setRun] = useState(true);
-    const [stepIndex, setStepIndex] = useState(0);
+    const [setStepIndex] = useState(0);
     const [users, setUsers] = useState([]);
     const [totalDistance, setTotalDistance] = useState(0); // Total distance in KM
     const [totalTime, setTotalTime] = useState("0h 0m");
@@ -29,45 +28,30 @@ const LocaitonTracking = () => {
 
     const mapRef = useRef(null);
 
-    
-    const summaryPreviewCount = 3;
+
+    // const summaryPreviewCount = 3;
     const items = jwtDecode(JSON.stringify(tokens));
     const [userID, setuserId] = useState(items?._id)
-    const [overviewData, setOverviewData] = useState({
-        totalDistance: "0 KM",
-        totalTime: "0h : 0m",
-    });
+    // const [overviewData, setOverviewData] = useState({
+    //     totalDistance: "0 KM",
+    //     totalTime: "0h : 0m",
+    // });
+
     let headers = {
         Authorization: 'Bearer ' + tokens,
     }
-    const [latestSession, setLatestSession] = useState({
-        timeRange: "N/A",
-        totalTime: "0h : 0m",
-        totalDistance: "0 KM",
-    });
-
-    const getPreviousMonthStart = () => {
-        const date = new Date();
-        date.setMonth(date.getMonth() - 1);
-        date.setDate(1);
-        return date;
-    };
-
-    const getCurrentMonthEnd = () => {
-        const date = new Date();
-        date.setMonth(date.getMonth() + 1, 0); // Last day of current month
-        return date;
-    };
 
     const [dataAvailability, setDataAvailability] = useState([]); // To hold dates with dataExist=true
     const [activeSummary, setActiveSummary] = useState([]);
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
 
     // State to hold map polyline data
     const [polylinePath, setPolylinePath] = useState([]);
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+
 
     const handleDateChange = (date) => {
+
         setSelectedDate(date); // Update selected date as a Date object
     };
     const steps = [
@@ -99,15 +83,18 @@ const LocaitonTracking = () => {
             setRun(false); // End the tour when finished
         }
     };
-    const fetchData = async (date) => {
+    const fetchData = async (dateStr) => {
+        console.log('ahahahahahha', dateStr);
         try {
-            const formattedDate = date.toISOString().split("T")[0]; // Format to YYYY-MM-DD
+            const formattedDate = dateStr; // Already in YYYY-MM-DD format
             const token = localStorage.getItem("token");
-            const apiUrl = items?.userType === "user"
-                // ? `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerData?date=${formattedDate}`
-                ? `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerDataByDate/${userID}?date=${formattedDate}`
-                : `https://myuniversallanguages.com:9093/api/v1/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
-            const response = await fetch(apiUrl, {
+
+            const endpoint =
+                items?.userType === "user"
+                    ? `${apiUrl}/tracker/getTrackerDataByDate/${userID}?date=${formattedDate}`
+                    : `${apiUrl}/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
+
+            const response = await fetch(endpoint, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -115,11 +102,8 @@ const LocaitonTracking = () => {
                 },
             });
 
-
             if (!response.ok) {
-                // const error = await response.json();
-                // throw new Error(`HTTP error! status: ${response.status}`);
-                console.log('response.status', response)
+                console.log("Response not OK:", response.status);
             }
 
             const data = await response.json();
@@ -164,10 +148,10 @@ const LocaitonTracking = () => {
                 const totalMinutes = totalTimeMinutes % 60;
 
                 // Update the states
-                setTotalDistance(totalDistance.toFixed(2)); // Update total distance
-                setTotalTime(`${totalHours}h ${totalMinutes}m`); // Update total time
-                setActiveSummary(activeSummary); // Update active summary
-                setPolylinePath(polylines); // Update polylines
+                setTotalDistance(totalDistance.toFixed(2));
+                setTotalTime(`${totalHours}h ${totalMinutes}m`);
+                setActiveSummary(activeSummary);
+                setPolylinePath(polylines);
             } else {
                 console.error("API call was not successful.");
             }
@@ -175,6 +159,7 @@ const LocaitonTracking = () => {
             console.error("Error fetching data:", error);
         }
     };
+
 
     const hasShownNoDataSnackbar = useRef(false);
 
@@ -191,17 +176,23 @@ const LocaitonTracking = () => {
             );
 
             if (response.data.success) {
-                const availableDates = response.data.data.dataByDay
-                    .filter(day => day.dataExist)
-                    .map(day => {
-                        const [d, m, y] = day.date.split("-");
-                        return new Date(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
-                    });
+                const availableDates = response.data.data.dataByDay.map(day => {
+                    const [d, m, y] = day.date.split("-");
+                    const date = new Date(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
+                    return {
+                        value: date.toISOString(),
+                        label: `${date.toLocaleDateString("en-US", {
+                            year: "numeric", month: "long", day: "numeric"
+                        })} (${day.dataExist ? 'Data Available' : 'No Data'})`,
+                        isAvailable: day.dataExist
+                    };
+                });
+
 
                 setDataAvailability(availableDates);
 
                 if (availableDates.length > 0) {
-                    setSelectedDate(availableDates[0]);
+                    setSelectedDate(availableDates[0].value.split("T")[0]);
                 } else {
                     setSelectedDate(today);
 
@@ -226,7 +217,8 @@ const LocaitonTracking = () => {
     // Fetch data whenever the selected date changes
     useEffect(() => {
         fetchData(selectedDate);
-    }, [selectedDate]);
+    }, [selectedDate]);  // ✅ run only when selectedDate changes
+
 
     // const handleSelectUsers = (e) => {
     //     setuserId(e?.value)
@@ -245,63 +237,80 @@ const LocaitonTracking = () => {
         if (userID) {
             fetchAvailableDates(userID);
         }
-    }, [userID]);
+    }, [userID]);  // ✅ run only when userID changes
+
 
     useEffect(() => {
-        // Don't proceed if no data
-        if (!polylinePath || polylinePath.length === 0) return;
+        // Ensure polylinePath exists, is an array, and has at least one non-empty array inside
+        if (
+            !Array.isArray(polylinePath) ||
+            polylinePath.length === 0 ||
+            !Array.isArray(polylinePath[0]) ||
+            polylinePath[0].length === 0
+        ) {
+            console.warn("No valid polyline path available yet.");
+            return;
+        }
 
-        // Get container safely
         const mapContainer = document.getElementById("map");
         if (!mapContainer) {
             console.warn("Map container not found");
             return;
         }
 
-        // Clean previous map
         if (mapRef.current) {
             mapRef.current.remove();
             mapRef.current = null;
         }
 
-        const initialCenter = polylinePath[0][0] || [37.7749, -122.4194];
-        const map = L.map(mapContainer).setView(initialCenter, 15);
-        mapRef.current = map;
+        const initialCenter = polylinePath[0][0];
+        if (!Array.isArray(initialCenter) || initialCenter.length !== 2) {
+            console.warn("Invalid initial center coordinates.");
+            return;
+        }
+
+        const mapInstance = L.map(mapContainer, {
+            center: initialCenter,
+            zoom: 15,
+        });
+        mapRef.current = mapInstance;
 
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: "© OpenStreetMap contributors",
-        }).addTo(map);
+        }).addTo(mapInstance);
 
-        const featureGroup = L.featureGroup().addTo(map);
+        const featureGroup = L.featureGroup().addTo(mapInstance);
 
-        polylinePath.forEach((polyline, polylineIndex) => {
-            if (polyline.length > 1) {
-                const line = L.polyline(polyline, {
-                    color: "blue",
-                    weight: 8,
-                    opacity: 0.9,
-                }).addTo(map);
-                featureGroup.addLayer(line);
+        polylinePath.forEach((polyline) => {
+            if (!Array.isArray(polyline) || polyline.length < 2) return;
 
-                polyline.forEach((coord, coordIndex) => {
-                    const coordMarker = L.marker(coord, {
-                        icon: L.icon({
-                            iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                            iconSize: [32, 32],
-                        }),
-                        title: `Point ${coordIndex + 1}`,
-                    }).addTo(map);
-                    coordMarker.bindPopup(`Point ${coordIndex + 1}`);
-                    featureGroup.addLayer(coordMarker);
-                });
-            }
+            const line = L.polyline(polyline, {
+                color: "blue",
+                weight: 8,
+                opacity: 0.9,
+            }).addTo(mapInstance);
+            featureGroup.addLayer(line);
+
+            polyline.forEach((coord, coordIndex) => {
+                if (!Array.isArray(coord) || coord.length !== 2) return;
+
+                const coordMarker = L.marker(coord, {
+                    icon: L.icon({
+                        iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                        iconSize: [32, 32],
+                    }),
+                    title: `Point ${coordIndex + 1}`,
+                }).addTo(mapInstance);
+
+                coordMarker.bindPopup(`Point ${coordIndex + 1}`);
+                featureGroup.addLayer(coordMarker);
+            });
         });
 
         if (featureGroup.getLayers().length > 0) {
-            map.fitBounds(featureGroup.getBounds(), { padding: [30, 30] });
+            mapInstance.fitBounds(featureGroup.getBounds(), { padding: [30, 30] });
         }
 
-        // Cleanup on unmount
         return () => {
             if (mapRef.current) {
                 mapRef.current.remove();
@@ -309,6 +318,23 @@ const LocaitonTracking = () => {
             }
         };
     }, [polylinePath]);
+
+
+
+    const customDayClassName = (date) => {
+        const dateStr = date.toISOString().split("T")[0];
+
+        const match = dataAvailability.find((d) => {
+            const originalDate = new Date(d.value);
+            const previousDate = new Date(originalDate);
+            previousDate.setDate(originalDate.getDate() - 1); // Subtract one day
+            return previousDate.toISOString().split("T")[0] === dateStr && d.isAvailable;
+        });
+
+        return match ? "highlighted-date" : "";
+    };
+
+
 
     const getManagerEmployees = async () => {
         try {
@@ -366,10 +392,23 @@ const LocaitonTracking = () => {
     const defaultValue = users.length > 0 ? [{ value: users[0].value }] : [];
     useEffect(() => {
         getEmployess();
-    }, []);
+    }, []);  // ✅ run once on mount
+
 
     return (
+
         <>
+            <style>
+                {`
+    .highlighted-date {
+        background-color: #64c47c !important;
+        color: white !important;
+        border-radius: 50% !important;
+        font-weight: bold;
+    }
+`}
+            </style>
+
             {items?._id === "679b223b61427668c045c659" && (
                 <Joyride
                     steps={steps}
@@ -518,11 +557,11 @@ const LocaitonTracking = () => {
                                     cursor: "pointer",
                                     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                                     backgroundColor: "#fff",
-                                    position: "relative", // Added for proper stacking context
-                                    zIndex: 10,
+                                    marginTop: "20px",
+                                    position: "relative",
+                                    zIndex: 1000,
                                 }}
                             >
-                                {/* Calendar Icon */}
                                 <FaCalendarAlt
                                     style={{
                                         color: "#64C47C",
@@ -531,55 +570,56 @@ const LocaitonTracking = () => {
                                     }}
                                 />
 
-                                {/* DatePicker Input */}
                                 <DatePicker
-                                    selected={selectedDate}
-                                    onChange={handleDateChange}
-                                    dateFormat="MMM d, yyyy EEEE"
-                                    highlightDates={[{ 'light-green': dataAvailability }]}
-                                    filterDate={(date) =>
-                                        dataAvailability.some(
-                                            (available) =>
-                                                date.getFullYear() === available.getFullYear() &&
-                                                date.getMonth() === available.getMonth() &&
-                                                date.getDate() === available.getDate()
-                                        )
-                                    }
-                                    maxDate={new Date()} // ✅ This prevents next/future months from showing
-                                    // showMonthDropdown
-                                    // showYearDropdown
-                                    // scrollableMonthYearDropdown
-                                    // popperPlacement="bottom-start"
-                                    popperModifiers={[
-                                        {
-                                            name: "preventOverflow",
-                                            options: {
-                                                boundary: "viewport",
-                                            },
-                                        },
-                                    ]}
+                                    selected={new Date(selectedDate)}
+                                    onChange={(date) => handleDateChange(date.toISOString().split("T")[0])}
+                                    maxDate={new Date()}
+                                    dayClassName={customDayClassName}
+                                    dateFormat="yyyy-MM-dd"
                                     customInput={
-                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                cursor: "pointer",
+                                            }}
+                                        >
+                                            <input
+                                                value={selectedDate}
+                                                readOnly
+                                                style={{
+                                                    border: "none",
+                                                    outline: "none",
+                                                    fontSize: "15px",
+                                                    fontWeight: "500",
+                                                    color: "#000",
+                                                    backgroundColor: "transparent",
+                                                    cursor: "pointer",
+                                                    paddingRight: "8px",
+                                                }}
+                                            />
                                             <span
                                                 style={{
-                                                    fontSize: "16px",
-                                                    fontWeight: "600",
-                                                    color: "#000",
-                                                    marginRight: "5px",
+                                                    fontSize: "14px",
+                                                    color: "#888",
+                                                    pointerEvents: "none",
                                                 }}
                                             >
-                                                {selectedDate.toLocaleDateString("en-US", {
-                                                    year: "numeric",
-                                                    month: "short",
-                                                    day: "numeric",
-                                                    weekday: "long",
-                                                })}
+                                                ▼
                                             </span>
-                                            <span style={{ fontSize: "14px", color: "#666" }}>▼</span>
                                         </div>
                                     }
+
+                                    wrapperClassName="datePickerWrapper"
                                 />
                             </div>
+
+
+
+
+
+
+
 
                         </div>
 
@@ -683,12 +723,10 @@ const LocaitonTracking = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
 
         </>
     );
 };
 
 export default LocaitonTracking;
-
-

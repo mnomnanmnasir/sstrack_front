@@ -127,7 +127,7 @@ function OwnerTeamComponent(props) {
 
         setSelectedTimezone(selectedTimezone);
 
-        const apiUrl = `https://myuniversallanguages.com:9093/api/v1/owner/updateUsersTimezone/${fixId}`;
+        const apiUrl = `${apiUrl}/owner/updateUsersTimezone/${fixId}`;
 
         const payload = {
             timezone: selectedTimezone.value.toString(),  // Example: "Asia/Kabul"
@@ -223,7 +223,9 @@ function OwnerTeamComponent(props) {
                 setVacationPay('');
                 setPayPeriodType('');
                 setPayType('');
-                setRatePerHours('')
+                setRatePerHours('');
+                setAppliedDeductions('');
+                setAppliedTaxes('')
                 return;
             }
             try {
@@ -277,7 +279,6 @@ function OwnerTeamComponent(props) {
 
             try {
                 const response = await axios.get(`${apiUrl}/owner/user/${selectedUser._id}`, { headers });
-                console.log("📥 Selected User API Response:", response.data);
 
                 if (response.status === 200 && response.data) {
                     const responseData = response.data;
@@ -973,14 +974,3 @@ function OwnerTeamComponent(props) {
 }
 
 export default OwnerTeamComponent;
-
-
-
-
-
-
-
-
-
-
-

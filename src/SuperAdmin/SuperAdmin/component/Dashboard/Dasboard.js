@@ -6,16 +6,18 @@ import TopBar from '../topBar'
 import axios from 'axios';
 import Dcompanies from './d_companies';
 import * as XLSX from 'xlsx';
-
+const apiUrl = process.env.REACT_APP_API_URL;
 function Dashboard({ onNavigate }) {
   // const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalCompaniesUsers, setTotalCompaniesUsers] = useState(null);
   const [newCompaniesUsers, setNewCompaniesUsers] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const fetchTotalCompaniesUsers = async () => {
     const token = localStorage.getItem('token_for_sa');
+
     if (!token) {
       setError('Authentication token not found');
       setLoading(false);
@@ -23,7 +25,7 @@ function Dashboard({ onNavigate }) {
     }
 
     try {
-      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getTotalCompaniesUsers', {
+      const response = await axios.get(`${apiUrl}/SystemAdmin/getTotalCompaniesUsers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -39,6 +41,7 @@ function Dashboard({ onNavigate }) {
       setLoading(false);
     }
   };
+
   const fetchNewCompaniesUsers = async () => {
     const token = localStorage.getItem('token_for_sa');
     if (!token) {
@@ -48,7 +51,7 @@ function Dashboard({ onNavigate }) {
     }
 
     try {
-      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getnewCompaniesUsers', {
+      const response = await axios.get(`${apiUrl}/SystemAdmin/getnewCompaniesUsers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -74,7 +77,7 @@ function Dashboard({ onNavigate }) {
   //   }
 
   //   try {
-  //     const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getAllInvoices', {
+  //     const response = await axios.get('${apiUrl}/SystemAdmin/getAllInvoices', {
   //       headers: { Authorization: `Bearer ${token}` },
   //     });
 
@@ -111,6 +114,9 @@ function Dashboard({ onNavigate }) {
   };
 
   const handleDownloadFile = async () => {
+
+    setIsDownloading(true); // Start loading
+
     try {
       const token = localStorage.getItem('token_for_sa');
       if (!token) {
@@ -119,7 +125,7 @@ function Dashboard({ onNavigate }) {
       }
 
       const response = await axios.get(
-        'https://myuniversallanguages.com:9093/api/v1/SystemAdmin/export/companies',
+        `${apiUrl}/SystemAdmin/export/companies`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -143,6 +149,9 @@ function Dashboard({ onNavigate }) {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading the file:', error);
+    }
+    finally {
+      setIsDownloading(false); // Stop loading
     }
   };
 
@@ -175,10 +184,16 @@ function Dashboard({ onNavigate }) {
             backgroundColor: '#6DBB48'
           }}
         >
-          Export CSV
+          {isDownloading ? (
+            <>
+              <CircularProgress size={20} color="inherit" style={{ marginRight: '8px' }} />
+              Downloading
+            </>
+          ) : (
+            'Export CSV'
+          )}
         </Button>
       </Box>
-
 
       {/* Summary Cards */}
       {/* <Grid container spacing={2} mb={4}>
@@ -243,7 +258,7 @@ function Dashboard({ onNavigate }) {
         {[
           {
             label: 'New Users',
-            value: `${(newCompaniesUsers?.newUsers || 0) + 2000}`,
+            value: `${(newCompaniesUsers?.newUsers || 0)}`,
             icon: <TrendingUpIcon color="success" />,
           },
           {
@@ -254,28 +269,28 @@ function Dashboard({ onNavigate }) {
                 <span style={{ fontSize: '12px', color: '#888' }}>Last 7 Days</span>
               </>
             ),
-            value: `${(newCompaniesUsers?.newCompanies || 0) + 2000}`,
+            value: `${(newCompaniesUsers?.newCompanies || 0)}`,
             icon: <TrendingUpIcon color="success" />,
           },
           {
             label: 'Total Companies',
-            value: `${(totalCompaniesUsers?.totalCompanies || 0) + 2000}`,
+            value: `${(totalCompaniesUsers?.totalCompanies || 0)}`,
             icon: <TrendingUpIcon color="success" />,
             onClick: () => onNavigate('Total Companies'),
           },
           {
             label: 'Total Users',
-            value: `${(totalCompaniesUsers?.totalUsers || 0) + 2000}`,
+            value: `${(totalCompaniesUsers?.totalUsers || 0)}`,
             icon: <TrendingUpIcon color="success" />,
           },
           {
             label: 'Active Users',
-            value: `${(newCompaniesUsers?.activeUsers || 0) + 2000}`,
+            value: `${(newCompaniesUsers?.activeUsers || 0)}`,
             icon: <TrendingUpIcon color="success" />,
           },
           {
             label: 'Active Companies',
-            value: `${(newCompaniesUsers?.activeCompanies || 0) + 2000}`,
+            value: `${(newCompaniesUsers?.activeCompanies || 0)}`,
             icon: <TrendingUpIcon color="success" />,
           }
         ].map((card, index) => (

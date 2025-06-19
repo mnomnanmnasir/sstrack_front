@@ -1,4 +1,4 @@
- pushhello Nim
+me adn  pushhello Nim
 splash screen
 done
 signin issue
@@ -155,3 +155,92 @@ fix payStubGenerator
 stub generator message
 commit by Abdullah
 profile update
+<<<<<<< HEAD
+
+css file updated
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+Policy punctuality Date and Time
+userType user timeline hover effect
+>>>>>>> e473e59795fe7235be74a7f23579153732687e93
+punctuality report
+>>>>>>> 1e862c3a5cd825aebbac6552cb793e3648f8e4da
+payStub generator
+>>>>>>> 3a6eb89d565b39cfc2a21f0eb173674ff774b10b
+payStub updated
+remove the bulk users
+update ownerTeam
+updated payStubFolder
+paystub history
+phoneNumber
+phoneNumber icon
+updated on owner splash screen
+redirect to invite employees /team
+total companies adding phone number icon
+punctuality break time
+invite employee hide employees
+new break functionality
+punctuality/break fixed
+Header options included demo training center
+updated router fix without geo fencing
+updated on remove phone number superAdmin
+updated on breakTime/punctuality
+updated on EditTimelineZone
+updated on user/manager timezone disabled
+display phone number userType owner
+Set PayRate reflect the pay stub currecn, payType,ratePerHour
+setpayrate
+export csv
+Team section pay stub setting alignment
+My Profile display inside pay rate
+updated /team route
+Edit Button add userDetail comp
+router issue fix
+issue fix route
+break time and puncut
+SEO content update
+footer added social media icons
+added App.css file
+Seo content update
+Add product hunt btn
+button fix alignment
+LocationTracking and align for product hunt button
+phillipine
+philippine to philippines
+fix philipines
+add clonical homepage SEO
+philiphine replace to dropdown philippines
+sidebar fixed
+system admin update
+Mac OS link updated
+header update
+update SSTRACK frontend
+updated on usDetail.js file
+payStub
+paystub update
+add files
+add update
+negative value
+home arabic translate 
+regenerate stub
+total hours
+extension fixed
+autotrigger fixed
+ext popup
+paystub updated
+payStub updated
+reload
+update
+disabled checkbox
+update
+payStubSetting updated 
+payroll AddEmployee & PayrollUser
+making tax updated
+again
+update payrol user settings
+philipine replace to philippine
+undefine
+payroll updated

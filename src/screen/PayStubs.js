@@ -23,7 +23,7 @@ export default function PayStubs() {
     };
     const [error, setError] = useState(null);
     const { loading, setLoading, loading2, setLoading2 } = useLoading()
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const location = useLocation();
     const stubData = location.state?.stub;
     const stubUser = location.state?.user;
@@ -39,7 +39,8 @@ export default function PayStubs() {
     }, [stubData, stubUser, stubPeriod]);
 
 
-    const data = stubData.data[0] || {};
+    const data = stubData || {};
+    // const data =  {};
     console.log('Received Stub Data:', data);
     return (
         <>

@@ -1,18 +1,13 @@
-import React, { useEffect, useState } from "react";
-import user from "../images/user-account.webp";
-import UserHeader from "./component/userHeader";
-import line from "../images/line.webp";
-import Footer from "./component/footer";
-import UserDashboardSection from "./component/userDashboardsection";
-import TimezoneSelect from 'react-timezone-select';
-import AdminDashboardHeader from "./component/adminHeadSection";
-import OwnerDashboardHeader from "../companyOwner/ownerComponent/ownerSection";
 import axios from "axios";
-import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import { FerrisWheelSpinner } from "react-spinner-overlay";
-import { useNavigate, useLocation } from "react-router-dom";
-import goBackIcon from '../images/go-back.svg'
 import jwtDecode from "jwt-decode";
+import { SnackbarProvider, enqueueSnackbar } from "notistack";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FerrisWheelSpinner } from "react-spinner-overlay";
+import TimezoneSelect from 'react-timezone-select';
+import goBackIcon from '../images/go-back.svg';
+import line from "../images/line.webp";
+import user from "../images/user-account.webp";
 
 function Profile() {
 
@@ -43,7 +38,7 @@ function Profile() {
         'Content-Type': 'application/json'
     };
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     let fillModel = (key, val) => {
         setModel((prevModel) => ({
@@ -208,7 +203,7 @@ function Profile() {
 
         try {
             const response = await axios.post(
-                `https://myuniversallanguages.com:9093/api/v1/auth/microsoft/authSignup`,
+                `${apiUrl}/auth/microsoft/authSignup`,
                 {
                     userId: "672cc6df2a2b7806b4bea9cb", // Replace with the actual userId if needed
                     name: model.name, // Use model.name
@@ -261,7 +256,7 @@ function Profile() {
 
     //     try {
     //         const response = await axios.post(
-    //             `https://myuniversallanguages.com:9093/api/v1/auth/microsoft/authSignup`,
+    //             `${apiUrl}/auth/microsoft/authSignup`,
     //             {
     //                 userId: "672cc6df2a2b7806b4bea9cb", // Replace with the actual userId if needed
     //                 name: model.name, // Use model.name
@@ -445,12 +440,31 @@ function Profile() {
                                     />
                                 </div>
 
-                                <div>
+                                {/* <div>
                                     <label className="countryLabel">Time Zone</label>
                                     <div className="dropdown">
                                         <TimezoneSelect value={timezone} onChange={handleStartDateChange} />
                                     </div>
+                                </div> */}
+                                <div>
+                                    <label className="countryLabel">Time Zone</label>
+                                    <div className="dropdown">
+                                        <TimezoneSelect
+                                            value={timezone}
+                                            onChange={handleStartDateChange}
+                                            isDisabled={items?.userType === "user" || items?.userType === "manager"}
+                                            style={{
+                                                // backgroundColor: model?.company ? "#f0f0f0" : "white",
+                                                border: "none",
+                                                outline: "none",
+                                                flex: 1,
+                                                padding: "5px",
+                                                // backgroundColor: (items?.userType === "owner" || items?.userType === "user" || items?.userType === "admin" || items?.userType === "manager") && items?.company ? "#ccc" : "#E8F4FC"
+                                            }}
+                                        />
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
                         <div className="saveCancelButton">

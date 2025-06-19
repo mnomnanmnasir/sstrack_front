@@ -6,7 +6,7 @@ const History = () => {
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 15; // ✅ 1 Page = 15 Rows
-
+    const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
     const token = localStorage.getItem("token");
     const [backendMessage, setBackendMessage] = useState(""); // ✅ Backend message state
 
@@ -23,17 +23,17 @@ const History = () => {
     }
 
     // ✅ API URL based on userType
-    const apiUrl =
+    const apiUrls =
         userType === "user"
-            ? "https://myuniversallanguages.com:9093/api/v1/timetrack/getUserHistory"
+            ? `${apiUrl}/timetrack/getUserHistory`
             : userType === "manager"
-                ? "https://myuniversallanguages.com:9093/api/v1/manager/getManagerHistory"
-                : "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAdminHistory";
+                ? `${apiUrl}/manager/getManagerHistory`
+                : `${apiUrl}/superAdmin/getAdminHistory`;
 
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const response = await fetch(apiUrl, {
+                const response = await fetch(apiUrls, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",

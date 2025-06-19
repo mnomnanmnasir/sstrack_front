@@ -17,6 +17,7 @@ import CustomModal from './component/CustomModal';
 import PayPalButton from './PayPalButton'
 
 const stripePromise = loadStripe(process.env.REACT_AP_KEY);
+const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
 
 
 
@@ -160,15 +161,9 @@ const Payment = ({ updatePaymentStatus }) => {
 
     // };
 
-    const getPlanDescription = plan => {
-        return `$${plan.costPerUser} per month per user, up to ${plan.screenshotsPerHr
-            } screenshots per hour, screenshots kept ${plan.ssStored
-            } days, individual settings, activity level tracking, ${plan.mobileApp ? 'mobile app included' : 'no mobile app'
-            }, app & URL tracking`;
-    };
-    console.log('Selected plan:==============', plans);
+ 
 
-    const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
+    
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, {
@@ -194,7 +189,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
+                const apiUrl1 = `${apiUrl}`;
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, {
                     headers,
                 });
@@ -279,7 +274,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
                 });
                 const planUpgradeApiUrl =
-                    'https://myuniversallanguages.com:9093/api/v1';
+                    `${apiUrl}`;
                 try {
                     const response = await axios.post(
                         `${planUpgradeApiUrl}/owner/addNewCard`,
@@ -394,7 +389,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
                 });
                 const planUpgradeApiUrl =
-                    'https://myuniversallanguages.com:9093/api/v1';
+                    `${apiUrl}`;
                 try {
                     const response = await axios.post(
                         `${planUpgradeApiUrl}/owner/upgrade`,
@@ -448,7 +443,7 @@ const Payment = ({ updatePaymentStatus }) => {
     };
 
     //this api is for pricing plan who's data is to send to payment page
-    const planapiUrl = 'https://myuniversallanguages.com:9093/api/v1';
+    const planapiUrl = `${apiUrl}`;
 
     const fetchPlans = async () => {
         try {
@@ -626,7 +621,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //             cardNumber: paymentMethod.card.last4,
 
     //         });
-    //         const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //         const planUpgradeApiUrl = "${apiUrl}";
     //         try {
     //             const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
     //                 // tokenId: paymentMethod.id,
@@ -656,7 +651,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //     }
     // };
     // const handlePayWithCard = async () => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     const DirectPayApiUrl = "${apiUrl}";
     //     if (paycard) {
     //         console.log('Pay with this card:', paycard);
     //         setIsLoading(true);
@@ -698,7 +693,7 @@ const Payment = ({ updatePaymentStatus }) => {
     };
 
     const handlePayWithThisCard = async () => {
-        const DirectPayApiUrl = 'https://myuniversallanguages.com:9093/api/v1';
+        const DirectPayApiUrl = `${apiUrl}`;
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setIsLoading(true);

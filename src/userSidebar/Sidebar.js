@@ -7,7 +7,6 @@ import {
     Dashboard as DashboardIcon,
     People as PeopleIcon,
     Timeline as TimelineIcon,
-    Settings as SettingsIcon,
     ChevronLeft as ChevronLeftIcon,
     ChevronRight as ChevronRightIcon,
     Map as MapIcon,
@@ -16,25 +15,18 @@ import {
     CalendarToday as CalendarTodayIcon,
     ExpandLess,
     ExpandMore,
-    Article as ArticleIcon,
     AccessTime as AccessTimeIcon,
     AttachMoney as AttachMoneyIcon
 } from '@mui/icons-material';
-import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import BarChartIcon from '@mui/icons-material/BarChart';
 import check from "../images/online.webp";
-import offline from "../images/not-active.svg";
-import CircleIcon from '@mui/icons-material/Circle';
 import axios from "axios";
 import CalculateIcon from '@mui/icons-material/Calculate'; // For Run Payroll
 import GroupAddIcon from '@mui/icons-material/GroupAdd';   // For Add Employee
 import HistoryIcon from '@mui/icons-material/History';     // For Pay Stub History
 import TimerIcon from '@mui/icons-material/Timer';         // ⏱ Break Time
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'; // 🧑‍💼 Attendance Management
 import AlarmOnIcon from '@mui/icons-material/AlarmOn';     // ⏰ Punctuality
 import InsightsIcon from '@mui/icons-material/Insights';         // 📊 Detailed Reports
 import QueryStatsIcon from '@mui/icons-material/QueryStats';     // 📈 Punctuality Reports
-import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { useSocket } from '../io'; // Adjust path if needed
 
@@ -44,7 +36,7 @@ import logo from '../images/sloganLogo.png';
 
 const drawerWidth = 250;
 const collapsedWidth = 70;
-
+const apiUrl = process.env.REACT_APP_API_URL;
 // const Sidebar = ({ open, onClose }) => {
 const Sidebar = ({ open, onClose, userType: parentUserType }) => {
 
@@ -55,30 +47,16 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [timelineOpen, setTimelineOpen] = useState(false);
     const [paystubOpen, setPaystubOpen] = useState(false);
-    const [geoFenceOpen, setGeoFenceOpen] = useState(false);
     const socket = useSocket();
     const [userType, setUserType] = useState(parentUserType); // initial from props
     const [loadingUsers, setLoadingUsers] = useState(false);
-    const [token, setToken] = useState(localStorage.getItem("token"));
+    const [token] = useState(localStorage.getItem("token"));
 
     const navigate = useNavigate();
     const location = useLocation();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
 
-    useEffect(() => {
-        // const token = localStorage.getItem("token");
-        if (token) {
-            try {
-                const decoded = jwtDecode(token);
-                setUserType(decoded?.userType);
-            } catch (err) {
-                console.error("Token decode error", err);
-            }
-        }
-    }, [localStorage.getItem("token")]); // ❌ This won't trigger
-
-    const [employees, setEmployees] = useState([]);
     const [showUsersDropdown, setShowUsersDropdown] = useState(false);
     const [usersDropdownPos, setUsersDropdownPos] = useState({ top: 0, left: 0 });
     const [userStats, setUserStats] = useState(null);
@@ -115,7 +93,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
     useEffect(() => {
         const fetchUserStats = async () => {
             try {
-                const res = await axios.get("https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee", {
+                const res = await axios.get(`${apiUrl}/owner/getCompanyemployee`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
@@ -134,10 +112,6 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
 
         fetchUserStats();
     }, []);
-
-    const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
-    };
 
     useEffect(() => {
         if (isMobile && open) {
@@ -165,29 +139,19 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
     const sidebarItems = useMemo(() => [
         { text: 'Dashboard', icon: <DashboardIcon />, route: '/dashboard' },
         { isDropdown: 'timeline' },
-        // ...(userType !== 'user' ? [{ text: 'Timeline', icon: <PeopleIcon />, route: '/timeline' }] : []),
-        // ...(userType !== 'user' ? [{ text: 'Projects', icon: <FolderIcon />, route: '/Projects' }] : []),
-        // { text: 'Timeline', icon: <TimelineIcon />, route: '/timeline' },
-
         ...(userType !== 'user' ? [{ text: 'Team', icon: <PeopleIcon />, route: '/team' }] : []),
         ...(userType !== 'user' ? [{ text: 'Projects', icon: <FolderIcon />, route: '/Projects' }] : []),
         { isDropdown: 'reports' },
         { isDropdown: 'attendance' },
 
         // { text: 'Geo Fencing', icon: <CalendarTodayIcon />, route: '/geo-fance' },
-        { isDropdown: 'geoFence' },
+        // { isDropdown: 'geoFence' },
 
         { text: 'Leave Management', icon: <CalendarTodayIcon />, route: '/leave-management' },
         { text: 'Location Tracking', icon: <MapIcon />, route: '/Locationtracking' },
 
-        // { text: 'Pay Stub Managment', icon: <AttachMoneyIcon />, route: '/pay_stub_managment' },
         ...(userType === 'owner' || userType === 'admin' ? [{ isDropdown: 'paystub' }] : []),
-        // ...(userType === 'owner' || userType === 'admin' ? [
-        //     { text: 'Pay Stub Managment', icon: <PeopleIcon />, route: '/pay_stub_managment' }
-        // ] : []),
 
-        // ...(userType === 'manager' ? [{ text: 'Attendence Management', icon: <PeopleIcon />, route: '/attendence-management' }] : []),
-        // { text: 'Blogs', icon: <ArticleIcon />, route: '/blogs-assign-users' },
     ], [userType]);
 
     const filteredSidebarItems = sidebarItems.filter(item => {
@@ -196,7 +160,6 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
     });
 
     const drawerContent = (
-
         <div>
             <div style={{ display: 'flex', alignItems: 'center', padding: '16px 10px' }}>
                 {!collapsed && (
@@ -214,7 +177,6 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                 {filteredSidebarItems.map((item, index) => {
                     // 🟦 TIMELINE TAB WITH USERS DROPDOWN
                     if (item.isDropdown === 'timeline') {
-                        const isActive = location.pathname.includes('/timeline');
                         return (
                             <div
                                 key="timeline-dropdown"
@@ -228,7 +190,6 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                 <Tooltip title={collapsed ? 'Timeline' : ''} placement="right">
                                     <ListItemButton
                                         onClick={() => setTimelineOpen(!timelineOpen)}
-                                    // sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}
                                     >
                                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
                                             <TimelineIcon />
@@ -252,7 +213,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                             setUserStats(null);         // clear old data
 
                                             try {
-                                                const res = await fetch("https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee", {
+                                                const res = await fetch(`${apiUrl}/owner/getCompanyemployee`, {
                                                     headers: {
                                                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                                                     },
@@ -524,12 +485,10 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
 
                     // 🟨 REPORTS DROPDOWN
                     if (item.isDropdown === 'reports') {
-                        const isActive = location.pathname.includes('/reports');
                         return (
                             <div key="reports-dropdown">
                                 <Tooltip title={collapsed ? 'Reports' : ''} placement="right">
                                     <ListItemButton onClick={() => setReportsOpen(!reportsOpen)}
-                                    // sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}
                                     >
                                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
                                             <AssignmentIcon />
@@ -568,12 +527,10 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
 
                     // 🟩 ATTENDANCE DROPDOWN
                     if (item.isDropdown === 'attendance' && !['manager', 'user'].includes(userType)) {
-                        const isActive = location.pathname.includes('/attendence-management');
                         return (
                             <div key="attendance-dropdown">
                                 <Tooltip title={collapsed ? 'Attendance' : ''} placement="right">
                                     <ListItemButton onClick={() => setAttendanceOpen(!attendanceOpen)}
-                                    // sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}
                                     >
                                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><AccessTimeIcon /></ListItemIcon>
                                         {!collapsed && <ListItemText primary="Attendance" />}
@@ -608,121 +565,12 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                         );
                     }
 
-                    if (item.isDropdown === 'geoFence') {
-                        const isActive = ['/geo-fance', '/geo-fance/add', '/geo-fance/add-employees', '/geo-fance/alert', 'geo-fance/incident'].some(path =>
-                            location.pathname.includes(path)
-                        );
-                        return (
-                            <div key="geoFence-dropdown">
-                                <Tooltip title={collapsed ? 'Geo Fence' : ''} placement="right">
-                                    <ListItemButton onClick={() => setGeoFenceOpen(!geoFenceOpen)}>
-                                        <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                            <MapIcon />
-                                        </ListItemIcon>
-                                        {!collapsed && <ListItemText primary="Geo Fence" />}
-                                        {!collapsed && (geoFenceOpen ? <ExpandLess /> : <ExpandMore />)}
-                                    </ListItemButton>
-                                </Tooltip>
-                                <Collapse in={geoFenceOpen} timeout="auto" unmountOnExit>
-                                    <List component="div" disablePadding>
-                                        <ListItemButton
-                                            sx={{
-                                                pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname === '/geo-fance' ? '#7ACB59' : 'transparent',
-                                                color: '#fff'
-                                            }}
-                                            onClick={() => handleNavigate('/geo-fance')}
-                                        >
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                                <DashboardIcon />
-                                            </ListItemIcon>
-                                            {!collapsed && <ListItemText primary="Dashboard" />}
-                                        </ListItemButton>
+                    if (item.isDropdown === 'paystub' && userType && ['owner', 'admin'].includes(userType)) {
 
-                                        <ListItemButton
-                                            sx={{
-                                                pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname === '/geo-fance/add' ? '#7ACB59' : 'transparent',
-                                                color: '#fff'
-                                            }}
-                                            onClick={() => handleNavigate('/geo-fance/add')}
-                                        >
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                                <AddLocationAltIcon />
-                                            </ListItemIcon>
-                                            {!collapsed && <ListItemText primary="Create Geofence" />}
-                                        </ListItemButton>
-
-                                        <ListItemButton
-                                            sx={{
-                                                pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname === '/geo-fance/add-employees' ? '#7ACB59' : 'transparent',
-                                                color: '#fff'
-                                            }}
-                                            onClick={() => handleNavigate('/geo-fance/add-employees')}
-                                        >
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                                <GroupAddIcon />
-                                            </ListItemIcon>
-                                            {!collapsed && <ListItemText primary="Add Employees" />}
-                                        </ListItemButton>
-                                        <ListItemButton
-                                            sx={{
-                                                pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname === '/geo-fance/incident' ? '#7ACB59' : 'transparent',
-                                                color: '#fff'
-                                            }}
-                                            onClick={() => handleNavigate('geo-fance/incident')}
-                                        >
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                                <ReportProblemIcon />
-                                            </ListItemIcon>
-                                            {!collapsed && <ListItemText primary="Incident" />}
-                                        </ListItemButton>
-
-                                        <ListItemButton
-                                            sx={{
-                                                pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname === '/geo-fance/alert' ? '#7ACB59' : 'transparent',
-                                                color: '#fff'
-                                            }}
-                                            onClick={() => handleNavigate('/geo-fance/alert')}
-                                        >
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                                <AddLocationAltIcon />
-                                            </ListItemIcon>
-                                            {!collapsed && <ListItemText primary="Alerts" />}
-                                        </ListItemButton>
-
-                                        <ListItemButton
-                                            sx={{
-                                                pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname === '/geo-fance/reports' ? '#7ACB59' : 'transparent',
-                                                color: '#fff'
-                                            }}
-                                            onClick={() => handleNavigate('/geo-fance/reports')}
-                                        >
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
-                                                <BarChartIcon />
-                                            </ListItemIcon>
-                                            {!collapsed && <ListItemText primary="Reports" />}
-                                        </ListItemButton>
-
-                                    </List>
-                                </Collapse>
-                            </div>
-                        );
-                    }
-
-                    if (item.isDropdown === 'paystub' && userType && ['owner', , 'admin'].includes(userType)) {
-                        const isActive = ['/pay_stub_managment', '/PayStub_history', '/pay_stub_View'].some(path =>
-                            location.pathname.includes(path)
-                        );
                         return (
                             <div key="paystub-dropdown">
                                 <Tooltip title={collapsed ? 'Pay Stub Management' : ''} placement="right">
                                     <ListItemButton onClick={() => setPaystubOpen(!paystubOpen)}>
-                                        {/* // sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}> */}
                                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
                                             <CalculateIcon />
                                         </ListItemIcon>
@@ -814,15 +662,6 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
 
     return (
         <>
-            {/* {isMobile && (
-                <IconButton
-                    onClick={handleDrawerToggle}
-                    sx={{ position: 'fixed', top: 10, left: 10, zIndex: 2000, color: 'white' }}
-                >
-                    <ChevronRightIcon />
-                </IconButton>
-            )} */}
-
             {!isMobile && (
                 <IconButton
                     onClick={() => setCollapsed(!collapsed)}
@@ -859,4 +698,3 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
 };
 
 export default Sidebar;
-

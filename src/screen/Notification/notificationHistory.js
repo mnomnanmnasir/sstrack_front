@@ -22,14 +22,15 @@ const History = () => {
 
     // const apiUrl =
     //     userType === "user"
-    //         ? "https://myuniversallanguages.com:9093/api/v1/timetrack/getUserNotifications"
-    //         : "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAdminNotifications";
+    //         ? "${apiUrl}/timetrack/getUserNotifications"
+    //         : "${apiUrl}/superAdmin/getAdminNotifications";
+   const apiUrls = process.env.REACT_APP_API_URL;
     const apiUrl =
         userType === "user"
-            ? "https://myuniversallanguages.com:9093/api/v1/timetrack/getUserNotifications"
+            ? `${apiUrls}/timetrack/getUserNotifications`
             : userType === "manager"
-                ? "https://myuniversallanguages.com:9093/api/v1/manager/getManagerNotifications"
-                : "https://myuniversallanguages.com:9093/api/v1/superAdmin/getAdminNotifications";
+                ? `${apiUrls}/manager/getManagerNotifications`
+                : `${apiUrls}/superAdmin/getAdminNotifications`;
 
 
     useEffect(() => {                                                                                   

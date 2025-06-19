@@ -17,7 +17,6 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { Polyline } from 'react-leaflet';
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
 import axios from "axios";
-import QuickStartModal from './QuickStartModal';
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -33,10 +32,8 @@ L.Marker.prototype.options.icon = L.icon({
     iconSize: [25, 41],
     iconAnchor: [12, 41],
 });
-
+const apiUrl = process.env.REACT_APP_API_URL;
 const GeoFance = () => {
-
-    const [showModal1, setShowModal1] = useState(false);
 
     const [showModal, setShowModal] = useState(false);
     const [selectedGeofence, setSelectedGeofence] = useState(null);
@@ -64,15 +61,11 @@ const GeoFance = () => {
         }
     }, [liveLocation]);
 
-    const handleOpenModal = () => {
-        setShowModal1(true);
-    };
-
     // const fetchGeofences = async () => {
     //     try {
     //         setLoading(true); // Start loading
     //         const token = localStorage.getItem("token");
-    //         const response = await fetch("https://myuniversallanguages.com:9093/api/v1/tracker/getGeofencesByAssignmentStatus", {
+    //         const response = await fetch("${apiUrl}/tracker/getGeofencesByAssignmentStatus", {
     //             headers: {
     //                 Authorization: `Bearer ${token}`
     //             }
@@ -101,7 +94,7 @@ const GeoFance = () => {
         try {
             setLoading(true); // Start loader
             const token = localStorage.getItem("token");
-            const response = await fetch("https://myuniversallanguages.com:9093/api/v1/tracker/getGeofencesByAssignmentStatus", {
+            const response = await fetch(`${apiUrl}/tracker/getGeofencesByAssignmentStatus`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -147,7 +140,7 @@ const GeoFance = () => {
     const handleCreateGeofence = async () => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch("https://myuniversallanguages.com:9093/api/v1/tracker/createGeofence", {
+            const response = await fetch(`${apiUrl}/tracker/createGeofence`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -827,29 +820,6 @@ const GeoFance = () => {
                         </>
                     )}
                 </div>
-
-                {/* Floating Button */}
-                <button
-                    onClick={handleOpenModal}
-                    style={{
-                        position: 'fixed',
-                        bottom: '30px',
-                        right: '30px',
-                        backgroundColor: '#A4DC3F',
-                        borderRadius: '50%',
-                        width: '60px',
-                        height: '60px',
-                        border: 'none',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-                        zIndex: 9999
-                    }}
-                >
-                    <i className="bi bi-question-circle" style={{ fontSize: '28px', color: '#000' }}></i>
-                </button>
-
-                {/* Modal */}
-                <QuickStartModal show={showModal1} onClose={() => setShowModal1(false)} />
-
             </div>
 
 

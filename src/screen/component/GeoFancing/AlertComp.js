@@ -91,7 +91,6 @@ const statusColor = {
 const AlertComp = () => {
 
   const [priorityFilter, setPriorityFilter] = useState('All');
-  const [selectedImages, setSelectedImages] = useState([]);
 
   const filteredAlerts =
     priorityFilter === 'All'
@@ -99,16 +98,6 @@ const AlertComp = () => {
       : alertData.filter((item) => item.priority === priorityFilter);
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setSelectedImages((prev) => [...prev, ...files]);
-  };
-
-  const handleModalClose = () => {
-    setOpenCreateModal(false);
-    setSelectedImages([]); // Clear the image state
-  };
 
   return (
     <>
@@ -426,36 +415,17 @@ const AlertComp = () => {
               <Box sx={{ mb: 2 }}>
                 <Button variant="outlined" component="label">
                   Add Images
-                  <input
-                    type="file"
-                    hidden
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageChange}
-                  />
+                  <input type="file" hidden multiple />
                 </Button>
                 <Typography variant="caption" color="text.secondary" display="block" mt={1}>
                   Upload relevant photos for this alert (optional)
                 </Typography>
               </Box>
-              {selectedImages.length > 0 && (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
-                  {selectedImages.map((file, idx) => (
-                    <img
-                      key={idx}
-                      src={URL.createObjectURL(file)}
-                      alt={`preview-${idx}`}
-                      style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8 }}
-                    />
-                  ))}
-                </Box>
-              )}
-
             </DialogContent>
 
             <DialogActions sx={{ px: 3, pb: 2 }}>
               <Button onClick={() => setOpenCreateModal(false)}>Cancel</Button>
-              <Button variant="contained" onClick={handleModalClose}>
+              <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
                 Create Alert
               </Button>
             </DialogActions>

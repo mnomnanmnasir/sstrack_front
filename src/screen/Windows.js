@@ -4,13 +4,13 @@ import React, { useEffect } from 'react';
 
 function Windows() {
 
-  
+
   const sendScanEvent = async () => {
     try {
       const visitKey = 'windows';
       const token = localStorage.getItem('token');
       let userId = null;
-
+      const apiUrl = process.env.REACT_APP_API_URL;
       if (token) {
         try {
           const items = jwtDecode(token);
@@ -19,29 +19,29 @@ function Windows() {
           console.warn('⚠️ Failed to decode token:', decodeError);
         }
       }
-  
+
       const body = {
-        userId: userId, 
+        userId: userId,
         appType: visitKey,
         qrCode: true,
       };
-  
+
       await axios.post(
-        'https://myuniversallanguages.com:9093/api/v1/timetrack/downloadHistory',
+        `${apiUrl}/timetrack/downloadHistory`,
         body
       );
-  
+
       window.location.href = 'https://apps.microsoft.com/detail/9n0c5qdb1lm7?hl=en-us&gl=US&ocid=pdpshare';
     } catch (error) {
       console.error('❌ Failed to send scan event:', error);
     }
   };
-  
+
   useEffect(() => {
     sendScanEvent();
   }, []);
 
- 
+
 
   return (
     <div style={{

@@ -48,7 +48,7 @@ function OwnerTeam() {
     const [mainId, setMainId] = useState(null)
     const [GroupData, setGroupData] = useState(null);
     const [users, setUsers] = useState(null);
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const token = localStorage.getItem('token');
     const [isInviteLoading, setIsInviteLoading] = useState(false); // For invite button
     const [isDeleteLoading, setIsDeleteLoading] = useState(false); // For delete action
@@ -138,7 +138,7 @@ function OwnerTeam() {
 
         try {
             const response = await axios.patch(
-                `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${mainId}`,
+                `${apiUrl}/owner/settingsE/${mainId}`,
                 {
                     userId: mainId,
                     effectiveSettings: updatedSettings,
@@ -224,7 +224,7 @@ function OwnerTeam() {
             console.log("📦 requestData:", requestData);
 
             const response = await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                `${apiUrl}/superAdmin/addIndividualPunctuality`,
                 requestData,
                 {
                     headers: {
@@ -250,7 +250,7 @@ function OwnerTeam() {
                 };
 
                 await axios.patch(
-                    `https://myuniversallanguages.com:9093/api/v1/owner/updateUsersTimezone/${mainId}`,
+                    `${apiUrl}/owner/updateUsersTimezone/${mainId}`,
                     timezonePayload,
                     {
                         headers: {
@@ -301,7 +301,7 @@ function OwnerTeam() {
             };
 
             const response = await axios.post(
-                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                `${apiUrl}/superAdmin/addIndividualPunctuality`,
                 requestData,
                 {
                     headers: {
@@ -328,7 +328,7 @@ function OwnerTeam() {
                 };
 
                 await axios.patch(
-                    `https://myuniversallanguages.com:9093/api/v1/owner/updateUsersTimezone/${mainId}`,
+                    `${apiUrl}/owner/updateUsersTimezone/${mainId}`,
                     timezonePayload,
                     {
                         headers: {
@@ -1251,6 +1251,7 @@ function OwnerTeam() {
                                         {users?.length}
                                     </div>
                                 </div>
+
                                 <div id="lisstofallusers" className="container-fluid">
                                     {loading || !Array.isArray(users) ? (
                                         <div style={{ padding: "40px 0", display: "flex", justifyContent: "center", alignItems: "center" }}>

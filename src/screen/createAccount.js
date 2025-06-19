@@ -1,27 +1,23 @@
-import React, { useEffect, useState } from "react";
-import line from '../images/line.webp';
-import userIcon from '../images/user.webp';
+import axios from "axios";
+import moment from "moment-timezone";
+import { enqueueSnackbar, SnackbarProvider } from 'notistack';
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { FerrisWheelSpinner } from "react-spinner-overlay";
+import TimezoneSelect from 'react-timezone-select';
 import account from '../images/account.webp';
 import emailIcon from "../images/emailIcon.webp";
-import password from "../images/passwordIcon.webp";
-import clock from "../images/time.png"
-import Footer from "./component/footer";
-import Header from "./component/header";
-import { useNavigate, useParams } from "react-router-dom";
-import TimezoneSelect from 'react-timezone-select';
-import moment from "moment-timezone";
-import link_expired from '../images/link-broken.svg'
-import { enqueueSnackbar, SnackbarProvider } from 'notistack'
-import axios from "axios";
-import { FerrisWheelSpinner } from "react-spinner-overlay";
-import showPasswordIcon from '../images/showPassword.svg';
 import hidePasswordIcon from '../images/hidePassword.svg';
+import line from '../images/line.webp';
+import link_expired from '../images/link-broken.svg';
 import passwordIcon from "../images/passwordIcon.webp";
-import jwtDecode from "jwt-decode";
+import showPasswordIcon from '../images/showPassword.svg';
+import userIcon from '../images/user.webp';
+import Header from "./component/header";
 // import NewHeader from './component/Header/NewHeader';
+import { useMediaQuery, useTheme } from '@mui/material';
 import { useDispatch } from "react-redux";
 import { setToken } from "../store/authSlice";
-import { useTheme, useMediaQuery } from '@mui/material';
 
 
 function CreateAccount({ language }) {
@@ -47,7 +43,7 @@ function CreateAccount({ language }) {
 
     const [err, setErr] = useState("");
     const [error, setError] = useState("");
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
     const [timezone, setSelectedTimezone] = useState(
         Intl.DateTimeFormat().resolvedOptions().timeZone
     )

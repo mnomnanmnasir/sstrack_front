@@ -22,11 +22,14 @@ function AddEmployee() {
         pay_type: '',
         currency: ''
     });
+
     const [users, setUsers] = useState([]);
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const user = jwtDecode(JSON.stringify(token));
-    const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    const [timezone, setTimezone] = useState('');
+    const [appliedTaxes, setAppliedTaxes] = useState([]);
+    const [appliedDeductions, setAppliedDeductions] = useState([]);
     const [timezoneOffset, setTimezoneOffset] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
     const [submittedUsers, setSubmittedUsers] = useState([]);
     const [showModal, setShowModal] = useState(false);
@@ -35,6 +38,7 @@ function AddEmployee() {
     const [editUser, setEditUser] = useState(null);
     const [showModalupload, setShowModalupload] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
+    const apiUrl = `https://myuniversallanguages.com:9093/api/v1`;
     const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -79,7 +83,7 @@ function AddEmployee() {
 
         try {
             const response = await axios.post(
-                'https://myuniversallanguages.com:9093/api/v1/owner/payrolData/upload',
+                `${apiUrl}/owner/payrolData/upload`,
                 formData,
                 {
                     headers: {
@@ -104,10 +108,41 @@ function AddEmployee() {
 
 
     const handleSubmit = async () => {
+        // Basic required field validation
+        const requiredFields = [
+            'name',
+            'email',
+            'timezone',
+            'timezoneOffset',
+            'payPeriodType',
+            'shiftPremiumRate',
+            'overtimeRate',
+            'hourlyRate',
+            'appliedTaxCountry',
+            'vacationPay',
+            'pay_type',
+            'currency'
+        ];
+
+        const emptyFields = requiredFields.filter(field => !formData[field]);
+        if (emptyFields.length > 0) {
+            enqueueSnackbar(`Please fill all required fields: ${emptyFields.join(', ')}`, {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+            return;
+        }
+
         try {
+            const payload = {
+                ...formData,
+                appliedTaxes,
+                appliedDeductions
+            };
+
             const response = await axios.post(
-                'https://myuniversallanguages.com:9093/api/v1/owner/addPayrolUsers',
-                formData,
+                `${apiUrl}/owner/addPayrolUsers`,
+                payload,
                 { headers }
             );
 
@@ -117,7 +152,6 @@ function AddEmployee() {
                     anchorOrigin: { vertical: "top", horizontal: "right" }
                 });
 
-                // Reset form
                 setFormData({
                     name: '',
                     email: '',
@@ -134,9 +168,11 @@ function AddEmployee() {
                     currency: ''
                 });
 
-                // Add the new user with billingInfo structure
+                setAppliedTaxes([]);
+                setAppliedDeductions([]);
+
                 const newUser = {
-                    ...formData,
+                    ...payload,
                     billingInfo: {
                         ratePerHour: formData.hourlyRate,
                         shiftPremiumRate: formData.shiftPremiumRate,
@@ -147,7 +183,7 @@ function AddEmployee() {
                 };
 
                 setSubmittedUsers(prev => [...prev, newUser]);
-                navigate('/PayStub_history');
+                navigate('/PayStub_user');
             }
         } catch (error) {
             console.error("❌ Failed to add payroll user:", error.response?.data || error.message);
@@ -155,10 +191,11 @@ function AddEmployee() {
         }
     };
 
+
     const handleDownloadTemplate = async () => {
         try {
             const response = await axios.get(
-                'https://myuniversallanguages.com:9093/api/v1/owner/payrolData/template?startDate=2025-05-01&endDate=2025-05-12',
+                `${apiUrl}/owner/payrolData/template?startDate=2025-05-01&endDate=2025-05-12`,
                 {
                     responseType: 'blob', // Important for file
                     headers: {
@@ -184,7 +221,7 @@ function AddEmployee() {
         canada: 'CAD',
         usa: 'USD',
         pakistan: 'PKR',
-        philiphine: 'PHP',
+        Philippines: 'PHP',
         india: 'INR',
         ksa: 'SAR'
     };
@@ -192,25 +229,90 @@ function AddEmployee() {
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        if (name === 'appliedTaxCountry') {
+        if (name === "appliedTaxCountry") {
             setFormData((prev) => ({
                 ...prev,
                 [name]: value,
-                currency: countryCurrencyMap[value] || ''
+                currency: countryCurrencyMap[value] || "",
             }));
+        } else if (name === "pay_type") {
+            setFormData((prev) => {
+                let resetPeriod = prev.payPeriodType;
+                if (value === "hourly" && !["weekly", "biweekly"].includes(resetPeriod)) {
+                    resetPeriod = "";
+                }
+                if (value === "monthly" && resetPeriod !== "monthly") {
+                    resetPeriod = "";
+                }
+
+                return {
+                    ...prev,
+                    [name]: value,
+                    payPeriodType: resetPeriod,
+                };
+            });
+        } else if (name === "payPeriodType") {
+            setFormData((prev) => {
+                let resetPayType = prev.pay_type;
+                if (["weekly", "biweekly"].includes(value) && resetPayType !== "hourly") {
+                    resetPayType = "";
+                }
+                if (value === "monthly" && resetPayType !== "monthly") {
+                    resetPayType = "";
+                }
+
+                return {
+                    ...prev,
+                    [name]: value,
+                    pay_type: resetPayType,
+                };
+            });
         } else {
             setFormData((prev) => ({
                 ...prev,
-                [name]: value
+                [name]: value,
             }));
         }
     };
 
+    const taxDeductionMap = {
+        canada: {
+            taxes: ["federal", "provincial"],
+            deductions: ["cpp", "ei"]
+        },
+        india: {
+            taxes: ["incomeTax", "cess", "professionalTax"],
+            deductions: ["epf", "esi"]
+        },
+        usa: {
+            taxes: ["federal", "socialSecurity", "medicare", "state"],
+            deductions: [""]
+        },
+        Philippines: {
+            taxes: ["incomeTax"],
+            deductions: ["sss", "philHealth", "pagIbig"]
+        },
+        pakistan: {
+            taxes: ["incomeTax"],
+            deductions: ["eobi"]
+        },
+        ksa: {
+            taxes: ["incomeTax", "zakat"],
+            deductions: ["gosi"]
+        }
+    };
+
+    useEffect(() => {
+        if (editUser) {
+            setAppliedTaxes(editUser.appliedTaxes || []);
+            setAppliedDeductions(editUser.appliedDeductions || []);
+        }
+    }, [editUser]);
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await axios.get('https://myuniversallanguages.com:9093/api/v1/owner/getPayrolUsers', {
+                const res = await axios.get(`${apiUrl}/owner/getPayrolUsers`, {
                     headers
                 });
                 setSubmittedUsers(res.data.data); // assuming the data array is in `data.data`
@@ -306,9 +408,17 @@ function AddEmployee() {
                                     className="form-select"
                                 >
                                     <option value="">Select Period</option>
-                                    <option value="weekly">Weekly</option>
-                                    <option value="biweekly">Bi-Weekly</option>
-                                    <option value="monthly">Monthly</option>
+
+                                    {(!formData.pay_type || formData.pay_type === "hourly") && (
+                                        <>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="biweekly">Bi-Weekly</option>
+                                        </>
+                                    )}
+
+                                    {(!formData.pay_type || formData.pay_type === "monthly") && (
+                                        <option value="monthly">Monthly</option>
+                                    )}
                                 </select>
                             </div>
 
@@ -321,6 +431,7 @@ function AddEmployee() {
                                     onChange={handleChange}
                                     className="form-control"
                                     placeholder="Shift Premium Rate"
+                                    min="0"
                                 />
                             </div>
 
@@ -333,18 +444,20 @@ function AddEmployee() {
                                     onChange={handleChange}
                                     className="form-control"
                                     placeholder="Overtime Rate"
+                                    min="0"
                                 />
                             </div>
 
                             <div className="col-md-4 mb-3">
-                                <label className="form-label">Hourly Rate</label>
+                                <label className="form-label">Payrate</label>
                                 <input
                                     type="number"
                                     name="hourlyRate"
                                     value={formData.hourlyRate}
                                     onChange={handleChange}
                                     className="form-control"
-                                    placeholder="Hourly Rate"
+                                    placeholder="Payrate"
+                                    min="0"
                                 />
                             </div>
 
@@ -368,7 +481,7 @@ function AddEmployee() {
                                     <option value="canada">Canada</option>
                                     <option value="usa">USA</option>
                                     <option value="pakistan">Pakistan</option>
-                                    <option value="philiphine">Philipine</option>
+                                    <option value="Philippines">Philippines</option>
                                     <option value="india">india</option>
                                     <option value="ksa">ksa</option>
                                 </select>
@@ -385,7 +498,7 @@ function AddEmployee() {
                                     <option value="canada">Canada</option>
                                     <option value="usa">USA</option>
                                     <option value="pakistan">Pakistan</option>
-                                    <option value="philiphine">Philipine</option>
+                                    <option value="Philippines">Philippines</option>
                                     <option value="india">india</option>
                                     <option value="ksa">ksa</option>
                                 </select>
@@ -437,33 +550,48 @@ function AddEmployee() {
                                     onChange={handleChange}
                                     className="form-control"
                                     placeholder="Vacation Pay"
+                                    min="0"
                                 />
                             </div>
 
                             <div className="col-md-4 mb-3">
-                                <label className="form-label">Pay Type</label>
+                                <label className="form-label">Payrate Type</label>
                                 <select
                                     name="pay_type"
                                     value={formData.pay_type}
                                     onChange={handleChange}
                                     className="form-select"
                                 >
-                                    <option value="">Select Pay Type</option>
-                                    <option value="hourly">Hourly</option>
-                                    <option value="monthly">Monthly</option>
+                                    <option value="">Select Payrate Type</option>
+
+                                    {(!formData.payPeriodType || ["weekly", "biweekly"].includes(formData.payPeriodType)) && (
+                                        <option value="hourly">Hourly</option>
+                                    )}
+
+                                    {(!formData.payPeriodType || formData.payPeriodType === "monthly") && (
+                                        <option value="monthly">Monthly</option>
+                                    )}
                                 </select>
                             </div>
 
                             <div className="col-md-4 mb-3">
-                                <label className="form-label">Currency</label>
-                                <input
-                                    type="text"
+                                <label className="form-label">Select Currency</label>
+                                <select
+                                    className="form-select"
                                     name="currency"
                                     value={formData.currency}
                                     onChange={handleChange}
-                                    className="form-control"
-                                    placeholder="Currency"
-                                />
+                                >
+                                    <option value="">Select Currency</option>
+                                    <option value="USD">USD</option>
+                                    <option value="CAD">CAD</option>
+                                    <option value="QAR">QAR</option>
+                                    <option value="PKR">PKR</option>
+                                    <option value="SAR">SAR</option>
+                                    <option value="AED">AED</option>
+                                    <option value="PHP">PHP</option>
+                                    <option value="INR">INR</option>
+                                </select>
                             </div>
 
                             <div className="col-md-4 mb-3">
@@ -499,6 +627,70 @@ function AddEmployee() {
                                 />
                                 {/* </div> */}
                             </div>
+
+                            <div className="col-md-6 mb-3">
+                                <label className="form-label">Applied Taxes</label>
+                                <div className="border rounded p-2" style={{ maxHeight: 150, overflowY: "auto" }}>
+                                    {formData.appliedTaxCountry && taxDeductionMap[formData.appliedTaxCountry] ? (
+                                        taxDeductionMap[formData.appliedTaxCountry].taxes.map((tax) => (
+                                            <div key={tax} className="form-check">
+                                                <input
+                                                    className="form-check-input"
+                                                    type="checkbox"
+                                                    id={`tax-${tax}`}
+                                                    checked={appliedTaxes.includes(tax)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setAppliedTaxes([...appliedTaxes, tax]);
+                                                        } else {
+                                                            setAppliedTaxes(appliedTaxes.filter((t) => t !== tax));
+                                                        }
+                                                    }}
+                                                />
+                                                <label className="form-check-label" htmlFor={`tax-${tax}`}>
+                                                    {tax}
+                                                </label>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-muted">Select country to view taxes</p>
+                                    )}
+                                </div>
+                            </div>
+
+
+                            <div className="col-md-6 mb-3">
+                                <label className="form-label">Applied Deductions</label>
+                                <div className="border rounded p-2" style={{ maxHeight: 150, overflowY: "auto" }}>
+                                    {formData.appliedTaxCountry === "usa" ? (
+                                        <p className="text-muted mb-2">Note: USA has no applicable deductions.</p>
+                                    ) : formData.appliedTaxCountry && taxDeductionMap[formData.appliedTaxCountry] ? (
+                                        taxDeductionMap[formData.appliedTaxCountry].deductions.map((deduction) => (
+                                            <div key={deduction} className="form-check">
+                                                <input
+                                                    className="form-check-input"
+                                                    type="checkbox"
+                                                    id={`deduction-${deduction}`}
+                                                    checked={appliedDeductions.includes(deduction)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setAppliedDeductions([...appliedDeductions, deduction]);
+                                                        } else {
+                                                            setAppliedDeductions(appliedDeductions.filter((d) => d !== deduction));
+                                                        }
+                                                    }}
+                                                />
+                                                <label className="form-check-label" htmlFor={`deduction-${deduction}`}>
+                                                    {deduction}
+                                                </label>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-muted">Select country to view deductions</p>
+                                    )}
+                                </div>
+                            </div>
+
                         </div>
 
                         <div style={{ display: 'flex', gap: '12px', marginTop: '1rem' }}>
@@ -619,7 +811,7 @@ function AddEmployee() {
                                                 className="btn btn-primary w-100"
                                                 onClick={() => {
                                                     setShowSuccessModal(false);
-                                                    navigate('/PayStub_history'); // Navigate on close
+                                                    navigate('/PayStub_user'); // Navigate on close
                                                 }}
                                             >
                                                 Go to See it!

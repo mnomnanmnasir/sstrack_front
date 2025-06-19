@@ -9,7 +9,7 @@ import Header from '../screen/component/header';
 
 function ForgetPassword() {
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     const [email, setEmail] = useState("")
     const [loading, setLoading] = useState(false)

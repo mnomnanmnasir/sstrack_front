@@ -7,7 +7,7 @@ function AutoPauseContent() {
   const employees = useSelector((state) => state.adminSlice.employess);
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
-
+  const apiUrl = process.env.REACT_APP_API_URL;
   const headers = {
     Authorization: "Bearer " + token,
   };
@@ -24,7 +24,7 @@ function AutoPauseContent() {
 
     try {
       const res = await axios.patch(
-        `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${employee._id}`,
+        `${apiUrl}/owner/settingsE/${employee._id}`,
         { effectiveSettings: settingData },
         { headers }
       );

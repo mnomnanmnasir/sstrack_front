@@ -13,7 +13,7 @@ import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 
 const stripePromise = loadStripe(process.env.REACT_AP_KEY);
-
+const apiUrl = process.env.REACT_APP_API_URL;
 
 const Payment = ({ updatePaymentStatus }) => {
 
@@ -85,7 +85,7 @@ const Payment = ({ updatePaymentStatus }) => {
     };
     console.log('Selected plan:==============', plans);
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
     const getData = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
@@ -108,7 +108,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://myuniversallanguages.com:9093/api/v1';
+                const apiUrl1 = `${apiUrl}`;
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
                 console.log('Fetched Cards:', fetchedCards);
@@ -201,7 +201,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     expYear: paymentMethod.card.exp_year,
                     cardNumber: paymentMethod.card.last4,
                 });
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = `${apiUrl}`;
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
                         // tokenId: paymentMethod.id,
@@ -290,7 +290,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+                const planUpgradeApiUrl = `${apiUrl}`;
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
@@ -339,7 +339,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
     //this api is for pricing plan who's data is to send to payment page
-    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const planapiUrl = `${apiUrl}`;
 
 
     const fetchPlans = async () => {
@@ -592,15 +592,15 @@ const Payment = ({ updatePaymentStatus }) => {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                   
-                    
+
+
                 </Modal.Footer>
             </Modal >
         );
     };
-    
+
     // const handleDirectChangePlan = async () => {
-    // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    // const DirectPayApiUrl = "${apiUrl}";
     // if (paycard) {
     //     console.log('Pay with this card:', paycard);
     //     // setIsLoading(true);
@@ -661,7 +661,7 @@ const Payment = ({ updatePaymentStatus }) => {
     //     }
     // };
     const handleDirectChangePlan = async () => {
-        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        const DirectPayApiUrl = `${apiUrl}`;
         if (paycard) {
             console.log('Pay with this card:', paycard);
             // setIsLoading(true);
@@ -756,7 +756,7 @@ const Payment = ({ updatePaymentStatus }) => {
     return (
         <>
             <SnackbarProvider />
-            
+
             <div className='container mt-4'>
                 <div className="row">
                     {loading ? (
@@ -935,7 +935,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     </div>
                 </div>
             </div>
-            
+
             {/* {responseMessage && (
                             <div style={{
                                 marginTop: '50px',

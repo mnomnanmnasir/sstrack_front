@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
-import backgroundImage from "../../images/contactImage-cropped.svg"; // Local background image
+import { Container, Row, Col, Form } from "react-bootstrap";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
@@ -15,7 +14,7 @@ function Contact() {
     const [companyName, setCompanyName] = useState('');
     const [message, setMessage] = useState('');
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();  // Prevent page refresh on form submit

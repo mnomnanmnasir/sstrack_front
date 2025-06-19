@@ -73,7 +73,7 @@ function PayrollHistory() {
             };
 
             const res = await axios.patch(
-                `https://myuniversallanguages.com:9093/api/v1/owner/updatepayrolUser/${editUser._id}`,
+                `${apiUrl}/owner/updatepayrolUser/${editUser._id}`,
                 payload,
                 { headers }
             );
@@ -91,7 +91,7 @@ function PayrollHistory() {
 
                 // Refresh the updated list from server
                 const refreshed = await axios.get(
-                    'https://myuniversallanguages.com:9093/api/v1/owner/getPayrolUsers',
+                    `${apiUrl}/owner/getPayrolUsers`,
                     { headers }
                 );
                 setSubmittedUsers(refreshed.data.data);
@@ -124,6 +124,7 @@ function PayrollHistory() {
         try {
             const response = await axios.get(`${apiUrl}/owner/paystubs/getAllStubs`, { headers });
             if (Array.isArray(response.data.data)) {
+                console.log('stubssss yaha heee',response.data.data)
                 setHistory(response.data.data);
             }
         } catch (error) {
@@ -154,6 +155,7 @@ function PayrollHistory() {
 
 
     const handleViewStub = (record) => {
+        
         navigate('/pay_stub_View', {
             state: {
                 stub: record,
@@ -167,7 +169,7 @@ function PayrollHistory() {
         setLoadingUserId(userId);
         try {
             const res = await axios.get(
-                `https://myuniversallanguages.com:9093/api/v1/owner/payrolData/${userId}/get`,
+                `${apiUrl}/owner/payrolData/${userId}/get`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setSelectedPayrollData(res.data);
@@ -465,7 +467,7 @@ function PayrollHistory() {
                                                         <option value="canada">Canada</option>
                                                         <option value="usa">USA</option>
                                                         <option value="pakistan">Pakistan</option>
-                                                        <option value="philiphine">Philipine</option>
+                                                        <option value="Philippines">Philipine</option>
                                                         <option value="india">India</option>
                                                         <option value="ksa">KSA</option>
                                                     </select>

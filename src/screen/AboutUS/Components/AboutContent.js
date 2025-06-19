@@ -3,12 +3,12 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import aboutImage from '../../../images/about-us.png';
 
 const AboutSection = ({ language }) => {
-  // Translations for English and Arabic
+  // Translations for English and Arabic  
   const translations = {
     en: {
       aboutUs: "About Us",
       heading: "Empowering Productivity with ",
-      transparency: "Transparency",
+      transparency: "Transparency and Real-Time Insights",
       description1:
         "At SSTRACK.IO, we believe that productivity thrives on transparency. Our platform was created to revolutionize how teams track their progress, ensuring accountability and fostering collaboration.",
       description2:
