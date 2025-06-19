@@ -67,7 +67,7 @@ export default function AdvancedFilters({
                 </div>
 
                 {/* Date Range */}
-                <div className="col-md-3">
+                <div className="col-md-4">
                     <label className="form-label small">Date range</label>
                     <div className="d-flex gap-1">
                         <input
@@ -89,7 +89,7 @@ export default function AdvancedFilters({
                 </div>
 
                 {/* Sort By */}
-                <div className="col-md-3" style={{ marginLeft }}>
+                <div className="col-md-3">
                     <label className="form-label">Sort by</label>
                     <select
                         className="form-select form-control-sm"
