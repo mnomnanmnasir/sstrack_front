@@ -12,7 +12,7 @@ const cellStyle = {
 };
 
 function PayroleUser() {
-
+    const [loading, setLoading] = useState(false);
     const [submittedUsers, setSubmittedUsers] = useState([]);
     const [User_ID_for_add, setUser_ID_for_add] = useState('');
     const [editUser, setEditUser] = useState(null);
@@ -30,11 +30,14 @@ function PayroleUser() {
 
 
     const fetchUsers = async () => {
+        setLoading(true); // Start loader
         try {
             const res = await axios.get(`${apiUrlS}/owner/getPayrolUsers`, { headers });
             setSubmittedUsers(res.data.data);
         } catch (err) {
             console.error('Failed to fetch payroll users:', err);
+        } finally {
+            setLoading(false); // End loader
         }
     };
 
@@ -318,84 +321,94 @@ function PayroleUser() {
                     <div className="ownerTeamContainer">
 
                         <h4>📋 Payroll Employees</h4>
-                        <div style={{ overflowX: 'auto', background: '#fff', borderRadius: '8px', padding: '20px', boxShadow: '0 0 10px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
-                            <table style={{ minWidth: '1300px', width: '100%', borderCollapse: 'collapse' }}>
-                                <thead style={{ background: '#f4f6f8', fontWeight: 'bold' }}>
-                                    <tr>
-                                        <th style={cellStyle}>Name</th>
-                                        <th style={cellStyle}>Email</th>
-                                        <th style={cellStyle}>Pay Period</th>
-                                        <th style={cellStyle}>Payrate</th>
-                                        <th style={cellStyle}>OT Rate</th>
-                                        <th style={cellStyle}>Shift Premium </th>
-                                        <th style={cellStyle}>Tax Country</th>
-                                        <th style={cellStyle}>Tax State</th>
-                                        <th style={cellStyle}>Pay Type</th>
-                                        <th style={cellStyle}>Currency</th>
-                                        <th style={cellStyle}>Timezone</th>
-                                        <th style={cellStyle}>View</th>
-                                        <th style={cellStyle}>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {submittedUsers.map((user, index) => (
-                                        <tr key={index}>
-                                            <td style={cellStyle}>{user.name}</td>
-                                            <td style={cellStyle}>{user.email}</td>
-                                            <td style={cellStyle}>{user.payPeriodType}</td>
-                                            <td style={cellStyle}>{user.billingInfo?.ratePerHour ?? '-'}</td>
-                                            <td style={cellStyle}>{user.billingInfo?.overtimeRate ?? '-'}</td>
-                                            <td style={cellStyle}>{user.billingInfo?.shiftPremiumRate ?? '-'}</td>
-                                            <td style={cellStyle}>{user.appliedTaxCountry}</td>
-                                            <td style={cellStyle}>{user.appliedTaxState}</td>
-                                            <td style={cellStyle}>{user.billingInfo?.payType}</td>
-                                            <td style={cellStyle}>{user.billingInfo?.currency}</td>
-                                            <td style={cellStyle}>{user.timezone}</td>
-                                            <td style={cellStyle}>
-                                                <button
-                                                    onClick={() => handleViewPayrollData(user.userId)}
-                                                    title="View and edit payroll records"
-                                                    style={{
-                                                        padding: '4px 10px',
-                                                        fontSize: '12px',
-                                                        backgroundColor: '#28a745',
-                                                        color: '#fff',
-                                                        border: 'none',
-                                                        borderRadius: '4px',
-                                                        cursor: 'pointer',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '6px'
-                                                    }}
-                                                >
-                                                    {loadingUserId === user.userId ? (
-                                                        <span className="spinner-border spinner-border-sm"></span>
-                                                    ) : (
-                                                        'View & Edit'
-                                                    )}
-                                                </button>
-
-
-                                            </td>
-                                            <td style={cellStyle}>
-                                                <button
-                                                    onClick={() => {
-                                                        setEditUser(user);
-                                                        setAppliedTaxes(user.appliedTaxes || []);             // ✅ Set immediately
-                                                        setAppliedDeductions(user.appliedDeductions || []);   // ✅ Set immediately
-                                                        console.log('editUser in modal:', user);
-                                                        setShowModal(true);
-                                                    }}
-                                                    style={{ padding: '4px 10px', fontSize: '12px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                                                >
-                                                    Update
-                                                </button>
-                                            </td>
+                        {loading ? (
+                            <div style={{ textAlign: 'center', padding: '30px' }}>
+                                <div className="spinner-border text-primary" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                                <p style={{ marginTop: '10px', color: '#666' }}>Fetching payroll users...</p>
+                            </div>
+                        ) : (
+                            <div style={{ overflowX: 'auto', background: '#fff', borderRadius: '8px', padding: '20px', boxShadow: '0 0 10px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
+                                <table style={{ minWidth: '1300px', width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead style={{ background: '#f4f6f8', fontWeight: 'bold' }}>
+                                        <tr>
+                                            <th style={cellStyle}>Name</th>
+                                            <th style={cellStyle}>Email</th>
+                                            <th style={cellStyle}>Pay Period</th>
+                                            <th style={cellStyle}>Payrate</th>
+                                            <th style={cellStyle}>OT Rate</th>
+                                            <th style={cellStyle}>Shift Premium </th>
+                                            <th style={cellStyle}>Tax Country</th>
+                                            <th style={cellStyle}>Tax State</th>
+                                            <th style={cellStyle}>Pay Type</th>
+                                            <th style={cellStyle}>Currency</th>
+                                            <th style={cellStyle}>Timezone</th>
+                                            <th style={cellStyle}>View</th>
+                                            <th style={cellStyle}>Action</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {submittedUsers.map((user, index) => (
+                                            <tr key={index}>
+                                                <td style={cellStyle}>{user.name}</td>
+                                                <td style={cellStyle}>{user.email}</td>
+                                                <td style={cellStyle}>{user.payPeriodType}</td>
+                                                <td style={cellStyle}>{user.billingInfo?.ratePerHour ?? '-'}</td>
+                                                <td style={cellStyle}>{user.billingInfo?.overtimeRate ?? '-'}</td>
+                                                <td style={cellStyle}>{user.billingInfo?.shiftPremiumRate ?? '-'}</td>
+                                                <td style={cellStyle}>{user.appliedTaxCountry}</td>
+                                                <td style={cellStyle}>{user.appliedTaxState}</td>
+                                                <td style={cellStyle}>{user.billingInfo?.payType}</td>
+                                                <td style={cellStyle}>{user.billingInfo?.currency}</td>
+                                                <td style={cellStyle}>{user.timezone}</td>
+                                                <td style={cellStyle}>
+                                                    <button
+                                                        onClick={() => handleViewPayrollData(user.userId)}
+                                                        title="View and edit payroll records"
+                                                        style={{
+                                                            padding: '4px 10px',
+                                                            fontSize: '12px',
+                                                            backgroundColor: '#28a745',
+                                                            color: '#fff',
+                                                            border: 'none',
+                                                            borderRadius: '4px',
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '6px'
+                                                        }}
+                                                    >
+                                                        {loadingUserId === user.userId ? (
+                                                            <span className="spinner-border spinner-border-sm"></span>
+                                                        ) : (
+                                                            'View & Edit'
+                                                        )}
+                                                    </button>
+
+
+                                                </td>
+                                                <td style={cellStyle}>
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditUser(user);
+                                                            setAppliedTaxes(user.appliedTaxes || []);             // ✅ Set immediately
+                                                            setAppliedDeductions(user.appliedDeductions || []);   // ✅ Set immediately
+                                                            console.log('editUser in modal:', user);
+                                                            setShowModal(true);
+                                                        }}
+                                                        style={{ padding: '4px 10px', fontSize: '12px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                                    >
+                                                        Update
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+
 
                         {viewModalOpen && selectedPayrollData && (
                             <div className="modal d-block" tabIndex="-1" style={{ background: 'rgba(0,0,0,0.4)' }}>
