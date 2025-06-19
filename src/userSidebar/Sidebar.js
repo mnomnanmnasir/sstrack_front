@@ -35,7 +35,7 @@ import jwtDecode from 'jwt-decode';
 import logo from '../images/sloganLogo.png';
 
 const drawerWidth = 250;
-const collapsedWidth = 70;
+const collapsedWidth = 30;
 const apiUrl = process.env.REACT_APP_API_URL;
 // const Sidebar = ({ open, onClose }) => {
 const Sidebar = ({ open, onClose, userType: parentUserType }) => {
