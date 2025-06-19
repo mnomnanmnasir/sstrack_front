@@ -16,20 +16,20 @@ const InviteEmployeeModal = ({ show, handleClose }) => {
         handleClose();
     };
 
-       const [role, setRole] = useState('Field Technician');
-        const [status, setStatus] = useState('Active');
-    
-        const [isRoleOpen, setIsRoleOpen] = useState(false);
-        const [isStatusOpen, setIsStatusOpen] = useState(false);
-    
-        const roles = ['Field Technician', 'Safety Officer', 'Deliver Driver', 'Site Manager'];
-        const statuses = ['Active', 'Inactive', 'Offline'];
-    
-        const toggleRoleDropdown = () => {
-            setIsRoleOpen(!isRoleOpen);
-            setIsStatusOpen(false);  // Automatically close status when role opens
-        };
-    
+    const [role, setRole] = useState('Field Technician');
+    const [status, setStatus] = useState('Active');
+
+    const [isRoleOpen, setIsRoleOpen] = useState(false);
+    const [isStatusOpen, setIsStatusOpen] = useState(false);
+
+    const roles = ['Field Technician', 'Safety Officer', 'Deliver Driver', 'Site Manager'];
+    const statuses = ['Active', 'Inactive', 'Offline'];
+
+    const toggleRoleDropdown = () => {
+        setIsRoleOpen(!isRoleOpen);
+        setIsStatusOpen(false);  // Automatically close status when role opens
+    };
+
     return (
         <Modal show={show} onHide={handleClose} centered>
             <Modal.Header closeButton className="border-0">
@@ -54,9 +54,10 @@ const InviteEmployeeModal = ({ show, handleClose }) => {
                     </div>
 
                     {/* Role Dropdown */}
-                    <div className="mb-3">
+                    <div className="mb-3 position-relative" style={{ zIndex: 1000 }}>
                         <Form.Label className="fw-semibold small">Role</Form.Label>
-                        <div className="border rounded-2 px-3 py-2 d-flex justify-content-between align-items-center"
+                        <div
+                            className="border rounded-2 px-3 py-2 d-flex justify-content-between align-items-center"
                             style={{ cursor: 'pointer' }}
                             onClick={toggleRoleDropdown}
                         >
@@ -65,11 +66,14 @@ const InviteEmployeeModal = ({ show, handleClose }) => {
                         </div>
 
                         {isRoleOpen && (
-                            <div className="border rounded-bottom-2 border-top-0">
+                            <div
+                                className="border rounded-2 bg-white shadow-sm position-absolute w-100 mt-1"
+                                style={{ top: '100%', left: 0 }}
+                            >
                                 {roles.map((item, idx) => (
                                     <div
                                         key={idx}
-                                        className={`d-flex align-items-center px-3 py-2`}
+                                        className="d-flex align-items-center px-3 py-2"
                                         style={{ cursor: 'pointer' }}
                                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e7f1ff'}
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -81,7 +85,6 @@ const InviteEmployeeModal = ({ show, handleClose }) => {
                                         <div className="me-2" style={{ width: '16px' }}>
                                             {role === item && <BiCheck className="text-dark" size={16} />}
                                         </div>
-
                                         <span>{item}</span>
                                     </div>
                                 ))}

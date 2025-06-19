@@ -1,62 +1,69 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { BsChevronDown } from 'react-icons/bs';
-import { BiCheck } from 'react-icons/bi'; // much thinner check icon (exact system look)
+import { BiCheck } from 'react-icons/bi';
 
-const AddEmployeeModal = ({ show, handleClose }) => {
-
+const EditEmployeeModal = ({ show, handleClose, employee }) => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
     const [role, setRole] = useState('Field Technician');
     const [status, setStatus] = useState('Active');
 
     const [isRoleOpen, setIsRoleOpen] = useState(false);
     const [isStatusOpen, setIsStatusOpen] = useState(false);
 
-    const roles = ['Field Technician', 'Safety Officer', 'Deliver Driver', 'Site Manager'];
+    const roles = ['Field Technician', 'Safety Officer', 'Delivery Driver', 'Site Manager'];
     const statuses = ['Active', 'Inactive', 'Offline'];
 
     const toggleRoleDropdown = () => {
         setIsRoleOpen(!isRoleOpen);
-        setIsStatusOpen(false);  // Automatically close status when role opens
+        setIsStatusOpen(false);
     };
 
     const toggleStatusDropdown = () => {
         setIsStatusOpen(!isStatusOpen);
-        setIsRoleOpen(false);  // Automatically close role when status opens
+        setIsRoleOpen(false);
     };
 
+    useEffect(() => {
+        if (employee) {
+            setName(employee.name || '');
+            setEmail(employee.email || '');
+            setRole(employee.role || 'Field Technician'); // employee.role, not employee.roles
+            setStatus(employee.status || 'Active');
+        }
+    }, [employee]);
+
     const handleSubmit = () => {
-        // Yahan API ya logic lagao to invite employee
+        console.log('Updated Employee:', { name, email, role, status });
         handleClose();
     };
 
     return (
         <Modal show={show} onHide={handleClose} centered>
-            <Modal.Header closeButton className="border-0">
-                <div>
-                    <h5 className="fw-semibold mb-0">Add New Employee</h5>
-                    <p className="text-muted" style={{ fontSize: '13px', marginBottom: '0px' }}>
-                        Fill in the details to create a new employee profile.
-                    </p>
-                </div>
+            <Modal.Header closeButton>
+                <Modal.Title>Edit Employee Details</Modal.Title>
             </Modal.Header>
-
             <Modal.Body>
                 <Form>
-                    <div className="mb-3">
-                        <Form.Label className="fw-semibold small">Full Name</Form.Label>
-                        <Form.Control type="text" placeholder="John Doe" />
-                    </div>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Full Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                    </Form.Group>
 
-                    <div className="mb-3">
-                        <Form.Label className="fw-semibold small">Email Address</Form.Label>
-                        <Form.Control type="email" placeholder="john.doe@example.com" />
-                    </div>
-
-                    <div className="mb-3">
-                        <Form.Label className="fw-semibold small">Full Name</Form.Label>
-                        <Form.Control type="text" placeholder="John Doe" />
-                    </div>
-
+                    {/* <Form.Group className="mb-3">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                    </Form.Group> */}
+                    
                     {/* Role Dropdown */}
                     <div className="mb-3 position-relative" style={{ zIndex: 1100 }}>
                         <Form.Label className="fw-semibold small">Role</Form.Label>
@@ -75,7 +82,7 @@ const AddEmployeeModal = ({ show, handleClose }) => {
                                 style={{
                                     top: '100%',
                                     left: 0,
-                                    zIndex: 1100, // makes sure it floats above "status"
+                                    zIndex: 1100,
                                     overflowY: 'auto',
                                     maxHeight: '200px',
                                 }}
@@ -103,10 +110,10 @@ const AddEmployeeModal = ({ show, handleClose }) => {
                     </div>
 
                     {/* Status Dropdown */}
-                    {/* <div className="mb-3"> */}
                     <div className="mb-3 position-relative" style={{ zIndex: 1000 }}>
                         <Form.Label className="fw-semibold small">Status</Form.Label>
-                        <div className="border rounded-2 px-3 py-2 d-flex justify-content-between align-items-center"
+                        <div
+                            className="border rounded-2 px-3 py-2 d-flex justify-content-between align-items-center"
                             style={{ cursor: 'pointer' }}
                             onClick={toggleStatusDropdown}
                         >
@@ -122,7 +129,7 @@ const AddEmployeeModal = ({ show, handleClose }) => {
                                 {statuses.map((item, idx) => (
                                     <div
                                         key={idx}
-                                        className={`d-flex align-items-center px-3 py-2`}
+                                        className="d-flex align-items-center px-3 py-2"
                                         style={{ cursor: 'pointer' }}
                                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e7f1ff'}
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -131,11 +138,9 @@ const AddEmployeeModal = ({ show, handleClose }) => {
                                             setIsStatusOpen(false);
                                         }}
                                     >
-                                        {/* Reserved space for check icon always */}
                                         <div className="me-2" style={{ width: '16px' }}>
-                                            {status === item && <BiCheck className="text-dark" size={22} />}
+                                            {status === item && <BiCheck className="text-dark" size={16} />}
                                         </div>
-
                                         <span>{item}</span>
                                     </div>
                                 ))}
@@ -145,17 +150,16 @@ const AddEmployeeModal = ({ show, handleClose }) => {
                 </Form>
             </Modal.Body>
 
-            <Modal.Footer className="border-0">
-                <Button variant="light" onClick={handleClose}>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={handleClose}>
                     Cancel
                 </Button>
-                <Button onClick={handleSubmit} variant="primary">
-                    Add Employee
+                <Button variant="primary" onClick={handleSubmit}>
+                    Save Changes
                 </Button>
             </Modal.Footer>
-
         </Modal>
     );
 };
 
-export default AddEmployeeModal;
+export default EditEmployeeModal;
