@@ -8,7 +8,7 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
   const [userType, setUserType] = useState(null);
   const [projectOptions, setProjectOptions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+  const apiUrls = "https://myuniversallanguages.com:9093/api/v1";
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -34,13 +34,16 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
         if (!token) return;
 
         const headers = { Authorization: `Bearer ${token}` };
-        const url = `${apiUrl}/superAdmin/getProjects`;
+        const url = `${apiUrls}/superAdmin/getProjects`;
 
-        const response = await axios.get(url, {}, { headers }); // Changed to PATCH with empty body
+        // ✅ Correct usage: headers in second argument
+        const response = await axios.get(url, { headers });
 
         console.log("Projects API Response:", response.data);
 
-        const projects = Array.isArray(response.data) ? response.data : response.data.projects;
+        const projects = Array.isArray(response.data)
+          ? response.data
+          : response.data.projects;
 
         if (!Array.isArray(projects)) {
           console.error("Unexpected API response format:", response.data);
@@ -49,9 +52,14 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
 
         const uniqueProjects = Array.from(
           new Map(
-            projects.map((project) => [project.name, { label: project.name, value: project._id }])
+            projects.map((project) => [
+              project.name,
+              { label: project.name, value: project._id },
+            ])
           ).values()
-        ).sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase())); // Sorting alphabetically
+        ).sort((a, b) =>
+          a.label.toLowerCase().localeCompare(b.label.toLowerCase())
+        );
 
         setProjectOptions(uniqueProjects);
       } catch (error) {
@@ -60,6 +68,7 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
         setLoading(false);
       }
     };
+
 
 
     fetchProjects();
@@ -82,10 +91,10 @@ const ProjectFilter = ({ onProjectDataFetched }) => {
       try {
         const apiUrl =
           userType === "manager"
-            ? `${apiUrl}/manager/day?daySpecifier=this&projectId=${selectedProject.value}`
-            : `${apiUrl}/owner/day?daySpecifier=this&projectId=${selectedProject.value}`;
+            ? `${apiUrls}/manager/day?daySpecifier=this&projectId=${selectedProject.value}`
+            : `${apiUrls}/owner/day?daySpecifier=this&projectId=${selectedProject.value}`;
 
-        console.log(`Fetching project data from: ${apiUrl}`);
+        console.log(`Fetching project data from: ${apiUrls}`);
 
         const response = await axios.patch(apiUrl, {}, {
           headers: { Authorization: `Bearer ${token}` }, // ✅ Correct placement

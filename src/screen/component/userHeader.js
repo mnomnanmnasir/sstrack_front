@@ -24,7 +24,7 @@ import { FaBars } from 'react-icons/fa';
 import Sidebar from '../../userSidebar/Sidebar'
 import { useTheme, useMediaQuery } from '@mui/material';
 import { FaUserCircle } from 'react-icons/fa';
-
+const apiUrl = process.env.REACT_APP_API_URL;
 function UserHeader({ setSidebarOpen, sidebarOpen, userType, setUserType }) {
     const token = localStorage.getItem("token");
     let user = null;
@@ -62,7 +62,7 @@ function UserHeader({ setSidebarOpen, sidebarOpen, userType, setUserType }) {
 
     const [remainingBreakTime, setRemainingBreakTime] = useState(''); // State to store remaining break time
 
-    const apiUrl = process.env.REACT_APP_API_URL;
+
 
     useEffect(() => {
         if (!isMobile && sidebarOpen) {
@@ -90,13 +90,12 @@ function UserHeader({ setSidebarOpen, sidebarOpen, userType, setUserType }) {
             if (user?.userType === "user" || user?.userType === 'manager' || user?.userType === 'admin' && user?._id) {
                 try {
                     const userId = user._id; // Extract userId dynamically
-                    const apiUrl = `${apiUrl}/timetrack/remainingBreak/${userId}`;
+                    const apiUrls = `${apiUrl}/timetrack/remainingBreak/${userId}`;
 
-                    console.log("Fetching Remaining Break Time for User ID:", userId);
-                    console.log("API URL:", apiUrl);
+             
 
                     // Make the API call
-                    const response = await axios.get(apiUrl, {
+                    const response = await axios.get(apiUrls, {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem("token")}`, // Include token in headers
                             "Content-Type": "application/json",
