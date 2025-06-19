@@ -32,11 +32,9 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
         <>
             <Navbar expand="lg" style={{ background: navbarBackground, padding: '0.5rem 1rem' }}>
                 {/* Wrapper div to contain both rows */}
-                <div className="w-100 d-flex flex-column">
-
+                <div className="w-100 d-flex flex-column gap-1">
                     {/* ✅ Row 1: Logo on left, Toggle + Buttons on right */}
-                    <div className="d-flex justify-content-between align-items-center w-100">
-
+                    <div className="d-flex justify-content-between align-items-center w-100" style={{ paddingBottom: 0 }}>
                         {/* Logo */}
                         <div style={{ flexShrink: 0 }}>
                             <img
@@ -48,8 +46,9 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                             />
                         </div>
 
-                        {/* Toggle + Buttons (hidden on mobile) */}
+                        {/* Toggle + Buttons */}
                         <div className="d-none d-lg-flex align-items-center flex-wrap justify-content-end" style={{ gap: '10px' }}>
+                            {/* <div className="d-none d-lg-flex align-items-center flex-wrap justify-content-end" style={{ gap: '10px' }}> */}
                             {!show && (
                                 <Form.Check
                                     type="switch"
@@ -60,6 +59,7 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                     className="text-white"
                                 />
                             )}
+
                             {!token ? (
                                 <>
                                     <Button onClick={() => navigate('/signup')} className="btn loginButton1" style={btnStyle}>
@@ -84,7 +84,7 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                             )}
                         </div>
 
-                        {/* Hamburger (visible only on small screens) */}
+                        {/* Hamburger (mobile only) */}
                         <Button
                             variant="outline-light"
                             className="d-lg-none"
@@ -92,10 +92,14 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                         >
                             ☰
                         </Button>
+                        {/* </div> */}
                     </div>
 
                     {/* ✅ Row 2: Centered NewHeaderOptions */}
-                    <div className="w-100 d-none d-lg-flex justify-content-center" style={{marginTop: '-36px'}}>
+                    <div
+                        className="w-100 d-none d-lg-flex justify-content-center"
+                        style={{ position: 'relative', top: '-2px' }}
+                    >
                         <NewHeaderOptions language={language} />
                     </div>
                 </div>
