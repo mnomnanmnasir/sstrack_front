@@ -48,8 +48,8 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                             />
                         </div>
 
-                        {/* Toggle + Buttons */}
-                        <div className="d-flex align-items-center flex-wrap justify-content-end" style={{ gap: '10px' }}>
+                        {/* Toggle + Buttons (hidden on mobile) */}
+                        <div className="d-none d-lg-flex align-items-center flex-wrap justify-content-end" style={{ gap: '10px' }}>
                             {!show && (
                                 <Form.Check
                                     type="switch"
@@ -60,7 +60,6 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                     className="text-white"
                                 />
                             )}
-
                             {!token ? (
                                 <>
                                     <Button onClick={() => navigate('/signup')} className="btn loginButton1" style={btnStyle}>
@@ -83,20 +82,20 @@ const NewHeader = ({ language, handleToggleLanguage, show }) => {
                                     </Button>
                                 </>
                             )}
-
-                            {/* Hamburger (mobile only) */}
-                            <Button
-                                variant="outline-light"
-                                className="d-lg-none"
-                                onClick={() => setShowDrawer(true)}
-                            >
-                                ☰
-                            </Button>
                         </div>
+
+                        {/* Hamburger (visible only on small screens) */}
+                        <Button
+                            variant="outline-light"
+                            className="d-lg-none"
+                            onClick={() => setShowDrawer(true)}
+                        >
+                            ☰
+                        </Button>
                     </div>
 
                     {/* ✅ Row 2: Centered NewHeaderOptions */}
-                    <div className="w-100 d-none d-lg-flex justify-content-center mt-2">
+                    <div className="w-100 d-none d-lg-flex justify-content-center" style={{marginTop: '-36px'}}>
                         <NewHeaderOptions language={language} />
                     </div>
                 </div>
