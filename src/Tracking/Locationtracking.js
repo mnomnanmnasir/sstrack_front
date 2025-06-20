@@ -14,7 +14,7 @@ import { useSnackbar } from 'notistack';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const apiUrlS = process.env.REACT_APP_API_URL;
+const apiUrlS = 'https://myuniversallanguages.com:9093/api/v1';
 
 const LocaitonTracking = () => {
     const [run, setRun] = useState(true);
@@ -241,37 +241,31 @@ const LocaitonTracking = () => {
 
 
     useEffect(() => {
-        // Ensure polylinePath exists, is an array, and has at least one non-empty array inside
-        if (
-            !Array.isArray(polylinePath) ||
-            polylinePath.length === 0 ||
-            !Array.isArray(polylinePath[0]) ||
-            polylinePath[0].length === 0
-        ) {
-            console.warn("No valid polyline path available yet.");
-            return;
-        }
-
         const mapContainer = document.getElementById("map");
         if (!mapContainer) {
             console.warn("Map container not found");
             return;
         }
 
+        // Clean up any previous map
         if (mapRef.current) {
             mapRef.current.remove();
             mapRef.current = null;
         }
 
-        const initialCenter = polylinePath[0][0];
-        if (!Array.isArray(initialCenter) || initialCenter.length !== 2) {
-            console.warn("Invalid initial center coordinates.");
-            return;
-        }
+        // Fallback center (New York City in this case)
+        const defaultCenter = [40.7128, -74.0060]; // You can change this to any default location
+        const initialCenter =
+            Array.isArray(polylinePath) &&
+                polylinePath.length > 0 &&
+                Array.isArray(polylinePath[0]) &&
+                polylinePath[0].length > 0
+                ? polylinePath[0][0]
+                : defaultCenter;
 
         const mapInstance = L.map(mapContainer, {
             center: initialCenter,
-            zoom: 15,
+            zoom: 13,
         });
         mapRef.current = mapInstance;
 
@@ -291,22 +285,31 @@ const LocaitonTracking = () => {
             }).addTo(mapInstance);
             featureGroup.addLayer(line);
 
-            polyline.forEach((coord, coordIndex) => {
-                if (!Array.isArray(coord) || coord.length !== 2) return;
+            const start = polyline[0];
+            const end = polyline[polyline.length - 1];
 
-                const coordMarker = L.marker(coord, {
-                    icon: L.icon({
-                        iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                        iconSize: [32, 32],
-                    }),
-                    title: `Point ${coordIndex + 1}`,
-                }).addTo(mapInstance);
+            const startMarker = L.marker(start, {
+                icon: L.icon({
+                    iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+                    iconSize: [32, 32],
+                }),
+                title: "Start Point",
+            }).addTo(mapInstance);
+            startMarker.bindPopup("Start Point");
+            featureGroup.addLayer(startMarker);
 
-                coordMarker.bindPopup(`Point ${coordIndex + 1}`);
-                featureGroup.addLayer(coordMarker);
-            });
+            const endMarker = L.marker(end, {
+                icon: L.icon({
+                    iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                    iconSize: [32, 32],
+                }),
+                title: "End Point",
+            }).addTo(mapInstance);
+            endMarker.bindPopup("End Point");
+            featureGroup.addLayer(endMarker);
         });
 
+        // Fit bounds if polylines were drawn
         if (featureGroup.getLayers().length > 0) {
             mapInstance.fitBounds(featureGroup.getBounds(), { padding: [30, 30] });
         }
@@ -318,6 +321,7 @@ const LocaitonTracking = () => {
             }
         };
     }, [polylinePath]);
+
 
 
 
