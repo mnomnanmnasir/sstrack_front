@@ -17,6 +17,7 @@ import "react-datepicker/dist/react-datepicker.css";
 const apiUrlS = 'https://myuniversallanguages.com:9093/api/v1';
 
 const LocaitonTracking = () => {
+    const [loadingMap, setLoadingMap] = useState(false);
     const [run, setRun] = useState(true);
     const [setStepIndex] = useState(0);
     const [users, setUsers] = useState([]);
@@ -165,7 +166,8 @@ const LocaitonTracking = () => {
 
     const fetchAvailableDates = async (uid) => {
         try {
-            hasShownNoDataSnackbar.current = false; // reset on each new user fetch
+            setLoadingMap(true); // ⬅️ Show loader before API starts
+            hasShownNoDataSnackbar.current = false;
 
             const today = new Date();
             const formattedToday = today.toISOString().split("T")[0];
@@ -180,7 +182,7 @@ const LocaitonTracking = () => {
                     const [d, m, y] = day.date.split("-");
                     const date = new Date(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
                     return {
-                        value: date.toISOString(),
+                        value: date.toLocaleDateString("sv-SE") ,
                         label: `${date.toLocaleDateString("en-US", {
                             year: "numeric", month: "long", day: "numeric"
                         })} (${day.dataExist ? 'Data Available' : 'No Data'})`,
@@ -188,14 +190,12 @@ const LocaitonTracking = () => {
                     };
                 });
 
-
                 setDataAvailability(availableDates);
 
                 if (availableDates.length > 0) {
                     setSelectedDate(availableDates[0].value.split("T")[0]);
                 } else {
                     setSelectedDate(today);
-
                     if (!hasShownNoDataSnackbar.current) {
                         enqueueSnackbar("Data not found", { variant: "warning" });
                         hasShownNoDataSnackbar.current = true;
@@ -211,8 +211,11 @@ const LocaitonTracking = () => {
                 enqueueSnackbar("Error fetching data", { variant: "error" });
                 hasShownNoDataSnackbar.current = true;
             }
+        } finally {
+            setLoadingMap(false); // ⬅️ Hide loader after completion
         }
     };
+
 
     // Fetch data whenever the selected date changes
     useEffect(() => {
@@ -410,7 +413,14 @@ const LocaitonTracking = () => {
         border-radius: 50% !important;
         font-weight: bold;
     }
+`},
+                {`
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 `}
+
             </style>
 
             {items?._id === "679b223b61427668c045c659" && (
@@ -542,90 +552,108 @@ const LocaitonTracking = () => {
                         </div>
 
                         {/* Calendar Picker */}
-                        <div style={{ marginBottom: "20px" }}>
-                            {/* Section Title */}
-                            <h3 style={{ fontSize: "20px", color: "#28659C", fontWeight: "600" }}>
-                                Select Date
-                            </h3>
-
-                            {/* Date Picker Wrapper */}
-                            <div
-                                id="datePicker"
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    border: "1px solid #ccc",
-                                    borderRadius: "8px",
-                                    padding: "10px 12px",
-                                    width: "fit-content",
-                                    cursor: "pointer",
-                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                    backgroundColor: "#fff",
-                                    marginTop: "20px",
-                                    position: "relative",
-                                    zIndex: 1000,
-                                }}
-                            >
-                                <FaCalendarAlt
+                        {loadingMap ? (
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <div
                                     style={{
-                                        color: "#64C47C",
-                                        fontSize: "20px",
-                                        marginRight: "10px",
+                                        width: "20px",
+                                        height: "20px",
+                                        border: "3px solid #ccc",
+                                        borderTop: "3px solid #64C47C",
+                                        borderRadius: "50%",
+                                        animation: "spin 1s linear infinite",
                                     }}
                                 />
+                                <span style={{ fontSize: "14px", color: "#555" }}>Loading dates...</span>
+                            </div>
+                        ) : (
+                            <div style={{ marginBottom: "20px" }}>
+                                {/* Section Title */}
+                                <h3 style={{ fontSize: "20px", color: "#28659C", fontWeight: "600" }}>
+                                    Select Date
+                                </h3>
 
-                                <DatePicker
-                                    selected={new Date(selectedDate)}
-                                    onChange={(date) => handleDateChange(date.toISOString().split("T")[0])}
-                                    maxDate={new Date()}
-                                    dayClassName={customDayClassName}
-                                    dateFormat="yyyy-MM-dd"
-                                    customInput={
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                cursor: "pointer",
-                                            }}
-                                        >
-                                            <input
-                                                value={selectedDate}
-                                                readOnly
+                                {/* Date Picker Wrapper */}
+                                <div
+                                    id="datePicker"
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "8px",
+                                        padding: "10px 12px",
+                                        width: "fit-content",
+                                        cursor: "pointer",
+                                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                                        backgroundColor: "#fff",
+                                        marginTop: "20px",
+                                        position: "relative",
+                                        zIndex: 1000,
+                                    }}
+                                >
+                                    <FaCalendarAlt
+                                        style={{
+                                            color: "#64C47C",
+                                            fontSize: "20px",
+                                            marginRight: "10px",
+                                        }}
+                                    />
+
+                                    <DatePicker
+                                        selected={new Date(selectedDate)}
+                                        onChange={(date) => handleDateChange(date.toISOString().split("T")[0])}
+                                        maxDate={new Date()}
+                                        dayClassName={customDayClassName}
+                                        dateFormat="yyyy-MM-dd"
+                                        customInput={
+                                            <div
                                                 style={{
-                                                    border: "none",
-                                                    outline: "none",
-                                                    fontSize: "15px",
-                                                    fontWeight: "500",
-                                                    color: "#000",
-                                                    backgroundColor: "transparent",
+                                                    display: "flex",
+                                                    alignItems: "center",
                                                     cursor: "pointer",
-                                                    paddingRight: "8px",
-                                                }}
-                                            />
-                                            <span
-                                                style={{
-                                                    fontSize: "14px",
-                                                    color: "#888",
-                                                    pointerEvents: "none",
                                                 }}
                                             >
-                                                ▼
-                                            </span>
-                                        </div>
-                                    }
+                                                <input
+                                                    value={selectedDate}
+                                                    readOnly
+                                                    style={{
+                                                        border: "none",
+                                                        outline: "none",
+                                                        fontSize: "15px",
+                                                        fontWeight: "500",
+                                                        color: "#000",
+                                                        backgroundColor: "transparent",
+                                                        cursor: "pointer",
+                                                        paddingRight: "8px",
+                                                    }}
+                                                />
+                                                <span
+                                                    style={{
+                                                        fontSize: "14px",
+                                                        color: "#888",
+                                                        pointerEvents: "none",
+                                                    }}
+                                                >
+                                                    ▼
+                                                </span>
+                                            </div>
+                                        }
 
-                                    wrapperClassName="datePickerWrapper"
-                                />
+                                        wrapperClassName="datePickerWrapper"
+                                    />
+                                </div>
+
+
+
+
+
+
+
+
                             </div>
 
+                        )}
 
-
-
-
-
-
-
-                        </div>
 
                         {/* Map View */}
                         <div id="mapView" style={{ marginBottom: "20px" }}>
