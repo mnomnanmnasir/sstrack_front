@@ -58,6 +58,12 @@ const PayStubGenerator = lazy(() => import("../screen/PayStub/PayStubGenerator")
 const AssignUsers = lazy(() => import("../screen/component/BlogsUsers/blogsAccess"));
 const AddEmployee = lazy(() => import("../screen/PayStub/AddEmployee"));
 const PayroleUser = lazy(() => import("../screen/PayStub/PayroleUser"));
+const GeoFance = lazy(() => import("../screen/component/GeoFancing/geoFance"));
+const GeoFanceAdd = lazy(() => import("../screen/component/GeoFancing/AddGeoFence"));
+const AddEmployees = lazy(() => import("../screen/component/GeoFancing/AddEmployees"));
+const AlertComp = lazy(() => import("../screen/component/GeoFancing/AlertComp"));
+const Reports = lazy(() => import("../screen/component/GeoFancing/Reports"));
+const Incident = lazy(() => import("../screen/component/GeoFancing/Incident"));
 
 // Create a loading component
 const Loading = () => (
@@ -191,6 +197,12 @@ export default function AppRouter() {
             <Route path="/punctuality-reports" element={token ? (suspended ? <Navigate to="/account" /> : <PunctualityReports />) : <Navigate to="/" />} />
             <Route path="/PayStub_history" element={token ? (suspended ? <Navigate to="/account" /> : <PayrollHistory />) : <Navigate to="/" />} />
             <Route path="/PayStub_user" element={token ? (suspended ? <Navigate to="/account" /> : <PayroleUser />) : <Navigate to="/" />} />
+            <Route path="/geo-fance" element={token ? (suspended ? <Navigate to="/account" /> : <GeoFance />) : <Navigate to="/" />} />
+            <Route path="/geo-fance/add" element={token ? (suspended ? <Navigate to="/account" /> : <GeoFanceAdd />) : <Navigate to="/" />} />
+            <Route path="/geo-fance/add-employees" element={token ? (suspended ? <Navigate to="/account" /> : <AddEmployees />) : <Navigate to="/" />} />
+            <Route path="/geo-fance/alert" element={token ? (suspended ? <Navigate to="/account" /> : <AlertComp />) : <Navigate to="/" />} />
+            <Route path="/geo-fance/reports" element={token ? (suspended ? <Navigate to="/account" /> : <Reports />) : <Navigate to="/" />} />
+            <Route path="/geo-fance/incident" element={token ? (suspended ? <Navigate to="/account" /> : <Incident />) : <Navigate to="/" />} />
 
             {/* <Route path="/team" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerTeam />) : <Navigate to="/" />} /> */}
             <Route
