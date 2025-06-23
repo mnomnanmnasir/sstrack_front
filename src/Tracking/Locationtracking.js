@@ -180,15 +180,17 @@ const LocaitonTracking = () => {
             if (response.data.success) {
                 const availableDates = response.data.data.dataByDay.map(day => {
                     const [d, m, y] = day.date.split("-");
-                    const date = new Date(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
+                    const utcDate = new Date(Date.UTC(+y, +m - 1, +d)); // ✅ Use UTC to prevent timezone shift
+
                     return {
-                        value: date.toLocaleDateString("sv-SE") ,
-                        label: `${date.toLocaleDateString("en-US", {
+                        value: utcDate.toISOString().split("T")[0],  // YYYY-MM-DD string in UTC
+                        label: `${utcDate.toLocaleDateString("en-US", {
                             year: "numeric", month: "long", day: "numeric"
                         })} (${day.dataExist ? 'Data Available' : 'No Data'})`,
                         isAvailable: day.dataExist
                     };
                 });
+
 
                 setDataAvailability(availableDates);
 
@@ -279,38 +281,47 @@ const LocaitonTracking = () => {
         const featureGroup = L.featureGroup().addTo(mapInstance);
 
         polylinePath.forEach((polyline) => {
-            if (!Array.isArray(polyline) || polyline.length < 2) return;
+            if (!Array.isArray(polyline) || polyline.length === 0) return;
 
-            const line = L.polyline(polyline, {
-                color: "blue",
-                weight: 8,
-                opacity: 0.9,
-            }).addTo(mapInstance);
-            featureGroup.addLayer(line);
+            // Always add polyline if at least 2 points exist
+            if (polyline.length >= 2) {
+                const line = L.polyline(polyline, {
+                    color: "blue",
+                    weight: 8,
+                    opacity: 0.9,
+                }).addTo(mapInstance);
+                featureGroup.addLayer(line);
+            }
 
+            // Always show start marker if 1+ points exist
             const start = polyline[0];
+            if (start) {
+                const startMarker = L.marker(start, {
+                    icon: L.icon({
+                        iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+                        iconSize: [32, 32],
+                    }),
+                    title: "Start Point",
+                }).addTo(mapInstance);
+                startMarker.bindPopup("Start Point");
+                featureGroup.addLayer(startMarker);
+            }
+
+            // Show end marker only if distinct from start
             const end = polyline[polyline.length - 1];
-
-            const startMarker = L.marker(start, {
-                icon: L.icon({
-                    iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
-                    iconSize: [32, 32],
-                }),
-                title: "Start Point",
-            }).addTo(mapInstance);
-            startMarker.bindPopup("Start Point");
-            featureGroup.addLayer(startMarker);
-
-            const endMarker = L.marker(end, {
-                icon: L.icon({
-                    iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                    iconSize: [32, 32],
-                }),
-                title: "End Point",
-            }).addTo(mapInstance);
-            endMarker.bindPopup("End Point");
-            featureGroup.addLayer(endMarker);
+            if (end && polyline.length > 1 && (start[0] !== end[0] || start[1] !== end[1])) {
+                const endMarker = L.marker(end, {
+                    icon: L.icon({
+                        iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                        iconSize: [32, 32],
+                    }),
+                    title: "End Point",
+                }).addTo(mapInstance);
+                endMarker.bindPopup("End Point");
+                featureGroup.addLayer(endMarker);
+            }
         });
+
 
         // Fit bounds if polylines were drawn
         if (featureGroup.getLayers().length > 0) {
@@ -329,14 +340,9 @@ const LocaitonTracking = () => {
 
 
     const customDayClassName = (date) => {
-        const dateStr = date.toISOString().split("T")[0];
+        const dateStr = date.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
 
-        const match = dataAvailability.find((d) => {
-            const originalDate = new Date(d.value);
-            const previousDate = new Date(originalDate);
-            previousDate.setDate(originalDate.getDate() - 1); // Subtract one day
-            return previousDate.toISOString().split("T")[0] === dateStr && d.isAvailable;
-        });
+        const match = dataAvailability.find((d) => d.value === dateStr && d.isAvailable);
 
         return match ? "highlighted-date" : "";
     };
