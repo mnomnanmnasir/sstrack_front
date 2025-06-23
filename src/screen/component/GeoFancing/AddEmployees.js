@@ -576,17 +576,18 @@ const AddEmployees = () => {
                                                                         </li> */}
                                                                         <li>
                                                                             <a
-                                                                                className="dropdown-item dropdown-item-danger"
                                                                                 href="#"
+                                                                                className="dropdown-item text-red-600 hover:text-red-700"
                                                                                 onClick={(e) => {
                                                                                     e.preventDefault();
                                                                                     setSelectedEmployee(emp);
                                                                                     setShowDeactivateModal(true);
                                                                                 }}
                                                                             >
-                                                                                Deactivate
+                                                                                <span style={{ color: 'red',  }}>Deactivate</span>
                                                                             </a>
                                                                         </li>
+
                                                                     </ul>
                                                                 </div>
                                                             </td>
