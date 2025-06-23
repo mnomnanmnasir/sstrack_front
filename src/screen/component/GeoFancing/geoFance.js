@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { FaPlus, FaMinus, FaCog } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -14,165 +14,278 @@ import StaticMap from './GeoMap';
 import 'leaflet/dist/leaflet.css';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { Polyline } from 'react-leaflet';
+import QuickStartModal from './QuickStartModal';
 
 
-delete L.Icon.Default.prototype._getIconUrl;
-
-L.Icon.Default.mergeOptions({
-    iconUrl: markerIcon,
-    shadowUrl: markerShadow
-});
-
-// Set default marker icon globally
-L.Marker.prototype.options.icon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-});
 
 const GeoFance = () => {
 
+
     const [showModal, setShowModal] = useState(false);
-    const [selectedGeofence, setSelectedGeofence] = useState(null);
-    const [isClient, setIsClient] = useState(false); // Ensures MapContainer only loads in browser
 
-    const apiUrl = process.env.REACT_APP_API_URL;
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-
-    const geofences = [
-        {
-            name: 'Main Office',
-            address: '123 Business Ave, Suite 200',
-            size: '100m',
-            employees: '2/5',
-            lastEvent: '5 min ago',
-            status: 'Active',
-        },
-        {
-            name: 'Warehouse',
-            address: '456 Industrial Park Road',
-            size: 'Custom',
-            employees: '1/4',
-            lastEvent: '15 min ago',
-            status: 'Active',
-        },
-        {
-            name: 'Client Site A',
-            address: '789 Customer Lane',
-            size: '—',
-            employees: '—',
-            lastEvent: '—',
-            status: 'Active',
-        }
-    ];
-
-    const [form, setForm] = useState({
-        latitude: '',
-        longitude: '',
-        address: '',
-        time: '',
-        fromDate: '',
-        toDate: '',
-        geoFenceName: '',
-        description: ''
-    });
-
-    const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+    const handleOpenModal = () => {
+        setShowModal(true);
     };
 
-    const handleCreateGeofence = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${apiUrl}/tracker/createGeofence`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify(form)
-            });
-
-            const result = await response.json();
-
-            if (!response.ok || !result.success) {
-                throw new Error(result?.message || "Failed to create geofence");
-            }
-
-            enqueueSnackbar(result?.message || 'Geofence created!', {
-                variant: "success",
-                anchorOrigin: { vertical: "top", horizontal: "right" }
-            });
-
-            setShowModal(false);
-            setForm({
-                latitude: '',
-                longitude: '',
-                address: '',
-                time: '',
-                fromDate: '',
-                toDate: '',
-                geoFenceName: '',
-                description: ''
-            });
-        } catch (error) {
-            enqueueSnackbar(error.message, {
-                variant: "error",
-                anchorOrigin: { vertical: "top", horizontal: "right" }
-            });
-        }
+    const handleCloseModal = () => {
+        setShowModal(false);
     };
-
-    const employees = [
-        { name: 'John Smith', status: 'online' },
-        { name: 'Sarah Johnson', status: 'online' },
-        { name: 'Mike Jones', status: 'offline' },
-    ];
 
     return (
         <>
             <SnackbarProvider />
             <div className="container">
                 <div className="userHeader">
-                    <h5>Geo Fancing</h5>
+                    <h5>Geo Fencing Dashboard</h5>
                 </div>
                 <div className="mainwrapper ownerTeamContainer" style={{ justifyContent: "center", paddingBottom: "90px" }}>
                     <div className="row">
                         {/* Left Panel */}
-                        <div className="col-md-5">
-                            <div className="card">
-                                <div className="card-header bg-white">
-                                    <strong>Geofence Management</strong>
-                                    <input className="form-control mt-2" placeholder="Search geofences..." />
+                        <div className="row mb-4">
+                            {[
+                                {
+                                    title: 'Total Employees',
+                                    value: 12,
+                                    icon: 'bi-people',
+                                    trend: 'up',
+                                    percent: '8.5%',
+                                    note: 'vs last month',
+                                    iconBg: 'success'
+                                },
+                                {
+                                    title: 'Active Geofences',
+                                    value: 5,
+                                    icon: 'bi-send',
+                                    iconBg: 'success'
+                                },
+                                {
+                                    title: 'Employees on Field',
+                                    value: 8,
+                                    icon: 'bi-geo-alt',
+                                    trend: 'up',
+                                    percent: '12%',
+                                    note: 'vs last month',
+                                    iconBg: 'success'
+                                },
+                                {
+                                    title: 'Alerts Today',
+                                    value: 3,
+                                    icon: 'bi-bell',
+                                    trend: 'down',
+                                    percent: '25%',
+                                    note: 'vs last month',
+                                    iconBg: 'danger'
+                                }
+                            ].map((item, idx) => (
+                                <div className="col-md-3 mb-3" key={idx}>
+                                    <div className="card h-100 border-0 shadow-sm">
+                                        <div className="card-body d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <small className="text-muted">{item.title}</small>
+                                                <h5 className="fw-bold mt-1">{item.value}</h5>
+                                                {item.trend && (
+                                                    <small className={`text-${item.trend === 'up' ? 'success' : 'danger'}`}>
+                                                        <i className={`bi bi-arrow-${item.trend === 'up' ? 'up' : 'down'} me-1`}></i>
+                                                        {item.percent} <span className="text-muted"> {item.note}</span>
+                                                    </small>
+                                                )}
+                                            </div>
+                                            <div
+                                                className="rounded-circle d-flex align-items-center justify-content-center"
+                                                style={{
+                                                    width: 40,
+                                                    height: 40,
+                                                    backgroundColor: item.title === 'Alerts Today' ? '#FFB3B3' : '#C8E98A' // 🔴 red for Alerts Today, 🟢 green for others
+                                                }}
+                                            >
+                                                <i className={`bi ${item.icon} text-dark`}></i> {/* icon color can be changed to white or dark */}
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="card-body" style={{ maxHeight: '520px', overflowY: 'auto' }}>
-                                    {geofences.map((g, i) => (
-                                        <div
-                                            className="border rounded p-3 mb-3"
-                                            key={i}
-                                            onClick={() => {
-                                                setSelectedGeofence(g);
-                                                setShowModal(false);
-                                            }}
-                                            style={{ cursor: 'pointer' }}
-                                        >
-                                            <div className="d-flex justify-content-between align-items-center">
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="row mt-4">
+
+                        {/* Recent Geofence Events */}
+                        <div className="col-md-8 mb-3">
+                            <div className="card h-100 shadow-sm border-0 rounded-4">
+                                <div className="card-body">
+                                    <h6 className="mb-3 fw-semibold fs-6">Recent Geofence Events</h6>
+
+                                    <ul className="list-unstyled mb-0">
+                                        {[
+                                            { name: "John Smith", action: "entered", location: "Main Office", time: "Today at 9:32 AM", icon: "bi-door-open", color: "success", bg: "#D1F1C7" },
+                                            { name: "Mike Jones", action: "left", location: "Warehouse", time: "Today at 9:15 AM", icon: "bi-door-closed", color: "success", bg: "#D1F1C7" },
+                                            { name: "Sarah Johnson", action: "triggered alert at", location: "Restricted Area", time: "Today at 8:45 AM", icon: "bi-exclamation-triangle", color: "danger", bg: "#FFE0D1" },
+                                            { name: "Sarah Johnson", action: "entered", location: "Client Site B", time: "Yesterday at 4:20 PM", icon: "bi-door-open", color: "success", bg: "#D1F1C7" },
+                                            { name: "John Smith", action: "left", location: "Main Office", time: "Yesterday at 5:30 PM", icon: "bi-door-closed", color: "success", bg: "#D1F1C7" }
+                                        ].map((event, idx) => (
+                                            <li key={idx} className="d-flex align-items-start mb-3">
+
+                                                <div className="rounded-circle d-flex justify-content-center align-items-center me-3"
+                                                    style={{ backgroundColor: event.bg, width: 36, height: 36 }}>
+                                                    <i className={`bi ${event.icon} text-${event.color} fs-5`}></i>
+                                                </div>
+
                                                 <div>
-                                                    <h6 className="mb-1">
-                                                        <i className="bi bi-geo-alt-fill me-2" />
-                                                        {g.name} <span className="badge bg-secondary ms-2">{g.status}</span>
-                                                    </h6>
-                                                    <p className="mb-1 text-muted">{g.address}</p>
-                                                    <div className="d-flex text-muted small">
-                                                        <div className="me-3"><i className="bi bi-people" /> {g.employees} Employees</div>
-                                                        <div className="me-3"><i className="bi bi-map" /> {g.size} Size</div>
-                                                        <div><i className="bi bi-clock-history" /> {g.lastEvent} Last Event</div>
+                                                    <div style={{ fontSize: '14px' }}>
+                                                        <strong>{event.name}</strong>{" "}
+                                                        <span className="text-muted" style={{ fontSize: '13px' }}>{event.action}</span>{" "}
+                                                        <a href="#" className="text-muted text-decoration-none fw-medium">{event.location}</a>
+                                                    </div>
+                                                    <small className="text-muted" style={{ fontSize: '12px' }}>{event.time}</small>
+                                                </div>
+
+                                            </li>
+                                        ))}
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Geofence Status */}
+                        <div className="col-md-4 mb-3">
+                            <div className="card h-100 shadow-sm border-0 rounded-4">
+                                <div className="card-body">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <h6 className="mb-0 fw-semibold fs-6">Geofence Status</h6>
+                                        <span className="badge bg-light text-muted fw-normal" style={{ fontSize: '12px' }}>3 Active</span>
+                                    </div>
+
+                                    {[
+                                        { name: "Main Office", current: 2, total: 5, status: "Active" },
+                                        { name: "Warehouse", current: 1, total: 4, status: "Active" },
+                                        { name: "Client Site A", current: 1, total: 3, status: "Active" },
+                                        { name: "Client Site B", current: 0, total: 2, status: "Inactive" }
+                                    ].map((g, idx) => {
+                                        const percent = Math.round((g.current / g.total) * 100);
+                                        return (
+                                            <div key={idx} className="mb-3">
+                                                <div className="d-flex justify-content-between align-items-center mb-1">
+                                                    <div className="d-flex align-items-center">
+                                                        <i className="bi bi-send text-primary me-2"></i>
+                                                        <span className="fw-medium" style={{ fontSize: '14px' }}>{g.name}</span>
+                                                    </div>
+                                                    <span className="badge bg-light text-muted fw-normal" style={{ fontSize: '12px' }}>
+                                                        <i className="bi bi-people me-1"></i>{`${g.current}/${g.total}`}
+                                                    </span>
+                                                </div>
+
+                                                {/* Progress Bar Row with Status */}
+                                                <div className="d-flex align-items-center">
+                                                    <div className="flex-grow-1 position-relative" style={{
+                                                        height: '12px',
+                                                        backgroundColor: '#d5e9d2',
+                                                        borderRadius: '50px',
+                                                        padding: '2px',
+                                                        marginRight: '10px'  // to create space for status badge
+                                                    }}>
+                                                        <div
+                                                            className="h-100"
+                                                            style={{
+                                                                width: `${percent}%`,
+                                                                backgroundColor: '#0d6efd',
+                                                                borderRadius: '50px'
+                                                            }}
+                                                        ></div>
+                                                    </div>
+
+                                                    {/* Status badge beside progress */}
+                                                    <span className={`badge ${g.status === 'Active' ? 'bg-primary' : 'bg-secondary'}`} style={{ fontSize: '12px', padding: '4px 10px' }}>
+                                                        {g.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row mt-5">
+                        {/* Active Employees */}
+                        <div className="col-md-6 mb-4">
+                            <div className="card h-100 border-0 rounded-4" style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' }}>
+                                <div className="card-header bg-white d-flex justify-content-between align-items-center">
+                                    <div className="bg-white">
+                                        <h6 className="mb-0 fs-6">Active Employee</h6>
+                                    </div>
+
+                                    <button
+                                        className="btn btn-light d-flex align-items-center gap-1 px-3 py-1 border"
+                                        style={{ fontSize: '12px', borderRadius: '8px' }}
+                                    >
+                                        <i className="bi bi-geo-alt" style={{ fontSize: '12px' }}></i> View All
+                                    </button>
+                                </div>
+                                <div className="card-body p-0">
+                                    {/* Map Placeholder */}
+                                    <div className="text-center py-0 bg-light text-muted">
+                                        <MapContainer
+                                            center={[24.8607, 67.0011]} // Karachi coordinates
+                                            zoom={13}
+                                            style={{ height: "300px", width: "100%", borderRadius: "4px" }}
+                                        >
+                                            <TileLayer
+                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                            />
+                                            <Marker position={[24.8607, 67.0011]}>
+                                                <Popup>Location</Popup>
+                                            </Marker>
+                                        </MapContainer>
+
+                                        {/* Directions Button */}
+                                        {/* <div className="mt-2">
+                                            <a
+                                                href="https://www.google.com/maps/dir/?api=1&destination=24.8607,67.0011"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="btn btn-outline-primary btn-sm mt-2"
+                                            >
+                                                <i className="bi bi-geo-alt me-1"></i> Get Directions
+                                            </a>
+                                        </div> */}
+                                    </div>
+
+                                    {/* Active Employee List */}
+                                    {[
+                                        { name: "John Smith", location: "Main Office", time: "45 min" },
+                                        { name: "Sarah Johnson", location: "Client Site A", time: "2h 15min" },
+                                        { name: "Mike Jones", location: "Warehouse", time: "10 min" },
+                                    ].map((emp, idx) => (
+                                        <div key={idx} className="d-flex align-items-center justify-content-between px-3 py-3">
+                                            <div className="d-flex align-items-center">
+                                                <div
+                                                    className="rounded-circle text-dark d-flex align-items-center justify-content-center me-3"
+                                                    style={{ background: "#C8E98A", width: 40, height: 40 }}
+                                                >
+                                                    <span className="fw-semibold" style={{ fontSize: '14px' }}>{emp.name.charAt(0)}</span>
+                                                </div>
+                                                <div>
+                                                    <div className="fw-semibold" style={{ fontSize: '14px' }}>{emp.name}</div>
+                                                    <div className="text-muted d-flex align-items-center" style={{ fontSize: '12px' }}>
+                                                        <i className="bi bi-geo-alt me-1 text-primary" style={{ fontSize: '12px' }}></i>
+                                                        {emp.location}
                                                     </div>
                                                 </div>
-                                                <i className="bi bi-three-dots-vertical"></i>
+                                            </div>
+
+                                            <div className="d-flex align-items-center gap-2">
+                                                <span className="badge rounded-pill text-white" style={{
+                                                    backgroundColor: '#0d6efd',
+                                                    fontSize: '12px',
+                                                    padding: '4px 10px'
+                                                }}>{emp.time}</span>
+
+                                                <i className="bi bi-three-dots-vertical text-muted" style={{ fontSize: '16px' }}></i>
                                             </div>
                                         </div>
                                     ))}
@@ -180,162 +293,76 @@ const GeoFance = () => {
                             </div>
                         </div>
 
-                        {/* Right Panel */}
-                        <div className="col-md-7">
-                            <div className="card h-100">
-                                <div className="card-header d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <button className="btn btn-light btn-sm me-2 active">Employees</button>
-                                        <button className="btn btn-light btn-sm">Geofences</button>
+                        {/* Quick Actions */}
+                        <div className="col-md-6 mb-4">
+                            <div className="card h-100 border-0 rounded-4" style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' }}>
+                                {/* <div className="card-header bg-white border-bottom-0">
+                                    <h6 className="mb-0 fs-6">Quick Actions</h6>
+                                </div> */}
+                                <div className="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
+                                    <div className="card-header bg-white border-bottom-0">
+                                        <h6 className="mb-0 fs-6">Quick Actions</h6>
+                                        {/* <h6 className="mb-0 fs-6">Active Employee</h6> */}
                                     </div>
-                                    <button
-                                        className="btn btn-primary btn-sm"
-                                        onClick={() => {
-                                            setSelectedGeofence(null); // Clear previous selection
-                                            setShowModal(true);
-                                        }}
-                                    >
-                                        + Create Geofence
-                                    </button>
                                 </div>
-
-                                <div className="card-body p-0 d-flex">
-                                    {/* Employees */}
-                                    <div style={{ width: '250px', borderRight: '1px solid #ccc' }} className="p-3">
-                                        {employees.map((emp, idx) => (
-                                            <div key={idx} className="d-flex align-items-center mb-3">
-                                                <span className="me-2 rounded-circle" style={{
-                                                    width: '10px',
-                                                    height: '10px',
-                                                    backgroundColor: emp.status === 'online' ? 'green' : 'gray',
-                                                }}></span>
-                                                <span>{emp.name}</span>
-                                                <i className="bi bi-geo-alt ms-auto"></i>
+                                <div className="card-body">
+                                    <div className="row g-3">
+                                        {[
+                                            { icon: "bi-person-plus", text: "Add Employee" },
+                                            { icon: "bi-send", text: "Create Geofence" },
+                                            { icon: "bi-geo", text: "Track Employee" },
+                                            { icon: "bi-bell", text: "Manage Alerts" }
+                                        ].map((action, idx) => (
+                                            <div className="col-6" key={idx}>
+                                                <button
+                                                    className="btn w-100 border"
+                                                    style={{
+                                                        padding: '20px',
+                                                        borderRadius: '10px',
+                                                        // borderColor: '#e3e6ec',
+                                                        backgroundColor: '#fff',
+                                                        fontSize: '14px',
+                                                        fontWeight: '500'
+                                                    }}
+                                                >
+                                                    <div className="d-flex flex-column align-items-center justify-content-center">
+                                                        <i className={`bi ${action.icon}`} style={{ fontSize: '18px', marginBottom: '8px' }}></i>
+                                                        <span>{action.text}</span>
+                                                    </div>
+                                                </button>
                                             </div>
                                         ))}
                                     </div>
-
-                                    {/* Map Placeholder */}
-                                    <div className="flex-grow-1 text-center" style={{ height: "100%", minHeight: "400px" }}>
-                                        {isClient && form.latitude && form.longitude && (
-                                            <MapContainer
-                                                center={[parseFloat(form.latitude), parseFloat(form.longitude)]}
-                                                zoom={13}
-                                                style={{ height: "400px", width: "100%" }}
-                                            >
-                                                <TileLayer
-                                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                                />
-                                                <Marker position={[parseFloat(form.latitude), parseFloat(form.longitude)]}>
-                                                    <Popup>{form.geoFenceName || "Selected Location"}</Popup>
-                                                </Marker>
-                                            </MapContainer>
-                                        )}
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
+                {/* Floating Button */}
+                <button
+                    onClick={handleOpenModal}
+                    style={{
+                        position: 'fixed',
+                        bottom: '30px',
+                        right: '30px',
+                        backgroundColor: '#A4DC3F',
+                        borderRadius: '50%',
+                        width: '60px',
+                        height: '60px',
+                        border: 'none',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                        zIndex: 9999
+                    }}
+                >
+                    <i className="bi bi-question-circle" style={{ fontSize: '28px', color: '#000' }}></i>
+                </button>
+
+                {/* Modal */}
+                <QuickStartModal show={showModal} onClose={() => setShowModal(false)} />
+
             </div>
 
-            {/* ✅ Bootstrap Modal */}
-            {showModal && (
-                <div
-                    className="modal fade show d-block"
-                    tabIndex="-1"
-                    role="dialog"
-                    style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-                    onClick={() => setShowModal(false)}
-                >
-                    <div
-                        className="modal-dialog"
-                        role="document"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Create New Geofence</h5>
-                                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
-                            </div>
-                            <div className="modal-body">
-                                {[
-                                    { label: "Geofence Name", name: "geoFenceName" },
-                                    { label: "Description", name: "description" },
-                                    { label: "Address", name: "address" },
-                                    { label: "Latitude", name: "latitude", type: "number" },
-                                    { label: "Longitude", name: "longitude", type: "number" },
-                                    { label: "Time", name: "time", type: "time" },
-                                    { label: "From Date", name: "fromDate", type: "date" },
-                                    { label: "To Date", name: "toDate", type: "date" }
-                                ].map(({ label, name, type = "text" }) => (
-                                    <div className="mb-3" key={name}>
-                                        <label className="form-label">{label}</label>
-                                        <input
-                                            type={type}
-                                            className="form-control"
-                                            name={name}
-                                            value={form[name]}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="modal-footer">
-                                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button className="btn btn-success" onClick={handleCreateGeofence}>Save Geofence</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {!showModal && selectedGeofence && (
-                <div
-                    className="modal fade show d-block"
-                    tabIndex="-1"
-                    role="dialog"
-                    style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-                    onClick={() => {
-                        setSelectedGeofence(null); // hide detail modal
-                        setShowModal(false);        // show create modal
-                    }}
-
-                >
-                    <div
-                        className="modal-dialog"
-                        role="document"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Geofence Details</h5>
-                                <button type="button" className="btn-close" onClick={() => {
-                                    setShowModal(false);
-                                    setSelectedGeofence(null);
-                                }}></button>
-                            </div>
-                            <div className="modal-body">
-                                <p><strong>Name:</strong> {selectedGeofence.name}</p>
-                                <p><strong>Address:</strong> {selectedGeofence.address}</p>
-                                <p><strong>Size:</strong> {selectedGeofence.size}</p>
-                                <p><strong>Employees:</strong> {selectedGeofence.employees}</p>
-                                <p><strong>Last Event:</strong> {selectedGeofence.lastEvent}</p>
-                                <p><strong>Status:</strong> {selectedGeofence.status}</p>
-                            </div>
-                            <div className="modal-footer">
-                                <button className="btn btn-danger">Delete</button>
-                                <button className="btn btn-secondary" onClick={() => {
-                                    setShowModal(false);
-                                    setSelectedGeofence(null);
-                                }}>Cancel</button>
-                                <button className="btn btn-success">Edit</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
         </>
     );
 };
