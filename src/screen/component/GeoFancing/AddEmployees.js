@@ -23,6 +23,12 @@ import AddEmployeeModal from './AddEmployeeModal';  // Import the modal you just
 import InviteEmployeeModal from './InviteEmployeeModal';
 import EmployeeStats from './EmployeeStats';
 import QuickStartModal from './QuickStartModal';
+import { BiCheck } from 'react-icons/bi';
+import { BsChevronDown } from 'react-icons/bs';
+import EditEmployeeModal from './EditEmployeeModal';
+import EmployeeProfileModal from './EmployeeProfileModal';
+import AssignGeofenceModal from './AssignGeofenceModal';
+import DeactivateEmployeeModal from './DeactivateEmployeeModal';
 
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -42,6 +48,14 @@ L.Marker.prototype.options.icon = L.icon({
 
 const AddEmployees = () => {
 
+    const [formData, setFormData] = useState({ category: 'All Departments' });
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [showProfileModal, setShowProfileModal] = useState(false);
+    // const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+
     const [showModal1, setShowModal1] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedGeofence, setSelectedGeofence] = useState(null);
@@ -60,36 +74,43 @@ const AddEmployees = () => {
     const [employeeFilter, setEmployeeFilter] = useState('all'); // all | active | inactive
     // const [showModal, setShowModal] = useState(false);
     const [showInviteModal, setShowInviteModal] = useState(false);
+    const categoryOptions = ['All Departments', 'Field Technician', 'Safety Officers', 'Delivery Driver', 'Site Managers'];
+    const [isOpen, setIsOpen] = useState(false);
+
 
     const employees = [
         {
             name: 'John Smith',
             role: 'Field Technician',
+            email: 'john.smith@example.com',
             location: 'Main Office',
-            status: 'online',
-            geofences: ['Main Office', 'Client Site A', 'Warehouse'],
+            status: 'Active',
+            geofences: ['Main Office', 'Client Site A', 'Warehouse A'],
             lastActive: '5 min ago'
         },
         {
             name: 'Sarah Johnson',
             role: 'Service Representative',
+            email: 'sarah.johnson@example.com',
             location: 'Client Site A',
-            status: 'online',
-            geofences: ['Client Site A', 'Client Site B'],
+            status: 'Active',
+            geofences: ['Main Office'],
             lastActive: '15 min ago'
         },
         {
             name: 'Mike Jones',
             role: 'Delivery Driver',
+            email: 'michael.brown@example.com',
             location: 'Warehouse',
-            status: 'online',
+            status: 'Active',
             geofences: ['Main Office', 'Warehouse'],
             lastActive: '32 min ago'
         },
         {
             name: 'Emily Wilson',
             role: 'Marketing Representative',
-            location: 'Offline',
+            email: 'emily.davis@example.com',
+            location: 'Warehouse',
             status: 'offline',
             geofences: ['Main Office', 'Client Site B'],
             lastActive: '2 days ago'
@@ -97,8 +118,9 @@ const AddEmployees = () => {
         {
             name: 'David Brown',
             role: 'Support Worker',
-            location: 'Offline',
-            status: 'offline',
+            email: 'david.wilson@example.com',
+            location: 'Warehouse',
+            status: 'Deactivated',
             geofences: ['Client Site A'],
             lastActive: '1 day ago'
         },
@@ -110,6 +132,11 @@ const AddEmployees = () => {
 
     const handleOpenModal = () => {
         setShowModal1(true);
+        setShowModal(false);         // Close Add Employee Modal
+        setShowInviteModal(false);   // Close Invite Modal
+        setShowEditModal(false) // Close the Edit Modal
+        setShowDeactivateModal(false) //Close the deactivate modal
+        setShowProfileModal(false) //Close profile modal
     };
 
     const activeCount = employees.filter(emp => emp.status === 'online').length;
@@ -176,7 +203,32 @@ const AddEmployees = () => {
 
 
                             <AddEmployeeModal show={showModal} handleClose={() => setShowModal(false)} />
+                            <EditEmployeeModal
+                                show={showEditModal}
+                                handleClose={() => setShowEditModal(false)}
+                                employee={selectedEmployee}
+                            />
 
+                            <EmployeeProfileModal
+                                show={showProfileModal}
+                                handleClose={() => setShowProfileModal(false)}
+                                employee={selectedEmployee}
+                            />
+
+                            <AssignGeofenceModal
+                                show={showAssignModal}
+                                handleClose={() => setShowAssignModal(false)}
+                                employee={selectedEmployee}
+                            />
+                            <DeactivateEmployeeModal
+                                show={showDeactivateModal}
+                                handleClose={() => setShowDeactivateModal(false)}
+                                employee={selectedEmployee}
+                                onConfirm={(emp) => {
+                                    // Do your logic here: API call or update state
+                                    console.log('Deactivated:', emp.name);
+                                }}
+                            />
                             {/* Invite Modal (You can build similar like AddEmployeeModal) */}
                             <InviteEmployeeModal show={showInviteModal} handleClose={() => setShowInviteModal(false)} />
 
@@ -187,12 +239,17 @@ const AddEmployees = () => {
                         {/* Left Panel */}
                         <div className="col-md-12 mt-1">
                             <div className="d-flex justify-content-between align-items-center mt-2 gap-2">
-
                                 {/* Search Bar */}
-                                <div className="flex-grow-1 position-relative">
-                                    <i className="bi bi-search position-absolute text-muted"
-                                        style={{ top: '50%', left: '14px', transform: 'translateY(-50%)', fontSize: '14px' }}>
-                                    </i>
+                                <div className="position-relative" style={{ flexGrow: 1, maxWidth: '1000px' }}>
+                                    <i
+                                        className="bi bi-search position-absolute text-muted"
+                                        style={{
+                                            top: '50%',
+                                            left: '14px',
+                                            transform: 'translateY(-50%)',
+                                            fontSize: '14px'
+                                        }}
+                                    />
                                     <input
                                         type="text"
                                         className="form-control ps-5"
@@ -209,19 +266,64 @@ const AddEmployees = () => {
                                 </div>
 
                                 {/* Department Dropdown */}
-                                <div>
-                                    <select className="form-select" style={{
-                                        borderRadius: '8px',
-                                        fontSize: '13px',
-                                        height: '40px',
-                                        width: '150px'
-                                    }}>
-                                        <option>All Departments</option>
-                                        <option>HR</option>
-                                        <option>Sales</option>
-                                        <option>IT</option>
-                                        {/* You can map dynamic departments here */}
-                                    </select>
+                                <div style={{ position: 'relative', width: '200px', fontFamily: 'sans-serif' }}>
+                                    <div
+                                        onClick={() => setIsOpen(!isOpen)}
+                                        className="d-flex justify-content-between align-items-center"
+                                        style={{
+                                            border: '1px solid #D1D5DB',
+                                            borderRadius: '6px',
+                                            backgroundColor: '#fff',
+                                            fontSize: '14px',
+                                            padding: '10px 12px',
+                                            cursor: 'pointer',
+                                            userSelect: 'none',
+                                        }}
+                                    >
+                                        {formData.category}
+                                        <BsChevronDown className="text-muted" size={16} />
+                                    </div>
+
+                                    {isOpen && (
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                top: '44px',
+                                                left: 0,
+                                                width: '100%',
+                                                border: '1px solid #D1D5DB',
+                                                borderRadius: '6px',
+                                                backgroundColor: '#fff',
+                                                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.05)',
+                                                zIndex: 1000
+                                            }}
+                                        >
+                                            {categoryOptions.map((option) => (
+                                                <div
+                                                    key={option}
+                                                    onClick={() => {
+                                                        setFormData((prev) => ({ ...prev, category: option }));
+                                                        setIsOpen(false);
+                                                    }}
+                                                    style={{
+                                                        padding: '10px 12px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        backgroundColor: formData.category === option ? '#F0F9FF' : '#fff',
+                                                        cursor: 'pointer',
+                                                        fontSize: '14px',
+                                                        color: '#111827',
+                                                        gap: '8px'
+                                                    }}
+                                                >
+                                                    <span style={{ width: '16px', display: 'inline-block' }}>
+                                                        {formData.category === option && <BiCheck className="text-dark" size={16} />}
+                                                    </span>
+                                                    <span>{option}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* View Switch Icons */}
@@ -240,8 +342,8 @@ const AddEmployees = () => {
                                         <i className="bi bi-funnel" style={{ fontSize: '16px' }}></i>
                                     </button>
                                 </div>
-
                             </div>
+
 
                             <div className="d-flex align-items-center p-1 mb-0 mt-2"
                                 style={{ backgroundColor: "grey", borderRadius: "10px", width: "fit-content" }}>
@@ -318,98 +420,179 @@ const AddEmployees = () => {
 
                                 <div className="card-body p-0" style={{ overflow: 'visible' }}>
                                     {viewType === "list" ? (
-                                        <table className="table table-hover align-middle">
+                                        <table className="table align-middle" style={{ fontSize: '13px' }}>
                                             <thead className="table-light">
                                                 <tr>
-                                                    <th className="text-secondary fw-normal small">Employee</th>
-                                                    <th className="text-secondary fw-normal small">Current Location</th>
-                                                    <th className="text-secondary fw-normal small">Assigned Geofences</th>
-                                                    <th className="text-secondary fw-normal small">Last Active</th>
-                                                    <th className="text-secondary fw-normal small text-center">Actions</th>
+                                                    {['Employee', 'Role', 'Status', 'Current Location', 'Last Active', 'Actions'].map((heading, idx) => (
+                                                        <th
+                                                            key={idx}
+                                                            className={`text-secondary fw-normal ${heading === 'Actions' ? 'text-center' : ''}`}
+                                                            style={{ fontSize: '12px' }}
+                                                        >
+                                                            {heading}
+                                                        </th>
+                                                    ))}
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {filteredEmployees.map((emp, index) => (
-                                                    <tr key={index}>
-                                                        {/* Employee: Avatar + Name + Role */}
-                                                        {/* Employee */}
-                                                        <td className="ps-4 py-3">
-                                                            <div className="d-flex align-items-center gap-3">
-                                                                <div className="rounded-circle d-flex justify-content-center align-items-center"
-                                                                    style={{ width: 42, height: 42, backgroundColor: '#EAF3FB' }}>
-                                                                    <i className="bi bi-person text-primary fs-5"></i>
+                                                {filteredEmployees.map((emp, index) => {
+                                                    const isDeactivated = emp.status === 'Deactivated';
+
+                                                    return (
+                                                        <tr
+                                                            key={index}
+                                                            className={isDeactivated ? 'deactivated-row' : ''}
+                                                            style={{
+                                                                borderBottom: '1px solid #f0f0f0',
+                                                                verticalAlign: 'middle'
+                                                            }}
+                                                        >
+                                                            {/* Employee */}
+                                                            <td className="ps-4 py-3" style={{ color: isDeactivated ? '#6B7280' : 'inherit' }}>
+                                                                <div className="d-flex align-items-center gap-3">
+                                                                    <div
+                                                                        className="rounded-circle d-flex align-items-center justify-content-center text-white fw-semibold"
+                                                                        style={{
+                                                                            width: 36,
+                                                                            height: 36,
+                                                                            backgroundColor: isDeactivated ? '#ddd' : '#CBD5E1',
+                                                                            fontSize: '13px'
+                                                                        }}
+                                                                    >
+                                                                        {emp.name?.charAt(0).toUpperCase() || '?'}
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="fw-semibold" style={{ fontSize: '13.5px' }}>{emp.name}</div>
+                                                                        <div className="text-muted" style={{ fontSize: '12px', color: isDeactivated ? '#6B7280' : '#6B7280' }}>{emp.email}</div>
+                                                                    </div>
                                                                 </div>
-                                                                <div>
-                                                                    <div className="fw-semibold" style={{ fontSize: '14px' }}>{emp.name}</div>
-                                                                    <div className="text-muted" style={{ fontSize: '12px' }}>{emp.role || "Field Employee"}</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
+                                                            </td>
 
-                                                        {/* Current Location */}
-                                                        <td className="py-3">
-                                                            {emp.location && emp.location !== 'Offline' ? (
-                                                                <span className="d-flex align-items-center text-dark" style={{ fontSize: '13px' }}>
-                                                                    <i class="bi bi-geo-alt me-1 text-primary"></i>{emp.location}
-                                                                </span>
-                                                            ) : (
-                                                                <span className="badge rounded-pill bg-light text-muted px-3 py-2" style={{ fontSize: '12px' }}>Offline</span>
-                                                            )}
-                                                        </td>
+                                                            {/* Role */}
+                                                            <td className="py-3" style={{ fontSize: '13px', color: isDeactivated ? '#6B7280' : 'inherit' }}>{emp.role}</td>
 
-                                                        {/* Assigned Geofences */}
-                                                        <td className="py-3">
-                                                            <div className="d-flex flex-wrap gap-2">
-                                                                {(emp.geofences || []).map((g, i) => (
-                                                                    <span key={i} className="badge rounded-pill" style={{
-                                                                        backgroundColor: '#0ea5e9',
-                                                                        fontSize: '12px',
-                                                                        padding: '6px 12px'
-                                                                    }}>
-                                                                        {g}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        </td>
-
-                                                        {/* Last Active */}
-                                                        <td className="py-3">
-                                                            <span className="d-flex align-items-center text-muted" style={{ fontSize: '13px' }}>
-                                                                <i className="bi bi-clock me-1"></i>{emp.lastActive}
-                                                            </span>
-                                                        </td>
-
-                                                        {/* <td className="text-end">...</td> */}
-                                                        <td className="text-center">
-                                                            <div class="btn-group">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn p-0 border-0 bg-transparent"
-                                                                    data-bs-toggle="dropdown"
-                                                                    aria-expanded="false"
-                                                                >
-                                                                    <i className="bi bi-three-dots-vertical text-muted"></i>
-                                                                </button>
-                                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3"
+                                                            {/* Status */}
+                                                            <td className="py-3" style={{ minWidth: '130px' }}>
+                                                                <span
+                                                                    className="badge rounded-pill px-3 py-2 d-inline-flex align-items-center gap-1"
                                                                     style={{
-                                                                        backgroundColor: '#fff',
-                                                                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-                                                                        border: 'none',
-                                                                        borderRadius: '0.5rem',
-                                                                        padding: '0.5rem',
-                                                                        minWidth: '200px',
+                                                                        fontSize: '12px',
+                                                                        backgroundColor: isDeactivated ? '#F3F4F6' : '#D1FAE5',
+                                                                        color: isDeactivated ? '#374151' : '#6B7280'
                                                                     }}
                                                                 >
-                                                                    <li><a class="dropdown-item text-dark" href="#">View Profile</a></li>
-                                                                    <li><a class="dropdown-item text-dark" href="#">Edit</a></li>
-                                                                    <li><a class="dropdown-item text-dark" href="#">Assign to Geofence</a></li>
-                                                                    <li><a class="dropdown-item text-dark" href="#">View Location History</a></li>
-                                                                    {/* <li><a class="dropdown-item text-danger" href="#">Deactivate</a></li> */}
-                                                                </ul>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
+                                                                    <i className="bi bi-slash-circle"></i>
+                                                                    {emp.status}
+                                                                </span>
+                                                            </td>
+
+                                                            {/* Location */}
+                                                            <td style={{ minWidth: '160px', color: isDeactivated ? '#E5E7EB' : 'inherit' }}>
+                                                                {emp.location && emp.location !== 'Unknown' ? (
+                                                                    <span className="d-flex align-items-center" style={{ fontSize: '13px' }}>
+                                                                        <i className="bi bi-geo-alt me-1" style={{ color: isDeactivated ? '#6B7280' : '#6B7280' }}></i>{emp.location}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-muted" style={{ fontSize: '12px', color: isDeactivated ? '#6B7280' : '#6B7280' }}>Unknown</span>
+                                                                )}
+                                                            </td>
+
+                                                            {/* Last Active */}
+                                                            <td className="py-3 text-muted" style={{ fontSize: '13px', minWidth: '120px', color: isDeactivated ? '#E5E7EB' : 'inherit' }}>
+                                                                <i className="bi bi-clock me-1"></i>{emp.lastActive}
+                                                            </td>
+
+                                                            {/* Actions */}
+                                                            <td className="text-center">
+                                                                <div className="btn-group">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn p-0 border-0 bg-transparent"
+                                                                        data-bs-toggle="dropdown"
+                                                                        aria-expanded="false"
+                                                                    >
+                                                                        <i className="bi bi-three-dots-vertical" style={{ color: isDeactivated ? '#E5E7EB' : '#6B7280', fontSize: '16px' }}></i>
+                                                                    </button>
+                                                                    <ul
+                                                                        className="dropdown-menu dropdown-menu-end shadow border-0"
+                                                                        style={{
+                                                                            backgroundColor: '#ffffff',
+                                                                            borderRadius: '10px',
+                                                                            minWidth: '170px',
+                                                                            padding: '2px 0',
+                                                                            boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.12)',
+                                                                            fontSize: '10px'
+                                                                        }}
+                                                                    >
+                                                                        <li>
+                                                                            <a
+                                                                                className="dropdown-item text-dark"
+                                                                                style={{ fontWeight: 100 }}
+                                                                                href="#"
+                                                                                onClick={(e) => {
+                                                                                    e.preventDefault();
+                                                                                    setSelectedEmployee(emp);          // set current employee
+                                                                                    setShowProfileModal(true);         // open modal
+                                                                                }}
+                                                                            >
+                                                                                View Profile
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a
+                                                                                className="dropdown-item text-dark"
+                                                                                style={{ fontWeight: 100 }}
+                                                                                href="#"
+                                                                                onClick={(e) => {
+                                                                                    e.preventDefault();
+                                                                                    setSelectedEmployee(emp);
+                                                                                    setShowEditModal(true);
+                                                                                }}
+                                                                            >
+                                                                                Edit
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a
+                                                                                className="dropdown-item text-dark"
+                                                                                style={{ fontWeight: 100 }}
+                                                                                href="#"
+                                                                                onClick={(e) => {
+                                                                                    e.preventDefault();
+                                                                                    setSelectedEmployee(emp);
+                                                                                    setShowAssignModal(true);
+                                                                                }}
+                                                                            >
+                                                                                Assign to Geofence
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a className="dropdown-item text-dark" style={{ fontWeight: 100 }} href="#">
+                                                                                View Location History
+                                                                            </a>
+                                                                        </li>
+                                                                        {/* <li>
+                                                                            <hr className="dropdown-divider" />
+                                                                        </li> */}
+                                                                        <li>
+                                                                            <a
+                                                                                className="dropdown-item dropdown-item-danger"
+                                                                                href="#"
+                                                                                onClick={(e) => {
+                                                                                    e.preventDefault();
+                                                                                    setSelectedEmployee(emp);
+                                                                                    setShowDeactivateModal(true);
+                                                                                }}
+                                                                            >
+                                                                                Deactivate
+                                                                            </a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
                                             </tbody>
                                         </table>
                                     ) : (
@@ -447,7 +630,7 @@ const AddEmployees = () => {
                                                                 {emp.location ? (
                                                                     <span className="text-dark">{emp.location}</span>
                                                                 ) : (
-                                                                    <span className="badge bg-light text-muted">Offline</span>
+                                                                    <span className="badge bg-light text-muted">offline</span>
                                                                 )}
                                                             </div>
 
