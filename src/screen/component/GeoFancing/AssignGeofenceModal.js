@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
 const geofenceList = [
@@ -31,12 +31,49 @@ const geofenceList = [
 
 const AssignGeofenceModal = ({ show, handleClose, employee }) => {
     const [selected, setSelected] = useState([]);
+    const [geofenceList, setGeofenceList] = useState([]);
+    // Fetch geofences on open
+    useEffect(() => {
+        if (!show) return;
 
-    const toggleGeofence = (name) => {
+        const fetchGeofences = async () => {
+            try {
+                const res = await fetch('https://myuniversallanguages.com:9093/api/v1/tracker/getGeofencesByAssignmentStatus', {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    const combined = [
+                        ...(data.data.assigned || []),
+                        ...(data.data.unassigned || []),
+                    ];
+
+                    const formatted = combined.map((geo) => ({
+                        id: geo._id,
+                        name: geo.geoFenceName,
+                        address: geo.address,
+                        status: geo.userId && geo.userId.length > 0 ? 'assigned' : 'unassigned',
+                    }));
+
+                    setGeofenceList(formatted);
+                }
+            } catch (error) {
+                console.error('Failed to fetch geofences', error);
+            }
+        };
+
+        fetchGeofences();
+    }, [show]);
+    const toggleGeofence = (id) => {
         setSelected((prev) =>
-            prev.includes(name)
-                ? prev.filter((n) => n !== name)
-                : [...prev, name]
+            prev.includes(id)
+                ? prev.filter((n) => n !== id)
+                : [...prev, id]
         );
     };
 
@@ -79,7 +116,7 @@ const AssignGeofenceModal = ({ show, handleClose, employee }) => {
                                 className={`badge px-3 py-1 fw-medium rounded-pill text-capitalize`}
                                 style={{
                                     fontSize: '12px',
-                                    backgroundColor: geo.status === 'active' ? '#007bff' : '#6c757d',
+                                    backgroundColor: geo.status === 'assigned' ? '#007bff' : '#6c757d',
                                     color: '#fff',
                                 }}
                             >
@@ -87,8 +124,8 @@ const AssignGeofenceModal = ({ show, handleClose, employee }) => {
                             </span>
                             <input
                                 type="checkbox"
-                                checked={selected.includes(geo.name)}
-                                onChange={() => toggleGeofence(geo.name)}
+                                checked={selected.includes(geo.id)}
+                                onChange={() => toggleGeofence(geo.id)}
                                 style={{ width: '18px', height: '18px' }}
                             />
                         </div>

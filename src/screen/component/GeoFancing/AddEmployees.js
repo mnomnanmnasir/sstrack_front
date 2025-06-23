@@ -1,35 +1,25 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { FaPlus, FaMinus, FaCog } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { SnackbarProvider } from "notistack";
+import { useEffect, useRef, useState } from 'react';
 // import L from 'leaflet';
-import L from 'leaflet';
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-import 'leaflet/dist/leaflet.css';
-import GeoMap from './GeoMap';
-import StaticMap from './GeoMap';
-import 'leaflet/dist/leaflet.css';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-import { Polyline } from 'react-leaflet';
-import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
-import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import AddEmployeeModal from './AddEmployeeModal';  // Import the modal you just created
-import InviteEmployeeModal from './InviteEmployeeModal';
-import EmployeeStats from './EmployeeStats';
-import QuickStartModal from './QuickStartModal';
+import L from 'leaflet';
+import { default as icon, default as markerIcon } from 'leaflet/dist/images/marker-icon.png';
+import { default as iconShadow, default as markerShadow } from 'leaflet/dist/images/marker-shadow.png';
+import 'leaflet/dist/leaflet.css';
 import { BiCheck } from 'react-icons/bi';
 import { BsChevronDown } from 'react-icons/bs';
-import EditEmployeeModal from './EditEmployeeModal';
-import EmployeeProfileModal from './EmployeeProfileModal';
+import AddEmployeeModal from './AddEmployeeModal'; // Import the modal you just created
 import AssignGeofenceModal from './AssignGeofenceModal';
 import DeactivateEmployeeModal from './DeactivateEmployeeModal';
-
+import EditEmployeeModal from './EditEmployeeModal';
+import EmployeeProfileModal from './EmployeeProfileModal';
+import EmployeeStats from './EmployeeStats';
+import InviteEmployeeModal from './InviteEmployeeModal';
+import QuickStartModal from './QuickStartModal';
+import axios from 'axios';
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -47,12 +37,19 @@ L.Marker.prototype.options.icon = L.icon({
 });
 
 const AddEmployees = () => {
+    const token = localStorage.getItem('token');
+    const apiUrl = process.env.REACT_APP_API_URL;
+    const headers = {
+        Authorization: "Bearer " + token,
+    };
 
+    const [groups, setGroups] = useState([]);
     const [formData, setFormData] = useState({ category: 'All Departments' });
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [showProfileModal, setShowProfileModal] = useState(false);
-    // const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [users, setUsers] = useState([]);
+    const [user, setUser] = useState([]);
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showDeactivateModal, setShowDeactivateModal] = useState(false);
 
@@ -150,22 +147,78 @@ const AddEmployees = () => {
             return true; // for 'all'
         });
 
-    // useEffect(() => {
-    //     if (window.bootstrap) {
-    //         const dropdownTriggers = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-    //         dropdownTriggers.forEach(triggerEl => {
-    //             new window.bootstrap.Dropdown(triggerEl);
-    //         });
-    //     }
-    // }, [viewType, filteredEmployees]);
+    const getData = async () => {
 
-    // useEffect(() => {
-    //     const dropdownTriggers = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-    //     dropdownTriggers.forEach(triggerEl => {
-    //         new bootstrap.Dropdown(triggerEl); // using the imported bootstrap, not window.bootstrap
-    //     });
-    // }, [viewType, filteredEmployees]);
+        try {
 
+            const response = await axios.get(`${apiUrl}/owner/companies`, { headers })
+            if (response.status) {
+                localStorage.setItem("is1stUser", "true");
+
+                setUsers(() => {
+                    return response?.data?.employees?.sort((a, b) => {
+                        if (a.inviteStatus !== b.inviteStatus) {
+                            return a.inviteStatus ? 1 : -1;
+                        }
+                        if (a.isArchived !== b.isArchived) {
+                            return a.isArchive ? 1 : -1;
+                        }
+                        return 0;
+                    });
+                })
+                setGroups(() => {
+                    return response?.data?.groupsData?.sort((a, b) => {
+
+                        if (a.isArchived !== b.isArchived) {
+                            return a.isArchive ? 1 : -1;
+                        }
+                        return 0;
+                    });
+                })
+                console.log(response);
+            }
+        }
+        catch (err) {
+            console.log(err);
+
+        }
+    }
+
+    const getManagerTeam = async () => {
+
+        try {
+
+            const response = await axios.get(`${apiUrl}/manager/employees`, { headers })
+            if (response.status) {
+
+                setUsers(() => {
+                    const filterCompanies = response?.data?.convertedEmployees?.sort((a, b) => {
+                        if (a.inviteStatus !== b.inviteStatus) {
+                            return a.inviteStatus ? 1 : -1;
+                        }
+                        if (a.isArchived !== b.isArchived) {
+                            return a.isArchive ? 1 : -1;
+                        }
+                        return 0;
+                    });
+                    return filterCompanies
+                })
+                console.log(response);
+            }
+        }
+        catch (err) {
+            console.log(err);
+
+        }
+    }
+    useEffect(() => {
+        if (user?.userType === "manager") {
+            getManagerTeam();
+        }
+        else {
+            getData();
+        }
+    }, [])
 
     return (
         <>
@@ -202,7 +255,11 @@ const AddEmployees = () => {
                             </div>
 
 
-                            <AddEmployeeModal show={showModal} handleClose={() => setShowModal(false)} />
+                            <AddEmployeeModal
+                                show={showModal}
+                                handleClose={() => setShowModal(false)}
+                                users={users}
+                            />
                             <EditEmployeeModal
                                 show={showEditModal}
                                 handleClose={() => setShowEditModal(false)}
@@ -584,7 +641,7 @@ const AddEmployees = () => {
                                                                                     setShowDeactivateModal(true);
                                                                                 }}
                                                                             >
-                                                                                <span style={{ color: 'red',  }}>Deactivate</span>
+                                                                                <span style={{ color: 'red', }}>Deactivate</span>
                                                                             </a>
                                                                         </li>
 

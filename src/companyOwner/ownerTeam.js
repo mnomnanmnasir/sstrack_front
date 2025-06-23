@@ -1,29 +1,27 @@
 import axios from "axios";
 import jwtDecode from "jwt-decode";
+import moment from "moment-timezone";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from 'react-bootstrap/Modal';
 import { AiFillStar, AiOutlineUser } from 'react-icons/ai';
+import Joyride from "react-joyride";
 import 'react-loading-skeleton/dist/skeleton.css';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { FerrisWheelSpinner } from 'react-spinner-overlay';
 import '../../node_modules/sweetalert2/src/sweetalert2.scss';
+import BreakTimeModal from ".././screen/component/Modal/BreakTimeModal";
+import PunctualityModal from ".././screen/component/Modal/PunctualityModal";
 import useLoading from "../hooks/useLoading";
 import archiveIcon from "../images/archive.svg";
 import groupCompany from "../images/Group.webp";
 import inviteIcon from "../images/invitation.svg";
-import settingIcon from '../images/setting-icon.svg'
 import line from "../images/Line 3.webp";
-import OwnerTeamComponent from "./ownerTeamComponent";
-import Joyride from "react-joyride";
+import settingIcon from '../images/setting-icon.svg';
 import GroupComponent from "../screen/component/GroupComponent";
-import moment from "moment-timezone";
-import TimezoneSelect from 'react-timezone-select';
-import AutoPauseContent from "../adminScreens/settingScreenComponent/AutoPauseContent";
-import BreakTimeModal from ".././screen/component/Modal/BreakTimeModal";
-import PunctualityModal from ".././screen/component/Modal/PunctualityModal";
 import { setEmployessSetting5 } from "../store/adminSlice"; // Adjust path if needed
-import { useDispatch, useSelector } from "react-redux";
+import OwnerTeamComponent from "./ownerTeamComponent";
 
 
 

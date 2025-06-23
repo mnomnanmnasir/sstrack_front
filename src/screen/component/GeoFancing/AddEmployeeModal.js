@@ -3,11 +3,12 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { BsChevronDown } from 'react-icons/bs';
 import { BiCheck } from 'react-icons/bi'; // much thinner check icon (exact system look)
 
-const AddEmployeeModal = ({ show, handleClose }) => {
+const AddEmployeeModal = ({ show, handleClose, users = [] }) => {
 
     const [role, setRole] = useState('Field Technician');
     const [status, setStatus] = useState('Active');
-
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
     const [isRoleOpen, setIsRoleOpen] = useState(false);
     const [isStatusOpen, setIsStatusOpen] = useState(false);
 
@@ -42,20 +43,54 @@ const AddEmployeeModal = ({ show, handleClose }) => {
 
             <Modal.Body>
                 <Form>
-                    <div className="mb-3">
-                        <Form.Label className="fw-semibold small">Full Name</Form.Label>
-                        <Form.Control type="text" placeholder="John Doe" />
+                    {/* User Dropdown */}
+                    <div className="mb-3 position-relative" style={{ zIndex: 1200 }}>
+                        <Form.Label className="fw-semibold small">Select Existing User</Form.Label>
+                        <div
+                            className="border rounded-2 px-3 py-2 d-flex justify-content-between align-items-center"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                                setIsUserDropdownOpen(!isUserDropdownOpen);
+                                setIsRoleOpen(false);
+                                setIsStatusOpen(false);
+                            }}
+                        >
+                            <span>{selectedUser?.fullName || 'Choose a user...'}</span>
+                            <BsChevronDown className="text-muted" size={14} />
+                        </div>
+
+                        {isUserDropdownOpen && (
+                            <div
+                                className="border rounded-2 bg-white shadow-sm position-absolute w-100 mt-1"
+                                style={{
+                                    top: '100%',
+                                    left: 0,
+                                    maxHeight: '200px',
+                                    overflowY: 'auto',
+                                }}
+                            >
+                                {users.map((user, idx) => (
+                                    <div
+                                        key={user._id || idx}
+                                        className="px-3 py-2 d-flex align-items-center"
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => {
+                                            setSelectedUser(user);
+                                            setIsUserDropdownOpen(false);
+                                        }}
+                                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#e7f1ff')}
+                                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                                    >
+                                        <div className="me-2" style={{ width: 16 }}>
+                                            {selectedUser?._id === user._id && <BiCheck className="text-dark" size={16} />}
+                                        </div>
+                                        <span>{user.fullName} ({user.email})</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
-                    <div className="mb-3">
-                        <Form.Label className="fw-semibold small">Email Address</Form.Label>
-                        <Form.Control type="email" placeholder="john.doe@example.com" />
-                    </div>
-
-                    <div className="mb-3">
-                        <Form.Label className="fw-semibold small">Full Name</Form.Label>
-                        <Form.Control type="text" placeholder="John Doe" />
-                    </div>
 
                     {/* Role Dropdown */}
                     <div className="mb-3 position-relative" style={{ zIndex: 1100 }}>
