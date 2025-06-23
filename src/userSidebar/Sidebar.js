@@ -29,6 +29,9 @@ import InsightsIcon from '@mui/icons-material/Insights';         // 📊 Detaile
 import QueryStatsIcon from '@mui/icons-material/QueryStats';     // 📈 Punctuality Reports
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { useSocket } from '../io'; // Adjust path if needed
+import BarChartIcon from '@mui/icons-material/BarChart';
+import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 
 import { useLocation, useNavigate } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
@@ -47,6 +50,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [timelineOpen, setTimelineOpen] = useState(false);
     const [paystubOpen, setPaystubOpen] = useState(false);
+    const [geoFenceOpen, setGeoFenceOpen] = useState(false);
     const socket = useSocket();
     const [userType, setUserType] = useState(parentUserType); // initial from props
     const [loadingUsers, setLoadingUsers] = useState(false);
@@ -144,7 +148,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
         { isDropdown: 'attendance' },
 
         // { text: 'Geo Fencing', icon: <CalendarTodayIcon />, route: '/geo-fance' },
-        // { isDropdown: 'geoFence' },
+        { isDropdown: 'geoFence' },
 
         { text: 'Leave Management', icon: <CalendarTodayIcon />, route: '/leave-management' },
         { text: 'Location Tracking', icon: <MapIcon />, route: '/Locationtracking' },
@@ -161,7 +165,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
     const drawerContent = (
         // <div>
         <>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '16px 10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '16px 10px', marginLeft: '2%' }}>
                 {!collapsed && (
                     <img src={logo} alt="Logo" className="logo" style={{ height: 50, marginRight: 'auto' }} />
                 )}
@@ -190,6 +194,13 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                 <Tooltip title={collapsed ? 'Timeline' : ''} placement="right">
                                     <ListItemButton
                                         onClick={() => setTimelineOpen(!timelineOpen)}
+                                        sx={{
+                                            color: '#ffffff',
+                                            justifyContent: collapsed ? 'center' : 'flex-start',
+                                            px: collapsed ? 0 : 2,
+                                            py: 1,
+                                            ml: collapsed ? '2px' : '10px', // ✅ This ensures slight left margin even when collapsed
+                                        }}
                                     >
                                         <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
                                             <TimelineIcon />
@@ -466,15 +477,24 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                     <List component="div" disablePadding>
                                         <ListItemButton
                                             sx={{
-                                                pl: collapsed ? 2 : 6,
-                                                backgroundColor: location.pathname.includes('/timeline') ? '#7ACB59' : 'transparent',
-                                                color: '#fff'
+                                                justifyContent: collapsed ? 'center' : 'flex-start',
+                                                px: collapsed ? 0 : 2,
+                                                py: 1,
+                                                color: '#fff',
+                                                alignItems: 'center',
                                             }}
                                             onClick={() => handleNavigate('/timeline')}
                                         >
-                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                            <ListItemIcon
+                                                sx={{
+                                                    color: '#fff',
+                                                    minWidth: collapsed ? 'auto' : 40,
+                                                    justifyContent: 'center',
+                                                }}
+                                            >
                                                 <PeopleIcon />
                                             </ListItemIcon>
+
                                             {!collapsed && <ListItemText primary="Your Timeline" />}
                                         </ListItemButton>
                                     </List>
@@ -499,13 +519,23 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                 </Tooltip>
                                 <Collapse in={reportsOpen} timeout="auto" unmountOnExit>
                                     <List component="div" disablePadding>
-                                        <ListItemButton
+                                        {/* <ListItemButton
                                             sx={{
                                                 pl: collapsed ? 2 : 6,
                                                 backgroundColor: location.pathname.includes('/reports') ? '#7ACB59' : 'transparent',
                                                 color: '#fff'
                                             }}
-                                            onClick={() => handleNavigate('/reports')}>
+                                            onClick={() => handleNavigate('/reports')}> */}
+                                        <ListItemButton
+                                            onClick={() => handleNavigate('/reports')}
+                                            sx={{
+                                                color: '#ffffff',
+                                                justifyContent: collapsed ? 'center' : 'flex-start',
+                                                px: collapsed ? 0 : 2,
+                                                py: 1,
+                                                ml: collapsed ? '2px' : '10px'
+                                            }}
+                                        >
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><InsightsIcon /></ListItemIcon>
                                             {!collapsed && <ListItemText primary="Detailed Reports" />}
                                         </ListItemButton>
@@ -560,6 +590,112 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}><AlarmOnIcon /></ListItemIcon>
                                             {!collapsed && <ListItemText primary="Punctuality" />}
                                         </ListItemButton>
+                                    </List>
+                                </Collapse>
+                            </div>
+                        );
+                    }
+
+                    if (item.isDropdown === 'geoFence') {
+                        const isActive = ['/geo-fance', '/geo-fance/add', '/geo-fance/add-employees', '/geo-fance/alert', 'geo-fance/incident'].some(path =>
+                            location.pathname.includes(path)
+                        );
+                        return (
+                            <div key="geoFence-dropdown">
+                                <Tooltip title={collapsed ? 'Geo Fence' : ''} placement="right">
+                                    <ListItemButton onClick={() => setGeoFenceOpen(!geoFenceOpen)}>
+                                        <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                            <MapIcon />
+                                        </ListItemIcon>
+                                        {!collapsed && <ListItemText primary="Geo Fence" />}
+                                        {!collapsed && (geoFenceOpen ? <ExpandLess /> : <ExpandMore />)}
+                                    </ListItemButton>
+                                </Tooltip>
+                                <Collapse in={geoFenceOpen} timeout="auto" unmountOnExit>
+                                    <List component="div" disablePadding>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname === '/geo-fance' ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/geo-fance')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <DashboardIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Dashboard" />}
+                                        </ListItemButton>
+
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname === '/geo-fance/add' ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/geo-fance/add')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <AddLocationAltIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Create Geofence" />}
+                                        </ListItemButton>
+
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname === '/geo-fance/add-employees' ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/geo-fance/add-employees')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <GroupAddIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Add Employees" />}
+                                        </ListItemButton>
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname === '/geo-fance/incident' ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('geo-fance/incident')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <ReportProblemIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Incident" />}
+                                        </ListItemButton>
+
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname === '/geo-fance/alert' ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/geo-fance/alert')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <AddLocationAltIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Alerts" />}
+                                        </ListItemButton>
+
+                                        <ListItemButton
+                                            sx={{
+                                                pl: collapsed ? 2 : 6,
+                                                backgroundColor: location.pathname === '/geo-fance/reports' ? '#7ACB59' : 'transparent',
+                                                color: '#fff'
+                                            }}
+                                            onClick={() => handleNavigate('/geo-fance/reports')}
+                                        >
+                                            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                                                <BarChartIcon />
+                                            </ListItemIcon>
+                                            {!collapsed && <ListItemText primary="Reports" />}
+                                        </ListItemButton>
+
                                     </List>
                                 </Collapse>
                             </div>
@@ -647,11 +783,34 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                     const isActive = location.pathname === item.route || (location.pathname.includes(item.route) && item.route !== '/');
                     return (
                         <Tooltip title={collapsed ? item.text : ''} placement="right" key={index}>
-                            <ListItemButton onClick={() => handleNavigate(item.route)}
-                                sx={{ backgroundColor: isActive ? '#7ACB59' : 'transparent', color: '#ffffff' }}>
-                                <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>{item.icon}</ListItemIcon>
-                                {!collapsed && <ListItemText primary={item.text} />}
+                            <ListItemButton
+                                onClick={() => handleNavigate(item.route)}
+                                sx={{
+                                    backgroundColor: isActive ? '#7ACB59' : 'transparent',
+                                    color: '#ffffff',
+                                    justifyContent: collapsed ? 'center' : 'flex-start',
+                                    px: collapsed ? 0 : 2,
+                                    py: 1,
+                                }}
+                            >
+                                <ListItemIcon
+                                    sx={{
+                                        color: '#fff',
+                                        minWidth: collapsed ? 'auto' : 40,
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    {item.icon}
+                                </ListItemIcon>
+
+                                {!collapsed && (
+                                    <ListItemText
+                                        primary={item.text}
+                                        sx={{ textAlign: 'left', whiteSpace: 'nowrap' }}
+                                    />
+                                )}
                             </ListItemButton>
+
                         </Tooltip>
                     );
                 })}
