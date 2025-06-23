@@ -136,6 +136,27 @@ const AddEmployeeModal = ({ show, handleClose, users = [] }) => {
                             </div>
                         )}
                     </div>
+                    {/* Full Name (Disabled) */}
+                    <div className="mb-3">
+                        <Form.Label className="fw-semibold small">Full Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={selectedUser?.fullName || ''}
+                            disabled
+                            placeholder="Select a user to autofill"
+                        />
+                    </div>
+
+                    {/* Email Address (Read-only) */}
+                    <div className="mb-3">
+                        <Form.Label className="fw-semibold small">Email Address</Form.Label>
+                        <Form.Control
+                            type="email"
+                            value={selectedUser?.email || ''}
+                            readOnly
+                            placeholder="Email will appear here after selection"
+                        />
+                    </div>
 
                     {/* Status Dropdown */}
                     {/* <div className="mb-3"> */}
