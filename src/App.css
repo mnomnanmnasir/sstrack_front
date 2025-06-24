@@ -898,9 +898,9 @@ nav li a {
 
 .dropdown-item {
   color: #fff !important;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 500;
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .dropdown-divider {
@@ -7182,6 +7182,11 @@ input[type="number"] {
   }
 }
 
+.react-datepicker__day--keyboard-selected {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
 .react-datepicker__day--light-green {
   background-color: #E6F4EA !important;
   /* Light green */
@@ -7242,5 +7247,3 @@ input[type="number"] {
   text-decoration: dashed !important;
   color: #000 !important;
 }
-
-
