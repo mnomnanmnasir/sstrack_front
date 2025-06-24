@@ -14,9 +14,10 @@ import { useSnackbar } from 'notistack';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+const apiUrlS = 'https://myuniversallanguages.com:9093/api/v1';
 
 const LocaitonTracking = () => {
+    const [loadingMap, setLoadingMap] = useState(false);
     const [run, setRun] = useState(true);
     const [setStepIndex] = useState(0);
     const [users, setUsers] = useState([]);
@@ -27,7 +28,6 @@ const LocaitonTracking = () => {
     const { enqueueSnackbar } = useSnackbar();
 
     const mapRef = useRef(null);
-
 
     // const summaryPreviewCount = 3;
     const items = jwtDecode(JSON.stringify(tokens));
@@ -44,14 +44,17 @@ const LocaitonTracking = () => {
     const [dataAvailability, setDataAvailability] = useState([]); // To hold dates with dataExist=true
     const [activeSummary, setActiveSummary] = useState([]);
 
-
     // State to hold map polyline data
     const [polylinePath, setPolylinePath] = useState([]);
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
-
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    // const [selectedDate, setSelectedDate] = useState(`${yyyy}-${mm}-${dd}`);
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    // const [selectedDate, setSelectedDate] = useState(`${yyyy}-${mm}-${dd}`);
 
     const handleDateChange = (date) => {
-
         setSelectedDate(date); // Update selected date as a Date object
     };
     const steps = [
@@ -91,8 +94,8 @@ const LocaitonTracking = () => {
 
             const endpoint =
                 items?.userType === "user"
-                    ? `${apiUrl}/tracker/getTrackerDataByDate/${userID}?date=${formattedDate}`
-                    : `${apiUrl}/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
+                    ? `${apiUrlS}/tracker/getTrackerDataByDate/${userID}?date=${formattedDate}`
+                    : `${apiUrlS}/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
 
             const response = await fetch(endpoint, {
                 method: "GET",
@@ -160,46 +163,69 @@ const LocaitonTracking = () => {
         }
     };
 
-
     const hasShownNoDataSnackbar = useRef(false);
 
     const fetchAvailableDates = async (uid) => {
         try {
-            hasShownNoDataSnackbar.current = false; // reset on each new user fetch
+            setLoadingMap(true); // ⬅️ Show loader before API starts
+            hasShownNoDataSnackbar.current = false;
 
             const today = new Date();
             const formattedToday = today.toISOString().split("T")[0];
 
             const response = await axios.get(
-                `${apiUrl}/tracker/getTrackerDataByDate/${uid}?date=${formattedToday}`,
+                `${apiUrlS}/tracker/getTrackerDataByDate/${uid}?date=${formattedToday}`,
                 { headers }
             );
 
             if (response.data.success) {
                 const availableDates = response.data.data.dataByDay.map(day => {
                     const [d, m, y] = day.date.split("-");
-                    const date = new Date(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
+                    const localDate = new Date(+y, +m - 1, +d); // no UTC
+                    // ✅ Use UTC to prevent timezone shift
+
                     return {
-                        value: date.toISOString(),
-                        label: `${date.toLocaleDateString("en-US", {
-                            year: "numeric", month: "long", day: "numeric"
+                        value: localDate.toISOString().split("T")[0],
+                        label: `${localDate.toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
                         })} (${day.dataExist ? 'Data Available' : 'No Data'})`,
-                        isAvailable: day.dataExist
+                        isAvailable: day.dataExist,
                     };
+
                 });
 
 
                 setDataAvailability(availableDates);
+                const firstAvailable = availableDates.find(d => d.isAvailable);
 
-                if (availableDates.length > 0) {
-                    setSelectedDate(availableDates[0].value.split("T")[0]);
-                } else {
-                    setSelectedDate(today);
+                // if (firstAvailable) {
+                //     const [year, month, day] = firstAvailable.value.split("-");
+                //     const localDate = new Date(+year, +month - 1, +day); // uses local time
+                //     setSelectedDate(localDate);
+                //     // const [year, month, day] = firstAvailable.value.split("-");
+                //     // setSelectedDate(new Date(`${year}-${month}-${day}T00:00:00`));  // ✔️ fixes it
+                //     // setSelectedDate(new Date(`${firstAvailable.value}T00:00:00`));  // ✅ UTC-safe
+                // }
+                if (firstAvailable) {
+                    // const [year, month, day] = firstAvailable.value.split("-");
+                    // const localDate = new Date(+year, +month - 1, +day);
+                    // setSelectedDate(localDate);
 
-                    if (!hasShownNoDataSnackbar.current) {
-                        enqueueSnackbar("Data not found", { variant: "warning" });
-                        hasShownNoDataSnackbar.current = true;
-                    }
+                    const [year, month, day] = firstAvailable.value.split("-");
+                    const localDate = new Date(+year, +month - 1, +day); // ✅
+                    setSelectedDate(localDate);
+                    // Format and trigger fetchData immediately
+                    const formattedDate = `${year}-${month}-${day}`;
+                    fetchData(formattedDate);
+                }
+                else {
+                    setSelectedDate(today);  // fallback
+                    // if (!hasShownNoDataSnackbar.current) {
+                    //     enqueueSnackbar("No data available for user", { variant: "warning" });
+                    //     hasShownNoDataSnackbar.current = true;
+                    // }
                 }
             }
         } catch (err) {
@@ -211,67 +237,88 @@ const LocaitonTracking = () => {
                 enqueueSnackbar("Error fetching data", { variant: "error" });
                 hasShownNoDataSnackbar.current = true;
             }
+        } finally {
+            setLoadingMap(false); // ⬅️ Hide loader after completion
         }
     };
 
     // Fetch data whenever the selected date changes
-    useEffect(() => {
-        fetchData(selectedDate);
-    }, [selectedDate]);  // ✅ run only when selectedDate changes
+    // useEffect(() => {
+    //     fetchData(selectedDate);
+    // }, [selectedDate]);  // ✅ run only when selectedDate changes
 
+    // useEffect(() => {
+    //     const yyyy = selectedDate.getFullYear();
+    //     const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    //     const dd = String(selectedDate.getDate()).padStart(2, '0');
+    //     const dateStr = `${yyyy}-${mm}-${dd}`;
+    //     fetchData(dateStr);
+    // }, [selectedDate]);
+    useEffect(() => {
+        const yyyy = selectedDate.getFullYear();
+        const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(selectedDate.getDate()).padStart(2, '0');
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+        fetchData(dateStr);
+    }, [selectedDate]);
 
     // const handleSelectUsers = (e) => {
     //     setuserId(e?.value)
     //     console.log('here', e?.value)
     // }
-
     const handleSelectUsers = (e) => {
         const selectedUserId = e?.value;
-        setuserId(selectedUserId);
-        fetchAvailableDates(selectedUserId);  // <-- this line
-    };
 
-    const animatedComponents = makeAnimated();
-
-    useEffect(() => {
-        if (userID) {
-            fetchAvailableDates(userID);
-        }
-    }, [userID]);  // ✅ run only when userID changes
-
-
-    useEffect(() => {
-        // Ensure polylinePath exists, is an array, and has at least one non-empty array inside
-        if (
-            !Array.isArray(polylinePath) ||
-            polylinePath.length === 0 ||
-            !Array.isArray(polylinePath[0]) ||
-            polylinePath[0].length === 0
-        ) {
-            console.warn("No valid polyline path available yet.");
+        if (!selectedUserId) {
+            enqueueSnackbar("Please select the user", { variant: "warning" });
             return;
         }
 
+        setuserId(selectedUserId);
+        fetchAvailableDates(selectedUserId);
+    };
+
+    // const handleSelectUsers = (e) => {
+    //     const selectedUserId = e?.value;
+    //     setuserId(selectedUserId);
+    //     fetchAvailableDates(selectedUserId);  // <-- this line
+    // };
+
+    const animatedComponents = makeAnimated();
+
+    // useEffect(() => {
+    //     if (userID) {
+    //         fetchAvailableDates(userID);
+    //     }
+    // }, [userID]);  // ✅ run only when userID changes
+
+
+    useEffect(() => {
         const mapContainer = document.getElementById("map");
         if (!mapContainer) {
             console.warn("Map container not found");
             return;
         }
 
+        // Clean up any previous map
         if (mapRef.current) {
             mapRef.current.remove();
             mapRef.current = null;
         }
 
-        const initialCenter = polylinePath[0][0];
-        if (!Array.isArray(initialCenter) || initialCenter.length !== 2) {
-            console.warn("Invalid initial center coordinates.");
-            return;
-        }
+        // Fallback center (New York City in this case)
+        const defaultCenter = [40.7128, -74.0060]; // You can change this to any default location
+        const initialCenter =
+            Array.isArray(polylinePath) &&
+                polylinePath.length > 0 &&
+                Array.isArray(polylinePath[0]) &&
+                polylinePath[0].length > 0
+                ? polylinePath[0][0]
+                : defaultCenter;
 
         const mapInstance = L.map(mapContainer, {
             center: initialCenter,
-            zoom: 15,
+            zoom: 13,
         });
         mapRef.current = mapInstance;
 
@@ -282,31 +329,49 @@ const LocaitonTracking = () => {
         const featureGroup = L.featureGroup().addTo(mapInstance);
 
         polylinePath.forEach((polyline) => {
-            if (!Array.isArray(polyline) || polyline.length < 2) return;
+            if (!Array.isArray(polyline) || polyline.length === 0) return;
 
-            const line = L.polyline(polyline, {
-                color: "blue",
-                weight: 8,
-                opacity: 0.9,
-            }).addTo(mapInstance);
-            featureGroup.addLayer(line);
+            // Always add polyline if at least 2 points exist
+            if (polyline.length >= 2) {
+                const line = L.polyline(polyline, {
+                    color: "blue",
+                    weight: 8,
+                    opacity: 0.9,
+                }).addTo(mapInstance);
+                featureGroup.addLayer(line);
+            }
 
-            polyline.forEach((coord, coordIndex) => {
-                if (!Array.isArray(coord) || coord.length !== 2) return;
-
-                const coordMarker = L.marker(coord, {
+            // Always show start marker if 1+ points exist
+            const start = polyline[0];
+            if (start) {
+                const startMarker = L.marker(start, {
                     icon: L.icon({
-                        iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                        iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
                         iconSize: [32, 32],
                     }),
-                    title: `Point ${coordIndex + 1}`,
+                    title: "Start Point",
                 }).addTo(mapInstance);
+                startMarker.bindPopup("Start Point");
+                featureGroup.addLayer(startMarker);
+            }
 
-                coordMarker.bindPopup(`Point ${coordIndex + 1}`);
-                featureGroup.addLayer(coordMarker);
-            });
+            // Show end marker only if distinct from start
+            const end = polyline[polyline.length - 1];
+            if (end && polyline.length > 1 && (start[0] !== end[0] || start[1] !== end[1])) {
+                const endMarker = L.marker(end, {
+                    icon: L.icon({
+                        iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                        iconSize: [32, 32],
+                    }),
+                    title: "End Point",
+                }).addTo(mapInstance);
+                endMarker.bindPopup("End Point");
+                featureGroup.addLayer(endMarker);
+            }
         });
 
+
+        // Fit bounds if polylines were drawn
         if (featureGroup.getLayers().length > 0) {
             mapInstance.fitBounds(featureGroup.getBounds(), { padding: [30, 30] });
         }
@@ -321,15 +386,11 @@ const LocaitonTracking = () => {
 
 
 
-    const customDayClassName = (date) => {
-        const dateStr = date.toISOString().split("T")[0];
 
-        const match = dataAvailability.find((d) => {
-            const originalDate = new Date(d.value);
-            const previousDate = new Date(originalDate);
-            previousDate.setDate(originalDate.getDate() - 1); // Subtract one day
-            return previousDate.toISOString().split("T")[0] === dateStr && d.isAvailable;
-        });
+    const customDayClassName = (date) => {
+        const dateStr = date.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+
+        const match = dataAvailability.find((d) => d.value === dateStr && d.isAvailable);
 
         return match ? "highlighted-date" : "";
     };
@@ -338,7 +399,7 @@ const LocaitonTracking = () => {
 
     const getManagerEmployees = async () => {
         try {
-            const response = await axios.get(`${apiUrl}/manager/employees`, { headers });
+            const response = await axios.get(`${apiUrlS}/manager/employees`, { headers });
             if (response.status === 200) {
                 // Assuming the response contains the list of employees for the manager
                 return response.data.convertedEmployees;
@@ -353,7 +414,7 @@ const LocaitonTracking = () => {
     };
     const getEmployess = async () => {
         try {
-            const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
+            const response = await axios.get(`${apiUrlS}/owner/companies`, { headers });
             if (response.status === 200) {
                 const user = items?.userType || "user";
                 let formattedUsers = [];
@@ -405,6 +466,12 @@ const LocaitonTracking = () => {
         color: white !important;
         border-radius: 50% !important;
         font-weight: bold;
+    }
+`},
+                {`
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 `}
             </style>
@@ -538,90 +605,112 @@ const LocaitonTracking = () => {
                         </div>
 
                         {/* Calendar Picker */}
-                        <div style={{ marginBottom: "20px" }}>
-                            {/* Section Title */}
-                            <h3 style={{ fontSize: "20px", color: "#28659C", fontWeight: "600" }}>
-                                Select Date
-                            </h3>
-
-                            {/* Date Picker Wrapper */}
-                            <div
-                                id="datePicker"
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    border: "1px solid #ccc",
-                                    borderRadius: "8px",
-                                    padding: "10px 12px",
-                                    width: "fit-content",
-                                    cursor: "pointer",
-                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                    backgroundColor: "#fff",
-                                    marginTop: "20px",
-                                    position: "relative",
-                                    zIndex: 1000,
-                                }}
-                            >
-                                <FaCalendarAlt
+                        {loadingMap ? (
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <div
                                     style={{
-                                        color: "#64C47C",
-                                        fontSize: "20px",
-                                        marginRight: "10px",
+                                        width: "20px",
+                                        height: "20px",
+                                        border: "3px solid #ccc",
+                                        borderTop: "3px solid #64C47C",
+                                        borderRadius: "50%",
+                                        animation: "spin 1s linear infinite",
                                     }}
                                 />
+                                <span style={{ fontSize: "14px", color: "#555" }}>Loading dates...</span>
+                            </div>
+                        ) : (
+                            <div style={{ marginBottom: "20px" }}>
+                                {/* Section Title */}
+                                <h3 style={{ fontSize: "20px", color: "#28659C", fontWeight: "600" }}>
+                                    Select Date
+                                </h3>
 
-                                <DatePicker
-                                    selected={new Date(selectedDate)}
-                                    onChange={(date) => handleDateChange(date.toISOString().split("T")[0])}
-                                    maxDate={new Date()}
-                                    dayClassName={customDayClassName}
-                                    dateFormat="yyyy-MM-dd"
-                                    customInput={
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                cursor: "pointer",
-                                            }}
-                                        >
-                                            <input
-                                                value={selectedDate}
-                                                readOnly
+                                {/* Date Picker Wrapper */}
+                                <div
+                                    id="datePicker"
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "8px",
+                                        padding: "10px 12px",
+                                        width: "fit-content",
+                                        cursor: "pointer",
+                                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                                        backgroundColor: "#fff",
+                                        marginTop: "20px",
+                                        position: "relative",
+                                        zIndex: 1000,
+                                    }}
+                                >
+                                    <FaCalendarAlt
+                                        style={{
+                                            color: "#64C47C",
+                                            fontSize: "20px",
+                                            marginRight: "10px",
+                                        }}
+                                    />
+
+                                    <DatePicker
+                                        key={selectedDate.toISOString()}  // ✅ force re-render on selectedDate change
+                                        selected={new Date(selectedDate)}
+                                        onChange={(date) => handleDateChange(date)}
+                                        maxDate={new Date()}
+                                        openToDate={new Date()}  // 👈 This ensures calendar opens on current month
+                                        dayClassName={customDayClassName}
+                                        dateFormat="yyyy-MM-dd"
+                                        customInput={
+                                            <div
                                                 style={{
-                                                    border: "none",
-                                                    outline: "none",
-                                                    fontSize: "15px",
-                                                    fontWeight: "500",
-                                                    color: "#000",
-                                                    backgroundColor: "transparent",
+                                                    display: "flex",
+                                                    alignItems: "center",
                                                     cursor: "pointer",
-                                                    paddingRight: "8px",
-                                                }}
-                                            />
-                                            <span
-                                                style={{
-                                                    fontSize: "14px",
-                                                    color: "#888",
-                                                    pointerEvents: "none",
                                                 }}
                                             >
-                                                ▼
-                                            </span>
-                                        </div>
-                                    }
+                                                <input
+                                                    value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`}
+                                                    // value={selectedDate.toISOString().split("T")[0]}
+                                                    // value={selectedDate}
+                                                    readOnly
+                                                    style={{
+                                                        border: "none",
+                                                        outline: "none",
+                                                        fontSize: "15px",
+                                                        fontWeight: "500",
+                                                        color: "#000",
+                                                        backgroundColor: "transparent",
+                                                        cursor: "pointer",
+                                                        paddingRight: "8px",
+                                                    }}
+                                                />
+                                                <span
+                                                    style={{
+                                                        fontSize: "14px",
+                                                        color: "#888",
+                                                        pointerEvents: "none",
+                                                    }}
+                                                >
+                                                    ▼
+                                                </span>
+                                            </div>
+                                        }
 
-                                    wrapperClassName="datePickerWrapper"
-                                />
+                                        wrapperClassName="datePickerWrapper"
+                                    />
+                                </div>
+
+
+
+
+
+
+
+
                             </div>
 
+                        )}
 
-
-
-
-
-
-
-                        </div>
 
                         {/* Map View */}
                         <div id="mapView" style={{ marginBottom: "20px" }}>
