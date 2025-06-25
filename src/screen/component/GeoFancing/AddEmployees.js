@@ -87,53 +87,7 @@ const AddEmployees = () => {
     const [geouser, geosetUser] = useState([]);
     const [groups, setGroups] = useState([]);
 
-    const employees = [
-        {
-            name: 'John Smith',
-            role: 'Field Technician',
-            email: 'john.smith@example.com',
-            location: 'Main Office',
-            status: 'Active',
-            geofences: ['Main Office', 'Client Site A', 'Warehouse A'],
-            lastActive: '5 min ago'
-        },
-        {
-            name: 'Sarah Johnson',
-            role: 'Service Representative',
-            email: 'sarah.johnson@example.com',
-            location: 'Client Site A',
-            status: 'Active',
-            geofences: ['Main Office'],
-            lastActive: '15 min ago'
-        },
-        {
-            name: 'Mike Jones',
-            role: 'Delivery Driver',
-            email: 'michael.brown@example.com',
-            location: 'Warehouse',
-            status: 'Active',
-            geofences: ['Main Office', 'Warehouse'],
-            lastActive: '32 min ago'
-        },
-        {
-            name: 'Emily Wilson',
-            role: 'Marketing Representative',
-            email: 'emily.davis@example.com',
-            location: 'Warehouse',
-            status: 'offline',
-            geofences: ['Main Office', 'Client Site B'],
-            lastActive: '2 days ago'
-        },
-        {
-            name: 'David Brown',
-            role: 'Support Worker',
-            email: 'david.wilson@example.com',
-            location: 'Warehouse',
-            status: 'Deactivated',
-            geofences: ['Client Site A'],
-            lastActive: '1 day ago'
-        },
-    ];
+
 
     // const filteredEmployees = employees.filter(emp =>
     //     emp.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -149,55 +103,64 @@ const AddEmployees = () => {
         setShowViewModal(false)
     };
 
-    const activeCount = employees.filter(emp => emp.status === 'online').length;
-    const inactiveCount = employees.filter(emp => emp.status === 'offline').length;
+    const activeCount = geouser.filter(emp => emp.status === 'online').length;
+    const inactiveCount = geouser.filter(emp => emp.status === 'offline').length;
 
-    const filteredEmployees = employees
+
+    const filteredEmployees = geouser
         .filter(emp => emp.name.toLowerCase().includes(searchTerm.toLowerCase()))
         .filter(emp => {
             if (employeeFilter === 'active') return emp.status === 'online';
             if (employeeFilter === 'inactive') return emp.status === 'offline';
-            return true; // for 'all'
+            return true;
         });
+
 
     const getUsersWithRoles = async () => {
         setIsLoadingEmployees(true);
         try {
-            const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/tracker/getUsersWithRoles', {
-                headers: {
-                    Authorization: "Bearer " + localStorage.getItem('token'),
+            const response = await axios.get(
+                'https://myuniversallanguages.com:9093/api/v1/tracker/getUsersWithRoles',
+                {
+                    headers: {
+                        Authorization: "Bearer " + localStorage.getItem('token'),
+                    }
                 }
-            });
+            );
 
             if (response.data.success && Array.isArray(response.data.users)) {
                 const formattedUsers = response.data.users.map(user => {
-                    // Determine status
+                    const isDeactivated = user.status === "deactivated";
+                    const isOnline = user.isActiveOnMb === true;
+
                     let status = "offline";
-                    if (user.status === "deactivated") {
+                    if (isDeactivated) {
                         status = "Deactivated";
-                    } else if (user.isActiveOnMb) {
+                    } else if (isOnline) {
                         status = "online";
                     }
 
                     return {
                         _id: user._id,
-                        name: user.name,
-                        email: user.email,
+                        name: user.name || "Unnamed",
+                        email: user.email || "No email",
                         role: user.role?.name || "Unknown",
-                        status: status,
+                        status,
                         lastActive: user.lastActiveOnMb || "Unknown",
                         location: user.currentLocation || "Unknown",
+                        geofences: user.geofences || [],
                     };
                 });
 
                 geosetUser(formattedUsers);
             }
         } catch (error) {
-            console.error("Failed to fetch users with roles:", error);
+            console.error("❌ Failed to fetch users with roles:", error);
         } finally {
             setIsLoadingEmployees(false);
         }
     };
+
 
 
     useEffect(() => {
@@ -578,7 +541,7 @@ const AddEmployees = () => {
                                                         </td>
                                                     </tr>
                                                 ) : (
-                                                    geouser.map((emp, index) => {
+                                                    filteredEmployees.map((emp, index) => {
                                                         const isDeactivated = emp.status === 'Deactivated';
 
                                                         return (

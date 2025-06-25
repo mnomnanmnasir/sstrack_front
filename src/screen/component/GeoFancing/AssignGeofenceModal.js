@@ -41,7 +41,9 @@ const AssignGeofenceModal = ({ show, handleClose, employee }) => {
     };
 
     const handleSave = () => {
-        console.log(`Assigning to: ${selected.join(', ')}`);
+        const selectedGeofences = geofenceList.filter(g => selected.includes(g.name));
+        console.log("Selected Geofences:", selectedGeofences);
+        console.log("Assigned to Employee:", employee);
         handleClose();
     };
 
