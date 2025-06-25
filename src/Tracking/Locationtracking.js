@@ -1,58 +1,48 @@
-import axios from 'axios';
-import jwtDecode from 'jwt-decode';
-import * as L from "leaflet";
 
-import "leaflet/dist/leaflet.css";
 import { SnackbarProvider } from 'notistack';
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { GoogleMap, LoadScript, Polyline } from "@react-google-maps/api";
+import DatePicker from "react-datepicker";
 import { FaCalendarAlt } from "react-icons/fa";
 import Joyride from 'react-joyride';
-import makeAnimated from 'react-select/animated';
+import jwtDecode from 'jwt-decode';
 import SelectBox from '../companyOwner/ownerComponent/selectBox';
-// import { useRef } from 'react';
-import { useSnackbar } from 'notistack';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import makeAnimated from 'react-select/animated';
+import axios from 'axios';
 
-const apiUrlS = 'https://myuniversallanguages.com:9093/api/v1';
+
 
 const LocaitonTracking = () => {
-    const [loadingMap, setLoadingMap] = useState(false);
     const [run, setRun] = useState(true);
-    const [setStepIndex] = useState(0);
+    const [stepIndex, setStepIndex] = useState(0);
     const [users, setUsers] = useState([]);
     const [totalDistance, setTotalDistance] = useState(0); // Total distance in KM
     const [totalTime, setTotalTime] = useState("0h 0m");
     const tokens = localStorage.getItem("token");
-    const [showFullSummary, setShowFullSummary] = useState(false);
-    const { enqueueSnackbar } = useSnackbar();
-
-    const mapRef = useRef(null);
-
-    // const summaryPreviewCount = 3;
     const items = jwtDecode(JSON.stringify(tokens));
     const [userID, setuserId] = useState(items?._id)
-    // const [overviewData, setOverviewData] = useState({
-    //     totalDistance: "0 KM",
-    //     totalTime: "0h : 0m",
-    // });
-
+    const [overviewData, setOverviewData] = useState({
+        totalDistance: "0 KM",
+        totalTime: "0h : 0m",
+    });
     let headers = {
         Authorization: 'Bearer ' + tokens,
     }
+    const [latestSession, setLatestSession] = useState({
+        timeRange: "N/A",
+        totalTime: "0h : 0m",
+        totalDistance: "0 KM",
+    });
 
-    const [dataAvailability, setDataAvailability] = useState([]); // To hold dates with dataExist=true
+
     const [activeSummary, setActiveSummary] = useState([]);
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
     // State to hold map polyline data
     const [polylinePath, setPolylinePath] = useState([]);
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    // const [selectedDate, setSelectedDate] = useState(`${yyyy}-${mm}-${dd}`);
     const [selectedDate, setSelectedDate] = useState(new Date());
-    // const [selectedDate, setSelectedDate] = useState(`${yyyy}-${mm}-${dd}`);
 
     const handleDateChange = (date) => {
         setSelectedDate(date); // Update selected date as a Date object
@@ -86,18 +76,14 @@ const LocaitonTracking = () => {
             setRun(false); // End the tour when finished
         }
     };
-    const fetchData = async (dateStr) => {
-        console.log('ahahahahahha', dateStr);
+    const fetchData = async (date) => {
         try {
-            const formattedDate = dateStr; // Already in YYYY-MM-DD format
+            const formattedDate = date.toISOString().split("T")[0]; // Format to YYYY-MM-DD
             const token = localStorage.getItem("token");
-
-            const endpoint =
-                items?.userType === "user"
-                    ? `${apiUrlS}/tracker/getTrackerDataByDate/${userID}?date=${formattedDate}`
-                    : `${apiUrlS}/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
-
-            const response = await fetch(endpoint, {
+            const apiUrl = items?.userType === "user"
+                ? `https://myuniversallanguages.com:9093/api/v1/tracker/getTrackerData?date=${formattedDate}`
+                : `https://myuniversallanguages.com:9093/api/v1/owner/getTrackerDataByUser/${userID}?date=${formattedDate}`;
+            const response = await fetch(apiUrl, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -105,8 +91,11 @@ const LocaitonTracking = () => {
                 },
             });
 
+
             if (!response.ok) {
-                console.log("Response not OK:", response.status);
+                // const error = await response.json();
+                // throw new Error(`HTTP error! status: ${response.status}`);
+                console.log('response.status', response)
             }
 
             const data = await response.json();
@@ -151,10 +140,10 @@ const LocaitonTracking = () => {
                 const totalMinutes = totalTimeMinutes % 60;
 
                 // Update the states
-                setTotalDistance(totalDistance.toFixed(2));
-                setTotalTime(`${totalHours}h ${totalMinutes}m`);
-                setActiveSummary(activeSummary);
-                setPolylinePath(polylines);
+                setTotalDistance(totalDistance.toFixed(2)); // Update total distance
+                setTotalTime(`${totalHours}h ${totalMinutes}m`); // Update total time
+                setActiveSummary(activeSummary); // Update active summary
+                setPolylinePath(polylines); // Update polylines
             } else {
                 console.error("API call was not successful.");
             }
@@ -163,243 +152,45 @@ const LocaitonTracking = () => {
         }
     };
 
-    const hasShownNoDataSnackbar = useRef(false);
-
-    const fetchAvailableDates = async (uid) => {
-        try {
-            setLoadingMap(true); // ⬅️ Show loader before API starts
-            hasShownNoDataSnackbar.current = false;
-
-            const today = new Date();
-            const formattedToday = today.toISOString().split("T")[0];
-
-            const response = await axios.get(
-                `${apiUrlS}/tracker/getTrackerDataByDate/${uid}?date=${formattedToday}`,
-                { headers }
-            );
-
-            if (response.data.success) {
-                const availableDates = response.data.data.dataByDay.map(day => {
-                    const [d, m, y] = day.date.split("-");
-                    const localDate = new Date(+y, +m - 1, +d); // no UTC
-                    // ✅ Use UTC to prevent timezone shift
-
-                    return {
-                        value: localDate.toISOString().split("T")[0],
-                        label: `${localDate.toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                        })} (${day.dataExist ? 'Data Available' : 'No Data'})`,
-                        isAvailable: day.dataExist,
-                    };
-
-                });
-
-
-                setDataAvailability(availableDates);
-                const firstAvailable = availableDates.find(d => d.isAvailable);
-
-                // if (firstAvailable) {
-                //     const [year, month, day] = firstAvailable.value.split("-");
-                //     const localDate = new Date(+year, +month - 1, +day); // uses local time
-                //     setSelectedDate(localDate);
-                //     // const [year, month, day] = firstAvailable.value.split("-");
-                //     // setSelectedDate(new Date(`${year}-${month}-${day}T00:00:00`));  // ✔️ fixes it
-                //     // setSelectedDate(new Date(`${firstAvailable.value}T00:00:00`));  // ✅ UTC-safe
-                // }
-                if (firstAvailable) {
-                    // const [year, month, day] = firstAvailable.value.split("-");
-                    // const localDate = new Date(+year, +month - 1, +day);
-                    // setSelectedDate(localDate);
-
-                    const [year, month, day] = firstAvailable.value.split("-");
-                    const localDate = new Date(+year, +month - 1, +day); // ✅
-                    setSelectedDate(localDate);
-                    // Format and trigger fetchData immediately
-                    const formattedDate = `${year}-${month}-${day}`;
-                    fetchData(formattedDate);
-                }
-                else {
-                    setSelectedDate(today);  // fallback
-                    // if (!hasShownNoDataSnackbar.current) {
-                    //     enqueueSnackbar("No data available for user", { variant: "warning" });
-                    //     hasShownNoDataSnackbar.current = true;
-                    // }
-                }
-            }
-        } catch (err) {
-            console.error("Error fetching availability:", err);
-            setDataAvailability([]);
-            setSelectedDate(new Date());
-
-            if (!hasShownNoDataSnackbar.current) {
-                enqueueSnackbar("Error fetching data", { variant: "error" });
-                hasShownNoDataSnackbar.current = true;
-            }
-        } finally {
-            setLoadingMap(false); // ⬅️ Hide loader after completion
-        }
-    };
-
     // Fetch data whenever the selected date changes
-    // useEffect(() => {
-    //     fetchData(selectedDate);
-    // }, [selectedDate]);  // ✅ run only when selectedDate changes
-
-    // useEffect(() => {
-    //     const yyyy = selectedDate.getFullYear();
-    //     const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
-    //     const dd = String(selectedDate.getDate()).padStart(2, '0');
-    //     const dateStr = `${yyyy}-${mm}-${dd}`;
-    //     fetchData(dateStr);
-    // }, [selectedDate]);
     useEffect(() => {
-        const yyyy = selectedDate.getFullYear();
-        const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
-        const dd = String(selectedDate.getDate()).padStart(2, '0');
-        const dateStr = `${yyyy}-${mm}-${dd}`;
-        fetchData(dateStr);
-    }, [selectedDate]);
+        fetchData(selectedDate);
+    }, [selectedDate, userID]);
 
-    // const handleSelectUsers = (e) => {
-    //     setuserId(e?.value)
-    //     console.log('here', e?.value)
-    // }
     const handleSelectUsers = (e) => {
-        const selectedUserId = e?.value;
-
-        if (!selectedUserId) {
-            enqueueSnackbar("Please select the user", { variant: "warning" });
-            return;
-        }
-
-        setuserId(selectedUserId);
-        fetchAvailableDates(selectedUserId);
-    };
-
-    // const handleSelectUsers = (e) => {
-    //     const selectedUserId = e?.value;
-    //     setuserId(selectedUserId);
-    //     fetchAvailableDates(selectedUserId);  // <-- this line
-    // };
-
+        setuserId(e?.value)
+        console.log('here', e?.value)
+    }
     const animatedComponents = makeAnimated();
-
-    // useEffect(() => {
-    //     if (userID) {
-    //         fetchAvailableDates(userID);
-    //     }
-    // }, [userID]);  // ✅ run only when userID changes
-
-
     useEffect(() => {
-        const mapContainer = document.getElementById("map");
-        if (!mapContainer) {
-            console.warn("Map container not found");
-            return;
-        }
+        // Determine the initial center of the map
+        const initialCenter = polylinePath.length > 0 && polylinePath[0].length > 0
+            ? polylinePath[0][0] // Use the first coordinate of the first polyline
+            : [37.7749, -122.4194]; // Default to San Francisco if no polylines are available
 
-        // Clean up any previous map
-        if (mapRef.current) {
-            mapRef.current.remove();
-            mapRef.current = null;
-        }
+        const map = L.map("map").setView(initialCenter, 13); // Set the initial view
 
-        // Fallback center (New York City in this case)
-        const defaultCenter = [40.7128, -74.0060]; // You can change this to any default location
-        const initialCenter =
-            Array.isArray(polylinePath) &&
-                polylinePath.length > 0 &&
-                Array.isArray(polylinePath[0]) &&
-                polylinePath[0].length > 0
-                ? polylinePath[0][0]
-                : defaultCenter;
-
-        const mapInstance = L.map(mapContainer, {
-            center: initialCenter,
-            zoom: 13,
-        });
-        mapRef.current = mapInstance;
-
+        // Add OpenStreetMap tiles
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: "© OpenStreetMap contributors",
-        }).addTo(mapInstance);
+        }).addTo(map);
 
-        const featureGroup = L.featureGroup().addTo(mapInstance);
-
+        // Add polylines to the map
         polylinePath.forEach((polyline) => {
-            if (!Array.isArray(polyline) || polyline.length === 0) return;
-
-            // Always add polyline if at least 2 points exist
-            if (polyline.length >= 2) {
-                const line = L.polyline(polyline, {
-                    color: "blue",
-                    weight: 8,
-                    opacity: 0.9,
-                }).addTo(mapInstance);
-                featureGroup.addLayer(line);
-            }
-
-            // Always show start marker if 1+ points exist
-            const start = polyline[0];
-            if (start) {
-                const startMarker = L.marker(start, {
-                    icon: L.icon({
-                        iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
-                        iconSize: [32, 32],
-                    }),
-                    title: "Start Point",
-                }).addTo(mapInstance);
-                startMarker.bindPopup("Start Point");
-                featureGroup.addLayer(startMarker);
-            }
-
-            // Show end marker only if distinct from start
-            const end = polyline[polyline.length - 1];
-            if (end && polyline.length > 1 && (start[0] !== end[0] || start[1] !== end[1])) {
-                const endMarker = L.marker(end, {
-                    icon: L.icon({
-                        iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                        iconSize: [32, 32],
-                    }),
-                    title: "End Point",
-                }).addTo(mapInstance);
-                endMarker.bindPopup("End Point");
-                featureGroup.addLayer(endMarker);
-            }
+            L.polyline(polyline, {
+                color: "blue",
+                weight: 4,
+            }).addTo(map);
         });
 
-
-        // Fit bounds if polylines were drawn
-        if (featureGroup.getLayers().length > 0) {
-            mapInstance.fitBounds(featureGroup.getBounds(), { padding: [30, 30] });
-        }
-
+        // Cleanup map instance on unmount
         return () => {
-            if (mapRef.current) {
-                mapRef.current.remove();
-                mapRef.current = null;
-            }
+            map.remove();
         };
     }, [polylinePath]);
-
-
-
-
-    const customDayClassName = (date) => {
-        const dateStr = date.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
-
-        const match = dataAvailability.find((d) => d.value === dateStr && d.isAvailable);
-
-        return match ? "highlighted-date" : "";
-    };
-
-
-
     const getManagerEmployees = async () => {
         try {
-            const response = await axios.get(`${apiUrlS}/manager/employees`, { headers });
+            const response = await axios.get(`${apiUrl}/manager/employees`, { headers });
             if (response.status === 200) {
                 // Assuming the response contains the list of employees for the manager
                 return response.data.convertedEmployees;
@@ -414,7 +205,7 @@ const LocaitonTracking = () => {
     };
     const getEmployess = async () => {
         try {
-            const response = await axios.get(`${apiUrlS}/owner/companies`, { headers });
+            const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
             if (response.status === 200) {
                 const user = items?.userType || "user";
                 let formattedUsers = [];
@@ -453,29 +244,10 @@ const LocaitonTracking = () => {
     const defaultValue = users.length > 0 ? [{ value: users[0].value }] : [];
     useEffect(() => {
         getEmployess();
-    }, []);  // ✅ run once on mount
-
+    }, []);
 
     return (
-
         <>
-            <style>
-                {`
-    .highlighted-date {
-        background-color: #64c47c !important;
-        color: white !important;
-        border-radius: 50% !important;
-        font-weight: bold;
-    }
-`},
-                {`
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-`}
-            </style>
-
             {items?._id === "679b223b61427668c045c659" && (
                 <Joyride
                     steps={steps}
@@ -605,112 +377,83 @@ const LocaitonTracking = () => {
                         </div>
 
                         {/* Calendar Picker */}
-                        {loadingMap ? (
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                <div
+                        <div style={{ marginBottom: "20px" }}>
+                            {/* Section Title */}
+                            <h3 style={{ fontSize: "20px", color: "#28659C", fontWeight: "600" }}>
+                                Select Date
+                            </h3>
+
+                            {/* Date Picker Wrapper */}
+                            <div
+                                id="datePicker"
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "8px",
+                                    padding: "10px 12px",
+                                    width: "fit-content",
+                                    cursor: "pointer",
+                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                                    backgroundColor: "#fff",
+                                    position: "relative", // Added for proper stacking context
+                                    zIndex: 10,
+                                }}
+                            >
+                                {/* Calendar Icon */}
+                                <FaCalendarAlt
                                     style={{
-                                        width: "20px",
-                                        height: "20px",
-                                        border: "3px solid #ccc",
-                                        borderTop: "3px solid #64C47C",
-                                        borderRadius: "50%",
-                                        animation: "spin 1s linear infinite",
+                                        color: "#64C47C",
+                                        fontSize: "20px",
+                                        marginRight: "10px",
                                     }}
                                 />
-                                <span style={{ fontSize: "14px", color: "#555" }}>Loading dates...</span>
-                            </div>
-                        ) : (
-                            <div style={{ marginBottom: "20px" }}>
-                                {/* Section Title */}
-                                <h3 style={{ fontSize: "20px", color: "#28659C", fontWeight: "600" }}>
-                                    Select Date
-                                </h3>
 
-                                {/* Date Picker Wrapper */}
-                                <div
-                                    id="datePicker"
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        border: "1px solid #ccc",
-                                        borderRadius: "8px",
-                                        padding: "10px 12px",
-                                        width: "fit-content",
-                                        cursor: "pointer",
-                                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                        backgroundColor: "#fff",
-                                        marginTop: "20px",
-                                        position: "relative",
-                                        zIndex: 1000,
-                                    }}
-                                >
-                                    <FaCalendarAlt
-                                        style={{
-                                            color: "#64C47C",
-                                            fontSize: "20px",
-                                            marginRight: "10px",
-                                        }}
-                                    />
+                                {/* DatePicker Input */}
+                                <DatePicker
 
-                                    <DatePicker
-                                        key={selectedDate.toISOString()}  // ✅ force re-render on selectedDate change
-                                        selected={new Date(selectedDate)}
-                                        onChange={(date) => handleDateChange(date)}
-                                        maxDate={new Date()}
-                                        openToDate={new Date()}  // 👈 This ensures calendar opens on current month
-                                        dayClassName={customDayClassName}
-                                        dateFormat="yyyy-MM-dd"
-                                        customInput={
-                                            <div
+                                    selected={selectedDate}
+                                    onChange={handleDateChange}
+                                    dateFormat="MMM d, yyyy EEEE" // Example: Dec 9, 2024 Monday
+                                    popperPlacement="bottom-start"
+                                    popperModifiers={[
+                                        {
+                                            name: "preventOverflow",
+                                            options: {
+                                                boundary: "viewport", // Prevents hiding in limited spaces
+                                            },
+                                        },
+                                    ]}
+                                    customInput={
+                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                            <span
                                                 style={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    cursor: "pointer",
+                                                    fontSize: "16px",
+                                                    fontWeight: "600",
+                                                    color: "#000",
+                                                    marginRight: "5px",
                                                 }}
                                             >
-                                                <input
-                                                    value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`}
-                                                    // value={selectedDate.toISOString().split("T")[0]}
-                                                    // value={selectedDate}
-                                                    readOnly
-                                                    style={{
-                                                        border: "none",
-                                                        outline: "none",
-                                                        fontSize: "15px",
-                                                        fontWeight: "500",
-                                                        color: "#000",
-                                                        backgroundColor: "transparent",
-                                                        cursor: "pointer",
-                                                        paddingRight: "8px",
-                                                    }}
-                                                />
-                                                <span
-                                                    style={{
-                                                        fontSize: "14px",
-                                                        color: "#888",
-                                                        pointerEvents: "none",
-                                                    }}
-                                                >
-                                                    ▼
-                                                </span>
-                                            </div>
-                                        }
-
-                                        wrapperClassName="datePickerWrapper"
-                                    />
-                                </div>
-
-
-
-
-
-
-
-
+                                                {selectedDate.toLocaleDateString("en-US", {
+                                                    year: "numeric",
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    weekday: "long",
+                                                })}
+                                            </span>
+                                            <span
+                                                style={{
+                                                    fontSize: "14px",
+                                                    color: "#666",
+                                                }}
+                                            >
+                                                ▼
+                                            </span>
+                                        </div>
+                                    }
+                                />
                             </div>
-
-                        )}
-
+                        </div>
 
                         {/* Map View */}
                         <div id="mapView" style={{ marginBottom: "20px" }}>
@@ -728,87 +471,78 @@ const LocaitonTracking = () => {
                                 }}
                             ></div>
                         </div>
-
+                        {/* <LoadScript googleMapsApiKey="AIzaSyAkuGHrq6iEysHhbYV7hchbKAs7nvMHc1g">
+                            <GoogleMap
+                                mapContainerStyle={mapContainerStyle}
+                                center={initialCenter}
+                                zoom={13}
+                            >
+                                {convertedPolylines.map((path, index) => (
+                                    <Polyline
+                                        key={index}
+                                        path={path}
+                                        options={{
+                                            strokeColor: "blue",
+                                            strokeWeight: 4,
+                                        }}
+                                    />
+                                ))}
+                            </GoogleMap>
+                        </LoadScript> */}
+                        {/* Active Summary */}
                         <div>
-                            <h3 style={{ fontSize: "23px", color: "#28659C", fontWeight: "600" }}>Active Summary</h3>
-
-                            <div style={{ marginBottom: "10px" }}>
-                                <button
-                                    onClick={() => setShowFullSummary(!showFullSummary)}
+                            <h3 style={{ fontSize: "23px", color: "#28659C", fontWeight: "600", }}> Active Summary</h3>
+                            <div style={{ marginBottom: "20px" }}>
+                                <ul
                                     style={{
-                                        padding: "8px 16px",
-                                        fontSize: "14px",
-                                        backgroundColor: "#28659C",
-                                        color: "#fff",
-                                        border: "none",
-                                        borderRadius: "6px",
-                                        cursor: "pointer",
-                                        marginBottom: "10px",
+                                        listStyleType: "none",
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        padding: "0",
+                                        margin: "0",
                                     }}
                                 >
-                                    {showFullSummary ? "Hide Details" : "Show All"}
-                                </button>
-
-                                {!showFullSummary && activeSummary.length > 2 && (
-                                    <div style={{ color: "#555", fontSize: "14px", fontWeight: "500" }}>
-                                        Showing 1 and {activeSummary.length} of {activeSummary.length}
-                                    </div>
-                                )}
-                            </div>
-
-                            <ul
-                                style={{
-                                    listStyleType: "none",
-                                    display: "flex",
-                                    flexWrap: "wrap",
-                                    padding: "0",
-                                    margin: "0",
-                                }}
-                            >
-                                {(showFullSummary
-                                    ? activeSummary
-                                    : activeSummary.length > 1
-                                        ? [activeSummary[0], activeSummary[activeSummary.length - 1]]
-                                        : activeSummary
-                                ).map((summary, index) => (
-                                    <li
-                                        key={index}
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            marginBottom: "10px",
-                                            marginRight: "20px",
-                                            fontSize: "14px",
-                                            fontWeight: "500",
-                                            color: "#000",
-                                        }}
-                                    >
-                                        <div
+                                    {activeSummary.map((summary, index) => (
+                                        <li
+                                            key={index}
                                             style={{
-                                                width: "12px",
-                                                height: "12px",
-                                                borderRadius: "50%",
-                                                backgroundColor: "#E6F4EA",
                                                 display: "flex",
                                                 alignItems: "center",
-                                                justifyContent: "center",
-                                                marginRight: "8px",
-                                                border: "2px solid #32CD32",
+                                                marginBottom: "10px",
+                                                marginRight: "20px", // Space between items
+                                                fontSize: "14px",
+                                                fontWeight: "500",
+                                                color: "#000",
                                             }}
                                         >
                                             <div
                                                 style={{
-                                                    width: "6px",
-                                                    height: "6px",
+                                                    width: "12px",
+                                                    height: "12px",
                                                     borderRadius: "50%",
-                                                    backgroundColor: "#32CD32",
+                                                    backgroundColor: "#E6F4EA",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    marginRight: "8px", // Space between dot and text
+                                                    border: "2px solid #32CD32",
                                                 }}
-                                            ></div>
-                                        </div>
-                                        {summary}
-                                    </li>
-                                ))}
-                            </ul>
+                                            >
+                                                <div
+                                                    style={{
+                                                        width: "6px",
+                                                        height: "6px",
+                                                        borderRadius: "50%",
+                                                        backgroundColor: "#32CD32",
+                                                    }}
+                                                ></div>
+                                            </div>
+                                            {summary}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -819,3 +553,5 @@ const LocaitonTracking = () => {
 };
 
 export default LocaitonTracking;
+
+
