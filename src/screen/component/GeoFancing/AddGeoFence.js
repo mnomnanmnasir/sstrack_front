@@ -68,9 +68,39 @@ const GeoFance = () => {
         setShowModal1(true);
     };
 
+    const fetchGeofences = async () => {
+        try {
+            setLoading(true); // Start loading
+            const token = localStorage.getItem("token");
+            const response = await fetch("https://myuniversallanguages.com:9093/api/v1/tracker/getGeofencesByAssignmentStatus", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                // ✅ Combine assigned + unassigned arrays
+                setGeofences([
+                    ...(result.data.geoFenceName || []),
+                    ...(result.data.unassigned || [])
+                ]);
+                console.log("Geofence Name:", result.data[0]?.geoFenceName);
+            } else {
+                throw new Error(result?.message || "Failed to fetch geofences");
+            }
+        } catch (error) {
+            console.error("Error fetching geofences:", error.message);
+            enqueueSnackbar(error.message, {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+        }
+    };
+
     // const fetchGeofences = async () => {
     //     try {
-    //         setLoading(true); // Start loading
+    //         setLoading(true); // Start loader
     //         const token = localStorage.getItem("token");
     //         const response = await fetch("https://myuniversallanguages.com:9093/api/v1/tracker/getGeofencesByAssignmentStatus", {
     //             headers: {
@@ -80,7 +110,6 @@ const GeoFance = () => {
     //         const result = await response.json();
 
     //         if (response.ok && result.success) {
-    //             // ✅ Combine assigned + unassigned arrays
     //             setGeofences([
     //                 ...(result.data.assigned || []),
     //                 ...(result.data.unassigned || [])
@@ -94,38 +123,10 @@ const GeoFance = () => {
     //             variant: "error",
     //             anchorOrigin: { vertical: "top", horizontal: "right" }
     //         });
+    //     } finally {
+    //         setLoading(false); // ✅ Always stop loader
     //     }
     // };
-
-    const fetchGeofences = async () => {
-        try {
-            setLoading(true); // Start loader
-            const token = localStorage.getItem("token");
-            const response = await fetch("https://myuniversallanguages.com:9093/api/v1/tracker/getGeofencesByAssignmentStatus", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            const result = await response.json();
-
-            if (response.ok && result.success) {
-                setGeofences([
-                    ...(result.data.assigned || []),
-                    ...(result.data.unassigned || [])
-                ]);
-            } else {
-                throw new Error(result?.message || "Failed to fetch geofences");
-            }
-        } catch (error) {
-            console.error("Error fetching geofences:", error.message);
-            enqueueSnackbar(error.message, {
-                variant: "error",
-                anchorOrigin: { vertical: "top", horizontal: "right" }
-            });
-        } finally {
-            setLoading(false); // ✅ Always stop loader
-        }
-    };
 
     const [form, setForm] = useState({
         latitude: '',
@@ -228,7 +229,7 @@ const GeoFance = () => {
 
     const handleLocationSearch = async (value) => {
         setQuery(value);
-        if (value.length < 3) return setSuggestions([]);
+        if (value.length < 1) return setSuggestions([]);
 
         try {
             const res = await axios.get(`https://corsproxy.io/?https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}`);

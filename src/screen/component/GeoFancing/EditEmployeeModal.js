@@ -55,14 +55,7 @@ const EditEmployeeModal = ({ show, handleClose, employee }) => {
                         />
                     </Form.Group>
 
-                    {/* <Form.Group className="mb-3">
-                        <Form.Label>Email</Form.Label>
-                        <Form.Control
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </Form.Group> */}
+                  
                     
                     {/* Role Dropdown */}
                     <div className="mb-3 position-relative" style={{ zIndex: 1100 }}>
