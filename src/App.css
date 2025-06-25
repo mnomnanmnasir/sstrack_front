@@ -224,7 +224,7 @@
   font-weight: 600 !important;
   color: #DBE3FC !important;
   border: 2px solid whitesmoke !important;
-  /* margin-right: 10px; */
+  margin-right: 10px;
   background-color: #0d3756 !important;
 
 }
@@ -326,7 +326,6 @@ nav li a {
 .logo {
   width: 215px;
   cursor: pointer;
-  /* margin-top: -0px !important; */
   margin-left: 10px;
   /* margin-top: -70px; */
   /* margin-bottom: -30%;
@@ -898,9 +897,9 @@ nav li a {
 
 .dropdown-item {
   color: #fff !important;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 500;
-  margin-top: 5px;
+  margin-top: 10px;
 }
 
 .dropdown-divider {
@@ -5010,9 +5009,9 @@ input.checkboxes:checked {
 }
 
 .ownerSectionUser1 {
-  padding: 8px 7px !important;
+  padding: 8px 10px !important;
   /* border-radius: 6px !important; */
-  color: #fff;
+  color: #7ACB59;
   font-size: 17px;
   font-weight: 500;
   cursor: pointer;
@@ -7002,7 +7001,7 @@ input[type="number"] {
 }
 
 .ownerSectionUser1.active {
-  color: #fff !important;
+  color: #7ACB59 !important;
   /* font-weight: bold; */
   font-size: 15px;
   border: none !important
@@ -7088,162 +7087,4 @@ input[type="number"] {
     font-size: 4rem;
     text-align: center !important;
   }
-}
-
-/* Remove border from react-time-picker wrapper */
-.react-time-picker__wrapper {
-  border: none !important;
-  box-shadow: none !important;
-}
-
-
-@media (min-width: 1250px) {
-  .custom-hamburger {
-    display: none !important;
-  }
-}
-
-@media (min-width: 1250px) {
-  .desktop-header-content {
-    display: none !important;
-  }
-}
-
-.text-dark {
-  color: #000 !important
-}
-
-
-.time-entry {
-  padding: 10px;
-  margin-bottom: 8px;
-  background: #f2f2f2;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.time-entry:hover {
-  background: #e6e6e6;
-}
-
-.social-icons .icon-wrapper {
-  color: white;
-  font-size: 16px;
-  border: 1px solid white;
-  border-radius: 50%;
-  padding: 8px;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  text-decoration: none;
-}
-
-.social-icons .icon-wrapper:hover {
-  background-color: white;
-  color: #000;
-}
-
-.social-icons .facebook:hover {
-  background-color: #3b5998;
-  color: white;
-  border-color: #3b5998;
-}
-
-.social-icons .instagram:hover {
-  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
-  color: white;
-  border: none;
-}
-
-.social-icons .linkedin:hover {
-  background-color: #0A66C2;
-  color: white;
-  border-color: #0A66C2;
-}
-
-.store-icon {
-  width: 172px;
-  object-fit: contain;
-  border-radius: 0 !important;
-  /* ✅ forcefully removes any rounding */
-  border: none;
-  /* optional: removes border */
-}
-
-@media (max-width: 1280px) {
-  .store-icon {
-    width: 132px;
-    /* padding: 5px; */
-    border: none;
-    /* ✅ re-confirm in media query too (optional) */
-  }
-}
-
-.react-datepicker__day--keyboard-selected {
-  background-color: transparent !important;
-  color: inherit !important;
-}
-
-.react-datepicker__day--light-green {
-  background-color: #E6F4EA !important;
-  /* Light green */
-  color: #fff !important;
-  /* Text color to match green theme */
-  border-radius: 50% !important;
-  /* Make it round like a circle */
-  font-weight: bold;
-  /* Optional for emphasis */
-  border: 2px solid #32CD32 !important;
-  /* Optional green border */
-}
-
-/* Default already handled inline: right: 4% */
-
-@media (max-width: 1280px) {
-  .producthunt-badge {
-    right: 4% !important;
-    width: 100% !important;
-  }
-}
-
-@media (max-width: 768px) {
-  .producthunt-badge {
-    right: 7% !important;
-    /* width: 22% !important; */
-  }
-}
-
-@media (max-width: 480px) {
-  .producthunt-badge {
-    right: 0.5% !important;
-    /* width: 28% !important; */
-  }
-}
-
-@media (max-width: 1230px) {
-  .producthunt-badge {
-    display: none !important;
-  }
-}
-
-.hover-green-link {
-  padding: 6px 12px;
-  text-decoration: underline;
-  color: #0E4772;
-  transition: all 0.3s ease;
-}
-
-.hover-green-link:hover {
-  color: green;
-  text-decoration: underline;
-}
-
-.show-always {
-  display: inline !important;
-  visibility: visible !important;
-  text-decoration: dashed !important;
-  color: #000 !important;
 }
