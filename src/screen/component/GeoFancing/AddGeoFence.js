@@ -1,22 +1,14 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { FaPlus, FaMinus, FaCog } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useEffect, useRef, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 // import L from 'leaflet';
-import L from 'leaflet';
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-import 'leaflet/dist/leaflet.css';
-import GeoMap from './GeoMap';
-import StaticMap from './GeoMap';
-import 'leaflet/dist/leaflet.css';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-import { Polyline } from 'react-leaflet';
-import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
 import axios from "axios";
+import L from 'leaflet';
+import { default as icon, default as markerIcon } from 'leaflet/dist/images/marker-icon.png';
+import { default as iconShadow, default as markerShadow } from 'leaflet/dist/images/marker-shadow.png';
+import 'leaflet/dist/leaflet.css';
 import QuickStartModal from './QuickStartModal';
 
 delete L.Icon.Default.prototype._getIconUrl;
