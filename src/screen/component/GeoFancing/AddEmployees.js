@@ -617,7 +617,13 @@ const AddEmployees = () => {
                                                                             data-bs-toggle="dropdown"
                                                                             aria-expanded="false"
                                                                         >
-                                                                            <i className="bi bi-three-dots-vertical" style={{ color: isDeactivated ? '#E5E7EB' : '#6B7280', fontSize: '16px' }}></i>
+                                                                            <i
+                                                                                className="bi bi-three-dots-vertical"
+                                                                                style={{
+                                                                                    color: isDeactivated ? '#E5E7EB' : '#6B7280',
+                                                                                    fontSize: '16px'
+                                                                                }}
+                                                                            ></i>
                                                                         </button>
                                                                         <ul
                                                                             className="dropdown-menu dropdown-menu-end shadow border-0"
@@ -630,40 +636,50 @@ const AddEmployees = () => {
                                                                             }}
                                                                         >
                                                                             <li>
-                                                                                <a className="dropdown-item text-dark" href="#" onClick={(e) => {
+                                                                                <a className="dropdown-item" href="#" onClick={(e) => {
                                                                                     e.preventDefault();
                                                                                     setSelectedEmployee(emp);
                                                                                     setSelectedGeofence(emp.geofences?.length ? { id: emp.geofences[0] } : null);
                                                                                     setShowViewModal(true);
-                                                                                }}>View Details</a>
+                                                                                }}>
+                                                                                    <span style={{ color: '#000' }}>View Details</span>
+                                                                                </a>
                                                                             </li>
                                                                             <li>
-                                                                                <a className="dropdown-item text-dark" href="#" onClick={(e) => {
+                                                                                <a className="dropdown-item" href="#" onClick={(e) => {
                                                                                     e.preventDefault();
                                                                                     setSelectedEmployee(emp);
                                                                                     setShowProfileModal(true);
-                                                                                }}>View Profile</a>
+                                                                                }}>
+                                                                                    <span style={{ color: '#000' }}>View Profile</span>
+                                                                                </a>
                                                                             </li>
                                                                             <li>
-                                                                                <a className="dropdown-item text-dark" href="#" onClick={(e) => {
+                                                                                <a className="dropdown-item" href="#" onClick={(e) => {
                                                                                     e.preventDefault();
                                                                                     setSelectedEmployee(emp);
                                                                                     setShowEditModal(true);
-                                                                                }}>Edit</a>
+                                                                                }}>
+                                                                                    <span style={{ color: '#000' }}>Edit</span>
+                                                                                </a>
                                                                             </li>
                                                                             <li>
-                                                                                <a className="dropdown-item text-dark" href="#" onClick={(e) => {
+                                                                                <a className="dropdown-item" href="#" onClick={(e) => {
                                                                                     e.preventDefault();
                                                                                     setSelectedEmployee(emp);
                                                                                     setShowAssignModal(true);
-                                                                                }}>Assign to Geofence</a>
+                                                                                }}>
+                                                                                    <span style={{ color: '#000' }}>Assign to Geofence</span>
+                                                                                </a>
                                                                             </li>
                                                                             <li>
-                                                                                <a className="dropdown-item text-dark" href="#" onClick={(e) => {
+                                                                                <a className="dropdown-item" href="#" onClick={(e) => {
                                                                                     e.preventDefault();
                                                                                     setSelectedEmployee(emp);
                                                                                     setShowDeactivateModal(true);
-                                                                                }}>Deactivate</a>
+                                                                                }}>
+                                                                                    <span style={{ color: '#EF4444' }}>Deactivate</span>
+                                                                                </a>
                                                                             </li>
                                                                         </ul>
                                                                     </div>
