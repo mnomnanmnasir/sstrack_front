@@ -769,6 +769,56 @@ const LocaitonTracking = () => {
     useEffect(() => {
         getEmployess();
     }, []);
+    // Converts 24-hour time string like "17:56" or "05:56" to "5:56 PM"
+    const formatTo12Hr = (time) => {
+        const [hourStr, minuteStr] = time.split(":");
+        const hour = parseInt(hourStr);
+        const suffix = hour >= 12 ? "PM" : "AM";
+        const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+        return `${displayHour}:${minuteStr} ${suffix}`;
+    };
+
+    // Main summarizer
+    const summarizeTimeline = (entries) => {
+        if (!Array.isArray(entries)) return [];
+
+        const result = [];
+        let buffer = [];
+        let lastTime = null;
+
+        for (let i = 0; i < entries.length; i++) {
+            const { location, time } = entries[i];
+
+            if (i === 0 || time !== lastTime) {
+                if (buffer.length === 1) {
+                    result.push(`${formatTo12Hr(lastTime)} - ${buffer[0]}`);
+                } else if (buffer.length > 1) {
+                    const uniqueLocations = [...new Set(buffer)];
+                    result.push(
+                        `${formatTo12Hr(lastTime)} - ${uniqueLocations.join(" → ")}${buffer.length > uniqueLocations.length ? " (repeated toggling)" : ""
+                        }`
+                    );
+                }
+                buffer = [];
+                lastTime = time;
+            }
+
+            buffer.push(location);
+        }
+
+        // Handle the final group
+        if (buffer.length === 1) {
+            result.push(`${formatTo12Hr(lastTime)} - ${buffer[0]}`);
+        } else if (buffer.length > 1) {
+            const uniqueLocations = [...new Set(buffer)];
+            result.push(
+                `${formatTo12Hr(lastTime)} - ${uniqueLocations.join(" → ")}${buffer.length > uniqueLocations.length ? " (repeated toggling)" : ""
+                }`
+            );
+        }
+
+        return result;
+    };
 
 
     return (
@@ -1357,12 +1407,19 @@ const LocaitonTracking = () => {
                                     </li>
                                 ))}
                             </ul> */}
-                            {/* {trackingSummaries.map((entry, index) => (
-                                <div key={index} style={{ marginBottom: "10px", color: "#333" }}>
-                                    <strong>Start:</strong> {entry.startTime}<br />
-                                    <strong>End:</strong> {entry.endTime}
-                                </div>
-                            ))} */}
+                            <div>
+                                <h3 style={{ fontSize: "20px", color: "#28659C", fontWeight: "600" }}>
+                                    Timeline Summary
+                                </h3>
+                                <ul style={{ paddingLeft: "0", listStyle: "none" }}>
+                                    {summarizeTimeline(filteredSummaries).map((line, index) => (
+                                        <li key={index} style={{ padding: "6px 0", fontSize: "15px", color: "#333" }}>
+                                            {line}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
 
                         </div>
                     </div>
