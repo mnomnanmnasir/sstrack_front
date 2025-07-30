@@ -3,7 +3,6 @@ import { Modal } from 'react-bootstrap';
 
 const EmployeeProfileModal = ({ show, handleClose, employee }) => {
     if (!employee) return null;
-
     const [firstName = '', lastName = ''] = employee.name?.split(' ') || [];
 
     return (
@@ -46,13 +45,13 @@ const EmployeeProfileModal = ({ show, handleClose, employee }) => {
                         <div className="col-md-6">
                             <div className="border rounded p-3">
                                 <div className="text-muted" style={{ fontSize: '14px' }}>Tasks Completed</div>
-                                <div className="fw-bold" style={{ fontSize: '20px' }}>12</div>
+                                <div className="fw-bold" style={{ fontSize: '20px' }}>{employee.completedCount}</div>
                             </div>
                         </div>
                         <div className="col-md-6">
                             <div className="border rounded p-3">
                                 <div className="text-muted" style={{ fontSize: '14px' }}>Tasks Remaining</div>
-                                <div className="fw-bold" style={{ fontSize: '20px' }}>3</div>
+                                <div className="fw-bold" style={{ fontSize: '20px' }}>{employee.inCompletedCount}</div>
                             </div>
                         </div>
                     </div>

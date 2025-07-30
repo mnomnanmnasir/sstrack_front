@@ -39,7 +39,7 @@ const ViewDetails = ({ show, handleClose, geofence }) => {
         const payload = {
             title: taskTitle,
             description,
-            location,
+            // location,
             priority: priority.toLowerCase(),
             dueDate,
             assignedTo,
@@ -57,7 +57,7 @@ const ViewDetails = ({ show, handleClose, geofence }) => {
                 },
                 body: JSON.stringify(payload),
             });
-
+            console.log("response",response)
             if (!response.ok) {
                 const error = await response.json();
                 console.error('API Error:', error);
@@ -165,7 +165,7 @@ const ViewDetails = ({ show, handleClose, geofence }) => {
                             className="btn btn-primary"
                             // style={{ backgroundColor: '#b39ddb', color: 'white' }}
                             onClick={handleSubmit}
-                            disabled={!taskTitle || !location || !dueDate}
+                            disabled={!taskTitle || !dueDate}
                         >
                             Create Task
                         </button>

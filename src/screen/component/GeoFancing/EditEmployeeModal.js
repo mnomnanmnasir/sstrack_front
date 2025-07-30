@@ -2,8 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { BsChevronDown } from 'react-icons/bs';
 import { BiCheck } from 'react-icons/bi';
+import axios from 'axios';
+import { enqueueSnackbar } from 'notistack';
 
-const EditEmployeeModal = ({ show, handleClose, employee }) => {
+const EditEmployeeModal = ({ show, handleClose, employee, onSuccess }) => {
+    const apiUrl = process.env.REACT_APP_API_URL;
+
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [role, setRole] = useState('Field Technician');
@@ -11,6 +15,7 @@ const EditEmployeeModal = ({ show, handleClose, employee }) => {
 
     const [isRoleOpen, setIsRoleOpen] = useState(false);
     const [isStatusOpen, setIsStatusOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const roles = ['Field Technician', 'Safety Officer', 'Delivery Driver', 'Site Manager'];
     const statuses = ['Active', 'Inactive', 'Offline'];
@@ -34,10 +39,42 @@ const EditEmployeeModal = ({ show, handleClose, employee }) => {
         }
     }, [employee]);
 
-    const handleSubmit = () => {
-        console.log('Updated Employee:', { name, email, role, status });
+    const handleSubmit = async () => {
+    handleClose();
+    setIsSubmitting(true);
+
+    try {
+        const token = localStorage.getItem('token');
+
+        const response = await axios.patch(
+            `${apiUrl}/tracker/updateEmployeeStatus/${employee._id}`,
+            {
+                role: role,
+                // status: status
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        console.log("response edit",response)
+        enqueueSnackbar('✅ Record Updated successfully!', { variant: 'success' });
+        // if (employee) {
+        //         employee(); // 🔥 Trigger parent API
+        //     }
         handleClose();
-    };
+            if (onSuccess) onSuccess();
+
+    } catch (error) {
+        console.error('❌ Error adding employee:', error.response?.data || error);
+        enqueueSnackbar('❌ Failed to update.', { variant: 'error' });
+    } finally {
+        setIsSubmitting(false);
+    }
+};
+
 
     return (
         <Modal show={show} onHide={handleClose} centered>
@@ -103,7 +140,7 @@ const EditEmployeeModal = ({ show, handleClose, employee }) => {
                     </div>
 
                     {/* Status Dropdown */}
-                    <div className="mb-3 position-relative" style={{ zIndex: 1000 }}>
+                    {/* <div className="mb-3 position-relative" style={{ zIndex: 1000 }}>
                         <Form.Label className="fw-semibold small">Status</Form.Label>
                         <div
                             className="border rounded-2 px-3 py-2 d-flex justify-content-between align-items-center"
@@ -139,7 +176,7 @@ const EditEmployeeModal = ({ show, handleClose, employee }) => {
                                 ))}
                             </div>
                         )}
-                    </div>
+                    </div> */}
                 </Form>
             </Modal.Body>
 

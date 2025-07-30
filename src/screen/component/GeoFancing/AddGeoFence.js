@@ -61,34 +61,40 @@ const GeoFance = () => {
     };
 
     const fetchGeofences = async () => {
-        try {
-            setLoading(true); // Start loading
-            const token = localStorage.getItem("token");
-            const response = await fetch("https://myuniversallanguages.com:9093/api/v1/tracker/getGeofencesByAssignmentStatus", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            const result = await response.json();
+    try {
+        setLoading(true); // Start loading
+        const token = localStorage.getItem("token");
 
-            if (response.ok && result.success) {
-                // ✅ Combine assigned + unassigned arrays
-                setGeofences([
-                    ...(result.data.geoFenceName || []),
-                    ...(result.data.unassigned || [])
-                ]);
-                console.log("Geofence Name:", result.data[0]?.geoFenceName);
-            } else {
-                throw new Error(result?.message || "Failed to fetch geofences");
+        const response = await fetch("https://myuniversallanguages.com:9093/api/v1/tracker/getGeofencesByAssignmentStatus", {
+            headers: {
+                Authorization: `Bearer ${token}`
             }
-        } catch (error) {
-            console.error("Error fetching geofences:", error.message);
-            enqueueSnackbar(error.message, {
-                variant: "error",
-                anchorOrigin: { vertical: "top", horizontal: "right" }
-            });
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            console.log("✅ API result:", result);
+
+            // ✅ Directly assign the array of geofences
+            setGeofences(result.data);
+
+            // ✅ Log first item safely
+            console.log("First Geofence Name:", result.data[0]?.geoFenceName);
+        } else {
+            throw new Error(result?.message || "Failed to fetch geofences");
         }
-    };
+    } catch (error) {
+        console.error("❌ Error fetching geofences:", error.message);
+        enqueueSnackbar(error.message, {
+            variant: "error",
+            anchorOrigin: { vertical: "top", horizontal: "right" }
+        });
+    } finally {
+        setLoading(false); // ✅ Stop loading in both success & failure cases
+    }
+};
+
 
     // const fetchGeofences = async () => {
     //     try {
@@ -169,7 +175,8 @@ const GeoFance = () => {
                 fromDate: '',
                 toDate: '',
                 geoFenceName: '',
-                description: ''
+                description: '',
+                radius:''
             });
             // ⬇️ Fetch updated geofences and update the list
             fetchGeofences();
@@ -501,12 +508,12 @@ const GeoFance = () => {
                                                 <div className="d-flex justify-content-between text-center">
                                                     <div>
                                                         <i className="bi bi-people text-primary"></i>
-                                                        <div>{g.userId?.length || 0}/3</div>
+                                                        <div>{g.totalUsersCount || 0}/{g.totalUsersCount || 0}</div>
                                                         <small className="text-muted">Employees</small>
                                                     </div>
                                                     <div>
                                                         <i className="bi bi-map text-primary"></i>
-                                                        <div>{g.size || '—'}</div>
+                                                        <div>{g.radius || '—'}</div>
                                                         <small className="text-muted">Size</small>
                                                     </div>
                                                     <div>
@@ -565,6 +572,7 @@ const GeoFance = () => {
                                                             </div>
                                                         ) : (
                                                             geofences
+                                                            .filter((g) => g.overallStatus === "Active")
                                                                 .filter((g) => {
                                                                     const keyword = searchTerm.toLowerCase();
                                                                     return (
@@ -573,6 +581,7 @@ const GeoFance = () => {
                                                                     );
                                                                 })
                                                                 .map((g, i) => (
+                                                                    
                                                                     <div
                                                                         key={i}
                                                                         className="bg-white rounded-4 border px-4 py-3 mb-3 shadow-sm"
@@ -592,8 +601,9 @@ const GeoFance = () => {
                                                                                 <div>
                                                                                     <div className="d-flex align-items-center mb-1">
                                                                                         <h6 className="mb-0 fw-semibold me-2">{g.geoFenceName || "Untitled"}</h6>
-                                                                                        <span className={`badge rounded-pill px-2 py-1 ${g.status === 'Active' ? 'bg-primary' : 'bg-secondary'}`}>
-                                                                                            {g.status || "Inactive"}
+                                                                                        <span className={`badge rounded-pill px-2 py-1 ${g.overallStatus === 'Active' ? 'bg-primary' : 'bg-secondary'}`}>
+                                                                                            {g.overallStatus || "Inactive"}
+                                                                                            {console.log("g.status",g.overallStatus)}
                                                                                         </span>
                                                                                     </div>
                                                                                     <p className="text-muted small mb-0">{g.address || "No address available"}</p>
@@ -607,14 +617,14 @@ const GeoFance = () => {
                                                                             <div className="col-12 col-md-4 mb-2 mb-md-0">
                                                                                 <div className="bg-light rounded-3 text-center py-2 px-3 h-100">
                                                                                     <i className="bi bi-people text-primary"></i>
-                                                                                    <div className="fw-semibold">{g.userId?.length || 0}/3</div>
+                                                                                    <div>{g.totalUsersCount || 0}/{g.totalUsersCount || 0}</div>
                                                                                     <small className="text-muted">Employees</small>
                                                                                 </div>
                                                                             </div>
                                                                             <div className="col-12 col-md-4 mb-2 mb-md-0">
                                                                                 <div className="bg-light rounded-3 text-center py-2 px-3 h-100">
                                                                                     <i className="bi bi-map text-primary"></i>
-                                                                                    <div className="fw-semibold">{g.size || '—'}</div>
+                                                                                    <div className="fw-semibold">{g.radius || '—'}</div>
                                                                                     <small className="text-muted">Size</small>
                                                                                 </div>
                                                                             </div>
@@ -1004,12 +1014,13 @@ const GeoFance = () => {
                                     }}></button>
                                 </div>
                                 <div className="modal-body">
+                                    {console.log("selectedGeofence",selectedGeofence)}
                                     <p><strong>Name:</strong> {selectedGeofence.geoFenceName}</p>
                                     <p><strong>Address:</strong> {selectedGeofence.address}</p>
-                                    <p><strong>Size:</strong> {selectedGeofence.size}</p>
+                                    <p><strong>Size:</strong> {selectedGeofence.radius}</p>
                                     <p><strong>Description:</strong> {selectedGeofence.description}</p>
                                     <p><strong>Last Event:</strong> {selectedGeofence.lastEvent}</p>
-                                    <p><strong>Status:</strong> {selectedGeofence.status}</p>
+                                    <p><strong>Status:</strong> {selectedGeofence.overallStatus}</p>
                                 </div>
                                 <div className="modal-footer">
                                     <button className="btn btn-danger">Delete</button>

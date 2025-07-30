@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
+import axios from 'axios';
 const geofenceList = [
     {
         name: 'Warehouse A',
@@ -30,6 +31,12 @@ const geofenceList = [
 ];
 
 const AssignGeofenceModal = ({ show, handleClose, employee }) => {
+const tokens = localStorage.getItem("token");
+const apiUrlS = 'https://myuniversallanguages.com:9093/api/v1/tracker';
+const headers = {
+    Authorization: 'Bearer ' + tokens,
+};
+
     const [selected, setSelected] = useState([]);
     const [geofences, setGeofences] = useState([]);
     const toggleGeofence = (id) => {
@@ -78,18 +85,72 @@ const AssignGeofenceModal = ({ show, handleClose, employee }) => {
             fetchGeofences();
         }
     }, [show]);
-    const handleSave = () => {
-        const selectedGeofences = geofences.filter(g => selected.includes(g._id));
-        console.log("Selected Geofences:", selectedGeofences);
-        console.log("Assigned to Employee:", employee);
-        handleClose();
+//     const handleSave = () => {
+//         const selectedGeofences = geofences.filter(g => selected.includes(g._id));
+//         let selectedIds = [];
+
+// if (Array.isArray(selectedGeofences)) {
+//   selectedIds = selectedGeofences.map(item => item._id);
+// } else if (selectedGeofences && typeof selectedGeofences === 'object') {
+//   selectedIds = [selectedGeofences._id];
+// }
+
+// console.log("Selected IDs:", selectedIds);
+//         console.log("Selected Geofences:", selectedGeofences);
+//         console.log("Assigned to Employee:", employee._id);
+//         handleClose();
+//     };
+
+const handleSave = async () => {
+    const selectedGeofences = geofences.filter(g => selected.includes(g._id));
+    let selectedIds = [];
+
+    if (Array.isArray(selectedGeofences)) {
+        selectedIds = selectedGeofences.map(item => item._id);
+    } else if (selectedGeofences && typeof selectedGeofences === 'object') {
+        selectedIds = [selectedGeofences._id];
+    }
+
+    const payload = {
+        geofenceIds: selectedIds,
+        userIds: [employee._id],
     };
 
+    console.log("Selected IDs:", selectedIds);
+    console.log("Assigned to Employee:", employee._id);
+
+    try {
+        const response = await axios.patch(
+            `${apiUrlS}/assignGeofenceToUser`,
+            payload,
+            { headers }
+        );
+
+        if (response.data.success) {
+                enqueueSnackbar("Geofences assigned to users successfully.", { variant: "success",anchorOrigin: { vertical: "top", horizontal: "right" } });
+        } else {
+            enqueueSnackbar(response.data, {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+            console.error('Failed to assign geofences:', response.data);
+        }
+    } catch (error) {
+        enqueueSnackbar(error.message, {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+        console.error('Error during PATCH request:', error.response ? error.response.data : error.message);
+    }
+
+    handleClose();
+};
     return (
         <>
             <SnackbarProvider />
             <Modal show={show} onHide={handleClose} centered size="lg">
-                <Modal.Body className="p-4">
+                <div className="modal-content" style={{ maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+                <Modal.Body className="p-4" style={{ overflowY: 'auto', flex: 1 }}>
                     {/* Header */}
                     <div className="d-flex justify-content-between align-items-start mb-4">
                         <div>
@@ -138,7 +199,7 @@ const AssignGeofenceModal = ({ show, handleClose, employee }) => {
                     ))}
 
                     {/* Footer buttons */}
-                    <div className="d-flex justify-content-end mt-4">
+                    {/* <div className="d-flex justify-content-end mt-4">
                         <Button
                             variant="light"
                             onClick={handleClose}
@@ -164,8 +225,40 @@ const AssignGeofenceModal = ({ show, handleClose, employee }) => {
                         >
                             Save
                         </Button>
-                    </div>
+                    </div> */}
                 </Modal.Body>
+                {/* Sticky footer */}
+        <div className="p-3 border-top d-flex justify-content-end bg-white">
+            <Button
+                variant="light"
+                onClick={handleClose}
+                style={{
+                    border: '1px solid #dee2e6',
+                    marginRight: '10px',
+                    padding: '6px 18px',
+                    borderRadius: '8px',
+                    fontWeight: '500',
+                }}
+            >
+                Cancel
+            </Button>
+            <Button
+                onClick={handleSave}
+                disabled={selected.length === 0}
+                style={{
+                    backgroundColor: selected.length === 0 ? '#cfd8dc' : '#0d6efd',
+                    borderColor: selected.length === 0 ? '#cfd8dc' : '#0d6efd',
+                    padding: '6px 20px',
+                    borderRadius: '8px',
+                    fontWeight: '500',
+                    color: '#fff',
+                    cursor: selected.length === 0 ? 'not-allowed' : 'pointer',
+                }}
+            >
+                Save
+            </Button>
+        </div>
+                </div>
             </Modal>
         </>
     );

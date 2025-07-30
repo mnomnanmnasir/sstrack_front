@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // import { Box, Grid, Typography, Card, Button } from '@mui/material';
 import {
   Box,
@@ -29,77 +29,131 @@ import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import TuneIcon from '@mui/icons-material/Tune';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import AlertRulesModal from './AlertRulesModal'; // adjust the path if needed
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import moment from 'moment';
 
 
 
 
 
 const statusColor = {
-  New: 'error',
-  Acknowledged: 'warning',
-  Resolved: 'success',
+  new: 'error',
+  acknowledged: 'warning',
+  resolved: 'success',
 };
 
 const AlertComp = () => {
-
+const navigate = useNavigate();
+const tokens = localStorage.getItem("token");
+const apiUrlS = 'https://myuniversallanguages.com:9093/api/v1/tracker';
+let headers = {
+        Authorization: 'Bearer ' + tokens,
+    }
+const [alertPriority, setAlertPriority] = useState({
+    High: 0,
+    Medium: 0,
+    Low: 0,
+  });
+  const [alertData, setAlertData] = useState([]);
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [selectedImages, setSelectedImages] = useState([]);
 
   const [openAlertRulesModal, setOpenAlertRulesModal] = useState(false);
 
-  const alertData = [
-    {
-      type: 'Geofence Exit',
-      description: 'John Smith left Main Office',
-      location: 'Main Office',
-      employee: 'John Smith',
-      time: '10:23 AM',
-      date: '2025-05-16',
-      status: 'New',
-      priority: 'High',
-    },
-    {
-      type: 'Geofence Entry',
-      description: 'Mike Jones entered Warehouse B',
-      location: 'Warehouse B',
-      employee: 'Mike Jones',
-      time: '09:45 AM',
-      date: '2025-05-16',
-      status: 'Acknowledged',
-      priority: 'Medium',
-    },
-    {
-      type: 'Schedule Violation',
-      description: 'Sarah Johnson arrived 30 minutes late',
-      location: 'Customer Site',
-      employee: 'Sarah Johnson',
-      time: '08:30 AM',
-      date: '2025-05-16',
-      status: 'Resolved',
-      priority: 'Low',
-    },
-    {
-      type: 'Geofence Exit',
-      description: 'David Brown left Downtown Area',
-      location: 'Downtown Area',
-      employee: 'David Brown',
-      time: 'Yesterday',
-      date: '2025-05-15',
-      status: 'New',
-      priority: 'High',
-    },
-    {
-      type: 'Unauthorized Access',
-      description: 'Unknown employee attempted to access Secure Zone',
-      location: 'Secure Zone',
-      employee: 'Unknown',
-      time: 'Yesterday',
-      date: '2025-05-15',
-      status: 'Acknowledged',
-      priority: 'Medium',
-    },
-  ];
 
+  const fetchAlertPriority  = async () => {
+    try {
+      const response = await axios.get(`${apiUrlS}/getAlertsByPriority`, 
+          {headers}
+      );
+      if (response.data.success) {
+          setAlertPriority(response.data.data);
+        } else {
+          console.error('API request failed:', response.data);
+        }
+    } catch (error) {
+      console.error('Error fetching alerts priority data:',error);
+    }
+  };
+
+  const fetchAlertData = async()=>{
+    try {
+      const response = await axios.get(`${apiUrlS}/getAllAlerts`, 
+          {headers}
+      );
+      if (response.data.success) {
+          setAlertData(response.data.data);
+        } else {
+          console.error('API request failed:', response.data);
+        }
+    } catch (error) {
+      
+    }
+  }
+
+  // const alertDataResult = [
+  //   {
+  //     type: 'Geofence Exit',
+  //     description: 'John Smith left Main Office',
+  //     location: 'Main Office',
+  //     employee: 'John Smith',
+  //     time: '10:23 AM',
+  //     date: '2025-05-16',
+  //     status: 'New',
+  //     priority: 'High',
+  //   },
+  //   {
+  //     type: 'Geofence Entry',
+  //     description: 'Mike Jones entered Warehouse B',
+  //     location: 'Warehouse B',
+  //     employee: 'Mike Jones',
+  //     time: '09:45 AM',
+  //     date: '2025-05-16',
+  //     status: 'Acknowledged',
+  //     priority: 'Medium',
+  //   },
+  //   {
+  //     type: 'Schedule Violation',
+  //     description: 'Sarah Johnson arrived 30 minutes late',
+  //     location: 'Customer Site',
+  //     employee: 'Sarah Johnson',
+  //     time: '08:30 AM',
+  //     date: '2025-05-16',
+  //     status: 'Resolved',
+  //     priority: 'Low',
+  //   },
+  //   {
+  //     type: 'Geofence Exit',
+  //     description: 'David Brown left Downtown Area',
+  //     location: 'Downtown Area',
+  //     employee: 'David Brown',
+  //     time: 'Yesterday',
+  //     date: '2025-05-15',
+  //     status: 'New',
+  //     priority: 'High',
+  //   },
+  //   {
+  //     type: 'Unauthorized Access',
+  //     description: 'Unknown employee attempted to access Secure Zone',
+  //     location: 'Secure Zone',
+  //     employee: 'Unknown',
+  //     time: 'Yesterday',
+  //     date: '2025-05-15',
+  //     status: 'Acknowledged',
+  //     priority: 'Medium',
+  //   },
+  // ];
+const alertDataResult = alertData?.map(item => ({
+  type: item.alertType || 'Geofence Entry',
+  description: item.description || 'Mike Jones entered Warehouse B',
+  location: item.location || 'Warehouse B',
+  employee: item.employeeId?.name || 'Mike Jones',
+  time: moment(item.createdAt).format('hh:mm a') || '09:45 AM',
+  date: moment(item.createdAt).format('YYYY-MM-DD') || '09:45 AM',
+  status: item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase() || 'Acknowledged',
+  priority: item.priority || 'Medium',
+})) || [];
   const [alertRules, setAlertRules] = useState([
     { name: 'Geofence Exit Alert', enabled: true, priority: 'Medium' },
     { name: 'Late Arrival Detection', enabled: true, priority: 'Low' },
@@ -120,8 +174,8 @@ const AlertComp = () => {
 
   const filteredAlerts =
     priorityFilter === 'All'
-      ? alertData
-      : alertData.filter((item) => item.priority === priorityFilter);
+      ? alertDataResult
+      : alertDataResult.filter((item) => item.priority === priorityFilter);
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
 
@@ -134,7 +188,11 @@ const AlertComp = () => {
     setOpenCreateModal(false);
     setSelectedImages([]); // Clear the image state
   };
-
+  console.log("alertData",alertData)
+  useEffect(() => {
+        fetchAlertPriority ()
+        fetchAlertData()
+      }, [])
   return (
     <>
       <div className="container">
@@ -182,7 +240,7 @@ const AlertComp = () => {
                   <Typography variant="body2" color="text.secondary" mb={2}>
                     Immediate attention required
                   </Typography>
-                  <Typography variant="h5" fontWeight="bold" color="error">2</Typography>
+                  <Typography variant="h5" fontWeight="bold" color="error">{alertPriority.High}</Typography>
                 </Card>
               </Grid>
 
@@ -204,7 +262,7 @@ const AlertComp = () => {
                   <Typography variant="body2" color="text.secondary" mb={2}>
                     Attention required soon
                   </Typography>
-                  <Typography variant="h5" fontWeight="bold" sx={{ color: '#fb8c00' }}>2</Typography>
+                  <Typography variant="h5" fontWeight="bold" sx={{ color: '#fb8c00' }}>{alertPriority.Medium}</Typography>
                 </Card>
               </Grid>
 
@@ -226,7 +284,7 @@ const AlertComp = () => {
                   <Typography variant="body2" color="text.secondary" mb={2}>
                     For information only
                   </Typography>
-                  <Typography variant="h5" fontWeight="bold" sx={{ color: '#2196f3' }}>1</Typography>
+                  <Typography variant="h5" fontWeight="bold" sx={{ color: '#2196f3' }}>{alertPriority.Low}</Typography>
                 </Card>
               </Grid>
             </Grid>
@@ -384,14 +442,14 @@ const AlertComp = () => {
                       <Typography variant="caption" color="text.secondary">{alert.date}</Typography>
                     </TableCell>
                     <TableCell>
-                      <Chip label={alert.status} color={statusColor[alert.status]} size="small" />
+                      <Chip label={alert.status} color={statusColor[alert.status?.toLowerCase()]} size="small" />
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
                         <Button size="small" variant="text">View</Button>
                         {alert.status !== 'Resolved' && (
                           <Button size="small" variant="outlined">
-                            {alert.status === 'Acknowledged' ? 'Resolve' : 'Acknowledge'}
+                            {alert.status?.toLowerCase() === 'acknowledged' ? 'Resolve' : 'Acknowledge'}
                           </Button>
                         )}
                       </Box>

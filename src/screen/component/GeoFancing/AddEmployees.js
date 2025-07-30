@@ -108,12 +108,17 @@ const AddEmployees = () => {
 
 
     const filteredEmployees = geouser
-        .filter(emp => emp.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        .filter(emp => {
-            if (employeeFilter === 'active') return emp.status === 'online';
-            if (employeeFilter === 'inactive') return emp.status === 'offline';
-            return true;
-        });
+  .filter(emp => emp.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  .filter(emp => {
+    if (employeeFilter === 'active') return emp.status === 'online';
+    if (employeeFilter === 'inactive') return emp.status === 'offline';
+    return true;
+  })
+  .filter(emp => {
+    if (formData.category.toLowerCase() === 'all departments') return true;
+    return emp.role?.toLowerCase() === formData.category.toLowerCase();
+  });
+
 
 
     const getUsersWithRoles = async () => {
@@ -127,6 +132,7 @@ const AddEmployees = () => {
                     }
                 }
             );
+            console.log("response roles",response)
 
             if (response.data.success && Array.isArray(response.data.users)) {
                 const formattedUsers = response.data.users.map(user => {
@@ -144,6 +150,8 @@ const AddEmployees = () => {
                         _id: user._id,
                         name: user.name || "Unnamed",
                         email: user.email || "No email",
+                        completedCount: user.completedCount || "0",
+                        inCompletedCount: user.incompleteCount || "0",
                         role: user.role?.name || "Unknown",
                         status,
                         lastActive: user.lastActiveOnMb || "Unknown",
@@ -293,6 +301,8 @@ const AddEmployees = () => {
                                 show={showEditModal}
                                 handleClose={() => setShowEditModal(false)}
                                 employee={selectedEmployee}
+                                onSuccess={getUsersWithRoles} 
+
                             />
 
                             <EmployeeProfileModal
@@ -322,8 +332,8 @@ const AddEmployees = () => {
                                 employee={selectedEmployee}
                                 onConfirm={(emp) => {
                                     // Do your logic here: API call or update state
-                                    console.log('Deactivated:', emp.name);
                                 }}
+                                onSuccess={getUsersWithRoles} 
                             />
                             {/* Invite Modal (You can build similar like AddEmployeeModal) */}
                             <InviteEmployeeModal show={showInviteModal} handleClose={() => setShowInviteModal(false)} />
@@ -543,7 +553,7 @@ const AddEmployees = () => {
                                                 ) : (
                                                     filteredEmployees.map((emp, index) => {
                                                         const isDeactivated = emp.status === 'Deactivated';
-
+                                                        console.log("emp add",emp)
                                                         return (
                                                             <tr
                                                                 key={index}
@@ -635,7 +645,7 @@ const AddEmployees = () => {
                                                                                 fontSize: '10px'
                                                                             }}
                                                                         >
-                                                                            <li>
+                                                                            {/* <li>
                                                                                 <a className="dropdown-item" href="#" onClick={(e) => {
                                                                                     e.preventDefault();
                                                                                     setSelectedEmployee(emp);
@@ -644,7 +654,7 @@ const AddEmployees = () => {
                                                                                 }}>
                                                                                     <span style={{ color: '#000' }}>View Details</span>
                                                                                 </a>
-                                                                            </li>
+                                                                            </li> */}
                                                                             <li>
                                                                                 <a className="dropdown-item" href="#" onClick={(e) => {
                                                                                     e.preventDefault();
@@ -664,13 +674,22 @@ const AddEmployees = () => {
                                                                                 </a>
                                                                             </li>
                                                                             <li>
+                                                                                {isDeactivated ?
+                                                                                <a className="dropdown-item" href="#" onClick={(e) => {
+                                                                                    
+                                                                                }}>
+                                                                                    <span style={{ color: '#c5c8cbff' }} >Assign to Geofence</span>
+                                                                                </a>:
                                                                                 <a className="dropdown-item" href="#" onClick={(e) => {
                                                                                     e.preventDefault();
                                                                                     setSelectedEmployee(emp);
                                                                                     setShowAssignModal(true);
                                                                                 }}>
-                                                                                    <span style={{ color: '#000' }}>Assign to Geofence</span>
+
+                                                                                    <span style={{ color: '#000' }} >Assign to Geofence</span>
                                                                                 </a>
+
+                                                                            }
                                                                             </li>
                                                                             <li>
                                                                                 <a className="dropdown-item" href="#" onClick={(e) => {
@@ -678,7 +697,12 @@ const AddEmployees = () => {
                                                                                     setSelectedEmployee(emp);
                                                                                     setShowDeactivateModal(true);
                                                                                 }}>
-                                                                                    <span style={{ color: '#EF4444' }}>Deactivate</span>
+                                                                                    {isDeactivated?
+                                                                                <span style={{ color: '#198754' }}>Activate</span>
+                                                                                :
+                                                                                <span style={{ color: '#EF4444' }}>Deactivate</span>
+                                                                                    
+                                                                                }
                                                                                 </a>
                                                                             </li>
                                                                         </ul>

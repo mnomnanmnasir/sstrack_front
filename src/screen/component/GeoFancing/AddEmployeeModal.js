@@ -90,8 +90,8 @@ const AddEmployeeModal = ({ show, handleClose, users = [], onEmployeeAdded }) =>
             const token = localStorage.getItem('token');
 
             const response = await axios.patch(`${apiUrl}/tracker/addEmployee`, {
-                userId: selectedUser._id,
-                roleId: selectedRole._id
+                userId: selectedUser?._id,
+                roleId: selectedRole?._id
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -157,15 +157,15 @@ const AddEmployeeModal = ({ show, handleClose, users = [], onEmployeeAdded }) =>
                                 >
                                     {users.map((user, idx) => (
                                         <div
-                                            key={user._id || idx}
+                                            key={user?._id || idx}
                                             className="px-3 py-2 d-flex align-items-center"
                                             style={{ cursor: 'pointer' }}
                                             onClick={() => {
                                                 // console.log('Clicked User:', user);
                                                 setSelectedUser({
-                                                    _id: user._id,
-                                                    name: user.name || '',
-                                                    email: user.email || ''
+                                                    _id: user?._id,
+                                                    name: user?.name || '',
+                                                    email: user?.email || ''
                                                 });
                                                 setIsUserDropdownOpen(false);
                                             }}
@@ -173,10 +173,10 @@ const AddEmployeeModal = ({ show, handleClose, users = [], onEmployeeAdded }) =>
                                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                                         >
                                             <div className="me-2" style={{ width: 16 }}>
-                                                {selectedUser?._id === user._id && <BiCheck className="text-dark" size={16} />}
+                                                {selectedUser?._id === user?._id && <BiCheck className="text-dark" size={16} />}
                                             </div>
                                             <span>
-                                                ({user.email || 'No Email'})
+                                                ({user?.email || 'No Email'})
                                             </span>
                                         </div>
                                     ))}
@@ -210,7 +210,7 @@ const AddEmployeeModal = ({ show, handleClose, users = [], onEmployeeAdded }) =>
                                 >
                                     {roles.map((item, idx) => (
                                         <div
-                                            key={item._id || idx}
+                                            key={item?._id || idx}
                                             className="d-flex align-items-center px-3 py-2"
                                             style={{ cursor: 'pointer' }}
                                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e7f1ff'}
@@ -256,14 +256,14 @@ const AddEmployeeModal = ({ show, handleClose, users = [], onEmployeeAdded }) =>
                         {/* Status Dropdown */}
                         {/* <div className="mb-3"> */}
                         <div className="mb-3 position-relative" style={{ zIndex: 1000 }}>
-                            <Form.Label className="fw-semibold small">Status</Form.Label>
+                            {/* <Form.Label className="fw-semibold small">Status</Form.Label>
                             <div className="border rounded-2 px-3 py-2 d-flex justify-content-between align-items-center"
                                 style={{ cursor: 'pointer' }}
                                 onClick={toggleStatusDropdown}
                             >
                                 <span>{status}</span>
                                 <BsChevronDown className="text-muted" size={14} />
-                            </div>
+                            </div> */}
 
                             {isStatusOpen && (
                                 <div
