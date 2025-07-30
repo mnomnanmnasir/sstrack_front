@@ -652,7 +652,7 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                                             <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
                                                 <GroupAddIcon />
                                             </ListItemIcon>
-                                            {!collapsed && <ListItemText primary="Add Employees" />}
+                                            {!collapsed && <ListItemText primary="Employees" />}
                                         </ListItemButton>
                                         <ListItemButton
                                             sx={{
