@@ -65,6 +65,13 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
     const [usersDropdownPos, setUsersDropdownPos] = useState({ top: 0, left: 0 });
     const [userStats, setUserStats] = useState(null);
 
+    // Add this effect to sync with the open prop
+    useEffect(() => {
+        if (isMobile) {
+            setMobileOpen(open);
+        }
+    }, [open, isMobile]);
+
     useEffect(() => {
         setUserType(parentUserType); // update on prop change
     }, [parentUserType]);
@@ -125,7 +132,10 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
 
     const handleNavigate = (route) => {
         navigate(route);
-        if (isMobile) setMobileOpen(false);
+        if (isMobile) {
+            setMobileOpen(false);
+             onClose(); 
+        }
     };
 
     useEffect(() => {
@@ -139,23 +149,33 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
         }
     }, [token]);
 
-    const sidebarItems = useMemo(() => [
-        { text: 'Dashboard', icon: <DashboardIcon />, route: '/dashboard' },
-        { isDropdown: 'timeline' },
-        ...(userType !== 'user' ? [{ text: 'Team', icon: <PeopleIcon />, route: '/team' }] : []),
-        ...(userType !== 'user' ? [{ text: 'Projects', icon: <FolderIcon />, route: '/Projects' }] : []),
-        { isDropdown: 'reports' },
-        { isDropdown: 'attendance' },
+    const sidebarItems = useMemo(() => {
+  const baseItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, route: '/dashboard' },
+    { isDropdown: 'timeline' },
+  ];
 
-        // { text: 'Geo Fencing', icon: <CalendarTodayIcon />, route: '/geo-fance' },
-        { isDropdown: 'geoFence' },
+  if (userType !== 'user') {
+    baseItems.push(
+      { text: 'Team', icon: <PeopleIcon />, route: '/team' },
+      { text: 'Projects', icon: <FolderIcon />, route: '/Projects' }
+    );
+  }
 
-        { text: 'Leave Management', icon: <CalendarTodayIcon />, route: '/leave-management' },
-        { text: 'Location Tracking', icon: <MapIcon />, route: '/Locationtracking' },
+  baseItems.push(
+    { isDropdown: 'reports' },
+    { isDropdown: 'attendance' },
+    { isDropdown: 'geoFence' },
+    { text: 'Leave Management', icon: <CalendarTodayIcon />, route: '/leave-management' },
+    { text: 'Location Tracking', icon: <MapIcon />, route: '/Locationtracking' }
+  );
 
-        ...(userType === 'owner' || userType === 'admin' ? [{ isDropdown: 'paystub' }] : []),
+  if (userType === 'owner' || userType === 'admin') {
+    baseItems.push({ isDropdown: 'paystub' });
+  }
 
-    ], [userType]);
+  return baseItems;
+}, [userType]); // ✅ Only depends on `userType`
 
     const filteredSidebarItems = sidebarItems.filter(item => {
         if (item.isDropdown === 'attendance' && ['manager', 'user'].includes(userType)) return false;
@@ -171,7 +191,16 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
                 )}
                 {/* ✅ Hide arrow on mobile */}
                 {!isMobile && (
-                    <IconButton onClick={() => setCollapsed(!collapsed)} sx={{ color: 'white' }}>
+                    <IconButton
+                        onClick={() => {
+                            if (isMobile) {
+                                setMobileOpen(!mobileOpen);
+                            } else {
+                                setCollapsed(!collapsed);
+                            }
+                        }}
+                        sx={{ color: 'white' }}
+                    >
                         {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
                     </IconButton>
                 )}
@@ -832,21 +861,23 @@ const Sidebar = ({ open, onClose, userType: parentUserType }) => {
 
             <Drawer
                 variant={isMobile ? 'temporary' : 'permanent'}
-                open={isMobile ? open : true}
-                onClose={onClose}
+                open={isMobile ? mobileOpen : true}  // Use mobileOpen state for mobile
+                onClose={() => {
+                    setMobileOpen(false);
+                    onClose();
+                }}
                 ModalProps={{ keepMounted: true }}
                 sx={{
                     width: isMobile ? drawerWidth : (collapsed ? collapsedWidth : drawerWidth),
                     flexShrink: 0,
-                    zIndex: 1030, // ✅ Lower than Bootstrap modal's default (1050)
+                    zIndex: 1030,
                     '& .MuiDrawer-paper': {
-                        // width: isMobile ? drawerWidth : (collapsed ? collapsedWidth : drawerWidth),
                         boxSizing: 'border-box',
                         backgroundColor: '#003366',
                         color: '#fff',
                         transition: 'width 0.3s',
                         borderRight: 'none',
-                        zIndex: 1030, // ✅ Also here
+                        zIndex: 1030,
                     },
                 }}
             >
