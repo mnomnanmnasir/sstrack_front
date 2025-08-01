@@ -32,6 +32,7 @@ import AlertRulesModal from './AlertRulesModal'; // adjust the path if needed
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import moment from 'moment';
+import { enqueueSnackbar } from 'notistack';
 
 
 
@@ -39,8 +40,8 @@ import moment from 'moment';
 
 const statusColor = {
   new: 'error',
-  acknowledged: 'warning',
-  resolved: 'success',
+  acknowledge: 'warning',
+  resolve: 'success',
 };
 
 const AlertComp = () => {
@@ -61,9 +62,13 @@ const [alertPriority, setAlertPriority] = useState({
 
   const [openAlertRulesModal, setOpenAlertRulesModal] = useState(false);
 
+const [loading, setLoading] = useState(true);
+const [searchTerm, setSearchTerm] = useState('');
+const [statusFilter, setStatusFilter] = useState('All');
 
   const fetchAlertPriority  = async () => {
     try {
+      setLoading(true); // Start loading
       const response = await axios.get(`${apiUrlS}/getAlertsByPriority`, 
           {headers}
       );
@@ -74,11 +79,14 @@ const [alertPriority, setAlertPriority] = useState({
         }
     } catch (error) {
       console.error('Error fetching alerts priority data:',error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   const fetchAlertData = async()=>{
     try {
+      setLoading(true); // Start loading
       const response = await axios.get(`${apiUrlS}/getAllAlerts`, 
           {headers}
       );
@@ -87,6 +95,60 @@ const [alertPriority, setAlertPriority] = useState({
         } else {
           console.error('API request failed:', response.data);
         }
+    } catch (error) {
+      console.error('Error fetching alerts data:',error);
+      
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  }
+
+  const fetchUpdateAlertStatus =async(id, status)=>{
+    console.log("id",id)
+    console.log("status",status)
+    try {
+      setLoading(true); // Start loading
+      const token = localStorage.getItem('token');
+
+        const response = await axios.patch(
+            `${apiUrlS}/updateAlertStatus/${id}`,
+            {
+                status: status,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        // console.log("Update",response)
+        fetchAlertData()
+        enqueueSnackbar('✅ Status Updated successfully!', { variant: 'success' });
+    } catch (error) {
+        console.error('Error:',error);
+        enqueueSnackbar('❌ Failed to update.', { variant: 'error' });
+    } finally {
+        setLoading(false); // Stop loading
+    }
+  }
+
+  const postAddAlert =async()=>{
+    try {
+      const response = await axios.post(
+                `${apiUrlS}/addAlert`,
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+             if (response.status === 200) {
+              console.log(response.status)
+             }
     } catch (error) {
       
     }
@@ -145,13 +207,14 @@ const [alertPriority, setAlertPriority] = useState({
   //   },
   // ];
 const alertDataResult = alertData?.map(item => ({
+  id: item._id,
   type: item.alertType || 'Geofence Entry',
   description: item.description || 'Mike Jones entered Warehouse B',
   location: item.location || 'Warehouse B',
   employee: item.employeeId?.name || 'Mike Jones',
   time: moment(item.createdAt).format('hh:mm a') || '09:45 AM',
   date: moment(item.createdAt).format('YYYY-MM-DD') || '09:45 AM',
-  status: item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase() || 'Acknowledged',
+  status: item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase() || 'Acknowledge',
   priority: item.priority || 'Medium',
 })) || [];
   const [alertRules, setAlertRules] = useState([
@@ -172,10 +235,16 @@ const alertDataResult = alertData?.map(item => ({
     setAlertRules(updated);
   };
 
-  const filteredAlerts =
-    priorityFilter === 'All'
-      ? alertDataResult
-      : alertDataResult.filter((item) => item.priority === priorityFilter);
+  const filteredAlerts = alertDataResult.filter((item) => {
+  const matchesPriority = priorityFilter === 'All' || item.priority === priorityFilter;
+  const matchesStatus = statusFilter === 'All' || item.status === statusFilter;
+  const matchesSearch =
+    item.employee.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.type.toLowerCase().includes(searchTerm.toLowerCase());
+
+  return matchesPriority && matchesStatus && matchesSearch;
+});
+
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
 
@@ -188,7 +257,6 @@ const alertDataResult = alertData?.map(item => ({
     setOpenCreateModal(false);
     setSelectedImages([]); // Clear the image state
   };
-  console.log("alertData",alertData)
   useEffect(() => {
         fetchAlertPriority ()
         fetchAlertData()
@@ -335,30 +403,35 @@ const alertDataResult = alertData?.map(item => ({
 
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 4, mb: 2, flexWrap: 'wrap' }}>
             <TextField
-              placeholder="Search alerts..."
-              size="small"
-              variant="outlined"
-              sx={{ flexGrow: 1 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
+  placeholder="Search alerts..."
+  size="small"
+  variant="outlined"
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  sx={{ flexGrow: 1 }}
+  InputProps={{
+    startAdornment: (
+      <InputAdornment position="start">
+        <SearchIcon />
+      </InputAdornment>
+    ),
+  }}
+/>
+
             <TextField
-              select
-              size="small"
-              variant="outlined"
-              defaultValue="All"
-              sx={{ minWidth: 150 }}
-            >
-              <MenuItem value="All">All Statuses</MenuItem>
-              <MenuItem value="New">New</MenuItem>
-              <MenuItem value="Acknowledged">Acknowledged</MenuItem>
-              <MenuItem value="Resolved">Resolved</MenuItem>
-            </TextField>
+  select
+  size="small"
+  variant="outlined"
+  value={statusFilter}
+  onChange={(e) => setStatusFilter(e.target.value)}
+  sx={{ minWidth: 150 }}
+>
+  <MenuItem value="All">All Statuses</MenuItem>
+  <MenuItem value="New">New</MenuItem>
+  <MenuItem value="Acknowledge">Acknowledged</MenuItem>
+  <MenuItem value="Resolve">Resolved</MenuItem>
+</TextField>
+
             <IconButton sx={{ border: '1px solid #ccc', borderRadius: 1 }}>
               <TuneIcon />
             </IconButton>
@@ -416,7 +489,11 @@ const alertDataResult = alertData?.map(item => ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredAlerts.map((alert, index) => (
+
+                {loading ? (
+        <p className="text-muted">Loading geofence data...</p>
+      ) : filteredAlerts.length > 0 ? (
+                filteredAlerts.map((alert, index) => (
                   <TableRow key={index}>
                     <TableCell>
                       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -446,16 +523,20 @@ const alertDataResult = alertData?.map(item => ({
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button size="small" variant="text">View</Button>
-                        {alert.status !== 'Resolved' && (
-                          <Button size="small" variant="outlined">
-                            {alert.status?.toLowerCase() === 'acknowledged' ? 'Resolve' : 'Acknowledge'}
+                        {/* <Button size="small" variant="text">View</Button> */}
+                        {alert.status !== 'Resolve' && (
+                          <Button size="small" variant="outlined" onClick={()=>{fetchUpdateAlertStatus(alert.id,alert.status?.toLowerCase() === 'acknowledge' ? 'Resolve' : 'Acknowledge')}}>
+                            {alert.status?.toLowerCase() === 'acknowledge' ? 'Resolve' : 'Acknowledge' }
                           </Button>
                         )}
                       </Box>
                     </TableCell>
                   </TableRow>
-                ))}
+                ))
+
+                ) : (
+        <p className="text-muted">No geofence data found.</p>
+      )}
               </TableBody>
             </Table>
           </Paper>
